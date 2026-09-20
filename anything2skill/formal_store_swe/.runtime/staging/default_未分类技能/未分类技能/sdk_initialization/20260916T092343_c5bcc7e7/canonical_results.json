@@ -1,0 +1,156 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "sdk_initialization",
+  "run_id": "20260916T092343_c5bcc7e7",
+  "skills": [
+    {
+      "skill_id": "c9cf6cff-970b-5e93-8e61-f543e257085e",
+      "name": "Initialize SDK with Fallback",
+      "description": "Automatically initialize the AgentOps SDK using environment variables or defaults if not already initialized, with error logging and graceful failure handling. Ensures the tracer is ready before downstream operations attempt to use it.",
+      "skill_body": "Check if tracer.initialized is False. If so, attempt init() with environment variables or defaults. Log warnings and errors at each stage. Return success only if tracer.initialized becomes True after init(); otherwise return None and log the failure reason.\n\n## Objective\n\nEnsure SDK is ready before trace operations\n## Applicable Signals\n\n- tracer.initialized == False\n- Caller attempts trace operation without explicit prior init()\n\n## Contraindications\n\n- Explicit initialization has already been performed and confirmed\n- User prefers manual control over initialization timing\n- tracer.initialized == True (skip this skill)\n\n## Intervention Moves\n\n- Attempt automatic initialization with environment defaults\n- Log diagnostic warnings and errors for troubleshooting\n- Gracefully degrade to None return on failure\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check tracer.initialized status', 'condition': 'if not tracer.initialized'}\n- {'step': 2, 'action': 'Log warning that SDK is not initialized', 'detail': 'logger.warning(\"AgentOps SDK not initialized. Attempting to initialize with defaults before starting trace.\")'}\n- {'step': 3, 'action': 'Attempt init() with environment variables or defaults', 'detail': 'Call init() inside try-except block'}\n- {'step': 4, 'action': 'Verify tracer.initialized after init()', 'condition': 'if not tracer.initialized after init()'}\n- {'step': 5, 'action': 'Log error and return None', 'detail': 'logger.error(\"SDK initialization failed. Cannot start trace.\"); return None'}\n- {'step': 6, 'action': 'Catch and log exceptions during init()', 'detail': 'except Exception as e: logger.error(f\"SDK auto-initialization failed: {e}. Cannot start trace.\"); return None'}\n\n## Constraints\n\n- Must check tracer.initialized before attempting init()\n- Must catch and log exceptions during auto-initialization\n- Must not raise exceptions; return None on failure\n\n## Cautions\n\n- Auto-initialization relies on environment variables; ensure they are set if defaults are insufficient\n- Logging warnings and errors should not block execution\n\n## Output Contract\n\n- Returns True or success indicator if tracer.initialized == True after initialization; returns None with error logged if initialization fails or cannot be completed. Caller should check return value before proceeding to trace operations.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "2fefe2f0-790d-5e47-99c5-c441046648cf",
+      "parent_candidate_ids": [
+        "2fefe2f0-790d-5e47-99c5-c441046648cf",
+        "cf2aafba-8a0b-5349-96e3-578d8595f10b"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.55,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Ensure SDK is ready before trace operations",
+      "domain": "default",
+      "task_family": "sdk_initialization",
+      "method_family": "auto_init_with_fallback",
+      "stage": "setup",
+      "applicable_signals": [
+        "tracer.initialized == False",
+        "Caller attempts trace operation without explicit prior init()"
+      ],
+      "contraindications": [
+        "Explicit initialization has already been performed and confirmed",
+        "User prefers manual control over initialization timing",
+        "tracer.initialized == True (skip this skill)"
+      ],
+      "intervention_moves": [
+        "Attempt automatic initialization with environment defaults",
+        "Log diagnostic warnings and errors for troubleshooting",
+        "Gracefully degrade to None return on failure"
+      ],
+      "triggers": [
+        "tracer.initialized returns False",
+        "SDK initialization status is unknown or unconfirmed before starting a trace"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check tracer.initialized status', 'condition': 'if not tracer.initialized'}",
+        "{'step': 2, 'action': 'Log warning that SDK is not initialized', 'detail': 'logger.warning(\"AgentOps SDK not initialized. Attempting to initialize with defaults before starting trace.\")'}",
+        "{'step': 3, 'action': 'Attempt init() with environment variables or defaults', 'detail': 'Call init() inside try-except block'}",
+        "{'step': 4, 'action': 'Verify tracer.initialized after init()', 'condition': 'if not tracer.initialized after init()'}",
+        "{'step': 5, 'action': 'Log error and return None', 'detail': 'logger.error(\"SDK initialization failed. Cannot start trace.\"); return None'}",
+        "{'step': 6, 'action': 'Catch and log exceptions during init()', 'detail': 'except Exception as e: logger.error(f\"SDK auto-initialization failed: {e}. Cannot start trace.\"); return None'}"
+      ],
+      "constraints": [
+        "Must check tracer.initialized before attempting init()",
+        "Must catch and log exceptions during auto-initialization",
+        "Must not raise exceptions; return None on failure"
+      ],
+      "cautions": [
+        "Auto-initialization relies on environment variables; ensure they are set if defaults are insufficient",
+        "Logging warnings and errors should not block execution"
+      ],
+      "output_contract": [
+        "Returns True or success indicator if tracer.initialized == True after initialization; returns None with error logged if initialization fails or cannot be completed. Caller should check return value before proceeding to trace operations."
+      ],
+      "examples": [],
+      "tags": [
+        "sdk_setup",
+        "initialization",
+        "fallback",
+        "error_handling",
+        "precondition_check"
+      ],
+      "support_ids": [
+        "d81e64c6-f25a-51ac-97cc-ab9faba65ff6"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "1552ddb2-adb1-53d5-bf7c-f5e887aab97d"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|ensure sdk is ready before trace operations|default|sdk_initialization|auto_init_with_fallback|setup|initialize sdk with fallback",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "2fefe2f0-790d-5e47-99c5-c441046648cf",
+        "parent_candidate_ids": [
+          "2fefe2f0-790d-5e47-99c5-c441046648cf",
+          "cf2aafba-8a0b-5349-96e3-578d8595f10b"
+        ],
+        "hierarchy_confidence": 0.55,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "9fead5de-6b55-4610-9ba8-70c62cf0ac74",
+      "entity_type": "skill",
+      "entity_id": "c9cf6cff-970b-5e93-8e61-f543e257085e",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "create",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "c9cf6cff-970b-5e93-8e61-f543e257085e",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "d81e64c6-f25a-51ac-97cc-ab9faba65ff6"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

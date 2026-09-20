@@ -1,0 +1,133 @@
+{
+  "skill_id": "163a4d6b-628f-57cd-b363-f19e095fdf47",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct knowledge_reference skill addressing Virtual WAN route injection prefix specificity validation. It has no semantic overlap with existing skills (Scala library lookup is unrelated domain). Peer candidates are broader foundational references or different safety rules in the same task_family but different method_family and stage. This candidate fills a specific technical constraint validation gap not covered by peers.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "163a4d6b-628f-57cd-b363-f19e095fdf47",
+    "name": "Validate Virtual WAN Route Injection Prefix Specificity",
+    "description": "Validates that route prefixes intended for spoke VNet injection are shorter (less specific) than the spoke's virtual network prefix. Virtual WAN cannot inject routes that match or exceed the specificity of the VNet prefix itself. This skill prevents misconfiguration and route injection failures by enforcing the technical boundary of Virtual WAN route injection capability.",
+    "skill_body": "When planning or validating route injection into a spoke virtual network via Virtual WAN, verify that the route prefix length is shorter than the spoke VNet prefix. For example, if spoke VNET has prefix 10.1.0.0/16, Virtual WAN can inject routes like 10.0.0.0/8 but cannot inject 10.1.0.0/16, 10.1.0.0/24, or any subnet within 10.1.0.0/16. This constraint prevents Virtual WAN from attracting traffic between subnets within the same virtual network.\n\n## Objective\n\nDocument and enforce the technical boundary of Virtual WAN route injection capability to prevent misconfiguration attempts and route injection failures\n## Applicable Signals\n\n- Planning route injection into spoke VNets\n- Designing routing policies for Virtual WAN\n- Troubleshooting route injection failures\n- Validating route prefix configuration before deployment\n\n## Contraindications\n\n- Configuring inter-subnet routing within a single VNet (Virtual WAN does not apply)\n- Hub-to-hub routing scenarios (different constraint set applies)\n- Routes already matching or exceeding spoke VNet prefix specificity\n\n## Intervention Moves\n\n- Reject or flag route prefix configurations where prefix length equals or exceeds spoke VNet prefix length\n- Recommend shorter (less specific) prefix alternatives when validation fails\n- Confirm route prefix specificity is valid before deployment\n\n## Workflow Steps\n\n- Identify the spoke VNet prefix (e.g., 10.1.0.0/16)\n- Obtain the proposed route prefix to be injected\n- Compare prefix lengths: proposed prefix must be shorter (fewer bits) than spoke VNet prefix\n- Validate that proposed prefix does not match or exceed spoke VNet prefix specificity\n- Output validation result with explicit accept/reject decision\n\n## Constraints\n\n- Route prefix must be shorter (less specific) than spoke VNet prefix\n- Virtual WAN cannot inject routes matching the VNet prefix itself\n- Virtual WAN cannot inject routes more specific than any subnet within the VNet\n- This constraint applies per spoke; each spoke VNet has its own prefix boundary\n- This is a hard technical limit, not a configuration option\n\n## Cautions\n\n- Attempting to inject a route with prefix equal to or more specific than the spoke VNet prefix will fail silently or be rejected\n- Misunderstanding this constraint is a common cause of route injection failures\n- Virtual WAN cannot attract traffic between two subnets that are in the same virtual network\n\n## Output Contract\n\n- Route prefix specificity validated against spoke VNet prefix\n- Design confirmed to use only shorter prefixes for injection, or explicit rejection if prefix violates constraint\n- Clear indication of whether route will be accepted by Virtual WAN\n\n## Example Executions\n\n### Example 1\n\n- Input: Spoke VNET1 prefix: 10.1.0.0/16. Proposed route to inject: 10.0.0.0/8\n- Output: Valid. Prefix 10.0.0.0/8 is shorter (less specific) than 10.1.0.0/16. Route can be injected.\n- Notes: Shorter prefix means fewer bits specified, allowing Virtual WAN to program the route.\n\n### Example 2\n\n- Input: Spoke VNET1 prefix: 10.1.0.0/16. Proposed route to inject: 10.1.0.0/24\n- Output: Invalid. Prefix 10.1.0.0/24 is more specific than 10.1.0.0/16. Route cannot be injected.\n- Notes: More specific prefix (longer) falls within the VNet boundary and violates the constraint.\n\n### Example 3\n\n- Input: Spoke VNET1 prefix: 10.1.0.0/16. Proposed route to inject: 10.1.0.0/16\n- Output: Invalid. Prefix matches the VNet prefix exactly. Route cannot be injected.\n- Notes: Equal specificity is not permitted; prefix must be strictly shorter.",
+    "asset_type": "knowledge_reference",
+    "granularity": "session",
+    "asset_node_id": "knowledge_reference_node",
+    "asset_path": "family_root/knowledge_reference_node",
+    "asset_level": 1,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Document and enforce the technical boundary of Virtual WAN route injection capability to prevent misconfiguration attempts and route injection failures",
+    "domain": "default",
+    "task_family": "virtual_wan_routing",
+    "method_family": "route_injection_limits",
+    "stage": "design",
+    "applicable_signals": [
+      "Planning route injection into spoke VNets",
+      "Designing routing policies for Virtual WAN",
+      "Troubleshooting route injection failures",
+      "Validating route prefix configuration before deployment"
+    ],
+    "contraindications": [
+      "Configuring inter-subnet routing within a single VNet (Virtual WAN does not apply)",
+      "Hub-to-hub routing scenarios (different constraint set applies)",
+      "Routes already matching or exceeding spoke VNet prefix specificity"
+    ],
+    "intervention_moves": [
+      "Reject or flag route prefix configurations where prefix length equals or exceeds spoke VNet prefix length",
+      "Recommend shorter (less specific) prefix alternatives when validation fails",
+      "Confirm route prefix specificity is valid before deployment"
+    ],
+    "triggers": [
+      "Planning route injection into spoke VNets",
+      "Designing routing policies for Virtual WAN",
+      "Troubleshooting route injection failures",
+      "Validating route prefix configuration before deployment"
+    ],
+    "workflow_steps": [
+      "Identify the spoke VNet prefix (e.g., 10.1.0.0/16)",
+      "Obtain the proposed route prefix to be injected",
+      "Compare prefix lengths: proposed prefix must be shorter (fewer bits) than spoke VNet prefix",
+      "Validate that proposed prefix does not match or exceed spoke VNet prefix specificity",
+      "Output validation result with explicit accept/reject decision"
+    ],
+    "constraints": [
+      "Route prefix must be shorter (less specific) than spoke VNet prefix",
+      "Virtual WAN cannot inject routes matching the VNet prefix itself",
+      "Virtual WAN cannot inject routes more specific than any subnet within the VNet",
+      "This constraint applies per spoke; each spoke VNet has its own prefix boundary",
+      "This is a hard technical limit, not a configuration option"
+    ],
+    "cautions": [
+      "Attempting to inject a route with prefix equal to or more specific than the spoke VNet prefix will fail silently or be rejected",
+      "Misunderstanding this constraint is a common cause of route injection failures",
+      "Virtual WAN cannot attract traffic between two subnets that are in the same virtual network"
+    ],
+    "output_contract": [
+      "Route prefix specificity validated against spoke VNet prefix",
+      "Design confirmed to use only shorter prefixes for injection, or explicit rejection if prefix violates constraint",
+      "Clear indication of whether route will be accepted by Virtual WAN"
+    ],
+    "examples": [
+      {
+        "input": "Spoke VNET1 prefix: 10.1.0.0/16. Proposed route to inject: 10.0.0.0/8",
+        "output": "Valid. Prefix 10.0.0.0/8 is shorter (less specific) than 10.1.0.0/16. Route can be injected.",
+        "notes": "Shorter prefix means fewer bits specified, allowing Virtual WAN to program the route."
+      },
+      {
+        "input": "Spoke VNET1 prefix: 10.1.0.0/16. Proposed route to inject: 10.1.0.0/24",
+        "output": "Invalid. Prefix 10.1.0.0/24 is more specific than 10.1.0.0/16. Route cannot be injected.",
+        "notes": "More specific prefix (longer) falls within the VNet boundary and violates the constraint."
+      },
+      {
+        "input": "Spoke VNET1 prefix: 10.1.0.0/16. Proposed route to inject: 10.1.0.0/16",
+        "output": "Invalid. Prefix matches the VNet prefix exactly. Route cannot be injected.",
+        "notes": "Equal specificity is not permitted; prefix must be strictly shorter."
+      }
+    ],
+    "tags": [
+      "virtual_wan",
+      "routing",
+      "route_injection",
+      "prefix_specificity",
+      "constraint",
+      "design_validation"
+    ],
+    "support_ids": [
+      "95b49e70-7347-54a7-9217-023e7ea9bf1d"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "3a66ec6a-df7a-576e-a586-e37b946a8ee4"
+      ],
+      "support_summary": {
+        "support": 0,
+        "constraint": 1,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.88,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||knowledge_reference|session|knowledge_reference_node|document and enforce the technical boundary of virtual wan route injection capability to prevent misconfiguration attempts and route injection failures|default|virtual_wan_routing|route_injection_limits|design|validate virtual wan route injection prefix specificity"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 1,
+  "branch": "full"
+}

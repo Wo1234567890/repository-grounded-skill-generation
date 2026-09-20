@@ -1,0 +1,198 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "async_task_completion",
+  "run_id": "20260916T075902_b00fe928",
+  "skills": [
+    {
+      "skill_id": "9d5752c7-0308-5eba-b424-241a7347e150",
+      "name": "Future Result Retrieval with Timeout",
+      "description": "Retrieve quantile thresholds from a configured scale or create an independent copy for parallel use. Use when you need to inspect scale state, debug threshold values, or create a variant scale without affecting the original.",
+      "skill_body": "Call quantile.quantiles() to retrieve the array of quantile threshold values from an existing scale. Call quantile.copy() to create a new independent scale instance with identical domain, range, and quantile configuration. Both operations are read-only or non-destructive and do not modify the original scale.\n\n## Objective\n\nRead quantile thresholds or duplicate a scale instance\n## Applicable Signals\n\n- Scale instance is already configured with domain and range\n- Caller requires read-only access to scale state\n- Caller needs a safe copy for independent transformation\n\n## Contraindications\n\n- Configuring a new scale (use domain/range setters instead)\n- Attempting to modify thresholds in-place (create a new scale instead)\n- Scale has not yet been initialized with domain and range\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Verify the scale instance is initialized and configured with domain and range', 'condition': 'Scale exists and has been set up'}\n- {'step': 2, 'action': 'Call quantile.quantiles() to retrieve the current quantile thresholds', 'condition': 'Inspection of thresholds is required'}\n- {'step': 3, 'action': 'Call quantile.copy() to create an independent copy if variant use is needed', 'condition': 'A separate scale instance is required for parallel or independent operations'}\n\n## Constraints\n\n- quantile.quantiles() returns a read-only snapshot; modifications to the returned array do not affect the scale\n- quantile.copy() creates a shallow copy with the same configuration; subsequent modifications to the copy do not affect the original\n\n## Cautions\n\n- Ensure the scale is fully configured before calling quantile.quantiles() to avoid undefined or incomplete threshold arrays\n- Use copy() when you need independent scales; do not reuse the same scale instance across parallel operations\n\n## Output Contract\n\n- Returns either an array of quantile threshold values (from quantile.quantiles()) or a new independent scale instance with identical configuration (from quantile.copy()). Both outputs are safe for downstream use without side effects on the original scale.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "228a8871-08eb-566a-8109-8fc6f1368195",
+        "a5de0627-0e80-5765-baa7-fd826622d7b5"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Safely retrieve result from a Future object with timeout and error handling",
+      "domain": "default",
+      "task_family": "async_task_completion",
+      "method_family": "future_result_access",
+      "stage": "result_collection",
+      "applicable_signals": [
+        "Scale instance is already configured with domain and range",
+        "Caller requires read-only access to scale state",
+        "Caller needs a safe copy for independent transformation"
+      ],
+      "contraindications": [
+        "Configuring a new scale (use domain/range setters instead)",
+        "Attempting to modify thresholds in-place (create a new scale instead)",
+        "Scale has not yet been initialized with domain and range"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "A parallel task submitted to ThreadPoolExecutor or ProcessPoolExecutor has completed or is expected to complete",
+        "The caller needs the return value of an asynchronous task",
+        "A maximum wait time must be enforced before raising TimeoutError"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Verify the scale instance is initialized and configured with domain and range', 'condition': 'Scale exists and has been set up'}",
+        "{'step': 2, 'action': 'Call quantile.quantiles() to retrieve the current quantile thresholds', 'condition': 'Inspection of thresholds is required'}",
+        "{'step': 3, 'action': 'Call quantile.copy() to create an independent copy if variant use is needed', 'condition': 'A separate scale instance is required for parallel or independent operations'}"
+      ],
+      "constraints": [
+        "quantile.quantiles() returns a read-only snapshot; modifications to the returned array do not affect the scale",
+        "quantile.copy() creates a shallow copy with the same configuration; subsequent modifications to the copy do not affect the original"
+      ],
+      "cautions": [
+        "Ensure the scale is fully configured before calling quantile.quantiles() to avoid undefined or incomplete threshold arrays",
+        "Use copy() when you need independent scales; do not reuse the same scale instance across parallel operations"
+      ],
+      "output_contract": [
+        "Returns either an array of quantile threshold values (from quantile.quantiles()) or a new independent scale instance with identical configuration (from quantile.copy()). Both outputs are safe for downstream use without side effects on the original scale."
+      ],
+      "examples": [
+        {
+          "input": "future = executor.submit(some_function, arg1, arg2); result = future.result(timeout=5)",
+          "output": "Returns the return value of some_function(arg1, arg2) if it completes within 5 seconds; raises TimeoutError if it does not.",
+          "notes": "Typical use case with timeout enforcement"
+        },
+        {
+          "input": "future = executor.submit(failing_function); result = future.result()",
+          "output": "Re-raises the exception that failing_function raised during execution",
+          "notes": "Exception propagation from the task"
+        }
+      ],
+      "tags": [
+        "d3-scale",
+        "quantile",
+        "introspection",
+        "cloning",
+        "state_query"
+      ],
+      "support_ids": [
+        "2a8c5652-923f-5523-850d-07b349ae1874",
+        "9a904ec7-655d-57ed-a1eb-597a28b19232"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "e577b6fd-b73a-56ea-913a-2f3640ee3388"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.92,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|safely retrieve result from a future object with timeout and error handling|default|async_task_completion|future_result_access|result_collection|future result retrieval with timeout",
+        "llm_reason": "Candidate combines two distinct semantic capabilities: (1) quantile threshold inspection (already covered by peer 7ea98ae1), and (2) scale cloning/copying (a state mutation operation distinct from read-only inspection). The cloning aspect should merge into the value lookup skill as a complementary operation within scale instance management, while the quantiles inspection is redundant with the existing peer. The candidate conflates inspection (read-only) with mutation (copy), which violates separation of concerns.",
+        "change_action": "merge",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "228a8871-08eb-566a-8109-8fc6f1368195",
+          "a5de0627-0e80-5765-baa7-fd826622d7b5"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf",
+        "merged_from_skill_ids": []
+      },
+      "version": "0.1.1",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "9ecaef4e-a98b-44c7-b5e9-2dadf197204a",
+      "entity_type": "skill",
+      "entity_id": "9d5752c7-0308-5eba-b424-241a7347e150",
+      "action": "merge",
+      "changed_at": "2026-09-15T21:56:14+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "The candidate skill 'Quantile Scale Quantiles Inspection' is a narrower, single-method subset of the existing peer skill 'Quantile Scale Inspection and Cloning'. Both target the same semantic capability (quantile threshold retrieval from d3.scaleSequentialQuantile), same asset layer (micro_skill), same task_family (scale_inspection), and same stage (scale introspection/validation). The peer skill already encompasses .quantiles() inspection plus the additional .copy() capability. Merging the candidate into the peer consolidates overlapping guidance without loss of functionality.",
+      "related_entity_ids": [
+        "9d5752c7-0308-5eba-b424-241a7347e150"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "9d5752c7-0308-5eba-b424-241a7347e150",
+        "doc_ids": [
+          "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+          "6cdc3f25-9cd8-59fc-987c-27814dbcdcb1"
+        ],
+        "support_added": [
+          "84c99815-541d-56fd-907a-888e7d6f1b96"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "9d5752c7-0308-5eba-b424-241a7347e150"
+        ]
+      }
+    },
+    {
+      "change_id": "54057d45-f0ff-408d-8724-5c3955eb941d",
+      "entity_type": "skill",
+      "entity_id": "9d5752c7-0308-5eba-b424-241a7347e150",
+      "action": "merge",
+      "changed_at": "2026-09-15T21:56:14+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "Candidate combines two distinct semantic capabilities: (1) quantile threshold inspection (already covered by peer 7ea98ae1), and (2) scale cloning/copying (a state mutation operation distinct from read-only inspection). The cloning aspect should merge into the value lookup skill as a complementary operation within scale instance management, while the quantiles inspection is redundant with the existing peer. The candidate conflates inspection (read-only) with mutation (copy), which violates separation of concerns.",
+      "related_entity_ids": [
+        "9d5752c7-0308-5eba-b424-241a7347e150"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "9d5752c7-0308-5eba-b424-241a7347e150",
+        "doc_ids": [
+          "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+          "6cdc3f25-9cd8-59fc-987c-27814dbcdcb1"
+        ],
+        "support_added": [
+          "9a904ec7-655d-57ed-a1eb-597a28b19232"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "9d5752c7-0308-5eba-b424-241a7347e150"
+        ]
+      }
+    }
+  ]
+}

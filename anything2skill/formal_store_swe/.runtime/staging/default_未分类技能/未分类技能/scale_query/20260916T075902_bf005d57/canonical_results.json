@@ -1,0 +1,308 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "scale_query",
+  "run_id": "20260916T075902_bf005d57",
+  "skills": [
+    {
+      "skill_id": "a286b247-ce61-5ac7-8e36-e3cd81f305ad",
+      "name": "Quantile Scale Value Lookup",
+      "description": "Query a configured quantile scale to retrieve the output range value for a given input domain value, or invert to find domain values for a given range value. Use for encoding individual data points or decoding range selections in visualization or interaction contexts.",
+      "skill_body": "Given a quantile scale that is already configured with domain and range, use the scale's quantile() method to map a domain value to its corresponding range value. Alternatively, use quantile.invertExtent() to map a range value back to the domain extent [min, max]. Ensure the input value is within the scale's configured bounds before querying.\n\n## Objective\n\nTransform a domain value to range value or invert a range value to domain extent\n## Applicable Signals\n\n- scale.quantile(value) invocation required\n- scale.invertExtent(value) invocation required\n- Single-value lookup (not batch transformation)\n\n## Contraindications\n\n- Scale is not yet configured or domain/range not set\n- Batch transformation needed (use map or forEach instead)\n- Domain value is outside the scale's configured domain\n- Range value is outside the scale's configured range\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Verify the quantile scale is configured', 'detail': 'Confirm scale.domain() and scale.range() have been set'}\n- {'step': 2, 'action': 'Choose lookup direction', 'detail': 'Determine whether to map domain→range (forward) or range→domain (inverse)'}\n- {'step': 3, 'action': 'Execute forward lookup', 'detail': 'Call scale.quantile(domainValue) to get the corresponding range value'}\n- {'step': 4, 'action': 'Execute inverse lookup', 'detail': 'Call scale.invertExtent(rangeValue) to get the domain extent [min, max]'}\n- {'step': 5, 'action': 'Return result', 'detail': 'Provide the range value (forward) or domain extent array (inverse) to the caller'}\n\n## Constraints\n\n- Input value must be within the scale's configured bounds\n- Scale must have been initialized with domain() and range() before querying\n- Forward query returns a single range value; inverse query returns a domain extent array\n\n## Cautions\n\n- Quantile scales divide the domain into equal-probability bins; edge values may map to the same range value\n- invertExtent() returns the domain extent for a given range value, not a single point\n\n## Output Contract\n\n- Forward query returns a single output range value ready for visualization binding. Inverse query returns a domain extent array [min, max] representing the domain values that map to the given range value. Both outputs are immediately usable for downstream visualization or interaction logic.\n\n## Example Executions\n\n### Example 1\n\n- Input: quantile scale configured with domain [0, 100] and range ['red', 'yellow', 'green']; query domainValue = 45\n- Output: rangeValue = 'yellow'\n- Notes: Forward lookup maps the domain value to its corresponding quantile bin's range value\n\n### Example 2\n\n- Input: quantile scale configured with domain [0, 100] and range ['red', 'yellow', 'green']; query rangeValue = 'yellow'\n- Output: domainExtent = [33.33, 66.67]\n- Notes: Inverse lookup returns the domain range that maps to the given range value",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "a5de0627-0e80-5765-baa7-fd826622d7b5",
+        "721665f6-6f7e-558d-9e07-f8b600974990"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Transform a domain value to range value or invert a range value to domain extent",
+      "domain": "default",
+      "task_family": "scale_query",
+      "method_family": "quantile_lookup",
+      "stage": "value_transformation",
+      "applicable_signals": [
+        "scale.quantile(value) invocation required",
+        "scale.invertExtent(value) invocation required",
+        "Single-value lookup (not batch transformation)"
+      ],
+      "contraindications": [
+        "Scale is not yet configured or domain/range not set",
+        "Batch transformation needed (use map or forEach instead)",
+        "Domain value is outside the scale's configured domain",
+        "Range value is outside the scale's configured range"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "A quantile scale is already configured with domain and range",
+        "Need to encode a single data point using the scale",
+        "Need to decode a range selection back to domain values"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Verify the quantile scale is configured', 'detail': 'Confirm scale.domain() and scale.range() have been set'}",
+        "{'step': 2, 'action': 'Choose lookup direction', 'detail': 'Determine whether to map domain→range (forward) or range→domain (inverse)'}",
+        "{'step': 3, 'action': 'Execute forward lookup', 'detail': 'Call scale.quantile(domainValue) to get the corresponding range value'}",
+        "{'step': 4, 'action': 'Execute inverse lookup', 'detail': 'Call scale.invertExtent(rangeValue) to get the domain extent [min, max]'}",
+        "{'step': 5, 'action': 'Return result', 'detail': 'Provide the range value (forward) or domain extent array (inverse) to the caller'}"
+      ],
+      "constraints": [
+        "Input value must be within the scale's configured bounds",
+        "Scale must have been initialized with domain() and range() before querying",
+        "Forward query returns a single range value; inverse query returns a domain extent array"
+      ],
+      "cautions": [
+        "Quantile scales divide the domain into equal-probability bins; edge values may map to the same range value",
+        "invertExtent() returns the domain extent for a given range value, not a single point"
+      ],
+      "output_contract": [
+        "Forward query returns a single output range value ready for visualization binding. Inverse query returns a domain extent array [min, max] representing the domain values that map to the given range value. Both outputs are immediately usable for downstream visualization or interaction logic."
+      ],
+      "examples": [
+        {
+          "input": "quantile scale configured with domain [0, 100] and range ['red', 'yellow', 'green']; query domainValue = 45",
+          "output": "rangeValue = 'yellow'",
+          "notes": "Forward lookup maps the domain value to its corresponding quantile bin's range value"
+        },
+        {
+          "input": "quantile scale configured with domain [0, 100] and range ['red', 'yellow', 'green']; query rangeValue = 'yellow'",
+          "output": "domainExtent = [33.33, 66.67]",
+          "notes": "Inverse lookup returns the domain range that maps to the given range value"
+        }
+      ],
+      "tags": [
+        "scale",
+        "quantile",
+        "lookup",
+        "encoding",
+        "decoding",
+        "value_transformation"
+      ],
+      "support_ids": [
+        "4537b63e-0ae0-5994-b163-64f5f450536a"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "ba31881b-dd0a-5ad5-8536-7062d30b64d8"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|transform a domain value to range value or invert a range value to domain extent|default|scale_query|quantile_lookup|value_transformation|quantile scale value lookup",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "a5de0627-0e80-5765-baa7-fd826622d7b5",
+          "721665f6-6f7e-558d-9e07-f8b600974990"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "b807967a-43b5-5afd-a7d7-8197a847f5bb",
+      "name": "Threshold Scale Value Lookup",
+      "description": "Query a configured threshold scale to map a domain value to its corresponding range value, or invert to find the domain bounds for a given range value. Use this micro-skill when you need to apply an already-configured threshold scale to transform individual values or retrieve...",
+      "skill_body": "Given a threshold scale object and an input value, call threshold(value) to retrieve the mapped output, or call threshold.invertExtent(value) to retrieve the domain interval [min, max] corresponding to a range value. Ensure the scale is configured with domain() and range() before querying.\n\n## Objective\n\nQuery a threshold scale to map or reverse-map values\n## Applicable Signals\n\n- Threshold scale is already configured with domain and range\n- Input value is within or near expected domain bounds\n- Caller has a pre-built scale object ready for querying\n\n## Contraindications\n\n- Scale is not yet configured with domain() and range()\n- Input is outside expected domain bounds and no fallback is defined\n- Caller needs to create or modify the scale itself (use scale configuration skill instead)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Verify the threshold scale is configured', 'detail': 'Confirm scale.domain() and scale.range() have been set'}\n- {'step': 2, 'action': 'Call threshold(value) to map a domain value to range', 'detail': 'Pass the input value; receive the corresponding output category or value'}\n- {'step': 3, 'action': 'Optionally call threshold.invertExtent(value) to reverse-map', 'detail': 'Pass a range value; receive [min, max] domain bounds for that output'}\n- {'step': 4, 'action': 'Return the mapped value or domain extent to the caller', 'detail': 'Ensure output matches the expected contract (single value or [min, max] array)'}\n\n## Constraints\n\n- Scale must be instantiated and configured before this skill is invoked\n- Domain and range must be set on the scale object\n- Input values should align with the scale's domain definition\n\n## Cautions\n\n- invertExtent() returns a domain interval; check that the returned array has two elements\n- Threshold scales quantize continuous input; values between thresholds map to the same output\n\n## Output Contract\n\n- Returns either a single mapped value (from threshold(value)) or a two-element domain extent array [min, max] (from threshold.invertExtent(value)). Caller receives the quantized output or the domain interval corresponding to the queried range value.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "fca6e09e-14bf-5af8-ba2d-0b6dccb05d58",
+        "a5de0627-0e80-5765-baa7-fd826622d7b5"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Query a threshold scale to map or reverse-map values",
+      "domain": "default",
+      "task_family": "scale_query",
+      "method_family": "value_lookup",
+      "stage": "execution",
+      "applicable_signals": [
+        "Threshold scale is already configured with domain and range",
+        "Input value is within or near expected domain bounds",
+        "Caller has a pre-built scale object ready for querying"
+      ],
+      "contraindications": [
+        "Scale is not yet configured with domain() and range()",
+        "Input is outside expected domain bounds and no fallback is defined",
+        "Caller needs to create or modify the scale itself (use scale configuration skill instead)"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Need to apply a threshold scale to transform a single value",
+        "Need to apply a threshold scale to transform a batch of values",
+        "Need to find domain range for a given output category"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Verify the threshold scale is configured', 'detail': 'Confirm scale.domain() and scale.range() have been set'}",
+        "{'step': 2, 'action': 'Call threshold(value) to map a domain value to range', 'detail': 'Pass the input value; receive the corresponding output category or value'}",
+        "{'step': 3, 'action': 'Optionally call threshold.invertExtent(value) to reverse-map', 'detail': 'Pass a range value; receive [min, max] domain bounds for that output'}",
+        "{'step': 4, 'action': 'Return the mapped value or domain extent to the caller', 'detail': 'Ensure output matches the expected contract (single value or [min, max] array)'}"
+      ],
+      "constraints": [
+        "Scale must be instantiated and configured before this skill is invoked",
+        "Domain and range must be set on the scale object",
+        "Input values should align with the scale's domain definition"
+      ],
+      "cautions": [
+        "invertExtent() returns a domain interval; check that the returned array has two elements",
+        "Threshold scales quantize continuous input; values between thresholds map to the same output"
+      ],
+      "output_contract": [
+        "Returns either a single mapped value (from threshold(value)) or a two-element domain extent array [min, max] (from threshold.invertExtent(value)). Caller receives the quantized output or the domain interval corresponding to the queried range value."
+      ],
+      "examples": [],
+      "tags": [
+        "d3",
+        "scale",
+        "threshold",
+        "quantization",
+        "value_mapping",
+        "lookup"
+      ],
+      "support_ids": [
+        "e8886592-9143-57b9-a14a-c8020b401925"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "bd46b5db-e562-5e4e-800e-172fe0bff7a6"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|query a threshold scale to map or reverse-map values|default|scale_query|value_lookup|execution|threshold scale value lookup",
+        "llm_reason": "Candidate 'Threshold Scale Value Lookup' is a distinct micro-skill for querying threshold scales (d3.scaleThreshold). It differs semantically from peer candidates: 'Quantile Scale Value Lookup' targets quantile scales, 'Scale Value Inversion' targets linear scale inversion, and 'Apply Custom Property Tweens' targets animation interpolation. The existing skills in the registry (Custom Reward Function Integration, Future Result Retrieval with Timeout) operate in different domains (reward_computation, async_task_completion) and do not overlap. The candidate has clear API support, well-defined workflow steps, and no conflicts. It should be persisted as a new capability.",
+        "change_action": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "fca6e09e-14bf-5af8-ba2d-0b6dccb05d58",
+          "a5de0627-0e80-5765-baa7-fd826622d7b5"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "80d3671d-c4e5-490a-a333-1cc3e6cde836",
+      "entity_type": "skill",
+      "entity_id": "a286b247-ce61-5ac7-8e36-e3cd81f305ad",
+      "action": "create",
+      "changed_at": "2026-09-15T21:56:14+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "create",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "a286b247-ce61-5ac7-8e36-e3cd81f305ad",
+        "doc_ids": [
+          "6cdc3f25-9cd8-59fc-987c-27814dbcdcb1"
+        ],
+        "support_added": [
+          "4537b63e-0ae0-5994-b163-64f5f450536a"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "1b012e70-e4d1-480b-b4f7-29856e70cd5d",
+      "entity_type": "skill",
+      "entity_id": "b807967a-43b5-5afd-a7d7-8197a847f5bb",
+      "action": "create",
+      "changed_at": "2026-09-15T21:56:14+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate 'Threshold Scale Value Lookup' is a distinct micro-skill for querying threshold scales (d3.scaleThreshold). It differs semantically from peer candidates: 'Quantile Scale Value Lookup' targets quantile scales, 'Scale Value Inversion' targets linear scale inversion, and 'Apply Custom Property Tweens' targets animation interpolation. The existing skills in the registry (Custom Reward Function Integration, Future Result Retrieval with Timeout) operate in different domains (reward_computation, async_task_completion) and do not overlap. The candidate has clear API support, well-defined workflow steps, and no conflicts. It should be persisted as a new capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "b807967a-43b5-5afd-a7d7-8197a847f5bb",
+        "doc_ids": [
+          "6cdc3f25-9cd8-59fc-987c-27814dbcdcb1"
+        ],
+        "support_added": [
+          "e8886592-9143-57b9-a14a-c8020b401925"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

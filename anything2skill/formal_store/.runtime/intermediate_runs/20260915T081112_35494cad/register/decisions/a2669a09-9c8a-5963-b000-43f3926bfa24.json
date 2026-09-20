@@ -1,0 +1,109 @@
+{
+  "skill_id": "a2669a09-9c8a-5963-b000-43f3926bfa24",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro-skill focused on parameter optimization (deriving optimal g) during training stage, complementary to peer candidates which focus on applying pre-computed or predefined weights during retrieval/ranking. No redundancy detected; peer candidates assume weights are already available, while this skill solves the upstream problem of learning g from training data using closed-form optimization. Single support reference validates the mathematical foundation (Equation 6.5-6.6). No conflicts detected.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "a2669a09-9c8a-5963-b000-43f3926bfa24",
+    "name": "Weighted Zone Scoring Parameter Optimization",
+    "description": "Compute the optimal zone weight parameter g for two-zone document scoring by minimizing classification error on training data. Use this micro-skill when you have binary relevance judgments and zone-based Boolean match scores, and need to learn a single weight parameter that balances contributions from two document zones (T and B).",
+    "skill_body": "Given training examples with binary relevance judgments (relevant=1 or not relevant=0) and zone-based Boolean match scores for two zones T and B, derive the optimal weight parameter g that minimizes total classification error. Count training examples by (s_T, s_B, relevance) combination into eight categories: n00r, n00n, n01r, n01n, n10r, n10n, n11r, n11n. Apply Equation 6.6: g = (n10r + n01n) / (n10r + n10n + n01r + n01n). Verify g ∈ [0, 1]. The resulting parameter is used in weighted zone scoring: score(d, q) = g × s_T(d, q) + (1 − g) × s_B(d, q).\n\n## Objective\n\nderive_optimal_weight_parameter\n## Applicable Signals\n\n- Training dataset with binary relevance judgments is available\n- Zone-based Boolean match scores (s_T and s_B) computed for all training examples\n- Need to learn single weight parameter for two-zone weighted scoring\n\n## Contraindications\n\n- Do not use if zones require independent weights (use multi-parameter learning instead)\n- Do not use if no training data with relevance judgments is available\n- Do not use if relevance judgments are continuous rather than binary\n- Do not use if Boolean match functions differ significantly across zones in ways that require separate calibration\n\n## Intervention Moves\n\n- Count training examples by (s_T, s_B, relevance) combination: n00r, n00n, n01r, n01n, n10r, n10n, n11r, n11n\n- Apply differentiation of error function (Equation 6.5) with respect to g\n- Compute g using the closed-form formula from Equation 6.6\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Prepare training data', 'detail': 'Ensure all training examples have binary relevance judgments (0/1) and computed zone-based Boolean match scores for zones T and B'}\n- {'step': 2, 'action': 'Count error contributions', 'detail': 'For each training example, record the combination of (s_T value, s_B value, relevance label) and count occurrences in each of the eight categories: n00r, n00n, n01r, n01n, n10r, n10n, n11r, n11n'}\n- {'step': 3, 'action': 'Apply formula', 'detail': 'Compute g = (n10r + n01n) / (n10r + n10n + n01r + n01n) using the counts from step 2'}\n- {'step': 4, 'action': 'Validate result', 'detail': 'Verify that g is in [0, 1]; if denominator is zero, flag as indeterminate and consider alternative weighting strategy'}\n\n## Constraints\n\n- Parameter g must be in range [0, 1]\n- Training set must include examples covering all four combinations of (s_T, s_B) values\n- Relevance judgments must be quantized to binary (0/1) before counting\n\n## Cautions\n\n- If denominator in Equation 6.6 is zero, all training examples have matching zone scores; parameter is indeterminate\n- Small training sets may produce unstable g estimates; consider cross-validation\n\n## Output Contract\n\n- Scalar parameter g in range [0, 1] that minimizes total classification error on the training set. This parameter is then used in weighted zone scoring formula: score(d, q) = g × s_T(d, q) + (1 − g) × s_B(d, q).",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "derive_optimal_weight_parameter",
+    "domain": "information_retrieval",
+    "task_family": "scoring_and_weighting",
+    "method_family": "parameter_optimization",
+    "stage": "training",
+    "applicable_signals": [
+      "Training dataset with binary relevance judgments is available",
+      "Zone-based Boolean match scores (s_T and s_B) computed for all training examples",
+      "Need to learn single weight parameter for two-zone weighted scoring"
+    ],
+    "contraindications": [
+      "Do not use if zones require independent weights (use multi-parameter learning instead)",
+      "Do not use if no training data with relevance judgments is available",
+      "Do not use if relevance judgments are continuous rather than binary",
+      "Do not use if Boolean match functions differ significantly across zones in ways that require separate calibration"
+    ],
+    "intervention_moves": [
+      "Count training examples by (s_T, s_B, relevance) combination: n00r, n00n, n01r, n01n, n10r, n10n, n11r, n11n",
+      "Apply differentiation of error function (Equation 6.5) with respect to g",
+      "Compute g using the closed-form formula from Equation 6.6"
+    ],
+    "triggers": [
+      "Training data with binary relevance judgments and zone-based Boolean match scores are available",
+      "Need to learn single weight parameter g for two-zone scoring"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Prepare training data', 'detail': 'Ensure all training examples have binary relevance judgments (0/1) and computed zone-based Boolean match scores for zones T and B'}",
+      "{'step': 2, 'action': 'Count error contributions', 'detail': 'For each training example, record the combination of (s_T value, s_B value, relevance label) and count occurrences in each of the eight categories: n00r, n00n, n01r, n01n, n10r, n10n, n11r, n11n'}",
+      "{'step': 3, 'action': 'Apply formula', 'detail': 'Compute g = (n10r + n01n) / (n10r + n10n + n01r + n01n) using the counts from step 2'}",
+      "{'step': 4, 'action': 'Validate result', 'detail': 'Verify that g is in [0, 1]; if denominator is zero, flag as indeterminate and consider alternative weighting strategy'}"
+    ],
+    "constraints": [
+      "Parameter g must be in range [0, 1]",
+      "Training set must include examples covering all four combinations of (s_T, s_B) values",
+      "Relevance judgments must be quantized to binary (0/1) before counting"
+    ],
+    "cautions": [
+      "If denominator in Equation 6.6 is zero, all training examples have matching zone scores; parameter is indeterminate",
+      "Small training sets may produce unstable g estimates; consider cross-validation"
+    ],
+    "output_contract": [
+      "Scalar parameter g in range [0, 1] that minimizes total classification error on the training set. This parameter is then used in weighted zone scoring formula: score(d, q) = g × s_T(d, q) + (1 − g) × s_B(d, q)."
+    ],
+    "examples": [],
+    "tags": [
+      "information_retrieval",
+      "scoring",
+      "parameter_learning",
+      "zone_weighting",
+      "training",
+      "optimization"
+    ],
+    "support_ids": [
+      "c079a388-698f-5160-9452-edd69295a587"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "4127262d-d9e7-5fe4-81c2-eca5ec4f21e6"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|derive_optimal_weight_parameter|information_retrieval|scoring_and_weighting|parameter_optimization|training|weighted zone scoring parameter optimization"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 0,
+  "branch": "hits0"
+}

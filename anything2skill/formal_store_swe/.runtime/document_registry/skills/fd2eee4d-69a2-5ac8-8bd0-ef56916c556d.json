@@ -1,0 +1,137 @@
+{
+  "skill_id": "fd2eee4d-69a2-5ac8-8bd0-ef56916c556d",
+  "name": "Configure Font Fallback Matching",
+  "description": "Select and configure fallback fonts that closely match the metrics (size, ascent, descent, line-gap) of the primary web font to minimize visual reflow during font swap.",
+  "skill_body": "When a web font is loading, the browser initially renders text using a fallback font. If the fallback font differs significantly in size, weight, or line metrics from the target web font, users will see a visible shift (layout instability) when the web font finally loads. To minimize this shift:\n\n1. Always specify a generic fallback family (e.g., sans-serif, serif) in font-family declarations, not just the web font name alone.\n2. Use the Font Metrics Override APIs (size-adjust, ascent-override, descent-override, line-gap-override) to align fallback font metrics with the web font metrics.\n3. Test the visual appearance during the font-swap phase to ensure the shift is imperceptible to users.\n\n## Objective\n\nReduce visual mismatch between fallback and web font to minimize Cumulative Layout Shift (CLS) during font loading\n## Applicable Signals\n\n- Fallback font differs significantly in size or weight from web font\n- font-family declaration lacks a generic fallback family\n- Cumulative Layout Shift (CLS) is caused by font substitution\n- Font swap phase produces visible text reflow\n\n## Contraindications\n\n- Web font is already loaded synchronously before first paint\n- No fallback font is needed (e.g., system font only)\n- Font metrics are already identical between fallback and web font\n\n## Intervention Moves\n\n- Add a generic fallback family (sans-serif, serif, monospace) to the font-family declaration\n- Apply size-adjust, ascent-override, descent-override, and line-gap-override CSS properties to match fallback metrics to web font metrics\n- Verify visual stability during font loading using browser DevTools or performance monitoring\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Declare font-family with both web font name and generic fallback', 'example': 'font-family: \"Google Sans\", sans-serif;'}\n- {'step': 2, 'action': 'Measure or obtain the metrics (size, ascent, descent, line-gap) of both the web font and fallback font', 'example': 'Use browser DevTools or font analysis tools to extract metrics'}\n- {'step': 3, 'action': 'Apply metric override properties in @font-face or CSS to align fallback metrics to web font', 'example': 'size-adjust: 95%; ascent-override: 110%; descent-override: 20%; line-gap-override: 0%;'}\n- {'step': 4, 'action': 'Test visual appearance during font-swap phase (use font-display: swap or simulate slow font loading)', 'example': 'Verify that text reflow is imperceptible to the user'}\n\n## Constraints\n\n- Font Metrics Override APIs (size-adjust, ascent-override, descent-override, line-gap-override) require modern browser support\n- Fallback font must be available on the user's system or loaded via @font-face\n- Metric overrides must be tested across target browsers to ensure compatibility\n\n## Cautions\n\n- Aggressive metric overrides may distort the fallback font appearance; test visually before deployment\n- Generic fallback families vary by operating system; test on multiple platforms\n- Metric tuning is a trade-off: perfect alignment may not be achievable for all font pairs\n\n## Output Contract\n\n- Fallback font declaration includes appropriate generic family\n- Metric override APIs applied if needed\n- Visual shift during font swap is imperceptible to users\n- CLS contribution from font substitution is minimized\n\n## Example Executions\n\n### Example 1\n\n- Input: Web font 'Google Sans' with fallback 'sans-serif'; fallback is noticeably smaller\n- Output: font-family: \"Google Sans\", sans-serif; @font-face { font-family: \"Google Sans\"; size-adjust: 95%; ascent-override: 110%; }\n- Notes: Metric overrides reduce visual mismatch during font swap\n\n### Example 2\n\n- Input: font-family: \"Google Sans\" (no fallback specified)\n- Output: font-family: \"Google Sans\", sans-serif; (generic fallback added)\n- Notes: Without fallback, browser defaults to serif font, causing larger visual shift",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "57751b4b-e694-5e62-99a0-0629ff271c2a",
+  "parent_candidate_ids": [
+    "57751b4b-e694-5e62-99a0-0629ff271c2a",
+    "c8a58023-0cb3-5780-bf50-bf2990b5bb78"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.55,
+  "hierarchy_status": "linked",
+  "visible_role": "leaf",
+  "objective": "Reduce visual mismatch between fallback and web font to minimize Cumulative Layout Shift (CLS) during font loading",
+  "domain": "default",
+  "task_family": "web_performance_optimization",
+  "method_family": "font_metric_alignment",
+  "stage": "font_configuration",
+  "applicable_signals": [
+    "Fallback font differs significantly in size or weight from web font",
+    "font-family declaration lacks a generic fallback family",
+    "Cumulative Layout Shift (CLS) is caused by font substitution",
+    "Font swap phase produces visible text reflow"
+  ],
+  "contraindications": [
+    "Web font is already loaded synchronously before first paint",
+    "No fallback font is needed (e.g., system font only)",
+    "Font metrics are already identical between fallback and web font"
+  ],
+  "intervention_moves": [
+    "Add a generic fallback family (sans-serif, serif, monospace) to the font-family declaration",
+    "Apply size-adjust, ascent-override, descent-override, and line-gap-override CSS properties to match fallback metrics to web font metrics",
+    "Verify visual stability during font loading using browser DevTools or performance monitoring"
+  ],
+  "triggers": [
+    "Fallback font differs significantly in size or weight from web font",
+    "font-family declaration needs optimization",
+    "CLS is caused by font substitution"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Declare font-family with both web font name and generic fallback', 'example': 'font-family: \"Google Sans\", sans-serif;'}",
+    "{'step': 2, 'action': 'Measure or obtain the metrics (size, ascent, descent, line-gap) of both the web font and fallback font', 'example': 'Use browser DevTools or font analysis tools to extract metrics'}",
+    "{'step': 3, 'action': 'Apply metric override properties in @font-face or CSS to align fallback metrics to web font', 'example': 'size-adjust: 95%; ascent-override: 110%; descent-override: 20%; line-gap-override: 0%;'}",
+    "{'step': 4, 'action': 'Test visual appearance during font-swap phase (use font-display: swap or simulate slow font loading)', 'example': 'Verify that text reflow is imperceptible to the user'}"
+  ],
+  "constraints": [
+    "Font Metrics Override APIs (size-adjust, ascent-override, descent-override, line-gap-override) require modern browser support",
+    "Fallback font must be available on the user's system or loaded via @font-face",
+    "Metric overrides must be tested across target browsers to ensure compatibility"
+  ],
+  "cautions": [
+    "Aggressive metric overrides may distort the fallback font appearance; test visually before deployment",
+    "Generic fallback families vary by operating system; test on multiple platforms",
+    "Metric tuning is a trade-off: perfect alignment may not be achievable for all font pairs"
+  ],
+  "output_contract": [
+    "Fallback font declaration includes appropriate generic family",
+    "Metric override APIs applied if needed",
+    "Visual shift during font swap is imperceptible to users",
+    "CLS contribution from font substitution is minimized"
+  ],
+  "examples": [
+    {
+      "input": "Web font 'Google Sans' with fallback 'sans-serif'; fallback is noticeably smaller",
+      "output": "font-family: \"Google Sans\", sans-serif; @font-face { font-family: \"Google Sans\"; size-adjust: 95%; ascent-override: 110%; }",
+      "notes": "Metric overrides reduce visual mismatch during font swap"
+    },
+    {
+      "input": "font-family: \"Google Sans\" (no fallback specified)",
+      "output": "font-family: \"Google Sans\", sans-serif; (generic fallback added)",
+      "notes": "Without fallback, browser defaults to serif font, causing larger visual shift"
+    }
+  ],
+  "tags": [
+    "font-loading",
+    "CLS-mitigation",
+    "web-performance",
+    "font-metrics",
+    "fallback-font",
+    "visual-stability"
+  ],
+  "support_ids": [
+    "45799dc8-9684-5b3d-bc9b-bf5c40ad6ef8"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "7b9c4353-9184-5d5a-8792-4bfe1940e4db"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.8,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|reduce visual mismatch between fallback and web font to minimize cumulative layout shift (cls) during font loading|default|web_performance_optimization|font_metric_alignment|font_configuration|configure font fallback matching",
+    "change_action": "create",
+    "llm_reason": "create",
+    "parent_skill_id": "57751b4b-e694-5e62-99a0-0629ff271c2a",
+    "parent_candidate_ids": [
+      "57751b4b-e694-5e62-99a0-0629ff271c2a",
+      "c8a58023-0cb3-5780-bf50-bf2990b5bb78"
+    ],
+    "hierarchy_confidence": 0.55,
+    "hierarchy_status": "linked",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

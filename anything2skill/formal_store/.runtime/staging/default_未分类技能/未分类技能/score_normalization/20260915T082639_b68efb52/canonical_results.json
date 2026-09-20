@@ -1,0 +1,151 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "score_normalization",
+  "run_id": "20260915T082639_b68efb52",
+  "skills": [
+    {
+      "skill_id": "06de6b44-7967-5591-9794-5d7436b643c3",
+      "name": "Pivoted Document Length Normalization",
+      "description": "Adjust TF-IDF relevance scores to correct for document length bias using linear scaling with an empirically-determined pivot point. Apply when longer documents are artificially favored in cosine-normalized relevance ranking and length variance is high across the collection.",
+      "skill_body": "Compute normalized relevance scores using pivoted document length normalization. For each document, apply the linear scaling formula: score_normalized = a|V(d)| + (1-a)piv, where |V(d)| is the cosine-normalized score, piv is the pivot point (intersection of cosine curve and y=x line), and a is the slope parameter (0 < a < 1). The pivot point is typically determined empirically from the document collection. Return adjusted scores that balance length bias with relevance.\n\n## Objective\n\nnormalize_by_document_length\n## Applicable Signals\n\n- document collection exhibits high variance in document length\n- cosine normalization alone over-penalizes longer documents\n- relevance ranking shows length bias favoring short documents\n- need to balance document length as a confounding factor\n\n## Contraindications\n\n- all documents in collection are similar length\n- document length is not a confounding factor in relevance\n- using BM25 or other length-aware probabilistic models already\n- collection is already balanced by length normalization\n\n## Intervention Moves\n\n- Compute cosine-normalized score |V(d)| for each document\n- Determine pivot point piv from the document collection (intersection of cosine curve and y=x line)\n- Select slope parameter a (0 < a < 1) based on desired length sensitivity\n- Apply linear scaling: score_adjusted = a|V(d)| + (1-a)piv\n- Return adjusted scores for ranking\n\n## Constraints\n\n- slope parameter a must satisfy 0 < a < 1\n- pivot point piv must be computed from the same document collection\n- input scores must be cosine-normalized before applying pivoted scaling\n- method assumes linear relationship between document length and score adjustment\n\n## Cautions\n\n- pivot point selection is empirical; different collections may require different piv values\n- slope parameter a controls sensitivity; lower a reduces length bias more aggressively\n- this is a post-processing step; apply after initial TF-IDF computation\n\n## Output Contract\n\n- Adjusted relevance scores with linear scaling applied. Each score is computed as a|V(d)| + (1-a)piv. Output includes the normalization factor and adjusted score for each document, suitable for downstream ranking or retrieval tasks.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "normalize_by_document_length",
+      "domain": "information_retrieval",
+      "task_family": "score_normalization",
+      "method_family": "length_adjustment",
+      "stage": "score_post_processing",
+      "applicable_signals": [
+        "document collection exhibits high variance in document length",
+        "cosine normalization alone over-penalizes longer documents",
+        "relevance ranking shows length bias favoring short documents",
+        "need to balance document length as a confounding factor"
+      ],
+      "contraindications": [
+        "all documents in collection are similar length",
+        "document length is not a confounding factor in relevance",
+        "using BM25 or other length-aware probabilistic models already",
+        "collection is already balanced by length normalization"
+      ],
+      "intervention_moves": [
+        "Compute cosine-normalized score |V(d)| for each document",
+        "Determine pivot point piv from the document collection (intersection of cosine curve and y=x line)",
+        "Select slope parameter a (0 < a < 1) based on desired length sensitivity",
+        "Apply linear scaling: score_adjusted = a|V(d)| + (1-a)piv",
+        "Return adjusted scores for ranking"
+      ],
+      "triggers": [
+        "document collection has high variance in document length",
+        "cosine normalization alone over-penalizes long documents",
+        "need to balance length bias with relevance"
+      ],
+      "workflow_steps": [],
+      "constraints": [
+        "slope parameter a must satisfy 0 < a < 1",
+        "pivot point piv must be computed from the same document collection",
+        "input scores must be cosine-normalized before applying pivoted scaling",
+        "method assumes linear relationship between document length and score adjustment"
+      ],
+      "cautions": [
+        "pivot point selection is empirical; different collections may require different piv values",
+        "slope parameter a controls sensitivity; lower a reduces length bias more aggressively",
+        "this is a post-processing step; apply after initial TF-IDF computation"
+      ],
+      "output_contract": [
+        "Adjusted relevance scores with linear scaling applied. Each score is computed as a|V(d)| + (1-a)piv. Output includes the normalization factor and adjusted score for each document, suitable for downstream ranking or retrieval tasks."
+      ],
+      "examples": [],
+      "tags": [
+        "tf-idf",
+        "document_length_normalization",
+        "relevance_scoring",
+        "vector_space_model",
+        "score_adjustment"
+      ],
+      "support_ids": [
+        "9b555aa2-f596-59e5-8664-cace748e757b"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "4b923fd0-275e-5fb5-9782-df49d15dec5c"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|normalize_by_document_length|information_retrieval|score_normalization|length_adjustment|score_post_processing|pivoted document length normalization",
+        "change_action": "create",
+        "llm_reason": "Pivoted Document Length Normalization is a distinct post-processing technique that operates on cosine-normalized scores after initial TF-IDF computation. It differs from peer candidates: Maximum TF Normalization works at the TF stage (pre-scoring), IDF Lookup is a term-weighting component, and Vector Space Similarity is a retrieval-stage operation. The candidate addresses a specific problem (length bias in cosine-normalized ranking) with an empirically-grounded method (pivot point selection). No redundancy detected with peers, and support evidence confirms this is an established technique from authoritative IR literature.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "71041e23-ed70-4f82-8edf-9d4b54e1e700",
+      "entity_type": "skill",
+      "entity_id": "06de6b44-7967-5591-9794-5d7436b643c3",
+      "action": "create",
+      "changed_at": "2026-09-14T22:26:29+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Pivoted Document Length Normalization is a distinct post-processing technique that operates on cosine-normalized scores after initial TF-IDF computation. It differs from peer candidates: Maximum TF Normalization works at the TF stage (pre-scoring), IDF Lookup is a term-weighting component, and Vector Space Similarity is a retrieval-stage operation. The candidate addresses a specific problem (length bias in cosine-normalized ranking) with an empirically-grounded method (pivot point selection). No redundancy detected with peers, and support evidence confirms this is an established technique from authoritative IR literature.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "06de6b44-7967-5591-9794-5d7436b643c3",
+        "doc_ids": [
+          "fc9056b5-59f5-5e1a-9452-59d955d52e19"
+        ],
+        "support_added": [
+          "9b555aa2-f596-59e5-8664-cace748e757b"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

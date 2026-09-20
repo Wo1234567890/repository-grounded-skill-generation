@@ -1,0 +1,112 @@
+{
+  "skill_id": "da8dd853-552c-5d47-8cc8-3af6fa1a9896",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a knowledge_reference at session granularity providing evidence-based design guidance for cache eviction algorithm selection. It is semantically distinct from existing skills: it establishes a foundational principle (quick demotion efficiency) rather than implementing algorithms, tuning parameters, or evaluating performance. The existing skills in the registry (parallel execution, virtual hub routing) are from completely different domains and do not overlap. Peer candidates (S3-FIFO implementation, tuning, evaluation protocol) are at different asset layers (session_skill, macro_protocol) and stages (implementation, configuration, evaluation) and depend on this principle as foundational knowledge. No existing skill in the registry covers cache eviction design principles.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "da8dd853-552c-5d47-8cc8-3af6fa1a9896",
+    "name": "Quick Demotion Efficiency Principle",
+    "description": "Evidence-based design guidance for cache eviction algorithm selection. Establishes that rapid demotion of unpopular objects from main cache to secondary storage is critical for cache efficiency. Supported by empirical data from TinyLFU's 1% LRU window filtering and S3-FIFO's three-queue design, showing consistent miss ratio improvements across diverse cache workloads.",
+    "skill_body": "When evaluating or designing cache eviction algorithms, apply this principle: prioritize mechanisms that quickly demote unpopular objects to secondary tiers. Reference TinyLFU's 1% LRU window filter and S3-FIFO's queue-based demotion as proven patterns. Use miss ratio reduction data (e.g., 32% improvement at P90, 14% mean on large cache sizes) to justify demotion overhead in design trade-offs.\n\n## Objective\n\nProvide evidence-based design guidance for cache eviction algorithm selection and optimization\n## Applicable Signals\n\n- Evaluating cache eviction algorithms for efficiency improvements\n- Designing new cache replacement policies\n- Explaining performance gaps between FIFO and advanced algorithms\n- Tuning demotion thresholds or window sizes\n\n## Contraindications\n\n- Fixed-window caches without demotion capability\n- Write-heavy workloads where demotion cost exceeds benefit\n- Memory-constrained systems where secondary tier overhead is prohibitive\n\n## Constraints\n\n- Principle applies primarily to read-heavy and mixed workloads\n- Effectiveness varies by cache size; TinyLFU shows degradation on small caches (worse than FIFO on ~50% of traces at small sizes)\n- Requires measurable miss ratio data to validate demotion strategy\n\n## Cautions\n\n- TinyLFU's 1% window does not work uniformly across all traces; P10 point falls below -0.05 on ~20% of traces\n- Demotion strategy must be tuned per workload type (block, key-value, object)\n\n## Output Contract\n\n- Design decision documented with reference to comparative miss ratio reduction data (vs. FIFO baseline) and demotion mechanism rationale\n- Caller receives actionable guidance on whether quick demotion is justified for their cache workload and size profile\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Designing a cache eviction algorithm for a key-value store with mixed read-write workload\n- Therapist/Output: Incorporate a quick demotion mechanism (e.g., 1–5% LRU window or multi-queue design) to filter unpopular objects early. Expect 10–32% miss ratio reduction vs. FIFO depending on cache size and workload.\n- Notes: TinyLFU's 1% window is a proven pattern; S3-FIFO's three-queue design is an alternative.\n\n### Example 2\n\n- Client/Input: Evaluating whether to add demotion overhead to an existing FIFO cache\n- Therapist/Output: Yes, if cache size is large and workload is read-heavy. Empirical data shows S3-FIFO achieves 14% mean miss ratio reduction on large caches. Avoid if cache is small or write-heavy.\n- Notes: TinyLFU degrades on ~50% of small-cache traces; validate on representative traces first.",
+    "asset_type": "knowledge_reference",
+    "granularity": "session",
+    "asset_node_id": "knowledge_reference_node",
+    "asset_path": "family_root/knowledge_reference_node",
+    "asset_level": 1,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Provide evidence-based design guidance for cache eviction algorithm selection and optimization",
+    "domain": "default",
+    "task_family": "cache_design_principles",
+    "method_family": "algorithmic_insight",
+    "stage": "design",
+    "applicable_signals": [
+      "Evaluating cache eviction algorithms for efficiency improvements",
+      "Designing new cache replacement policies",
+      "Explaining performance gaps between FIFO and advanced algorithms",
+      "Tuning demotion thresholds or window sizes"
+    ],
+    "contraindications": [
+      "Fixed-window caches without demotion capability",
+      "Write-heavy workloads where demotion cost exceeds benefit",
+      "Memory-constrained systems where secondary tier overhead is prohibitive"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Evaluating or designing cache eviction algorithms",
+      "Explaining why certain algorithms (TinyLFU, S3-FIFO) outperform simpler FIFO",
+      "Tuning demotion thresholds"
+    ],
+    "workflow_steps": [],
+    "constraints": [
+      "Principle applies primarily to read-heavy and mixed workloads",
+      "Effectiveness varies by cache size; TinyLFU shows degradation on small caches (worse than FIFO on ~50% of traces at small sizes)",
+      "Requires measurable miss ratio data to validate demotion strategy"
+    ],
+    "cautions": [
+      "TinyLFU's 1% window does not work uniformly across all traces; P10 point falls below -0.05 on ~20% of traces",
+      "Demotion strategy must be tuned per workload type (block, key-value, object)"
+    ],
+    "output_contract": [
+      "Design decision documented with reference to comparative miss ratio reduction data (vs. FIFO baseline) and demotion mechanism rationale",
+      "Caller receives actionable guidance on whether quick demotion is justified for their cache workload and size profile"
+    ],
+    "examples": [
+      {
+        "input": "Designing a cache eviction algorithm for a key-value store with mixed read-write workload",
+        "output": "Incorporate a quick demotion mechanism (e.g., 1–5% LRU window or multi-queue design) to filter unpopular objects early. Expect 10–32% miss ratio reduction vs. FIFO depending on cache size and workload.",
+        "notes": "TinyLFU's 1% window is a proven pattern; S3-FIFO's three-queue design is an alternative."
+      },
+      {
+        "input": "Evaluating whether to add demotion overhead to an existing FIFO cache",
+        "output": "Yes, if cache size is large and workload is read-heavy. Empirical data shows S3-FIFO achieves 14% mean miss ratio reduction on large caches. Avoid if cache is small or write-heavy.",
+        "notes": "TinyLFU degrades on ~50% of small-cache traces; validate on representative traces first."
+      }
+    ],
+    "tags": [
+      "cache_eviction",
+      "algorithm_design",
+      "efficiency_principle",
+      "demotion_strategy",
+      "miss_ratio_optimization"
+    ],
+    "support_ids": [
+      "c3394a3e-26e0-52e5-b0cd-d10c87ff65d6"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "f270013f-dd71-59b1-9173-ae9297d5eb37"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||knowledge_reference|session|knowledge_reference_node|provide evidence-based design guidance for cache eviction algorithm selection and optimization|default|cache_design_principles|algorithmic_insight|design|quick demotion efficiency principle"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

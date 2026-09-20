@@ -1,0 +1,168 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "async_task_completion",
+  "run_id": "20260916T070029_52080b19",
+  "skills": [
+    {
+      "skill_id": "e0543d5d-48b2-54e9-bd99-13af454968ef",
+      "name": "Future Completion Callback Registration",
+      "description": "Prevent cumulative layout shift by pre-allocating container space for dynamically loaded elements such as ads, embeds, or forms using min-height or explicit dimensions.",
+      "skill_body": "Set the initial container size to the smallest dimension that will be used, or use min-height to allow the parent element to grow as necessary. Show a placeholder if no content is returned, to avoid collapsing the reserved space. This reduces layout shift impact compared to leaving the container at 0px default size.\n\n## Objective\n\nReduce layout shift impact from late-loaded content\n## Applicable Signals\n\n- Ad container or embed placeholder element is being added to the page\n- Content will load dynamically after initial page render\n- Container dimensions can be estimated or bounded\n\n## Contraindications\n\n- Content dimensions are truly unknown and cannot be estimated\n- User interaction is required before content appears\n- Space reservation would create excessive empty whitespace\n\n## Intervention Moves\n\n- Set min-height or explicit width/height on the container element\n- Display a placeholder when no content is returned\n- Avoid collapsing reserved space by removing the container\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify the container element for late-loading content', 'detail': 'Determine which element will hold ads, embeds, or dynamic forms'}\n- {'step': 2, 'action': 'Set initial container size using min-height or explicit dimensions', 'detail': 'Use the smallest size that will accommodate the expected content, or set min-height to allow growth'}\n- {'step': 3, 'action': 'Display a placeholder when content is unavailable', 'detail': 'Show a placeholder element to maintain reserved space if no ad or content is returned'}\n- {'step': 4, 'action': 'Verify layout shift reduction', 'detail': 'Measure CLS for the container element to confirm the shift impact is reduced'}\n\n## Constraints\n\n- Container must have a measurable or estimable minimum dimension\n- Placeholder must be shown to prevent space collapse\n- Reserved space should not exceed reasonable viewport bounds\n\n## Cautions\n\n- Removing reserved space causes as much layout shift as inserting content\n- Collapsing the container when content is unavailable negates the benefit\n\n## Output Contract\n\n- Container element with min-height or explicit width/height set; placeholder displayed when content is unavailable; measured reduction in cumulative layout shift for that element.\n\n## Example Executions\n\n### Example 1\n\n- Input: Ad container that loads asynchronously after page render\n- Output: Container with min-height set to expected ad height; placeholder shown if ad fails to load; CLS reduced for that region\n- Notes: Prevents shift when ad loads or fails to load\n\n### Example 2\n\n- Input: Embed placeholder for third-party content\n- Output: Container with explicit width and height matching embed dimensions; placeholder visible until embed loads\n- Notes: Maintains space allocation throughout load lifecycle",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Register a non-blocking callback to execute when a Future transitions to done or cancelled state",
+      "domain": "default",
+      "task_family": "async_task_completion",
+      "method_family": "future_callback_attachment",
+      "stage": "completion_notification",
+      "applicable_signals": [
+        "Ad container or embed placeholder element is being added to the page",
+        "Content will load dynamically after initial page render",
+        "Container dimensions can be estimated or bounded"
+      ],
+      "contraindications": [
+        "Content dimensions are truly unknown and cannot be estimated",
+        "User interaction is required before content appears",
+        "Space reservation would create excessive empty whitespace"
+      ],
+      "intervention_moves": [
+        "Set min-height or explicit width/height on the container element",
+        "Display a placeholder when no content is returned",
+        "Avoid collapsing reserved space by removing the container"
+      ],
+      "triggers": [
+        "A parallel task is submitted and the caller needs to perform an action (e.g., log, update state, trigger next task) as soon as it completes, without waiting synchronously"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Identify the container element for late-loading content', 'detail': 'Determine which element will hold ads, embeds, or dynamic forms'}",
+        "{'step': 2, 'action': 'Set initial container size using min-height or explicit dimensions', 'detail': 'Use the smallest size that will accommodate the expected content, or set min-height to allow growth'}",
+        "{'step': 3, 'action': 'Display a placeholder when content is unavailable', 'detail': 'Show a placeholder element to maintain reserved space if no ad or content is returned'}",
+        "{'step': 4, 'action': 'Verify layout shift reduction', 'detail': 'Measure CLS for the container element to confirm the shift impact is reduced'}"
+      ],
+      "constraints": [
+        "Container must have a measurable or estimable minimum dimension",
+        "Placeholder must be shown to prevent space collapse",
+        "Reserved space should not exceed reasonable viewport bounds"
+      ],
+      "cautions": [
+        "Removing reserved space causes as much layout shift as inserting content",
+        "Collapsing the container when content is unavailable negates the benefit"
+      ],
+      "output_contract": [
+        "Container element with min-height or explicit width/height set; placeholder displayed when content is unavailable; measured reduction in cumulative layout shift for that element."
+      ],
+      "examples": [
+        {
+          "input": "Ad container that loads asynchronously after page render",
+          "output": "Container with min-height set to expected ad height; placeholder shown if ad fails to load; CLS reduced for that region",
+          "notes": "Prevents shift when ad loads or fails to load"
+        },
+        {
+          "input": "Embed placeholder for third-party content",
+          "output": "Container with explicit width and height matching embed dimensions; placeholder visible until embed loads",
+          "notes": "Maintains space allocation throughout load lifecycle"
+        }
+      ],
+      "tags": [
+        "layout_stability",
+        "cumulative_layout_shift",
+        "space_reservation",
+        "performance",
+        "web_vitals"
+      ],
+      "support_ids": [
+        "e9f6200e-1325-53f5-b833-8765d6614bb2",
+        "599e9101-44c2-53ee-8317-aa1079e03fb3",
+        "aecf21e0-ba8a-585d-b148-17a873011725"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "d8a09a05-173c-522b-bb10-f37530833084"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.88,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|register a non-blocking callback to execute when a future transitions to done or cancelled state|default|async_task_completion|future_callback_attachment|completion_notification|future completion callback registration",
+        "llm_reason": "The candidate skill (41d02686-b5ec-5880-9435-7f5f2ec5213c) represents a composite workflow combining CSS space reservation (peer 0b718101) and placeholder management (peer df098291). The peer candidates are more granular, semantically distinct micro-skills: one focuses on CSS dimension/aspect-ratio techniques with responsive media queries, the other on placeholder lifecycle management. The candidate conflates both concerns into a single skill. Merging into the two peer skills preserves semantic clarity and allows practitioners to apply either technique independently or in combination.",
+        "change_action": "merge",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf",
+        "merged_from_skill_ids": []
+      },
+      "version": "0.1.2",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "89d46430-3dec-4c7f-8959-e411dcab68c2",
+      "entity_type": "skill",
+      "entity_id": "e0543d5d-48b2-54e9-bd99-13af454968ef",
+      "action": "merge",
+      "changed_at": "2026-09-15T20:59:25+00:00",
+      "from_version": "0.1.1",
+      "to_version": "0.1.2",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "The candidate skill (41d02686-b5ec-5880-9435-7f5f2ec5213c) represents a composite workflow combining CSS space reservation (peer 0b718101) and placeholder management (peer df098291). The peer candidates are more granular, semantically distinct micro-skills: one focuses on CSS dimension/aspect-ratio techniques with responsive media queries, the other on placeholder lifecycle management. The candidate conflates both concerns into a single skill. Merging into the two peer skills preserves semantic clarity and allows practitioners to apply either technique independently or in combination.",
+      "related_entity_ids": [
+        "e0543d5d-48b2-54e9-bd99-13af454968ef"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "e0543d5d-48b2-54e9-bd99-13af454968ef",
+        "doc_ids": [
+          "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+          "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+          "0551d67e-cae4-5d1f-804a-e4046e4b8739"
+        ],
+        "support_added": [
+          "aecf21e0-ba8a-585d-b148-17a873011725"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "e0543d5d-48b2-54e9-bd99-13af454968ef"
+        ]
+      }
+    }
+  ]
+}

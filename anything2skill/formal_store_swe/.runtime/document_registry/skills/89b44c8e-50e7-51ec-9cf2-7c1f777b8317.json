@@ -1,0 +1,128 @@
+{
+  "skill_id": "89b44c8e-50e7-51ec-9cf2-7c1f777b8317",
+  "name": "Query Term Weighting Scheme Selection",
+  "description": "Choose and apply a principled weighting scheme (e.g., nnn.atc, ntc.atc) for query terms in vector space scoring. Use this when deciding how to weight individual query terms before computing similarity scores against documents.",
+  "skill_body": "Select a weighting scheme for query terms based on the retrieval task and collection characteristics. Common schemes use notation like 'atc' (augmented term frequency, term frequency weighting, cosine normalization). Apply the chosen scheme consistently to all query terms to produce a normalized query vector. Document which scheme was selected for reproducibility.\n\n## Objective\n\nAssign consistent weights to query terms according to a selected weighting scheme\n## Applicable Signals\n\n- Query ready for vector space model scoring\n- Need to justify term weight assignment in query\n- Comparing retrieval effectiveness across weighting schemes\n\n## Contraindications\n\n- Using equal weights for all query terms without principled justification\n- Applying document-specific weighting schemes directly to query terms\n- Handling out-of-vocabulary query terms without fallback strategy\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify candidate weighting schemes', 'detail': 'List plausible schemes (e.g., nnn, ntc, atc, atn) based on task requirements and collection statistics'}\n- {'step': 2, 'action': 'Select one scheme', 'detail': 'Choose a scheme based on principled reasoning (e.g., augmented term frequency for robustness, cosine normalization for length independence)'}\n- {'step': 3, 'action': 'Apply scheme to each query term', 'detail': \"Compute weight for each term using the selected scheme's formula (e.g., augmented tf, idf, normalization)\"}\n- {'step': 4, 'action': 'Normalize query vector', 'detail': 'Apply final normalization (e.g., cosine normalization to unit length) if required by scheme'}\n- {'step': 5, 'action': 'Document scheme identifier', 'detail': \"Record the scheme code (e.g., 'atc') for downstream scoring and reproducibility\"}\n\n## Constraints\n\n- Weighting scheme must be applied uniformly to all query terms\n- Scheme identifier must be documented for reproducibility\n- Query vector should be normalized (e.g., unit vector) after weighting\n\n## Cautions\n\n- Different weighting schemes may produce different relative orderings of document scores\n- Scheme choice should align with document weighting scheme for consistency\n- Out-of-vocabulary terms require special handling (e.g., zero weight or default idf)\n\n## Output Contract\n\n- Query vector with assigned term weights; documented weighting scheme identifier (e.g., 'atc' for augmented term frequency with cosine normalization); ready for dot-product scoring against document vectors\n\n## Example Executions\n\n### Example 1\n\n- Input: Query: 'best car insurance'; scheme: ntc.atc\n- Output: Query vector with term weights computed using ntc scheme (no augmentation, term frequency, cosine normalization); scheme identifier 'ntc' recorded\n- Notes: ntc applies raw term frequency without augmentation and normalizes by cosine\n\n### Example 2\n\n- Input: Query: 'affection'; scheme: atc\n- Output: Query vector with single term 'affection' weighted using atc scheme; scheme identifier 'atc' recorded\n- Notes: Single-term query still benefits from consistent scheme application for comparison with other queries\n\n### Example 3\n\n- Input: Query: 'coyote insurance'; out-of-vocabulary term 'coyote'\n- Output: Query vector computed using ntc.atc scheme; 'coyote' assigned zero weight or default idf value; scheme identifier 'ntc.atc' recorded\n- Notes: Out-of-vocabulary terms must be handled explicitly to avoid scoring errors",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "Assign consistent weights to query terms according to a selected weighting scheme",
+  "domain": "default",
+  "task_family": "information_retrieval",
+  "method_family": "term_weighting",
+  "stage": "query_preparation",
+  "applicable_signals": [
+    "Query ready for vector space model scoring",
+    "Need to justify term weight assignment in query",
+    "Comparing retrieval effectiveness across weighting schemes"
+  ],
+  "contraindications": [
+    "Using equal weights for all query terms without principled justification",
+    "Applying document-specific weighting schemes directly to query terms",
+    "Handling out-of-vocabulary query terms without fallback strategy"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Transforming a query into a unit vector for similarity computation",
+    "Comparing multiple weighting schemes on the same query",
+    "Standardizing query representation before scoring against document vectors"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Identify candidate weighting schemes', 'detail': 'List plausible schemes (e.g., nnn, ntc, atc, atn) based on task requirements and collection statistics'}",
+    "{'step': 2, 'action': 'Select one scheme', 'detail': 'Choose a scheme based on principled reasoning (e.g., augmented term frequency for robustness, cosine normalization for length independence)'}",
+    "{'step': 3, 'action': 'Apply scheme to each query term', 'detail': \"Compute weight for each term using the selected scheme's formula (e.g., augmented tf, idf, normalization)\"}",
+    "{'step': 4, 'action': 'Normalize query vector', 'detail': 'Apply final normalization (e.g., cosine normalization to unit length) if required by scheme'}",
+    "{'step': 5, 'action': 'Document scheme identifier', 'detail': \"Record the scheme code (e.g., 'atc') for downstream scoring and reproducibility\"}"
+  ],
+  "constraints": [
+    "Weighting scheme must be applied uniformly to all query terms",
+    "Scheme identifier must be documented for reproducibility",
+    "Query vector should be normalized (e.g., unit vector) after weighting"
+  ],
+  "cautions": [
+    "Different weighting schemes may produce different relative orderings of document scores",
+    "Scheme choice should align with document weighting scheme for consistency",
+    "Out-of-vocabulary terms require special handling (e.g., zero weight or default idf)"
+  ],
+  "output_contract": [
+    "Query vector with assigned term weights; documented weighting scheme identifier (e.g., 'atc' for augmented term frequency with cosine normalization); ready for dot-product scoring against document vectors"
+  ],
+  "examples": [
+    {
+      "input": "Query: 'best car insurance'; scheme: ntc.atc",
+      "output": "Query vector with term weights computed using ntc scheme (no augmentation, term frequency, cosine normalization); scheme identifier 'ntc' recorded",
+      "notes": "ntc applies raw term frequency without augmentation and normalizes by cosine"
+    },
+    {
+      "input": "Query: 'affection'; scheme: atc",
+      "output": "Query vector with single term 'affection' weighted using atc scheme; scheme identifier 'atc' recorded",
+      "notes": "Single-term query still benefits from consistent scheme application for comparison with other queries"
+    },
+    {
+      "input": "Query: 'coyote insurance'; out-of-vocabulary term 'coyote'",
+      "output": "Query vector computed using ntc.atc scheme; 'coyote' assigned zero weight or default idf value; scheme identifier 'ntc.atc' recorded",
+      "notes": "Out-of-vocabulary terms must be handled explicitly to avoid scoring errors"
+    }
+  ],
+  "tags": [
+    "vector_space_model",
+    "query_representation",
+    "term_weighting",
+    "information_retrieval",
+    "scoring"
+  ],
+  "support_ids": [
+    "519ab6b4-1861-5b10-b257-169822ff8c93"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "1b9f9bee-8133-56e8-85b8-015237bc62bb"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.78,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|assign consistent weights to query terms according to a selected weighting scheme|default|information_retrieval|term_weighting|query_preparation|query term weighting scheme selection",
+    "change_action": "create",
+    "llm_reason": "create",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

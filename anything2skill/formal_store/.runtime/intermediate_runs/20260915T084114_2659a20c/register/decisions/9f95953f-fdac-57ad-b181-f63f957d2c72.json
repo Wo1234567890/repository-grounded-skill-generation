@@ -1,0 +1,117 @@
+{
+  "skill_id": "9f95953f-fdac-57ad-b181-f63f957d2c72",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate skill 'Async/Sync Method Wrapping' is a session_skill at asset_level 3 with asset_node_id 'micro_skill_node', but the existing_skills registry contains only Spring Boot migration and configuration skills (WebFlux/MVC trailing slash) that are semantically unrelated and belong to a different task_family (spring_boot_migration vs api_instrumentation). The peer_candidates (Module Availability Check, Claude API Message Creation, LLM Event Capture) are also semantically distinct and do not overlap with the candidate. No existing skill shares the same semantic capability (function wrapping for sync/async API instrumentation). The candidate has no support conflicts and is not a split of an existing skill. However, without a matching existing skill to create, strengthen, revise, or merge into, and without evidence that this capability should be added to the registry at this time, the candidate should be discarded pending explicit registry expansion decision.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "9f95953f-fdac-57ad-b181-f63f957d2c72",
+    "name": "Async/Sync Method Wrapping",
+    "description": "Micro-skill for applying function wrappers to both synchronous and asynchronous API methods, preserving method signatures and return types while collecting instrumentation data.",
+    "skill_body": "Wrap both sync and async variants of an API method using a function wrapper library (e.g., wrapt). Ensure original method behavior, signatures, and return types are preserved. Collect instrumentation data for both execution paths without breaking existing code.\n\n## Objective\n\nInstrument both sync and async variants of an API method without breaking existing code\n## Applicable Signals\n\n- API provider offers both sync and async versions of the same method\n- Need to instrument dual-path method variants\n- Requirement to collect metrics from both execution paths\n\n## Contraindications\n\n- Only sync or only async methods available in the API\n- Wrapping internal helper functions rather than public API methods\n- Performance-critical hot paths where wrapper overhead is unacceptable\n\n## Intervention Moves\n\n- Identify sync and async method pairs in the target API\n- Apply wrapper using wrapt.wrap_function_wrapper or equivalent\n- Preserve original method signature and return type\n- Collect instrumentation data within wrapper for both paths\n- Test wrapped methods to verify behavior preservation\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify the sync and async method pair', 'detail': 'Locate both variants (e.g., method and amethod) in the target API provider'}\n- {'step': 2, 'action': 'Import wrapper library', 'detail': 'Import wrapt or equivalent function wrapping utility'}\n- {'step': 3, 'action': 'Define wrapper callback', 'detail': 'Create a callback function that handles instrumentation logic for both sync and async execution'}\n- {'step': 4, 'action': 'Apply wrapper to sync method', 'detail': 'Use wrap_function_wrapper to instrument the synchronous variant'}\n- {'step': 5, 'action': 'Apply wrapper to async method', 'detail': 'Use wrap_function_wrapper to instrument the asynchronous variant, preserving coroutine behavior'}\n- {'step': 6, 'action': 'Test both paths', 'detail': 'Write unit tests for sync and async methods to verify behavior and return type preservation'}\n\n## Constraints\n\n- Wrapper must not alter method signature or return type\n- Both sync and async paths must be instrumented consistently\n- Instrumentation data collection must not raise exceptions in either path\n\n## Cautions\n\n- Ensure wrapper handles exceptions gracefully in both sync and async contexts\n- Test async wrapper with event loop to verify coroutine behavior\n- Verify return type preservation for both paths before deployment\n\n## Output Contract\n\n- Both sync and async method variants are wrapped and tested; original method behavior and return types are preserved; instrumentation data is collected for both execution paths; no exceptions are raised by the wrapper in either path.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: OpenAI API with ChatCompletion.create (sync) and ChatCompletion.acreate (async)\n- Therapist/Output: Both methods wrapped with instrumentation callback; sync method returns response object; async method returns awaitable response object; metrics collected for both paths\n- Notes: Wrapper preserves original return type and allows downstream code to use methods unchanged",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Instrument both sync and async variants of an API method without breaking existing code",
+    "domain": "default",
+    "task_family": "api_instrumentation",
+    "method_family": "function_wrapping",
+    "stage": "instrumentation_execution",
+    "applicable_signals": [
+      "API provider offers both sync and async versions of the same method",
+      "Need to instrument dual-path method variants",
+      "Requirement to collect metrics from both execution paths"
+    ],
+    "contraindications": [
+      "Only sync or only async methods available in the API",
+      "Wrapping internal helper functions rather than public API methods",
+      "Performance-critical hot paths where wrapper overhead is unacceptable"
+    ],
+    "intervention_moves": [
+      "Identify sync and async method pairs in the target API",
+      "Apply wrapper using wrapt.wrap_function_wrapper or equivalent",
+      "Preserve original method signature and return type",
+      "Collect instrumentation data within wrapper for both paths",
+      "Test wrapped methods to verify behavior preservation"
+    ],
+    "triggers": [
+      "An API provider offers both sync and async versions of the same method (e.g., openai.ChatCompletion.create vs openai.ChatCompletion.acreate); need to instrument both."
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Identify the sync and async method pair', 'detail': 'Locate both variants (e.g., method and amethod) in the target API provider'}",
+      "{'step': 2, 'action': 'Import wrapper library', 'detail': 'Import wrapt or equivalent function wrapping utility'}",
+      "{'step': 3, 'action': 'Define wrapper callback', 'detail': 'Create a callback function that handles instrumentation logic for both sync and async execution'}",
+      "{'step': 4, 'action': 'Apply wrapper to sync method', 'detail': 'Use wrap_function_wrapper to instrument the synchronous variant'}",
+      "{'step': 5, 'action': 'Apply wrapper to async method', 'detail': 'Use wrap_function_wrapper to instrument the asynchronous variant, preserving coroutine behavior'}",
+      "{'step': 6, 'action': 'Test both paths', 'detail': 'Write unit tests for sync and async methods to verify behavior and return type preservation'}"
+    ],
+    "constraints": [
+      "Wrapper must not alter method signature or return type",
+      "Both sync and async paths must be instrumented consistently",
+      "Instrumentation data collection must not raise exceptions in either path"
+    ],
+    "cautions": [
+      "Ensure wrapper handles exceptions gracefully in both sync and async contexts",
+      "Test async wrapper with event loop to verify coroutine behavior",
+      "Verify return type preservation for both paths before deployment"
+    ],
+    "output_contract": [
+      "Both sync and async method variants are wrapped and tested; original method behavior and return types are preserved; instrumentation data is collected for both execution paths; no exceptions are raised by the wrapper in either path."
+    ],
+    "examples": [
+      {
+        "input": "OpenAI API with ChatCompletion.create (sync) and ChatCompletion.acreate (async)",
+        "output": "Both methods wrapped with instrumentation callback; sync method returns response object; async method returns awaitable response object; metrics collected for both paths",
+        "notes": "Wrapper preserves original return type and allows downstream code to use methods unchanged"
+      }
+    ],
+    "tags": [
+      "async",
+      "sync",
+      "function_wrapping",
+      "instrumentation",
+      "api_provider"
+    ],
+    "support_ids": [
+      "19cf0d14-4cdf-58bd-8326-6aaf454fb540"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "594312fe-4a04-5980-9e79-6d30e5310f6e"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.68,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|micro_skill_node|instrument both sync and async variants of an api method without breaking existing code|default|api_instrumentation|function_wrapping|instrumentation_execution|async/sync method wrapping"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,294 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "error_handling",
+  "run_id": "20260916T092343_dbf32825",
+  "skills": [
+    {
+      "skill_id": "a4e8dc3e-92b7-57ac-9a86-942f2de4d17a",
+      "name": "Exception-to-ErrorEvent Conversion",
+      "description": "Wraps any exception that occurs during LLM response processing into a structured ErrorEvent linked to the triggering LLMEvent, preserving causality for debugging.",
+      "skill_body": "When an exception is raised during LLM event processing, capture it and create an ErrorEvent object that references the originating LLMEvent. Pass both the trigger_event (the LLMEvent that was being processed) and the exception to the ErrorEvent constructor, then record it via _safe_record().\n\n## Objective\n\nConvert unhandled exceptions into traceable error events\n## Applicable Signals\n\n- Exception raised during LLM response processing\n- Need to preserve error context and link to originating LLM event\n\n## Contraindications\n\n- Exception should be re-raised to a higher-level handler\n- Exception handling is delegated to caller or outer scope\n\n## Intervention Moves\n\n- Catch exception in except block\n- Create ErrorEvent with trigger_event and exception parameters\n- Record ErrorEvent via _safe_record()\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Wrap LLM response processing in try-except block'}\n- {'step': 2, 'action': 'In except clause, instantiate ErrorEvent with trigger_event=llm_event and exception=e'}\n- {'step': 3, 'action': 'Call _safe_record(session, error_event) to persist the error event'}\n\n## Constraints\n\n- LLMEvent must be available and valid before exception occurs\n- session parameter must be passed to _safe_record()\n- ErrorEvent constructor must accept trigger_event and exception fields\n\n## Cautions\n\n- Do not suppress exceptions that require escalation or re-raising\n- Ensure _safe_record() is idempotent to avoid duplicate error logging\n\n## Output Contract\n\n- ErrorEvent object created with trigger_event and exception fields, ready for recording and downstream debugging.\n\n## Example Executions\n\n### Example 1\n\n- Input: LLMEvent in progress; exception raised during response.model_dump()\n- Output: ErrorEvent(trigger_event=llm_event, exception=<exception instance>)\n- Notes: Exception is captured and linked to the LLMEvent that triggered it",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Convert unhandled exceptions into traceable error events",
+      "domain": "default",
+      "task_family": "error_handling",
+      "method_family": "exception_wrapping",
+      "stage": "exception_capture",
+      "applicable_signals": [
+        "Exception raised during LLM response processing",
+        "Need to preserve error context and link to originating LLM event"
+      ],
+      "contraindications": [
+        "Exception should be re-raised to a higher-level handler",
+        "Exception handling is delegated to caller or outer scope"
+      ],
+      "intervention_moves": [
+        "Catch exception in except block",
+        "Create ErrorEvent with trigger_event and exception parameters",
+        "Record ErrorEvent via _safe_record()"
+      ],
+      "triggers": [
+        "An exception is raised during LLM event processing and you need to preserve the error context and link it to the originating LLM event"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Wrap LLM response processing in try-except block'}",
+        "{'step': 2, 'action': 'In except clause, instantiate ErrorEvent with trigger_event=llm_event and exception=e'}",
+        "{'step': 3, 'action': 'Call _safe_record(session, error_event) to persist the error event'}"
+      ],
+      "constraints": [
+        "LLMEvent must be available and valid before exception occurs",
+        "session parameter must be passed to _safe_record()",
+        "ErrorEvent constructor must accept trigger_event and exception fields"
+      ],
+      "cautions": [
+        "Do not suppress exceptions that require escalation or re-raising",
+        "Ensure _safe_record() is idempotent to avoid duplicate error logging"
+      ],
+      "output_contract": [
+        "ErrorEvent object created with trigger_event and exception fields, ready for recording and downstream debugging."
+      ],
+      "examples": [
+        {
+          "input": "LLMEvent in progress; exception raised during response.model_dump()",
+          "output": "ErrorEvent(trigger_event=llm_event, exception=<exception instance>)",
+          "notes": "Exception is captured and linked to the LLMEvent that triggered it"
+        }
+      ],
+      "tags": [
+        "error_handling",
+        "exception_wrapping",
+        "debugging",
+        "event_tracing",
+        "causality_preservation"
+      ],
+      "support_ids": [
+        "37d623db-719b-5490-bd26-cf4a07f4e985"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "d5993a7e-b3fc-571f-8ebf-d433d2d7d030"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|convert unhandled exceptions into traceable error events|default|error_handling|exception_wrapping|exception_capture|exception-to-errorevent conversion",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill for converting exceptions into structured ErrorEvent objects during LLM response processing. It differs semantically from existing skills: not about inspecting futures (0745223a), not about UI navigation (0a3e55ab), and orthogonal to peer candidates (contextual logging, attribute extraction, stream processing). The peer candidates address logging, telemetry, and stream handling—complementary but separate concerns. Candidate has clear support from Debugging Roadmap and no conflicts. Should be created as a new capability.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "95ddd09b-9769-50a1-a64e-1a492c1561d0",
+      "name": "Implement Contextual Error Logging",
+      "description": "Implement specific exception types with meaningful error messages and contextual logging to ensure errors are logged with sufficient context for debugging and production issue resolution.",
+      "skill_body": "When implementing error handlers or debugging failures: (1) Use specific exception types instead of generic Exception; (2) Log errors with meaningful messages that include context (function name, state, input values); (3) Ensure error logs are searchable and contain sufficient detail for root cause analysis.\n\n## Objective\n\nEnsure errors are logged with sufficient context for debugging and production issue resolution\n## Applicable Signals\n\n- Code path contains try-except blocks\n- Error condition detected during execution\n- Test failure or production incident investigation initiated\n\n## Contraindications\n\n- Handling third-party library exceptions that already provide comprehensive context\n- Scenarios where silent failures are explicitly acceptable by design\n- System-level exceptions that should propagate unmodified\n\n## Intervention Moves\n\n- Identify the exception type that best matches the error condition\n- Construct error message with function name, current state, and relevant input values\n- Log the error with appropriate severity level and context\n- Ensure the exception is raised or handled according to the calling contract\n\n## Workflow Steps\n\n- Identify the exception type that best matches the error condition\n- Construct error message with function name, current state, and relevant input values\n- Log the error with appropriate severity level and context\n- Ensure the exception is raised or handled according to the calling contract\n\n## Constraints\n\n- Must use specific exception types (not generic Exception)\n- Error messages must include contextual information (function, state, input)\n- Logs must be structured for searchability and analysis\n\n## Cautions\n\n- Avoid logging sensitive data (credentials, tokens, PII) in error messages\n- Ensure error context does not introduce performance overhead in high-frequency paths\n\n## Output Contract\n\n- All exceptions use specific types (not generic Exception); error logs include context (function, state, input) and are searchable; downstream handlers receive sufficient information for diagnosis and recovery.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "07935192-6a9c-5de5-a763-07352cabd2fb",
+      "parent_candidate_ids": [
+        "07935192-6a9c-5de5-a763-07352cabd2fb"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Ensure errors are logged with sufficient context for debugging and production issue resolution",
+      "domain": "default",
+      "task_family": "error_handling",
+      "method_family": "logging",
+      "stage": "implementation",
+      "applicable_signals": [
+        "Code path contains try-except blocks",
+        "Error condition detected during execution",
+        "Test failure or production incident investigation initiated"
+      ],
+      "contraindications": [
+        "Handling third-party library exceptions that already provide comprehensive context",
+        "Scenarios where silent failures are explicitly acceptable by design",
+        "System-level exceptions that should propagate unmodified"
+      ],
+      "intervention_moves": [
+        "Identify the exception type that best matches the error condition",
+        "Construct error message with function name, current state, and relevant input values",
+        "Log the error with appropriate severity level and context",
+        "Ensure the exception is raised or handled according to the calling contract"
+      ],
+      "triggers": [
+        "Writing exception handlers or error paths",
+        "Debugging production issues or test failures",
+        "Implementing error recovery logic"
+      ],
+      "workflow_steps": [
+        "Identify the exception type that best matches the error condition",
+        "Construct error message with function name, current state, and relevant input values",
+        "Log the error with appropriate severity level and context",
+        "Ensure the exception is raised or handled according to the calling contract"
+      ],
+      "constraints": [
+        "Must use specific exception types (not generic Exception)",
+        "Error messages must include contextual information (function, state, input)",
+        "Logs must be structured for searchability and analysis"
+      ],
+      "cautions": [
+        "Avoid logging sensitive data (credentials, tokens, PII) in error messages",
+        "Ensure error context does not introduce performance overhead in high-frequency paths"
+      ],
+      "output_contract": [
+        "All exceptions use specific types (not generic Exception); error logs include context (function, state, input) and are searchable; downstream handlers receive sufficient information for diagnosis and recovery."
+      ],
+      "examples": [],
+      "tags": [
+        "error_handling",
+        "logging",
+        "debugging",
+        "exception_management"
+      ],
+      "support_ids": [
+        "0db2170d-6374-54ad-8810-10524894d32d"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "51eed8dd-1a95-5b2b-9c3d-9c18c5e309f8"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|ensure errors are logged with sufficient context for debugging and production issue resolution|default|error_handling|logging|implementation|implement contextual error logging",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill in error_handling/logging domain with unique objective (contextual error logging with specific exception types and structured messages). It does not semantically overlap with existing skills (which cover JSON parsing, platform routing, and future exception inspection) or peer candidates (which focus on async wrapping, agent instrumentation, and exception-to-event conversion). The candidate addresses a core logging pattern not covered by peers. Support evidence from Debugging Roadmap validates the approach.",
+        "parent_skill_id": "07935192-6a9c-5de5-a763-07352cabd2fb",
+        "parent_candidate_ids": [
+          "07935192-6a9c-5de5-a763-07352cabd2fb"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "ecfabaab-3fba-4a8c-8f95-2c5bdcc86a76",
+      "entity_type": "skill",
+      "entity_id": "a4e8dc3e-92b7-57ac-9a86-942f2de4d17a",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill for converting exceptions into structured ErrorEvent objects during LLM response processing. It differs semantically from existing skills: not about inspecting futures (0745223a), not about UI navigation (0a3e55ab), and orthogonal to peer candidates (contextual logging, attribute extraction, stream processing). The peer candidates address logging, telemetry, and stream handling—complementary but separate concerns. Candidate has clear support from Debugging Roadmap and no conflicts. Should be created as a new capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "a4e8dc3e-92b7-57ac-9a86-942f2de4d17a",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "37d623db-719b-5490-bd26-cf4a07f4e985"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "741677cf-3536-44c7-81af-e9d1567c37f4",
+      "entity_type": "skill",
+      "entity_id": "95ddd09b-9769-50a1-a64e-1a492c1561d0",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill in error_handling/logging domain with unique objective (contextual error logging with specific exception types and structured messages). It does not semantically overlap with existing skills (which cover JSON parsing, platform routing, and future exception inspection) or peer candidates (which focus on async wrapping, agent instrumentation, and exception-to-event conversion). The candidate addresses a core logging pattern not covered by peers. Support evidence from Debugging Roadmap validates the approach.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "95ddd09b-9769-50a1-a64e-1a492c1561d0",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "0db2170d-6374-54ad-8810-10524894d32d"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

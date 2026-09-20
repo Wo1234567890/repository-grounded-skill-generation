@@ -1,0 +1,108 @@
+{
+  "skill_id": "a15c7118-6a2e-593b-b7bf-dc4c5d38be46",
+  "action": "merge",
+  "matched_skill_ids": [
+    "f10424df-933b-51bb-8ca1-ad9d207806ef"
+  ],
+  "reason": "Candidate skill 'Custom Reward Function Signature Compliance' is a narrower, implementation-focused validation layer that enforces the interface contract required by both peer candidates. It addresses a specific technical constraint (function signature and kwargs binding) that must be satisfied before either 'Custom Reward Function Design' or 'Reward Function Contract Definition' can succeed. This is a split relationship in reverse: the candidate is a prerequisite micro-validation that should be integrated into the workflow of both broader reward function design skills rather than maintained as a separate skill. Merging consolidates the signature validation logic into the contract definition and design workflows.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "a15c7118-6a2e-593b-b7bf-dc4c5d38be46",
+    "name": "Custom Reward Function Signature Compliance",
+    "description": "Validates and ensures a custom reward function accepts required keyword arguments (prompts, completions, and dataset columns) to integrate correctly with GRPO training pipeline without raising TypeError or missing argument errors.",
+    "skill_body": "When implementing a custom reward function for GRPO training, the function must accept the following as keyword arguments:\n- `prompts` (contains the prompts)\n- `completions` (contains the generated completions)\n- All column names (except `prompt`) that the dataset may have\n\nThe easiest way to comply with this requirement is to use `**kwargs` in the function signature. This ensures the trainer can call your function with any dataset columns without raising errors.\n\n## Objective\n\nvalidate_reward_function_interface\n## Applicable Signals\n\n- Custom reward function is being defined\n- Dataset contains additional columns beyond prompts and completions\n- Training pipeline will invoke reward function with variable keyword arguments\n\n## Contraindications\n\n- Using built-in reward functions provided by the framework\n- Not integrating custom logic into the training loop\n- Reward function is stateless and requires no dataset context\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Define custom reward function with **kwargs in signature', 'detail': 'def custom_reward_fn(prompts, completions, **kwargs):'}\n- {'step': 2, 'action': 'Extract dataset-specific columns from kwargs as needed', 'detail': \"Access additional columns like ground_truth via kwargs.get('ground_truth') or direct parameter binding\"}\n- {'step': 3, 'action': 'Implement reward computation logic', 'detail': 'Use prompts, completions, and any dataset columns to compute scalar or vector rewards'}\n- {'step': 4, 'action': 'Return reward tensor or array', 'detail': 'Ensure output shape and type match trainer expectations'}\n\n## Constraints\n\n- Function signature must include `**kwargs` to accept arbitrary keyword arguments\n- Function must accept at minimum: `prompts`, `completions`\n- Function must accept all dataset column names as keyword arguments\n- Column name `prompt` (singular) is excluded; use `prompts` (plural) instead\n\n## Cautions\n\n- Forgetting **kwargs will cause trainer to fail when passing dataset columns\n- Mismatching parameter names (e.g., `prompt` vs `prompts`) will cause binding errors\n- Reward function must be deterministic or handle randomness consistently across batches\n\n## Output Contract\n\n- Custom reward function is defined with **kwargs in signature and correctly receives prompts, completions, and all dataset columns as keyword arguments during training without raising TypeError or missing argument errors.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "validate_reward_function_interface",
+    "domain": "default",
+    "task_family": "model_training_integration",
+    "method_family": "function_signature_compliance",
+    "stage": "reward_function_setup",
+    "applicable_signals": [
+      "Custom reward function is being defined",
+      "Dataset contains additional columns beyond prompts and completions",
+      "Training pipeline will invoke reward function with variable keyword arguments"
+    ],
+    "contraindications": [
+      "Using built-in reward functions provided by the framework",
+      "Not integrating custom logic into the training loop",
+      "Reward function is stateless and requires no dataset context"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Implementing a custom reward function for GRPO training",
+      "Need to ensure the function will be called correctly by the trainer",
+      "Integrating custom reward logic into the training loop"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Define custom reward function with **kwargs in signature', 'detail': 'def custom_reward_fn(prompts, completions, **kwargs):'}",
+      "{'step': 2, 'action': 'Extract dataset-specific columns from kwargs as needed', 'detail': \"Access additional columns like ground_truth via kwargs.get('ground_truth') or direct parameter binding\"}",
+      "{'step': 3, 'action': 'Implement reward computation logic', 'detail': 'Use prompts, completions, and any dataset columns to compute scalar or vector rewards'}",
+      "{'step': 4, 'action': 'Return reward tensor or array', 'detail': 'Ensure output shape and type match trainer expectations'}"
+    ],
+    "constraints": [
+      "Function signature must include `**kwargs` to accept arbitrary keyword arguments",
+      "Function must accept at minimum: `prompts`, `completions`",
+      "Function must accept all dataset column names as keyword arguments",
+      "Column name `prompt` (singular) is excluded; use `prompts` (plural) instead"
+    ],
+    "cautions": [
+      "Forgetting **kwargs will cause trainer to fail when passing dataset columns",
+      "Mismatching parameter names (e.g., `prompt` vs `prompts`) will cause binding errors",
+      "Reward function must be deterministic or handle randomness consistently across batches"
+    ],
+    "output_contract": [
+      "Custom reward function is defined with **kwargs in signature and correctly receives prompts, completions, and all dataset columns as keyword arguments during training without raising TypeError or missing argument errors."
+    ],
+    "examples": [],
+    "tags": [
+      "grpo",
+      "reward_function",
+      "training_integration",
+      "function_signature",
+      "custom_logic"
+    ],
+    "support_ids": [
+      "dbcfa06e-3c41-5e17-9eec-16c82d420ae7"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "d97fb58c-9a3b-5a04-b49c-5d3be060394c"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|validate_reward_function_interface|default|model_training_integration|function_signature_compliance|reward_function_setup|custom reward function signature compliance"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

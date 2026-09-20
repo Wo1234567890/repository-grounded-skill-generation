@@ -1,0 +1,164 @@
+{
+  "skill_id": "5cb1141a-bd9a-5686-a22e-969b744a44a8",
+  "name": "Package Import Interception and Instrumentation",
+  "description": "Intercepts Python module imports at runtime and dynamically instruments matching packages with observability hooks. Replaces the built-in import function to detect packages against configured registries (PROVIDERS, AGENTIC_LIBRARIES) and instantiate instrumentors transparently, enabling monitoring of external package calls without modifying user code.",
+  "skill_body": "When AgentOps runtime initializes, install an import monitor that intercepts all module imports. For each import, check if the package matches a configured instrumentor target. If matched and not already instrumented, instantiate the appropriate instrumentor and register it. Handle special cases (e.g., concurrent.futures when mem0 is instrumented). Skip instrumentation if an agentic library is already active to prevent double-instrumentation.\n\n## Objective\n\nTransparently instrument third-party packages at import time without modifying user code\n## Applicable Signals\n\n- Runtime startup signal\n- Module import event intercepted by custom import hook\n- Package name matches configured PROVIDERS or AGENTIC_LIBRARIES registry\n\n## Contraindications\n\n- User explicitly disables instrumentation via configuration\n- An agentic library is already instrumented (flag _has_agentic_library is True)\n- Package is already in _instrumenting_packages or marked as instrumented\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Install custom import monitor', 'detail': 'Replace built-in __import__ with _import_monitor function to intercept all module imports'}\n- {'step': 2, 'action': 'Check agentic library flag', 'detail': 'If _has_agentic_library is True, delegate to original import and skip instrumentation'}\n- {'step': 3, 'action': 'Perform actual import', 'detail': 'Call _original_builtins_import to load the module normally'}\n- {'step': 4, 'action': 'Identify matching packages', 'detail': 'Check imported name and fromlist items against PROVIDERS and AGENTIC_LIBRARIES registries; build set of packages_to_check'}\n- {'step': 5, 'action': 'Instrument matching packages', 'detail': 'For each package in packages_to_check: verify not already instrumented, retrieve config, instantiate InstrumentorLoader, call instrument_one, register in _active_instrumentors'}\n- {'step': 6, 'action': 'Handle special cases', 'detail': \"If package_name is 'mem0' and newly added, also instrument concurrent.futures with concurrent_config\"}\n- {'step': 7, 'action': 'Return instrumented module', 'detail': 'Return the module object to caller; instrumentation is now active for subsequent calls'}\n\n## Constraints\n\n- Must preserve original import behavior; return the actual module object after instrumentation\n- Must check version compatibility before instantiating instrumentor\n- Must handle optional package_name field in InstrumentorLoader config\n- Must detect and handle special cases (e.g., concurrent.futures dependency on mem0)\n\n## Cautions\n\n- Double-instrumentation can cause performance degradation or conflicting hooks; enforce single-instrumentation per package\n- Import interception is global; ensure no circular dependencies or import-time side effects break the chain\n- Version mismatches between instrumentor and target package may cause runtime errors; validate min_version before instantiation\n\n## Output Contract\n\n- Target packages are instrumented and registered in _active_instrumentors; the original module object is returned to the caller; subsequent calls to instrumented packages are monitored and logged by AgentOps.\n\n## Example Executions\n\n### Example 1\n\n- Input: User code: import openai\n- Output: openai module is loaded, InstrumentorLoader for openai is instantiated with config from PROVIDERS, instrumentor is registered in _active_instrumentors, openai module is returned to user code. Subsequent openai.ChatCompletion.create() calls are now monitored.\n- Notes: Standard case: package name matches PROVIDERS registry exactly.\n\n### Example 2\n\n- Input: User code: from google.adk import something\n- Output: google module is imported, full_item_name_candidate 'google.adk' is checked against registries, InstrumentorLoader for google.adk is instantiated if found, instrumentor is registered, module is returned. Subsequent google.adk calls are monitored.\n- Notes: Nested package case: fromlist item is combined with parent name to form full candidate.\n\n### Example 3\n\n- Input: User code: import mem0; then import concurrent.futures\n- Output: mem0 is instrumented and registered. Because package_name == 'mem0' and is_newly_added, concurrent.futures is also instrumented with concurrent_config. Both instrumentors are active.\n- Notes: Special case: mem0 triggers automatic instrumentation of concurrent.futures dependency.",
+  "asset_type": "macro_protocol",
+  "granularity": "macro",
+  "asset_node_id": "macro_skill",
+  "asset_path": "family_root/macro_skill",
+  "asset_level": 1,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [
+    "12888375-7271-5bd8-a3ad-cde4deb2c5cf",
+    "13a5326f-0977-5ab3-ac1f-79ddc42717b1",
+    "1d4c22ad-24cd-57e6-ad62-07fdfdc66fb6",
+    "803d45fe-dfab-571a-ba81-9ec12337db12",
+    "812e7026-499e-5857-812c-08f5685e456e",
+    "89c79e01-e6e8-5d05-acf6-f6fec8b4f794",
+    "a1a7e0ae-7044-57cb-acba-af065d511fe0",
+    "a7c386e7-6b98-5ac6-8fbe-c7d3468b741d",
+    "bb292af1-9249-5d0a-b61e-8d183ccd9280",
+    "be9ee306-d51d-5fa4-ae33-699cbc310f42",
+    "c31ddfb9-dade-537c-b1a5-7a488905160a",
+    "c4301c20-1a1c-5e6e-8227-1dde6375d2be",
+    "d8ea0a6a-2ee7-5ade-872e-dde9abd80350",
+    "db7d6c09-b85e-5ef5-b1cc-54656bec2509",
+    "eef033aa-c25c-5fb2-a472-489938d12a32"
+  ],
+  "hierarchy_confidence": 1.0,
+  "hierarchy_status": "parent",
+  "visible_role": "parent",
+  "objective": "Transparently instrument third-party packages at import time without modifying user code",
+  "domain": "default",
+  "task_family": "instrumentation",
+  "method_family": "import_interception",
+  "stage": "initialization",
+  "applicable_signals": [
+    "Runtime startup signal",
+    "Module import event intercepted by custom import hook",
+    "Package name matches configured PROVIDERS or AGENTIC_LIBRARIES registry"
+  ],
+  "contraindications": [
+    "User explicitly disables instrumentation via configuration",
+    "An agentic library is already instrumented (flag _has_agentic_library is True)",
+    "Package is already in _instrumenting_packages or marked as instrumented"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "AgentOps runtime initialization begins",
+    "User code imports a monitored package (e.g., LLM client, memory system, concurrent execution library)"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Install custom import monitor', 'detail': 'Replace built-in __import__ with _import_monitor function to intercept all module imports'}",
+    "{'step': 2, 'action': 'Check agentic library flag', 'detail': 'If _has_agentic_library is True, delegate to original import and skip instrumentation'}",
+    "{'step': 3, 'action': 'Perform actual import', 'detail': 'Call _original_builtins_import to load the module normally'}",
+    "{'step': 4, 'action': 'Identify matching packages', 'detail': 'Check imported name and fromlist items against PROVIDERS and AGENTIC_LIBRARIES registries; build set of packages_to_check'}",
+    "{'step': 5, 'action': 'Instrument matching packages', 'detail': 'For each package in packages_to_check: verify not already instrumented, retrieve config, instantiate InstrumentorLoader, call instrument_one, register in _active_instrumentors'}",
+    "{'step': 6, 'action': 'Handle special cases', 'detail': \"If package_name is 'mem0' and newly added, also instrument concurrent.futures with concurrent_config\"}",
+    "{'step': 7, 'action': 'Return instrumented module', 'detail': 'Return the module object to caller; instrumentation is now active for subsequent calls'}"
+  ],
+  "constraints": [
+    "Must preserve original import behavior; return the actual module object after instrumentation",
+    "Must check version compatibility before instantiating instrumentor",
+    "Must handle optional package_name field in InstrumentorLoader config",
+    "Must detect and handle special cases (e.g., concurrent.futures dependency on mem0)"
+  ],
+  "cautions": [
+    "Double-instrumentation can cause performance degradation or conflicting hooks; enforce single-instrumentation per package",
+    "Import interception is global; ensure no circular dependencies or import-time side effects break the chain",
+    "Version mismatches between instrumentor and target package may cause runtime errors; validate min_version before instantiation"
+  ],
+  "output_contract": [
+    "Target packages are instrumented and registered in _active_instrumentors; the original module object is returned to the caller; subsequent calls to instrumented packages are monitored and logged by AgentOps."
+  ],
+  "examples": [
+    {
+      "input": "User code: import openai",
+      "output": "openai module is loaded, InstrumentorLoader for openai is instantiated with config from PROVIDERS, instrumentor is registered in _active_instrumentors, openai module is returned to user code. Subsequent openai.ChatCompletion.create() calls are now monitored.",
+      "notes": "Standard case: package name matches PROVIDERS registry exactly."
+    },
+    {
+      "input": "User code: from google.adk import something",
+      "output": "google module is imported, full_item_name_candidate 'google.adk' is checked against registries, InstrumentorLoader for google.adk is instantiated if found, instrumentor is registered, module is returned. Subsequent google.adk calls are monitored.",
+      "notes": "Nested package case: fromlist item is combined with parent name to form full candidate."
+    },
+    {
+      "input": "User code: import mem0; then import concurrent.futures",
+      "output": "mem0 is instrumented and registered. Because package_name == 'mem0' and is_newly_added, concurrent.futures is also instrumented with concurrent_config. Both instrumentors are active.",
+      "notes": "Special case: mem0 triggers automatic instrumentation of concurrent.futures dependency."
+    }
+  ],
+  "tags": [
+    "import_interception",
+    "instrumentation",
+    "observability",
+    "runtime_initialization",
+    "package_monitoring",
+    "agent_ops"
+  ],
+  "support_ids": [
+    "8102f808-2597-515b-b40a-12e3d6095276"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "f2c41637-4ec0-58ee-9cf9-6a3769edf7ea"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.85,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||macro_protocol|macro|macro_skill|transparently instrument third-party packages at import time without modifying user code|default|instrumentation|import_interception|initialization|package import interception and instrumentation",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct macro_protocol for runtime import interception and dynamic package instrumentation. It operates at the initialization stage with a specific method_family (import_interception) that does not overlap with existing skills. Peer candidates address API instrumentation design, test fixtures, and session lifecycle—all different asset layers or task families. Existing skills focus on distributed inference architecture and transfer engines, which are orthogonal domains. The candidate fills a unique capability gap in the instrumentation registry.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 1.0,
+    "hierarchy_status": "parent",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "12888375-7271-5bd8-a3ad-cde4deb2c5cf",
+      "13a5326f-0977-5ab3-ac1f-79ddc42717b1",
+      "1d4c22ad-24cd-57e6-ad62-07fdfdc66fb6",
+      "803d45fe-dfab-571a-ba81-9ec12337db12",
+      "812e7026-499e-5857-812c-08f5685e456e",
+      "89c79e01-e6e8-5d05-acf6-f6fec8b4f794",
+      "a1a7e0ae-7044-57cb-acba-af065d511fe0",
+      "a7c386e7-6b98-5ac6-8fbe-c7d3468b741d",
+      "bb292af1-9249-5d0a-b61e-8d183ccd9280",
+      "be9ee306-d51d-5fa4-ae33-699cbc310f42",
+      "c31ddfb9-dade-537c-b1a5-7a488905160a",
+      "c4301c20-1a1c-5e6e-8227-1dde6375d2be",
+      "d8ea0a6a-2ee7-5ade-872e-dde9abd80350",
+      "db7d6c09-b85e-5ef5-b1cc-54656bec2509",
+      "eef033aa-c25c-5fb2-a472-489938d12a32"
+    ]
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

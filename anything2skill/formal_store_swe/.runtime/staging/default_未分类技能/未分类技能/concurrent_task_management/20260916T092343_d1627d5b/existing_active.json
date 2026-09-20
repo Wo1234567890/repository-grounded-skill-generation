@@ -1,0 +1,509 @@
+{
+  "schema": "autoskill.document.staging.existing_active.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "concurrent_task_management",
+  "run_id": "20260916T092343_d1627d5b",
+  "skills": [
+    {
+      "skill_id": "0727e71a-176f-5681-b009-b38cd2eb150a",
+      "name": "Classify Future Timeout and Cancellation Outcomes",
+      "description": "Catch and classify TimeoutError and CancelledError exceptions when calling Future.result(timeout=...) or waiting on Futures with timeout. Route each outcome class (timeout, cancellation, normal completion) to the appropriate handler for recovery, retry, escalation, or cleanup.",
+      "skill_body": "When calling Future.result(timeout=...) or waiting on Futures with a timeout parameter, catch and classify the exception outcome. If TimeoutError is raised, the operation exceeded the timeout threshold. If CancelledError is raised, the Future was cancelled before completion. Route each case to the appropriate handler: timeout cases may warrant retry or escalation; cancellation cases may warrant logging or cleanup. Normal completion (no exception) proceeds without intervention.\n\n## Objective\n\nClassify and handle Future timeout and cancellation outcomes\n## Applicable Signals\n\n- Calling Future.result(timeout=...) with a timeout parameter\n- Waiting on Futures using concurrent.futures.wait() or as_completed() with timeout\n- Need to distinguish between timeout, cancellation, and normal completion\n\n## Contraindications\n\n- No timeout is set on the Future operation\n- Future is guaranteed to complete within acceptable time\n- Error classification is not needed for the use case\n\n## Intervention Moves\n\n- Catch TimeoutError: log timeout event, decide whether to retry, escalate, or fail gracefully\n- Catch CancelledError: log cancellation event, perform cleanup, update caller state\n- On normal completion: proceed with result or exception from Future\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Invoke Future.result(timeout=T) or wait(..., timeout=T)', 'note': 'Set timeout parameter to a positive number or None'}\n- {'step': 2, 'action': 'Catch concurrent.futures.TimeoutError', 'note': 'Indicates operation exceeded timeout threshold T'}\n- {'step': 3, 'action': 'Catch concurrent.futures.CancelledError', 'note': 'Indicates Future was cancelled before completion'}\n- {'step': 4, 'action': 'Route to appropriate handler based on exception type', 'note': 'Timeout → retry/escalate; Cancellation → cleanup/log; Normal → proceed'}\n\n## Constraints\n\n- TimeoutError is a deprecated alias of built-in TimeoutError as of Python 3.11\n- CancelledError is raised only if the Future was explicitly cancelled\n- Exception handling must occur after the timeout-aware call (e.g., Future.result(timeout=...) or wait(..., timeout=...))\n\n## Cautions\n\n- Do not confuse TimeoutError with other exceptions raised by the Future's underlying work\n- Cancellation and timeout are distinct outcomes; apply different recovery strategies\n- Ensure timeout value is appropriate for the task; very short timeouts may cause spurious failures\n\n## Output Contract\n\n- Caller identifies the outcome class (timeout, cancellation, or normal completion) and applies the corresponding action. The skill guarantees classification; the caller is responsible for recovery logic.\n\n## Example Executions\n\n### Example 1\n\n- Input: Call future.result(timeout=5) on a Future that does not complete within 5 seconds\n- Output: concurrent.futures.TimeoutError is raised; caller catches and decides to retry or escalate\n- Notes: Timeout is the primary failure mode when timeout parameter is set\n\n### Example 2\n\n- Input: Call future.result(timeout=10) on a Future that was cancelled via future.cancel()\n- Output: concurrent.futures.CancelledError is raised; caller catches and performs cleanup\n- Notes: Cancellation takes precedence; result() raises CancelledError even if timeout has not elapsed\n\n### Example 3\n\n- Input: Call future.result(timeout=None) on a Future that completes normally\n- Output: No exception; result is returned or underlying exception is raised\n- Notes: When timeout=None, no timeout occurs; only the Future's actual outcome is observed",
+      "asset_type": "safety_rule",
+      "granularity": "micro",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Classify and handle Future timeout and cancellation outcomes",
+      "domain": "default",
+      "task_family": "concurrent_task_management",
+      "method_family": "future_error_classification",
+      "stage": "task_completion",
+      "applicable_signals": [
+        "Calling Future.result(timeout=...) with a timeout parameter",
+        "Waiting on Futures using concurrent.futures.wait() or as_completed() with timeout",
+        "Need to distinguish between timeout, cancellation, and normal completion"
+      ],
+      "contraindications": [
+        "No timeout is set on the Future operation",
+        "Future is guaranteed to complete within acceptable time",
+        "Error classification is not needed for the use case"
+      ],
+      "intervention_moves": [
+        "Catch TimeoutError: log timeout event, decide whether to retry, escalate, or fail gracefully",
+        "Catch CancelledError: log cancellation event, perform cleanup, update caller state",
+        "On normal completion: proceed with result or exception from Future"
+      ],
+      "triggers": [
+        "Calling Future.result(timeout=...) or waiting on Futures with timeout; need to distinguish between timeout, cancellation, and normal completion"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Invoke Future.result(timeout=T) or wait(..., timeout=T)', 'note': 'Set timeout parameter to a positive number or None'}",
+        "{'step': 2, 'action': 'Catch concurrent.futures.TimeoutError', 'note': 'Indicates operation exceeded timeout threshold T'}",
+        "{'step': 3, 'action': 'Catch concurrent.futures.CancelledError', 'note': 'Indicates Future was cancelled before completion'}",
+        "{'step': 4, 'action': 'Route to appropriate handler based on exception type', 'note': 'Timeout → retry/escalate; Cancellation → cleanup/log; Normal → proceed'}"
+      ],
+      "constraints": [
+        "TimeoutError is a deprecated alias of built-in TimeoutError as of Python 3.11",
+        "CancelledError is raised only if the Future was explicitly cancelled",
+        "Exception handling must occur after the timeout-aware call (e.g., Future.result(timeout=...) or wait(..., timeout=...))"
+      ],
+      "cautions": [
+        "Do not confuse TimeoutError with other exceptions raised by the Future's underlying work",
+        "Cancellation and timeout are distinct outcomes; apply different recovery strategies",
+        "Ensure timeout value is appropriate for the task; very short timeouts may cause spurious failures"
+      ],
+      "output_contract": [
+        "Caller identifies the outcome class (timeout, cancellation, or normal completion) and applies the corresponding action. The skill guarantees classification; the caller is responsible for recovery logic."
+      ],
+      "examples": [
+        {
+          "input": "Call future.result(timeout=5) on a Future that does not complete within 5 seconds",
+          "output": "concurrent.futures.TimeoutError is raised; caller catches and decides to retry or escalate",
+          "notes": "Timeout is the primary failure mode when timeout parameter is set"
+        },
+        {
+          "input": "Call future.result(timeout=10) on a Future that was cancelled via future.cancel()",
+          "output": "concurrent.futures.CancelledError is raised; caller catches and performs cleanup",
+          "notes": "Cancellation takes precedence; result() raises CancelledError even if timeout has not elapsed"
+        },
+        {
+          "input": "Call future.result(timeout=None) on a Future that completes normally",
+          "output": "No exception; result is returned or underlying exception is raised",
+          "notes": "When timeout=None, no timeout occurs; only the Future's actual outcome is observed"
+        }
+      ],
+      "tags": [
+        "concurrent.futures",
+        "Future",
+        "timeout",
+        "cancellation",
+        "exception_handling",
+        "error_classification"
+      ],
+      "support_ids": [
+        "f3edcc5d-a3cb-5cbe-8f5c-c75e4d3c576a"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "3ab4dfa8-9e23-540c-bd69-65ed10c694b2"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|micro|safety_rule_node|classify and handle future timeout and cancellation outcomes|default|concurrent_task_management|future_error_classification|task_completion|classify future timeout and cancellation outcomes",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro-level safety_rule for Future timeout/cancellation classification in concurrent task management. It does not semantically overlap with existing skills (which cover Virtual WAN routing) or peer candidates (which address Executor/ThreadPool/ProcessPool health at session granularity and task submission/execution monitoring stages). Candidate operates at task_completion stage with micro granularity, addressing a specific exception classification workflow for Future.result() timeout and cancellation outcomes. No merge, split, or revision relationship exists.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "5a63d94f-55c3-5860-b386-acd57dbebc38",
+      "name": "Parallel Task Completion Polling",
+      "description": "Wait for a collection of Futures to reach a completion condition (any, first exception, or all done) with optional timeout. Use this session-level skill to coordinate multi-task workflows and decide when to proceed based on task readiness.",
+      "skill_body": "Call concurrent.futures.wait(fs, timeout=None, return_when=ALL_COMPLETED) to block until a completion condition is met. Specify return_when as one of: FIRST_COMPLETED (return when any Future finishes or is cancelled), FIRST_EXCEPTION (return when any Future raises an exception, or ALL_COMPLETED if none raise), or ALL_COMPLETED (return when all Futures finish or are cancelled). Timeout can be an int or float in seconds; None means no limit. The function returns a tuple (done, pending) where done and pending are sets of Futures.\n\n## Objective\n\nBlock and poll a Future collection until a specified completion condition is met, returning a snapshot of done and pending tasks\n## Applicable Signals\n\n- Multiple Futures submitted to an Executor\n- Caller needs to block until a specific completion condition is met\n- Timeout constraint is present or optional\n\n## Contraindications\n\n- Single Future: use Future.result() instead\n- No need to wait for completion: use as_completed() for streaming results\n- Synchronous blocking is unacceptable in the calling context\n- Caller needs results as they arrive rather than a snapshot at a condition\n\n## Workflow Steps\n\n- Collect all Future objects from parallel task submissions\n- Choose return_when condition: FIRST_COMPLETED, FIRST_EXCEPTION, or ALL_COMPLETED\n- Set timeout value (None for no limit, or int/float seconds)\n- Call concurrent.futures.wait(fs, timeout, return_when)\n- Inspect returned (done, pending) tuple to determine next action\n- Handle any Futures in done set; optionally wait again on pending set if needed\n\n## Constraints\n\n- return_when must be one of: FIRST_COMPLETED, FIRST_EXCEPTION, or ALL_COMPLETED\n- timeout must be None, int, or float (seconds)\n- fs must be a collection of Future objects\n- Function blocks the calling thread until condition is met or timeout expires\n\n## Cautions\n\n- If timeout expires before return_when condition is met, function returns with pending Futures still running\n- FIRST_EXCEPTION returns only if a Future raises an exception; if none raise, behaves as ALL_COMPLETED\n- Caller must handle both done and pending sets; pending Futures continue running in background\n\n## Output Contract\n\n- Returns a tuple (done, pending) where done is a set of Futures that have completed (finished or cancelled) and pending is a set of Futures still running. Caller can call Future.result() or Future.exception() on done Futures to retrieve outcomes.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [
+        "0745223a-841f-51d6-8381-727206ff716f",
+        "40060062-3dbc-5b0d-b4dc-a198affc3fb8",
+        "89af0319-817d-52d3-90b9-ccb19b7a6372",
+        "9d5752c7-0308-5eba-b424-241a7347e150",
+        "e0543d5d-48b2-54e9-bd99-13af454968ef"
+      ],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Block and poll a Future collection until a specified completion condition is met, returning a snapshot of done and pending tasks",
+      "domain": "default",
+      "task_family": "concurrent_task_management",
+      "method_family": "future_polling",
+      "stage": "task_synchronization",
+      "applicable_signals": [
+        "Multiple Futures submitted to an Executor",
+        "Caller needs to block until a specific completion condition is met",
+        "Timeout constraint is present or optional"
+      ],
+      "contraindications": [
+        "Single Future: use Future.result() instead",
+        "No need to wait for completion: use as_completed() for streaming results",
+        "Synchronous blocking is unacceptable in the calling context",
+        "Caller needs results as they arrive rather than a snapshot at a condition"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Need to wait for multiple parallel tasks and decide next action based on which tasks complete first",
+        "Require timeout-bounded waiting for task completion",
+        "Must inspect which Futures finished and which are still running after wait returns"
+      ],
+      "workflow_steps": [
+        "Collect all Future objects from parallel task submissions",
+        "Choose return_when condition: FIRST_COMPLETED, FIRST_EXCEPTION, or ALL_COMPLETED",
+        "Set timeout value (None for no limit, or int/float seconds)",
+        "Call concurrent.futures.wait(fs, timeout, return_when)",
+        "Inspect returned (done, pending) tuple to determine next action",
+        "Handle any Futures in done set; optionally wait again on pending set if needed"
+      ],
+      "constraints": [
+        "return_when must be one of: FIRST_COMPLETED, FIRST_EXCEPTION, or ALL_COMPLETED",
+        "timeout must be None, int, or float (seconds)",
+        "fs must be a collection of Future objects",
+        "Function blocks the calling thread until condition is met or timeout expires"
+      ],
+      "cautions": [
+        "If timeout expires before return_when condition is met, function returns with pending Futures still running",
+        "FIRST_EXCEPTION returns only if a Future raises an exception; if none raise, behaves as ALL_COMPLETED",
+        "Caller must handle both done and pending sets; pending Futures continue running in background"
+      ],
+      "output_contract": [
+        "Returns a tuple (done, pending) where done is a set of Futures that have completed (finished or cancelled) and pending is a set of Futures still running. Caller can call Future.result() or Future.exception() on done Futures to retrieve outcomes."
+      ],
+      "examples": [],
+      "tags": [
+        "concurrent.futures",
+        "Future",
+        "polling",
+        "synchronization",
+        "timeout",
+        "multi-task coordination"
+      ],
+      "support_ids": [
+        "a6e83dc0-2ffc-5f61-b7a6-4ebe0a0042dd"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "b684c19e-5cc8-53ce-8ad6-5dbff253b81f"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.88,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|block and poll a future collection until a specified completion condition is met, returning a snapshot of done and pending tasks|default|concurrent_task_management|future_polling|task_synchronization|parallel task completion polling",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct session-level skill for Future polling and task synchronization in concurrent workflows. It does not semantically match any existing skill (which cover virtual hub routing, JSON library configuration, and unrelated domains). Peer candidates are complementary parallel execution skills (executor setup/initialization) but operate at different stages (initialization vs. task_synchronization). No merge, split, or revision relationship exists.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "child_skill_ids": [
+          "0745223a-841f-51d6-8381-727206ff716f",
+          "40060062-3dbc-5b0d-b4dc-a198affc3fb8",
+          "89af0319-817d-52d3-90b9-ccb19b7a6372",
+          "9d5752c7-0308-5eba-b424-241a7347e150",
+          "e0543d5d-48b2-54e9-bd99-13af454968ef"
+        ]
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "6ae95eca-2b03-52fc-bf4e-33e1e79c4fb6",
+      "name": "Executor Failure Detection and Recovery",
+      "description": "Detect and handle BrokenExecutor exceptions when an Executor becomes unusable due to internal failure. Prevents silent task submission failures and escalates to recovery or fallback logic.",
+      "skill_body": "When submitting tasks to an Executor, catch concurrent.futures.BrokenExecutor exceptions. This exception is raised when an Executor is broken for some reason and cannot be used to submit or execute new tasks. Upon detection, log the error, switch to a fallback Executor, or escalate to the caller with context. Do not retry the same Executor; treat BrokenExecutor as a non-recoverable state requiring resource replacement.\n\n## Objective\n\nCatch and respond to Executor corruption or shutdown state\n## Applicable Signals\n\n- concurrent.futures.BrokenExecutor exception raised during submit() or map() call\n- Executor internal state corruption detected\n\n## Contraindications\n\n- Executor is known to be healthy and active\n- No recovery or fallback mechanism is available\n- Caller cannot tolerate escalation or resource replacement\n\n## Intervention Moves\n\n- Switch to fallback Executor when BrokenExecutor is caught\n- Escalate to caller with error context and Executor state information\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Attempt to submit task to Executor', 'condition': 'Task submission in progress'}\n- {'step': 2, 'action': 'Catch concurrent.futures.BrokenExecutor exception', 'condition': 'Exception raised during submit() or map()'}\n- {'step': 3, 'action': 'Log error with Executor context and failure reason', 'condition': 'Exception caught'}\n- {'step': 4, 'action': 'Switch to fallback Executor or escalate to caller', 'condition': 'Fallback available or escalation path defined'}\n\n## Constraints\n\n- BrokenExecutor is non-recoverable; do not retry the same Executor instance\n- Fallback Executor must be initialized before or during exception handling\n- Exception handling must occur at task submission boundary\n\n## Cautions\n\n- BrokenExecutor is derived from RuntimeError; ensure exception type is checked explicitly\n- Do not confuse BrokenExecutor with transient task failures; this indicates Executor-level corruption\n- Escalation or fallback must be implemented by caller; this rule only detects and signals\n\n## Output Contract\n\n- BrokenExecutor exception is caught and handled; caller receives either a successful task submission via fallback Executor or an escalation signal with error context. Broken Executor is not reused.",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Catch and respond to Executor corruption or shutdown state",
+      "domain": "default",
+      "task_family": "concurrent_task_management",
+      "method_family": "executor_health_check",
+      "stage": "task_submission",
+      "applicable_signals": [
+        "concurrent.futures.BrokenExecutor exception raised during submit() or map() call",
+        "Executor internal state corruption detected"
+      ],
+      "contraindications": [
+        "Executor is known to be healthy and active",
+        "No recovery or fallback mechanism is available",
+        "Caller cannot tolerate escalation or resource replacement"
+      ],
+      "intervention_moves": [
+        "Switch to fallback Executor when BrokenExecutor is caught",
+        "Escalate to caller with error context and Executor state information"
+      ],
+      "triggers": [
+        "Task submission attempt to an Executor",
+        "Executor may have been shut down, crashed, or entered an invalid state",
+        "Need to detect and recover gracefully from Executor failure"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Attempt to submit task to Executor', 'condition': 'Task submission in progress'}",
+        "{'step': 2, 'action': 'Catch concurrent.futures.BrokenExecutor exception', 'condition': 'Exception raised during submit() or map()'}",
+        "{'step': 3, 'action': 'Log error with Executor context and failure reason', 'condition': 'Exception caught'}",
+        "{'step': 4, 'action': 'Switch to fallback Executor or escalate to caller', 'condition': 'Fallback available or escalation path defined'}"
+      ],
+      "constraints": [
+        "BrokenExecutor is non-recoverable; do not retry the same Executor instance",
+        "Fallback Executor must be initialized before or during exception handling",
+        "Exception handling must occur at task submission boundary"
+      ],
+      "cautions": [
+        "BrokenExecutor is derived from RuntimeError; ensure exception type is checked explicitly",
+        "Do not confuse BrokenExecutor with transient task failures; this indicates Executor-level corruption",
+        "Escalation or fallback must be implemented by caller; this rule only detects and signals"
+      ],
+      "output_contract": [
+        "BrokenExecutor exception is caught and handled; caller receives either a successful task submission via fallback Executor or an escalation signal with error context. Broken Executor is not reused."
+      ],
+      "examples": [],
+      "tags": [
+        "concurrent.futures",
+        "executor",
+        "exception_handling",
+        "failure_detection",
+        "recovery",
+        "safety"
+      ],
+      "support_ids": [
+        "df62d6da-afcc-55b3-ac11-05f6d6ed4b64"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "48639180-38cb-566c-b9bb-703bccc90fc7"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.82,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|catch and respond to executor corruption or shutdown state|default|concurrent_task_management|executor_health_check|task_submission|executor failure detection and recovery",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct safety_rule for detecting and recovering from BrokenExecutor exceptions at the task submission boundary. It differs semantically from peer candidates: it addresses Executor-level corruption (non-recoverable state) rather than deadlock prevention, initializer exceptions, or ThreadPoolExecutor-specific failures. Existing skills in registry are unrelated (Virtual WAN routing, Maven repository security). No merge, split, or revision relationship applies.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "89af0319-817d-52d3-90b9-ccb19b7a6372",
+      "name": "Future State Transition Control",
+      "description": "Atomically assign a Future's terminal state (result or exception) exactly once. Use this micro-operation when implementing custom Executor backends or in unit tests that need to manually resolve Future outcomes.",
+      "skill_body": "Call either set_result(result) or set_exception(exception) on a Future object exactly once. Do not call both methods on the same Future, and do not call either method after the Future is already done. If the Future is already done, the call will raise InvalidStateError.\n\n## Objective\n\nAtomically assign a Future's terminal state (result or exception)\n## Applicable Signals\n\n- Implementing custom Executor.submit() or similar task submission\n- Writing unit tests that manually resolve Future outcomes\n- Need to finalize a Future's outcome exactly once\n\n## Contraindications\n\n- Future is already done (result or exception already set)\n- Calling after Future.set_result() or Future.set_exception() has been invoked\n- Attempting to call both set_result() and set_exception() on the same Future\n\n## Intervention Moves\n\n- Call set_result(result) to assign the successful outcome\n- Call set_exception(exception) to assign an exception outcome\n- Ensure only one of these two methods is called per Future\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check that the Future is not already done', 'detail': 'Verify the Future has not had set_result() or set_exception() called previously'}\n- {'step': 2, 'action': 'Choose outcome type: result or exception', 'detail': 'Determine whether the task completed successfully or raised an exception'}\n- {'step': 3, 'action': 'Call set_result(result) or set_exception(exception)', 'detail': 'Invoke exactly one of these methods with the appropriate outcome'}\n- {'step': 4, 'action': 'Verify Future transitions to done state', 'detail': 'Confirm the Future is now done and subsequent calls will raise InvalidStateError'}\n\n## Constraints\n\n- Method can only be called once per Future\n- Cannot be called after the Future is already done\n- Intended only for Executor implementations and unit tests\n\n## Cautions\n\n- Raises concurrent.futures.InvalidStateError if the Future is already done (Python 3.8+)\n- Misuse can leave Futures in inconsistent states if not properly guarded\n\n## Output Contract\n\n- Future transitions to done state with result or exception set; subsequent calls to set_result() or set_exception() raise InvalidStateError; downstream callers can now retrieve the outcome via result() or exception()\n\n## Example Executions\n\n### Example 1\n\n- Input: Custom Executor implementation needs to resolve a Future after task completion\n- Output: Call future.set_result(task_output) to mark the Future as done with the result\n- Notes: Typical use in Executor.submit() implementation\n\n### Example 2\n\n- Input: Unit test needs to manually set an exception on a Future\n- Output: Call future.set_exception(ValueError('test error')) to mark the Future as done with an exception\n- Notes: Typical use in testing Future exception handling",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "5a63d94f-55c3-5860-b386-acd57dbebc38",
+      "parent_candidate_ids": [
+        "5a63d94f-55c3-5860-b386-acd57dbebc38"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Atomically assign a Future's terminal state (result or exception)",
+      "domain": "default",
+      "task_family": "concurrent_task_management",
+      "method_family": "future_state_mutation",
+      "stage": "task_completion",
+      "applicable_signals": [
+        "Implementing custom Executor.submit() or similar task submission",
+        "Writing unit tests that manually resolve Future outcomes",
+        "Need to finalize a Future's outcome exactly once"
+      ],
+      "contraindications": [
+        "Future is already done (result or exception already set)",
+        "Calling after Future.set_result() or Future.set_exception() has been invoked",
+        "Attempting to call both set_result() and set_exception() on the same Future"
+      ],
+      "intervention_moves": [
+        "Call set_result(result) to assign the successful outcome",
+        "Call set_exception(exception) to assign an exception outcome",
+        "Ensure only one of these two methods is called per Future"
+      ],
+      "triggers": [
+        "Implementing Executor.submit() or testing Future resolution; need to finalize a Future's outcome exactly once"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check that the Future is not already done', 'detail': 'Verify the Future has not had set_result() or set_exception() called previously'}",
+        "{'step': 2, 'action': 'Choose outcome type: result or exception', 'detail': 'Determine whether the task completed successfully or raised an exception'}",
+        "{'step': 3, 'action': 'Call set_result(result) or set_exception(exception)', 'detail': 'Invoke exactly one of these methods with the appropriate outcome'}",
+        "{'step': 4, 'action': 'Verify Future transitions to done state', 'detail': 'Confirm the Future is now done and subsequent calls will raise InvalidStateError'}"
+      ],
+      "constraints": [
+        "Method can only be called once per Future",
+        "Cannot be called after the Future is already done",
+        "Intended only for Executor implementations and unit tests"
+      ],
+      "cautions": [
+        "Raises concurrent.futures.InvalidStateError if the Future is already done (Python 3.8+)",
+        "Misuse can leave Futures in inconsistent states if not properly guarded"
+      ],
+      "output_contract": [
+        "Future transitions to done state with result or exception set; subsequent calls to set_result() or set_exception() raise InvalidStateError; downstream callers can now retrieve the outcome via result() or exception()"
+      ],
+      "examples": [
+        {
+          "input": "Custom Executor implementation needs to resolve a Future after task completion",
+          "output": "Call future.set_result(task_output) to mark the Future as done with the result",
+          "notes": "Typical use in Executor.submit() implementation"
+        },
+        {
+          "input": "Unit test needs to manually set an exception on a Future",
+          "output": "Call future.set_exception(ValueError('test error')) to mark the Future as done with an exception",
+          "notes": "Typical use in testing Future exception handling"
+        }
+      ],
+      "tags": [
+        "futures",
+        "concurrent.futures",
+        "executor",
+        "state_mutation",
+        "python312"
+      ],
+      "support_ids": [
+        "f9d2b5ea-9a06-5a1e-9c10-fc43ef656889"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "a30122d8-1262-51c3-ac3a-032676067d72"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|atomically assign a future's terminal state (result or exception)|default|concurrent_task_management|future_state_mutation|task_completion|future state transition control",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill in the future_state_mutation method family at the task_completion stage. It addresses atomic terminal state assignment (set_result/set_exception), which is semantically different from the peer candidates' concerns: state inspection (40060062), cancellation control (40060062, f629166f), and callback registration (e0543d5d). The existing_skills are unrelated (reward function integration). No merge, split, or revision relationship exists. Candidate is well-supported by concurrent.futures documentation and introduces a new capability not covered by existing registry.",
+        "parent_skill_id": "5a63d94f-55c3-5860-b386-acd57dbebc38",
+        "parent_candidate_ids": [
+          "5a63d94f-55c3-5860-b386-acd57dbebc38"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ]
+}

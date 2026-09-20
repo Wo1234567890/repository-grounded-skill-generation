@@ -1,0 +1,167 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "model_distribution",
+  "run_id": "20260916T044452_d73bd4b1",
+  "skills": [
+    {
+      "skill_id": "78496037-2dd2-5178-a01a-438dbf1e4770",
+      "name": "Mooncake P2P Checkpoint Distribution",
+      "description": "Micro-skill for distributing large model checkpoints across thousands of GPUs using Mooncake P2P Store and checkpoint-engine. Optimized for rapid model state synchronization during production training with sub-30-second latency for 1T+ parameter models.",
+      "skill_body": "Use this skill to distribute model checkpoints to large GPU clusters during training. Invoke when you need to synchronize model weights across thousands of GPUs with minimal latency. The skill leverages Mooncake's P2P checkpoint engine (checkpoint-engine) for zero-copy, high-performance distribution. Ensure all target GPUs are registered and reachable before initiating distribution. Monitor completion status across all nodes.\n\n## Objective\n\nDistribute model checkpoints to large GPU clusters with minimal update latency\n## Applicable Signals\n\n- Model weight update required during training\n- Checkpoint synchronization across multi-GPU cluster\n- Production training pipeline checkpoint save event\n- Large model state (1T+ parameters) ready for distribution\n\n## Contraindications\n\n- Single-node training environments\n- Inference-only deployments without training loop\n- Checkpoint sizes under 100GB (overhead not justified)\n- Nodes without RDMA or high-speed interconnect capability\n\n## Intervention Moves\n\n- Prepare checkpoint artifact on source node\n- Register all target GPU nodes in P2P network\n- Initiate checkpoint-engine distribution protocol\n- Monitor transfer progress and node acknowledgments\n- Verify state synchronization across all targets\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Prepare checkpoint', 'detail': 'Serialize model state and stage on source node'}\n- {'step': 2, 'action': 'Register targets', 'detail': 'Confirm all destination GPUs are reachable and registered in P2P network'}\n- {'step': 3, 'action': 'Initiate distribution', 'detail': 'Invoke checkpoint-engine with source checkpoint path and target GPU list'}\n- {'step': 4, 'action': 'Monitor transfer', 'detail': 'Track progress and collect acknowledgments from all target nodes'}\n- {'step': 5, 'action': 'Verify synchronization', 'detail': 'Confirm all nodes report successful state load and are ready to resume training'}\n\n## Constraints\n\n- All target GPUs must be pre-registered in the P2P network\n- Network connectivity and bandwidth must support concurrent multi-node transfer\n- Checkpoint must be serialized and ready before distribution initiation\n- No concurrent checkpoint distributions on overlapping GPU sets\n\n## Cautions\n\n- Verify checkpoint integrity before distribution to avoid propagating corrupted state\n- Monitor network saturation during large-scale distribution\n- Ensure sufficient storage on target nodes for checkpoint staging\n- Plan distribution windows to avoid interference with active compute\n\n## Output Contract\n\n- Checkpoint successfully distributed to all target GPUs\n- Distribution latency under 30 seconds for 1T parameter models\n- All nodes report successful state synchronization and are ready to resume training from the new checkpoint\n\n## Example Executions\n\n### Example 1\n\n- Input: Checkpoint file (1TB) from training node; target list of 1000 GPUs across 128 nodes\n- Output: Checkpoint distributed to all 1000 GPUs in ~20 seconds; all nodes synchronized and ready to resume training\n- Notes: Based on K1.5 and K2 production training application; 1T parameter model update across thousands of GPUs",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Distribute model checkpoints to large GPU clusters with minimal update latency",
+      "domain": "default",
+      "task_family": "model_distribution",
+      "method_family": "p2p_checkpoint_transfer",
+      "stage": "training_checkpoint_sync",
+      "applicable_signals": [
+        "Model weight update required during training",
+        "Checkpoint synchronization across multi-GPU cluster",
+        "Production training pipeline checkpoint save event",
+        "Large model state (1T+ parameters) ready for distribution"
+      ],
+      "contraindications": [
+        "Single-node training environments",
+        "Inference-only deployments without training loop",
+        "Checkpoint sizes under 100GB (overhead not justified)",
+        "Nodes without RDMA or high-speed interconnect capability"
+      ],
+      "intervention_moves": [
+        "Prepare checkpoint artifact on source node",
+        "Register all target GPU nodes in P2P network",
+        "Initiate checkpoint-engine distribution protocol",
+        "Monitor transfer progress and node acknowledgments",
+        "Verify state synchronization across all targets"
+      ],
+      "triggers": [
+        "Updating model weights across thousands of GPUs during training",
+        "Distributing checkpoints in production training pipelines",
+        "Synchronizing large model states (1T+ parameters)"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Prepare checkpoint', 'detail': 'Serialize model state and stage on source node'}",
+        "{'step': 2, 'action': 'Register targets', 'detail': 'Confirm all destination GPUs are reachable and registered in P2P network'}",
+        "{'step': 3, 'action': 'Initiate distribution', 'detail': 'Invoke checkpoint-engine with source checkpoint path and target GPU list'}",
+        "{'step': 4, 'action': 'Monitor transfer', 'detail': 'Track progress and collect acknowledgments from all target nodes'}",
+        "{'step': 5, 'action': 'Verify synchronization', 'detail': 'Confirm all nodes report successful state load and are ready to resume training'}"
+      ],
+      "constraints": [
+        "All target GPUs must be pre-registered in the P2P network",
+        "Network connectivity and bandwidth must support concurrent multi-node transfer",
+        "Checkpoint must be serialized and ready before distribution initiation",
+        "No concurrent checkpoint distributions on overlapping GPU sets"
+      ],
+      "cautions": [
+        "Verify checkpoint integrity before distribution to avoid propagating corrupted state",
+        "Monitor network saturation during large-scale distribution",
+        "Ensure sufficient storage on target nodes for checkpoint staging",
+        "Plan distribution windows to avoid interference with active compute"
+      ],
+      "output_contract": [
+        "Checkpoint successfully distributed to all target GPUs",
+        "Distribution latency under 30 seconds for 1T parameter models",
+        "All nodes report successful state synchronization and are ready to resume training from the new checkpoint"
+      ],
+      "examples": [
+        {
+          "input": "Checkpoint file (1TB) from training node; target list of 1000 GPUs across 128 nodes",
+          "output": "Checkpoint distributed to all 1000 GPUs in ~20 seconds; all nodes synchronized and ready to resume training",
+          "notes": "Based on K1.5 and K2 production training application; 1T parameter model update across thousands of GPUs"
+        }
+      ],
+      "tags": [
+        "checkpoint_distribution",
+        "p2p_transfer",
+        "training_synchronization",
+        "large_scale_gpu",
+        "mooncake_engine",
+        "checkpoint-engine"
+      ],
+      "support_ids": [
+        "83bfc676-8808-50f8-a39a-7ca2d070b504"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "0d594419-78e8-50e0-9967-23217821c454"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.72,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|distribute model checkpoints to large gpu clusters with minimal update latency|default|model_distribution|p2p_checkpoint_transfer|training_checkpoint_sync|mooncake p2p checkpoint distribution",
+        "change_action": "create",
+        "llm_reason": "Candidate is a micro_skill for training checkpoint distribution via Mooncake P2P, semantically distinct from existing skills (Script Loading Control and Image Component Optimization are UI/web optimization micro_skills in different domains). Peer candidates are macro_protocol and session_skill assets in distributed inference/KV cache, operating at different asset_levels and stages. No semantic overlap or split relationship detected. Candidate has valid support evidence and no conflicts. Should be persisted as new capability.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "fa185955-c877-401a-b51e-3e4b37c23c94",
+      "entity_type": "skill",
+      "entity_id": "78496037-2dd2-5178-a01a-438dbf1e4770",
+      "action": "create",
+      "changed_at": "2026-09-15T18:44:48+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a micro_skill for training checkpoint distribution via Mooncake P2P, semantically distinct from existing skills (Script Loading Control and Image Component Optimization are UI/web optimization micro_skills in different domains). Peer candidates are macro_protocol and session_skill assets in distributed inference/KV cache, operating at different asset_levels and stages. No semantic overlap or split relationship detected. Candidate has valid support evidence and no conflicts. Should be persisted as new capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "78496037-2dd2-5178-a01a-438dbf1e4770",
+        "doc_ids": [
+          "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4"
+        ],
+        "support_added": [
+          "83bfc676-8808-50f8-a39a-7ca2d070b504"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

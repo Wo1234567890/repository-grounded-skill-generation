@@ -1,0 +1,105 @@
+"""Task-aligned conservative verifier for implementing-agent-modes."""
+
+import os
+import re
+from pathlib import Path
+import pytest
+
+REPO_DIR = Path(os.environ.get("REPO_DIR", "/workspace/posthog"))
+
+def _read(rel):
+    p = REPO_DIR / rel
+    assert p.is_file(), f"Required file does not exist: {p}"
+    return p.read_text(encoding="utf-8", errors="replace")
+
+def _strip_comments(text):
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+    return re.sub(r"//[^\n]*", "", text)
+
+def _interface_body(text, name):
+    m = re.search(r"\binterface\s+" + re.escape(name) + r"\b[^{]*\{", text)
+    if not m:
+        return None
+    start = text.find("{", m.start())
+    depth = 0
+    quote = None
+    escaped = False
+    i = start
+    while i < len(text):
+        ch = text[i]
+        if quote is not None:
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == quote:
+                quote = None
+            i += 1
+            continue
+        if text.startswith("//", i):
+            j = text.find("\n", i + 2)
+            i = len(text) if j < 0 else j + 1
+            continue
+        if text.startswith("/*", i):
+            j = text.find("*/", i + 2)
+            if j < 0:
+                return None
+            i = j + 2
+            continue
+        if ch in {"'", '"', "`"}:
+            quote = ch
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start+1:i]
+        i += 1
+    return None
+
+def _field_type(body, field, typ):
+    if body is None:
+        return False
+    body = _strip_comments(body)
+    body = re.sub(r"\s+", "", body)
+    field = re.escape(re.sub(r"\s+", "", field))
+    typ = re.escape(re.sub(r"\s+", "", typ))
+    return bool(re.search(r"(^|[;,{])" + field + r"\??:" + typ + r"(?=[;,}]|$)", body))
+
+def _string_literal(text, value):
+    text = _strip_comments(text)
+    return bool(re.search(r"(['\"])" + re.escape(value) + r"\1", text))
+
+def _identifier(text, value):
+    text = _strip_comments(text)
+    return bool(re.search(r"\b" + re.escape(value) + r"\b", text))
+
+def test_r1_file_exists():
+    # File posthog/api/capture.py must exist
+    p = REPO_DIR / 'posthog/api/capture.py'
+    assert p.is_file(), 'Missing required file: posthog/api/capture.py'
+
+def test_r2_file_exists():
+    # File posthog/settings/batch_config.py must be created
+    p = REPO_DIR / 'posthog/settings/batch_config.py'
+    assert p.is_file(), 'Missing required file: posthog/settings/batch_config.py'
+
+def test_r3_file_exists():
+    # File posthog/tests/test_batch_capture.py must be created
+    p = REPO_DIR / 'posthog/tests/test_batch_capture.py'
+    assert p.is_file(), 'Missing required file: posthog/tests/test_batch_capture.py'
+
+def test_r4_identifier_in_file():
+    # Configuration file batch_config.py must define BATCH_MAX_SIZE
+    text = _read('posthog/settings/batch_config.py')
+    assert _identifier(text, 'BATCH_MAX_SIZE'), 'Missing required identifier: BATCH_MAX_SIZE'
+
+def test_r5_identifier_in_file():
+    # Configuration file batch_config.py must define BATCH_TIMEOUT_MS
+    text = _read('posthog/settings/batch_config.py')
+    assert _identifier(text, 'BATCH_TIMEOUT_MS'), 'Missing required identifier: BATCH_TIMEOUT_MS'
+
+def test_r6_identifier_in_file():
+    # Configuration file batch_config.py must define BATCH_RETRY_COUNT
+    text = _read('posthog/settings/batch_config.py')
+    assert _identifier(text, 'BATCH_RETRY_COUNT'), 'Missing required identifier: BATCH_RETRY_COUNT'

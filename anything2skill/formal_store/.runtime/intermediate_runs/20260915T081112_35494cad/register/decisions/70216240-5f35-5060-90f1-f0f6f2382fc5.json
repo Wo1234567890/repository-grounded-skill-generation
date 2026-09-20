@@ -1,0 +1,107 @@
+{
+  "skill_id": "70216240-5f35-5060-90f1-f0f6f2382fc5",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Redundant with peer_candidates. The candidate skill (70216240-5f35-5060-90f1-f0f6f2382fc5) describes a general weighted zone scoring approach that overlaps substantially with peer skill 77456f75-5da3-5604-bfcb-ec247cd860d5 (same name, same objective family, same domain/task/method). While the candidate has slightly more detailed workflow steps, it does not introduce a distinct capability—it is a variant of the same micro-skill already present in the batch. The peer candidates collectively cover: (1) general weighted zone scoring (77456f75), (2) parametric two-zone scoring with learned weights (b3841639), and (3) parameter optimization (a2669a09). The candidate adds no new distinct objective or method beyond these.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "70216240-5f35-5060-90f1-f0f6f2382fc5",
+    "name": "Weighted Zone Scoring",
+    "description": "Assign zone-specific weights to term occurrences across document fields and compute ranked retrieval scores by combining zone weights with term frequencies. Produces ranked document lists when query terms appear in multiple zones (e.g., author, title, abstract) with different relevance importance.",
+    "skill_body": "For each document matching the query, identify all zones where query terms occur. Multiply each term's frequency in that zone by the zone's assigned weight. Sum the weighted contributions across all zones to produce a final document score. Rank documents by descending score.\n\n## Objective\n\nscore_documents_by_zone_weight\n## Applicable Signals\n\n- Multi-zone index present (e.g., author, title, abstract fields)\n- Zone weights pre-computed or provided\n- Query contains one or more terms\n\n## Contraindications\n\n- Uniform field importance across all zones\n- No zone metadata in index structure\n- Unweighted Boolean retrieval is sufficient\n- Single-zone or flat document representation\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Retrieve candidate documents matching query terms', 'input': 'Query, inverted index with zone encoding'}\n- {'step': 2, 'action': 'For each candidate document, identify all zones containing query terms', 'input': 'Document postings or zone-encoded dictionary entries'}\n- {'step': 3, 'action': 'Look up zone weight for each identified zone', 'input': 'Zone weight table or index metadata'}\n- {'step': 4, 'action': 'Multiply term frequency in zone by zone weight; accumulate across all zones', 'input': 'Term frequency, zone weight'}\n- {'step': 5, 'action': 'Rank documents by descending combined score', 'input': 'Per-document accumulated scores'}\n\n## Constraints\n\n- Zone weights must be non-negative and pre-defined\n- Term frequencies must be available per zone\n- Index must encode zone information (either in dictionary or postings)\n\n## Cautions\n\n- Zone weight calibration affects ranking quality; validate weights against relevance judgments\n- Ensure zone definitions are consistent across all documents in collection\n\n## Output Contract\n\n- Ranked document list ordered by descending combined zone-weighted scores; each document includes its final score and zone contribution breakdown.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "score_documents_by_zone_weight",
+    "domain": "information_retrieval",
+    "task_family": "scoring",
+    "method_family": "weighted_zone_scoring",
+    "stage": "retrieval_ranking",
+    "applicable_signals": [
+      "Multi-zone index present (e.g., author, title, abstract fields)",
+      "Zone weights pre-computed or provided",
+      "Query contains one or more terms"
+    ],
+    "contraindications": [
+      "Uniform field importance across all zones",
+      "No zone metadata in index structure",
+      "Unweighted Boolean retrieval is sufficient",
+      "Single-zone or flat document representation"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Query matches terms in multiple document zones",
+      "Zone-specific relevance weights are available in index metadata",
+      "Ranked retrieval is required (not Boolean-only)"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Retrieve candidate documents matching query terms', 'input': 'Query, inverted index with zone encoding'}",
+      "{'step': 2, 'action': 'For each candidate document, identify all zones containing query terms', 'input': 'Document postings or zone-encoded dictionary entries'}",
+      "{'step': 3, 'action': 'Look up zone weight for each identified zone', 'input': 'Zone weight table or index metadata'}",
+      "{'step': 4, 'action': 'Multiply term frequency in zone by zone weight; accumulate across all zones', 'input': 'Term frequency, zone weight'}",
+      "{'step': 5, 'action': 'Rank documents by descending combined score', 'input': 'Per-document accumulated scores'}"
+    ],
+    "constraints": [
+      "Zone weights must be non-negative and pre-defined",
+      "Term frequencies must be available per zone",
+      "Index must encode zone information (either in dictionary or postings)"
+    ],
+    "cautions": [
+      "Zone weight calibration affects ranking quality; validate weights against relevance judgments",
+      "Ensure zone definitions are consistent across all documents in collection"
+    ],
+    "output_contract": [
+      "Ranked document list ordered by descending combined zone-weighted scores; each document includes its final score and zone contribution breakdown."
+    ],
+    "examples": [],
+    "tags": [
+      "ranking",
+      "zone_index",
+      "term_weighting",
+      "retrieval_scoring",
+      "parametric_search",
+      "ranked_boolean_retrieval"
+    ],
+    "support_ids": [
+      "3fbc5b7e-6dc4-5263-bdff-2ad6b8e6097b"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "de9fcd4c-b4e0-524b-b7a3-87edf7b83d26"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|score_documents_by_zone_weight|information_retrieval|scoring|weighted_zone_scoring|retrieval_ranking|weighted zone scoring"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 0,
+  "branch": "hits0"
+}

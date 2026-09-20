@@ -1,0 +1,404 @@
+{
+  "doc_id": "1b1cfe5e-1be5-5bc1-9b07-6e37f39e1ae1",
+  "title": "trl-grpo-017.md",
+  "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/trl-grpo-017.md",
+  "window_id": "cd88517f-0652-577a-8fb4-050d079bf1c8",
+  "section_heading": "GRPO Trainer",
+  "strategy": "strict",
+  "supports": [
+    {
+      "support_id": "a055bb7c-8b6e-5126-80da-e83fec83ea39",
+      "doc_id": "1b1cfe5e-1be5-5bc1-9b07-6e37f39e1ae1",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/trl-grpo-017.md",
+      "section": "GRPO Trainer",
+      "span": {
+        "start": 2527,
+        "end": 4917
+      },
+      "excerpt": "Overview\nTRL supports the GRPO Trainer for training language models, as described in the paper DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models by Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Mingchuan Zhang, Y. K. Li, Y. Wu, Daya Guo.\n\nThe abstract from the paper is the following:\n\nMathematical reasoning poses a significant challenge for language models due to its complex and structured nature. In this paper, we introduce DeepSeekMath 7B, which continues pre-training DeepSeek-Coder-Base-v1.5 7B with 120B math-related tokens sourced from Common Crawl, together with natural language and code data. DeepSeekMath 7B has achieved an impressive score of 51.7% on the competition-level MATH benchmark without relying on external toolkits and voting techniques, approaching the performance level of Gemini-Ultra and GPT-4. Self-consistency over 64 samples from DeepSeekMath 7B achieves 60.9% on MATH. The mathematical reasoning capability of DeepSeekMath is attributed to two key factors: First, we harness the significant potential of publicly available web data through a meticulously engineered data selection pipeline. Second, we introduce Group Relative Policy Optimization (GRPO), a variant of Proximal Policy Optimization (PPO), that enhances mathematical reasoning abilities while concurrently optimizing the memory usage of PPO.\n\nThis post-training method was contributed by Quentin Gallouédec.\n\nQuick start\nThis example demonstrates how to train a model using the GRPO method. We train a Qwen 0.5B Instruct model with the prompts from the TLDR dataset (completion column is ignored!). You can view the data in the dataset here:\n\nBelow is the script to train the model.\n\nCopied\n\n```\n\ntrain_grpo.py\nfrom datasets import load_dataset\nfrom trl import GRPOConfig, GRPOTrainer\n\ndataset = load_dataset(\"trl-lib/tldr\", split=\"train\")\n\n# Define the reward function, which rewards completions that are close to 20 characters\ndef reward_len(completions, **kwargs):\n    return [-abs(20 - len(completion)) for completion in completions]\n\ntraining_args = GRPOConfig(output_dir=\"Qwen2-0.5B-GRPO\", logging_steps=10)\ntrainer = GRPOTrainer(\n    model=\"Qwen/Qwen2-0.5B-Instruct\",\n    reward_funcs=reward_len,\n    args=training_args,\n    train_dataset=dataset,\n)\ntrainer.train()\n```\n\nExecute the script using the following command:\n\nCopied",
+      "relation_type": "support",
+      "confidence": 0.92,
+      "metadata": {
+        "document_title": "trl-grpo-017.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "GRPO Model Training Setup",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "Set up and execute a complete GRPO training session",
+        "task_family": "model_training",
+        "method_family": "reinforcement_learning",
+        "stage": "initialization",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "cd88517f-0652-577a-8fb4-050d079bf1c8",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 13,
+        "heading_path": [
+          "GRPO Trainer"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "trl-grpo-017.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Quick start",
+          "train_grpo.py",
+          "Looking deeper into the GRPO method",
+          "Generating completions",
+          "Computing the advantage",
+          "Estimating the KL divergence",
+          "Computing the loss",
+          "Logged metrics",
+          "Speed up training with vLLM-powered generation",
+          "GRPO at scale: train a 70B+ Model on multiple nodes",
+          "Example dataset from TLDR",
+          "Using a custom reward function",
+          "Example 1: Reward longer completions",
+          "Example 2: Reward completions with specific format"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "TRL supports the GRPO Trainer for training language models, as described in the paper DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models by Zhihong"
+      },
+      "created_at": "2026-09-15T18:51:16+00:00"
+    },
+    {
+      "support_id": "787c014b-4e11-5f48-a3d0-de9a49d36bdf",
+      "doc_id": "1b1cfe5e-1be5-5bc1-9b07-6e37f39e1ae1",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/trl-grpo-017.md",
+      "section": "GRPO Trainer",
+      "span": {
+        "start": 2527,
+        "end": 4917
+      },
+      "excerpt": "Overview\nTRL supports the GRPO Trainer for training language models, as described in the paper DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models by Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Mingchuan Zhang, Y. K. Li, Y. Wu, Daya Guo.\n\nThe abstract from the paper is the following:\n\nMathematical reasoning poses a significant challenge for language models due to its complex and structured nature. In this paper, we introduce DeepSeekMath 7B, which continues pre-training DeepSeek-Coder-Base-v1.5 7B with 120B math-related tokens sourced from Common Crawl, together with natural language and code data. DeepSeekMath 7B has achieved an impressive score of 51.7% on the competition-level MATH benchmark without relying on external toolkits and voting techniques, approaching the performance level of Gemini-Ultra and GPT-4. Self-consistency over 64 samples from DeepSeekMath 7B achieves 60.9% on MATH. The mathematical reasoning capability of DeepSeekMath is attributed to two key factors: First, we harness the significant potential of publicly available web data through a meticulously engineered data selection pipeline. Second, we introduce Group Relative Policy Optimization (GRPO), a variant of Proximal Policy Optimization (PPO), that enhances mathematical reasoning abilities while concurrently optimizing the memory usage of PPO.\n\nThis post-training method was contributed by Quentin Gallouédec.\n\nQuick start\nThis example demonstrates how to train a model using the GRPO method. We train a Qwen 0.5B Instruct model with the prompts from the TLDR dataset (completion column is ignored!). You can view the data in the dataset here:\n\nBelow is the script to train the model.\n\nCopied\n\n```\n\ntrain_grpo.py\nfrom datasets import load_dataset\nfrom trl import GRPOConfig, GRPOTrainer\n\ndataset = load_dataset(\"trl-lib/tldr\", split=\"train\")\n\n# Define the reward function, which rewards completions that are close to 20 characters\ndef reward_len(completions, **kwargs):\n    return [-abs(20 - len(completion)) for completion in completions]\n\ntraining_args = GRPOConfig(output_dir=\"Qwen2-0.5B-GRPO\", logging_steps=10)\ntrainer = GRPOTrainer(\n    model=\"Qwen/Qwen2-0.5B-Instruct\",\n    reward_funcs=reward_len,\n    args=training_args,\n    train_dataset=dataset,\n)\ntrainer.train()\n```\n\nExecute the script using the following command:\n\nCopied",
+      "relation_type": "support",
+      "confidence": 0.88,
+      "metadata": {
+        "document_title": "trl-grpo-017.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Custom Reward Function Definition",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Implement a single reward scoring operation",
+        "task_family": "reward_engineering",
+        "method_family": "scoring",
+        "stage": "reward_definition",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "cd88517f-0652-577a-8fb4-050d079bf1c8",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 13,
+        "heading_path": [
+          "GRPO Trainer"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "trl-grpo-017.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Quick start",
+          "train_grpo.py",
+          "Looking deeper into the GRPO method",
+          "Generating completions",
+          "Computing the advantage",
+          "Estimating the KL divergence",
+          "Computing the loss",
+          "Logged metrics",
+          "Speed up training with vLLM-powered generation",
+          "GRPO at scale: train a 70B+ Model on multiple nodes",
+          "Example dataset from TLDR",
+          "Using a custom reward function",
+          "Example 1: Reward longer completions",
+          "Example 2: Reward completions with specific format"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "TRL supports the GRPO Trainer for training language models, as described in the paper DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models by Zhihong"
+      },
+      "created_at": "2026-09-15T18:51:16+00:00"
+    }
+  ],
+  "skill_drafts": [
+    {
+      "draft_id": "7c6ae24b-d772-50da-881e-c7c311876b6b",
+      "doc_id": "1b1cfe5e-1be5-5bc1-9b07-6e37f39e1ae1",
+      "name": "GRPO Model Training Setup",
+      "description": "Initialize and configure a GRPO trainer with model, reward function, dataset, and training arguments to begin post-training optimization for language models using Group Relative Policy Optimization.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Set up and execute a complete GRPO training session",
+      "domain": "default",
+      "task_family": "model_training",
+      "method_family": "reinforcement_learning",
+      "stage": "initialization",
+      "applicable_signals": [
+        "Starting a new GRPO training run with a base model",
+        "Reward function is defined and callable",
+        "Training dataset is loaded and non-empty",
+        "Need to configure output directory and logging parameters"
+      ],
+      "contraindications": [
+        "Model is already mid-training or checkpoint exists",
+        "Reward function is undefined, incompatible, or returns invalid scores",
+        "Dataset is empty, malformed, or missing required columns",
+        "Output directory permissions are insufficient"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Load training dataset', 'detail': 'Use datasets.load_dataset() to fetch the training corpus; verify dataset contains prompt column'}",
+        "{'step': 2, 'action': 'Define reward function', 'detail': 'Create a callable that accepts completions and optional kwargs, returns list of numeric scores'}",
+        "{'step': 3, 'action': 'Create GRPOConfig', 'detail': 'Instantiate GRPOConfig with output_dir, logging_steps, and other training hyperparameters'}",
+        "{'step': 4, 'action': 'Instantiate GRPOTrainer', 'detail': 'Pass model identifier, reward_funcs, args (GRPOConfig), and train_dataset to GRPOTrainer constructor'}",
+        "{'step': 5, 'action': 'Verify trainer readiness', 'detail': 'Confirm GRPOTrainer instance is created without errors and ready to call .train()'}"
+      ],
+      "triggers": [
+        "Starting a new GRPO training run with a base model, reward function, and training dataset; need to configure output directory, logging, and trainer parameters"
+      ],
+      "constraints": [
+        "Reward function must accept completions and return numeric scores",
+        "Dataset must be loaded before trainer instantiation",
+        "Model identifier must be valid and accessible",
+        "GRPOConfig output_dir must be writable"
+      ],
+      "cautions": [
+        "Reward function must be deterministic or handle stochasticity explicitly",
+        "Large models may require distributed training setup; verify node configuration before scaling",
+        "Dataset completion column is ignored in GRPO; only prompts are used for generation"
+      ],
+      "output_contract": [
+        "GRPOTrainer instance created and ready to call .train(); training configuration persisted to output directory; no exceptions raised during initialization"
+      ],
+      "examples": [
+        {
+          "input": "model='Qwen/Qwen2-0.5B-Instruct', dataset=tldr_train_split, reward_func=reward_len (scores by completion length), output_dir='Qwen2-0.5B-GRPO'",
+          "output": "GRPOTrainer instance with all components bound; .train() method callable",
+          "notes": "Reward function rewards completions close to 20 characters via negative absolute difference"
+        }
+      ],
+      "risk_class": "low",
+      "confidence": 0.92,
+      "support_ids": [
+        "a055bb7c-8b6e-5126-80da-e83fec83ea39"
+      ],
+      "metadata": {
+        "prompt": "Load the training dataset, define a reward function that scores completions, create a GRPOConfig with output directory and logging parameters, instantiate a GRPOTrainer with the model identifier, reward function, configuration, and dataset, then verify the trainer is ready to execute training.",
+        "tags": [
+          "grpo",
+          "training",
+          "reinforcement_learning",
+          "language_model",
+          "post_training"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "GRPO Trainer"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "candidate_slot": 1,
+        "window_id": "cd88517f-0652-577a-8fb4-050d079bf1c8",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 13,
+        "heading_path": [
+          "GRPO Trainer"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "trl-grpo-017.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Quick start",
+          "train_grpo.py",
+          "Looking deeper into the GRPO method",
+          "Generating completions",
+          "Computing the advantage",
+          "Estimating the KL divergence",
+          "Computing the loss",
+          "Logged metrics",
+          "Speed up training with vLLM-powered generation",
+          "GRPO at scale: train a 70B+ Model on multiple nodes",
+          "Example dataset from TLDR",
+          "Using a custom reward function",
+          "Example 1: Reward longer completions",
+          "Example 2: Reward completions with specific format"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "TRL supports the GRPO Trainer for training language models, as described in the paper DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models by Zhihong"
+      }
+    },
+    {
+      "draft_id": "74dbda9b-818f-531d-8c0d-2319694ea523",
+      "doc_id": "1b1cfe5e-1be5-5bc1-9b07-6e37f39e1ae1",
+      "name": "Custom Reward Function Definition",
+      "description": "Define a callable reward function that scores model completions based on custom criteria such as length, format, or semantic properties, returning a list of scalar rewards. Use this micro-skill when you need to specify custom reward criteria beyond default metrics and the reward logic is simple and deterministic.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Implement a single reward scoring operation",
+      "domain": "default",
+      "task_family": "reward_engineering",
+      "method_family": "scoring",
+      "stage": "reward_definition",
+      "applicable_signals": [
+        "Need to specify custom reward criteria beyond default metrics",
+        "Reward logic is simple and deterministic",
+        "Preparing for GRPO trainer initialization with custom reward function"
+      ],
+      "contraindications": [
+        "Reward requires external API calls or network I/O",
+        "Reward logic requires complex multi-step inference or model calls",
+        "Reward is non-differentiable or requires gradient computation",
+        "Reward requires stateful context or maintains internal state across calls"
+      ],
+      "intervention_moves": [
+        "Define reward function with signature: reward_func(completions, **kwargs)",
+        "Compute scalar score for each completion",
+        "Return list of rewards matching completion count and order"
+      ],
+      "workflow_steps": [],
+      "triggers": [
+        "Need to specify custom reward criteria beyond default metrics; reward logic is simple and deterministic (e.g., length penalty, format matching, keyword presence)"
+      ],
+      "constraints": [
+        "Function must be callable and accept completions list as first argument",
+        "Must return list of scalar values (float or int) with length equal to input completions",
+        "Reward computation must be deterministic for reproducibility",
+        "Function must complete execution within reasonable time per batch"
+      ],
+      "cautions": [
+        "Ensure reward values are on a consistent scale to avoid training instability",
+        "Test reward function with sample completions before passing to trainer",
+        "Avoid reward functions that always return the same value (no signal for optimization)"
+      ],
+      "output_contract": [
+        "Callable reward function object that accepts a list of completions and returns a list of scalar rewards; function is ready to pass to GRPOTrainer via reward_funcs parameter"
+      ],
+      "examples": [
+        {
+          "input": "completions = ['hello world', 'hi', 'this is a longer completion']",
+          "output": "reward_len(completions) returns [-abs(20 - 11), -abs(20 - 2), -abs(20 - 32)] = [-9, -18, -12]",
+          "notes": "Length-based reward penalizes deviations from target length of 20 characters"
+        },
+        {
+          "input": "completions = ['The answer is 42', 'No answer provided', 'The answer is correct']",
+          "output": "reward_format(completions) returns [1.0, 0.0, 1.0]",
+          "notes": "Format-based reward checks for presence of 'The answer is' pattern"
+        }
+      ],
+      "risk_class": "low",
+      "confidence": 0.88,
+      "support_ids": [
+        "787c014b-4e11-5f48-a3d0-de9a49d36bdf"
+      ],
+      "metadata": {
+        "prompt": "Implement a reward function that:\n1. Accepts a list of completions (strings) and optional keyword arguments\n2. Computes a scalar reward for each completion based on your custom criteria\n3. Returns a list of scalar rewards in the same order as input completions\n4. Ensures the function signature matches: reward_func(completions, **kwargs) -> List[float]\n\nCommon patterns:\n- Length-based: penalize or reward based on completion length\n- Format-based: check for specific patterns, keywords, or structure\n- Simple heuristics: count occurrences, check presence of markers\n\nKeep the logic deterministic and avoid external API calls or stateful operations.",
+        "tags": [
+          "reward_engineering",
+          "grpo_training",
+          "custom_scoring",
+          "reinforcement_learning"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "GRPO Trainer"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 2,
+        "window_id": "cd88517f-0652-577a-8fb4-050d079bf1c8",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 13,
+        "heading_path": [
+          "GRPO Trainer"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "trl-grpo-017.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Quick start",
+          "train_grpo.py",
+          "Looking deeper into the GRPO method",
+          "Generating completions",
+          "Computing the advantage",
+          "Estimating the KL divergence",
+          "Computing the loss",
+          "Logged metrics",
+          "Speed up training with vLLM-powered generation",
+          "GRPO at scale: train a 70B+ Model on multiple nodes",
+          "Example dataset from TLDR",
+          "Using a custom reward function",
+          "Example 1: Reward longer completions",
+          "Example 2: Reward completions with specific format"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "TRL supports the GRPO Trainer for training language models, as described in the paper DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models by Zhihong"
+      }
+    }
+  ],
+  "failed": false,
+  "complete": true,
+  "error": {}
+}

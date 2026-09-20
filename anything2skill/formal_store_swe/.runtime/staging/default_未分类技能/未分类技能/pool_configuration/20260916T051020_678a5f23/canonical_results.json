@@ -1,0 +1,178 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "pool_configuration",
+  "run_id": "20260916T051020_678a5f23",
+  "skills": [
+    {
+      "skill_id": "e3db3ce1-4c46-5250-8cf3-b6d590656c9e",
+      "name": "ProcessPoolExecutor Worker Lifecycle Configuration",
+      "description": "Configure worker process creation and lifecycle parameters (start method, initializer, max tasks per child) at pool creation time to control resource usage, process reuse, and worker initialization.",
+      "skill_body": "When creating a ProcessPoolExecutor, specify mp_context to control the start method (fork, spawn, forkserver), pass initializer and initargs to run setup code in each worker process, and set max_tasks_per_child to limit worker lifetime and prevent memory leaks. Use mp_context=multiprocessing.get_context(\"fork\") to explicitly request fork behavior before Python 3.14 changes the default.\n\n## Objective\n\nSet up worker process initialization and recycling parameters at pool creation time.\n## Applicable Signals\n\n- ProcessPoolExecutor instantiation\n- Multiprocessing context selection required\n- Worker initialization or per-worker resource setup needed\n- Memory or resource accumulation concerns in long-running pools\n\n## Contraindications\n\n- Using ThreadPoolExecutor instead of ProcessPoolExecutor\n- Workers must persist indefinitely without recycling\n- No per-worker initialization or setup required\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Determine required start method (fork, spawn, or forkserver) based on platform and use case', 'note': 'fork is default on Unix-like systems but will change; spawn is default on Windows'}\n- {'step': 2, 'action': 'If start method must be explicit, obtain context via multiprocessing.get_context(method_name)', 'note': 'Pass as mp_context parameter to ProcessPoolExecutor'}\n- {'step': 3, 'action': 'Define initializer function if per-worker setup is needed (e.g., database connection, logging setup)', 'note': 'Function must be module-level and picklable'}\n- {'step': 4, 'action': 'Prepare initargs tuple with arguments to pass to initializer', 'note': 'Arguments must be picklable'}\n- {'step': 5, 'action': 'Set max_tasks_per_child if worker recycling is needed to prevent memory accumulation', 'note': 'Typical values: 100–1000 tasks per worker before recycling'}\n- {'step': 6, 'action': 'Create ProcessPoolExecutor with configured parameters: mp_context, initializer, initargs, max_tasks_per_child', 'note': 'Use context manager (with statement) for automatic cleanup'}\n\n## Constraints\n\n- mp_context parameter available in Python 3.7+\n- initializer and initargs available in Python 3.7+\n- max_tasks_per_child available in Python 3.11+\n- Default multiprocessing start method will change from fork to spawn in Python 3.14\n\n## Cautions\n\n- Explicit mp_context=multiprocessing.get_context(\"fork\") should be specified if fork behavior is required, as default will change in Python 3.14\n- Initializer function must be picklable and side-effect safe\n- max_tasks_per_child recycling incurs overhead; balance against memory leak risk\n\n## Output Contract\n\n- ProcessPoolExecutor instance created with specified worker lifecycle configuration\n- Workers initialize according to initializer and initargs\n- Workers recycle after max_tasks_per_child tasks (if set)\n- Start method follows mp_context specification\n\n## Example Executions\n\n### Example 1\n\n- Input: Need to initialize a database connection in each worker process\n- Output: ProcessPoolExecutor created with initializer=setup_db, initargs=(db_url,); each worker calls setup_db(db_url) on startup\n- Notes: Initializer runs once per worker process, not per task\n\n### Example 2\n\n- Input: Require fork start method explicitly to avoid Python 3.14 default change\n- Output: ProcessPoolExecutor created with mp_context=multiprocessing.get_context(\"fork\")\n- Notes: Ensures fork behavior is preserved across Python versions\n\n### Example 3\n\n- Input: Long-running pool with tasks that accumulate memory in worker state\n- Output: ProcessPoolExecutor created with max_tasks_per_child=500; workers recycle after 500 tasks\n- Notes: Recycling prevents unbounded memory growth at cost of worker restart overhead",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "cd376aff-27f0-551f-be8f-d2eb384c145a",
+        "1aaea44c-47b6-537f-99b8-44c0de67c697"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Set up worker process initialization and recycling parameters at pool creation time.",
+      "domain": "default",
+      "task_family": "pool_configuration",
+      "method_family": "worker_lifecycle",
+      "stage": "initialization",
+      "applicable_signals": [
+        "ProcessPoolExecutor instantiation",
+        "Multiprocessing context selection required",
+        "Worker initialization or per-worker resource setup needed",
+        "Memory or resource accumulation concerns in long-running pools"
+      ],
+      "contraindications": [
+        "Using ThreadPoolExecutor instead of ProcessPoolExecutor",
+        "Workers must persist indefinitely without recycling",
+        "No per-worker initialization or setup required"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Need to control fork vs. spawn behavior for worker processes",
+        "Require setup code (e.g., database connection) to run in each worker",
+        "Want to limit worker lifetime to prevent memory leaks",
+        "Must ensure consistent worker state across task batches"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Determine required start method (fork, spawn, or forkserver) based on platform and use case', 'note': 'fork is default on Unix-like systems but will change; spawn is default on Windows'}",
+        "{'step': 2, 'action': 'If start method must be explicit, obtain context via multiprocessing.get_context(method_name)', 'note': 'Pass as mp_context parameter to ProcessPoolExecutor'}",
+        "{'step': 3, 'action': 'Define initializer function if per-worker setup is needed (e.g., database connection, logging setup)', 'note': 'Function must be module-level and picklable'}",
+        "{'step': 4, 'action': 'Prepare initargs tuple with arguments to pass to initializer', 'note': 'Arguments must be picklable'}",
+        "{'step': 5, 'action': 'Set max_tasks_per_child if worker recycling is needed to prevent memory accumulation', 'note': 'Typical values: 100–1000 tasks per worker before recycling'}",
+        "{'step': 6, 'action': 'Create ProcessPoolExecutor with configured parameters: mp_context, initializer, initargs, max_tasks_per_child', 'note': 'Use context manager (with statement) for automatic cleanup'}"
+      ],
+      "constraints": [
+        "mp_context parameter available in Python 3.7+",
+        "initializer and initargs available in Python 3.7+",
+        "max_tasks_per_child available in Python 3.11+",
+        "Default multiprocessing start method will change from fork to spawn in Python 3.14"
+      ],
+      "cautions": [
+        "Explicit mp_context=multiprocessing.get_context(\"fork\") should be specified if fork behavior is required, as default will change in Python 3.14",
+        "Initializer function must be picklable and side-effect safe",
+        "max_tasks_per_child recycling incurs overhead; balance against memory leak risk"
+      ],
+      "output_contract": [
+        "ProcessPoolExecutor instance created with specified worker lifecycle configuration",
+        "Workers initialize according to initializer and initargs",
+        "Workers recycle after max_tasks_per_child tasks (if set)",
+        "Start method follows mp_context specification"
+      ],
+      "examples": [
+        {
+          "input": "Need to initialize a database connection in each worker process",
+          "output": "ProcessPoolExecutor created with initializer=setup_db, initargs=(db_url,); each worker calls setup_db(db_url) on startup",
+          "notes": "Initializer runs once per worker process, not per task"
+        },
+        {
+          "input": "Require fork start method explicitly to avoid Python 3.14 default change",
+          "output": "ProcessPoolExecutor created with mp_context=multiprocessing.get_context(\"fork\")",
+          "notes": "Ensures fork behavior is preserved across Python versions"
+        },
+        {
+          "input": "Long-running pool with tasks that accumulate memory in worker state",
+          "output": "ProcessPoolExecutor created with max_tasks_per_child=500; workers recycle after 500 tasks",
+          "notes": "Recycling prevents unbounded memory growth at cost of worker restart overhead"
+        }
+      ],
+      "tags": [
+        "concurrent.futures",
+        "ProcessPoolExecutor",
+        "multiprocessing",
+        "worker_lifecycle",
+        "pool_configuration",
+        "initialization"
+      ],
+      "support_ids": [
+        "f44c195f-82c0-5417-ba9f-a7bff2574b86"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "318cdb49-ef4d-52bd-aa8f-654174f71dce"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|set up worker process initialization and recycling parameters at pool creation time.|default|pool_configuration|worker_lifecycle|initialization|processpoolexecutor worker lifecycle configuration",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "cd376aff-27f0-551f-be8f-d2eb384c145a",
+          "1aaea44c-47b6-537f-99b8-44c0de67c697"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "f8021ff2-2cb0-4710-961c-558cce4ff155",
+      "entity_type": "skill",
+      "entity_id": "e3db3ce1-4c46-5250-8cf3-b6d590656c9e",
+      "action": "create",
+      "changed_at": "2026-09-15T19:09:35+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "create",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "e3db3ce1-4c46-5250-8cf3-b6d590656c9e",
+        "doc_ids": [
+          "771b7202-2a1d-5eea-bda3-df5cd4ea6620"
+        ],
+        "support_added": [
+          "f44c195f-82c0-5417-ba9f-a7bff2574b86"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

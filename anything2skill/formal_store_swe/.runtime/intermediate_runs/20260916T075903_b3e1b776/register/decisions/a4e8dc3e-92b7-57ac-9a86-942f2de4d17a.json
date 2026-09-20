@@ -1,0 +1,109 @@
+{
+  "skill_id": "a4e8dc3e-92b7-57ac-9a86-942f2de4d17a",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for converting exceptions into structured ErrorEvent objects during LLM response processing. It differs semantically from existing skills: not about inspecting futures (0745223a), not about UI navigation (0a3e55ab), and orthogonal to peer candidates (contextual logging, attribute extraction, stream processing). The peer candidates address logging, telemetry, and stream handling—complementary but separate concerns. Candidate has clear support from Debugging Roadmap and no conflicts. Should be created as a new capability.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "a4e8dc3e-92b7-57ac-9a86-942f2de4d17a",
+    "name": "Exception-to-ErrorEvent Conversion",
+    "description": "Wraps any exception that occurs during LLM response processing into a structured ErrorEvent linked to the triggering LLMEvent, preserving causality for debugging.",
+    "skill_body": "When an exception is raised during LLM event processing, capture it and create an ErrorEvent object that references the originating LLMEvent. Pass both the trigger_event (the LLMEvent that was being processed) and the exception to the ErrorEvent constructor, then record it via _safe_record().\n\n## Objective\n\nConvert unhandled exceptions into traceable error events\n## Applicable Signals\n\n- Exception raised during LLM response processing\n- Need to preserve error context and link to originating LLM event\n\n## Contraindications\n\n- Exception should be re-raised to a higher-level handler\n- Exception handling is delegated to caller or outer scope\n\n## Intervention Moves\n\n- Catch exception in except block\n- Create ErrorEvent with trigger_event and exception parameters\n- Record ErrorEvent via _safe_record()\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Wrap LLM response processing in try-except block'}\n- {'step': 2, 'action': 'In except clause, instantiate ErrorEvent with trigger_event=llm_event and exception=e'}\n- {'step': 3, 'action': 'Call _safe_record(session, error_event) to persist the error event'}\n\n## Constraints\n\n- LLMEvent must be available and valid before exception occurs\n- session parameter must be passed to _safe_record()\n- ErrorEvent constructor must accept trigger_event and exception fields\n\n## Cautions\n\n- Do not suppress exceptions that require escalation or re-raising\n- Ensure _safe_record() is idempotent to avoid duplicate error logging\n\n## Output Contract\n\n- ErrorEvent object created with trigger_event and exception fields, ready for recording and downstream debugging.\n\n## Example Executions\n\n### Example 1\n\n- Input: LLMEvent in progress; exception raised during response.model_dump()\n- Output: ErrorEvent(trigger_event=llm_event, exception=<exception instance>)\n- Notes: Exception is captured and linked to the LLMEvent that triggered it",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Convert unhandled exceptions into traceable error events",
+    "domain": "default",
+    "task_family": "error_handling",
+    "method_family": "exception_wrapping",
+    "stage": "exception_capture",
+    "applicable_signals": [
+      "Exception raised during LLM response processing",
+      "Need to preserve error context and link to originating LLM event"
+    ],
+    "contraindications": [
+      "Exception should be re-raised to a higher-level handler",
+      "Exception handling is delegated to caller or outer scope"
+    ],
+    "intervention_moves": [
+      "Catch exception in except block",
+      "Create ErrorEvent with trigger_event and exception parameters",
+      "Record ErrorEvent via _safe_record()"
+    ],
+    "triggers": [
+      "An exception is raised during LLM event processing and you need to preserve the error context and link it to the originating LLM event"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Wrap LLM response processing in try-except block'}",
+      "{'step': 2, 'action': 'In except clause, instantiate ErrorEvent with trigger_event=llm_event and exception=e'}",
+      "{'step': 3, 'action': 'Call _safe_record(session, error_event) to persist the error event'}"
+    ],
+    "constraints": [
+      "LLMEvent must be available and valid before exception occurs",
+      "session parameter must be passed to _safe_record()",
+      "ErrorEvent constructor must accept trigger_event and exception fields"
+    ],
+    "cautions": [
+      "Do not suppress exceptions that require escalation or re-raising",
+      "Ensure _safe_record() is idempotent to avoid duplicate error logging"
+    ],
+    "output_contract": [
+      "ErrorEvent object created with trigger_event and exception fields, ready for recording and downstream debugging."
+    ],
+    "examples": [
+      {
+        "input": "LLMEvent in progress; exception raised during response.model_dump()",
+        "output": "ErrorEvent(trigger_event=llm_event, exception=<exception instance>)",
+        "notes": "Exception is captured and linked to the LLMEvent that triggered it"
+      }
+    ],
+    "tags": [
+      "error_handling",
+      "exception_wrapping",
+      "debugging",
+      "event_tracing",
+      "causality_preservation"
+    ],
+    "support_ids": [
+      "37d623db-719b-5490-bd26-cf4a07f4e985"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "d5993a7e-b3fc-571f-8ebf-d433d2d7d030"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|convert unhandled exceptions into traceable error events|default|error_handling|exception_wrapping|exception_capture|exception-to-errorevent conversion"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

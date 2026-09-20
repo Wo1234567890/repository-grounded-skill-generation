@@ -1,0 +1,124 @@
+{
+  "skill_id": "0d976330-bcf0-57fd-96db-19a0cfb1e9a5",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "0d976330-bcf0-57fd-96db-19a0cfb1e9a5",
+    "name": "Manage Active Instrumentor Lifecycle",
+    "description": "Track and maintain the list of active BaseInstrumentor instances during runtime, enabling selective activation, deactivation, and cleanup of instrumentation for monitored packages.",
+    "skill_body": "Maintain the _active_instrumentors module-level list as the single source of truth for all currently active instrumentation instances. On initialization, populate this list with BaseInstrumentor instances for target packages. When adding new instrumentors during import hooks, append to the list and initialize. On shutdown or cleanup, iterate the list, call cleanup methods on each instrumentor, and clear the list. Ensure thread-safe access if instrumentation occurs across multiple threads.\n\n## Objective\n\nmaintain_instrumentation_state\n## Applicable Signals\n\n- module import hook triggered\n- target package detected in TARGET_PACKAGES set\n- instrumentation manager instantiation\n- cleanup or teardown phase initiated\n\n## Contraindications\n\n- instrumentation is globally disabled\n- no packages in TARGET_PACKAGES require monitoring\n- instrumentor instances are managed externally by caller\n- agentic library detection is incomplete or failed\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Initialize _active_instrumentors as empty list at module load', 'condition': 'Module is loaded for first time'}\n- {'step': 2, 'action': 'On import hook or package detection, create BaseInstrumentor instance for target package', 'condition': 'Package is in TARGET_PACKAGES and not already instrumented'}\n- {'step': 3, 'action': 'Call instrumentor.instrument() or equivalent initialization method', 'condition': 'Instrumentor instance created successfully'}\n- {'step': 4, 'action': 'Append initialized instrumentor to _active_instrumentors list', 'condition': 'Initialization completed without error'}\n- {'step': 5, 'action': 'On shutdown signal, iterate _active_instrumentors and call cleanup on each', 'condition': 'Shutdown or cleanup phase initiated'}\n- {'step': 6, 'action': 'Clear _active_instrumentors list after all cleanups complete', 'condition': 'All instrumentors cleaned up successfully'}\n\n## Constraints\n\n- Must use module-level _active_instrumentors list as single source of truth\n- All BaseInstrumentor instances must be properly initialized before adding to list\n- Cleanup must be idempotent and handle already-removed instrumentors gracefully\n- Do not create a centralized InstrumentationManager instance; rely on list-based state\n\n## Cautions\n\n- Concurrent import hooks may attempt simultaneous list modifications; use locking if multi-threaded\n- Removing an instrumentor without calling cleanup may leave dangling hooks or references\n- Clearing the list without notifying dependent code may cause orphaned instrumentation\n\n## Output Contract\n\n- _active_instrumentors list reflects the current set of active BaseInstrumentor instances\n- All instrumentors are properly initialized on addition and fully cleaned up on removal\n- List is empty after shutdown\n- No dangling or orphaned instrumentor references remain\n\n## Example Executions\n\n### Example 1\n\n- Input: Import hook detects new target package during runtime\n- Output: New BaseInstrumentor created, initialized, and appended to _active_instrumentors; instrumentation active for that package\n- Notes: Assumes package is in TARGET_PACKAGES and not already instrumented\n\n### Example 2\n\n- Input: Shutdown signal received\n- Output: _active_instrumentors iterated, cleanup called on each instrumentor, list cleared\n- Notes: Cleanup must be idempotent to handle partial failures",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "maintain_instrumentation_state",
+    "domain": "default",
+    "task_family": "instrumentation_lifecycle",
+    "method_family": "state_management",
+    "stage": "execution",
+    "applicable_signals": [
+      "module import hook triggered",
+      "target package detected in TARGET_PACKAGES set",
+      "instrumentation manager instantiation",
+      "cleanup or teardown phase initiated"
+    ],
+    "contraindications": [
+      "instrumentation is globally disabled",
+      "no packages in TARGET_PACKAGES require monitoring",
+      "instrumentor instances are managed externally by caller",
+      "agentic library detection is incomplete or failed"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "instrumentation initialization phase",
+      "new package import detected during runtime",
+      "shutdown or cleanup signal received"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Initialize _active_instrumentors as empty list at module load', 'condition': 'Module is loaded for first time'}",
+      "{'step': 2, 'action': 'On import hook or package detection, create BaseInstrumentor instance for target package', 'condition': 'Package is in TARGET_PACKAGES and not already instrumented'}",
+      "{'step': 3, 'action': 'Call instrumentor.instrument() or equivalent initialization method', 'condition': 'Instrumentor instance created successfully'}",
+      "{'step': 4, 'action': 'Append initialized instrumentor to _active_instrumentors list', 'condition': 'Initialization completed without error'}",
+      "{'step': 5, 'action': 'On shutdown signal, iterate _active_instrumentors and call cleanup on each', 'condition': 'Shutdown or cleanup phase initiated'}",
+      "{'step': 6, 'action': 'Clear _active_instrumentors list after all cleanups complete', 'condition': 'All instrumentors cleaned up successfully'}"
+    ],
+    "constraints": [
+      "Must use module-level _active_instrumentors list as single source of truth",
+      "All BaseInstrumentor instances must be properly initialized before adding to list",
+      "Cleanup must be idempotent and handle already-removed instrumentors gracefully",
+      "Do not create a centralized InstrumentationManager instance; rely on list-based state"
+    ],
+    "cautions": [
+      "Concurrent import hooks may attempt simultaneous list modifications; use locking if multi-threaded",
+      "Removing an instrumentor without calling cleanup may leave dangling hooks or references",
+      "Clearing the list without notifying dependent code may cause orphaned instrumentation"
+    ],
+    "output_contract": [
+      "_active_instrumentors list reflects the current set of active BaseInstrumentor instances",
+      "All instrumentors are properly initialized on addition and fully cleaned up on removal",
+      "List is empty after shutdown",
+      "No dangling or orphaned instrumentor references remain"
+    ],
+    "examples": [
+      {
+        "input": "Import hook detects new target package during runtime",
+        "output": "New BaseInstrumentor created, initialized, and appended to _active_instrumentors; instrumentation active for that package",
+        "notes": "Assumes package is in TARGET_PACKAGES and not already instrumented"
+      },
+      {
+        "input": "Shutdown signal received",
+        "output": "_active_instrumentors iterated, cleanup called on each instrumentor, list cleared",
+        "notes": "Cleanup must be idempotent to handle partial failures"
+      }
+    ],
+    "tags": [
+      "instrumentation",
+      "lifecycle_management",
+      "state_tracking",
+      "runtime_monitoring",
+      "cleanup"
+    ],
+    "support_ids": [
+      "ab1c12db-de96-5822-88c4-85e802bb8efa"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "3731aa6d-ad10-58aa-96f0-130f4100cc2c"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|maintain_instrumentation_state|default|instrumentation_lifecycle|state_management|execution|manage active instrumentor lifecycle"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

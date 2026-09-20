@@ -1,0 +1,146 @@
+{
+  "schema": "autoskill.document.staging.existing_active.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "cache_benchmarking",
+  "run_id": "20260916T062109_f283ccb9",
+  "skills": [
+    {
+      "skill_id": "8e0637b0-c85d-551f-aaab-509f445d13b3",
+      "name": "Trace-Based Cache Simulation Benchmarking",
+      "description": "Closed-loop trace replay benchmarking workflow using pre-generated object values and slab memory management to isolate eviction algorithm impact across block, key-value, and object cache workloads.",
+      "skill_body": "Execute a trace replay benchmark by: (1) pre-allocate slab memory during initialization; (2) load cache algorithm implementation (S, M, G components); (3) replay trace requests in closed loop using pre-generated object values; (4) record cache hit/miss events without backend latency interference; (5) compute miss ratio metrics for each algorithm-trace pair; (6) aggregate results across workload types (block, key-value, object).\n\n## Objective\n\nExecute reproducible cache algorithm performance testing without production latency variability\n## Applicable Signals\n\n- Algorithm implementation ready for testing\n- Trace dataset available (block, key-value, or object workload)\n- Slab memory management framework available\n\n## Contraindications\n\n- Measuring real-time production cache performance\n- Evaluating cache behavior under concurrent load or lock contention\n- Testing memory fragmentation or allocation patterns\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Initialize slab memory allocator', 'detail': 'Pre-allocate all memory required for cache during startup; configure slab sizes for target workload'}\n- {'step': 2, 'action': 'Load cache algorithm implementation', 'detail': 'Instantiate eviction algorithm (e.g., S3-FIFO, LRU, TinyLFU) with linked-list or hash-table data structures as appropriate'}\n- {'step': 3, 'action': 'Load trace dataset', 'detail': 'Read trace file; prepare pre-generated object values for on-demand fill; identify workload type (block, key-value, object)'}\n- {'step': 4, 'action': 'Replay trace in closed loop', 'detail': 'Iterate through all requests in trace; for each request, perform cache lookup and record hit/miss; do not invoke backend or measure latency'}\n- {'step': 5, 'action': 'Compute miss ratio', 'detail': 'Calculate miss ratio as (total misses / total requests); optionally compute byte miss ratio if object sizes are available'}\n- {'step': 6, 'action': 'Aggregate and report results', 'detail': 'Collect metrics across all algorithm-trace pairs; compute miss ratio reduction relative to baseline (e.g., FIFO); output summary statistics (mean, percentiles)'}\n\n## Constraints\n\n- Trace replay must run in closed loop without external I/O\n- Memory must be pre-allocated during initialization\n- Backend latency must not influence hit/miss recording\n- Algorithm components (S, M, G) must be compatible with slab allocator or linked-list/hash-table implementations\n\n## Cautions\n\n- Large trace datasets may require significant memory; pre-allocate conservatively\n- Trace replay tool must handle all request types in the trace without dropping or reordering\n- Miss ratio metrics are sensitive to cache size and workload composition; report both absolute and relative metrics\n\n## Output Contract\n\n- Benchmark results artifact containing: (1) cache hit performance (hit count, hit ratio) for each algorithm-trace combination; (2) miss ratio metrics (absolute and relative to baseline); (3) trace replay completion log confirming all requests processed without error; (4) summary statistics (mean, P10, P50, P90 miss ratio reduction across traces).\n\n## Example Executions\n\n### Example 1\n\n- Input: Trace dataset (block workload, 1M requests), S3-FIFO algorithm, cache size 1GB, slab allocator pre-configured\n- Output: Miss ratio reduction: 14% mean, P90 32% vs. FIFO baseline; trace replay completed, 1M requests processed\n- Notes: Closed-loop replay isolates algorithm behavior; no backend latency recorded\n\n### Example 2\n\n- Input: Trace dataset (key-value workload, 10M requests), TinyLFU algorithm, cache size 512MB\n- Output: Miss ratio reduction: -5% (worse than FIFO on this trace); trace replay completed, 10M requests processed\n- Notes: TinyLFU may underperform on certain workloads; relative metrics highlight algorithm sensitivity",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "45af28b7-7a99-5647-9e84-0b7916ae7ec2",
+      "parent_candidate_ids": [
+        "45af28b7-7a99-5647-9e84-0b7916ae7ec2"
+      ],
+      "child_skill_ids": [
+        "96b4f0bd-4385-5ac7-b23a-5631eac86cc2",
+        "c651de49-0a54-5af6-ac24-547343a892d1"
+      ],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Execute reproducible cache algorithm performance testing without production latency variability",
+      "domain": "default",
+      "task_family": "cache_benchmarking",
+      "method_family": "simulation_replay",
+      "stage": "testing",
+      "applicable_signals": [
+        "Algorithm implementation ready for testing",
+        "Trace dataset available (block, key-value, or object workload)",
+        "Slab memory management framework available"
+      ],
+      "contraindications": [
+        "Measuring real-time production cache performance",
+        "Evaluating cache behavior under concurrent load or lock contention",
+        "Testing memory fragmentation or allocation patterns"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Need to evaluate cache eviction algorithms across multiple workload types",
+        "Require isolation of algorithm behavior from backend latency",
+        "Scale evaluation to large datasets with limited compute resources"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Initialize slab memory allocator', 'detail': 'Pre-allocate all memory required for cache during startup; configure slab sizes for target workload'}",
+        "{'step': 2, 'action': 'Load cache algorithm implementation', 'detail': 'Instantiate eviction algorithm (e.g., S3-FIFO, LRU, TinyLFU) with linked-list or hash-table data structures as appropriate'}",
+        "{'step': 3, 'action': 'Load trace dataset', 'detail': 'Read trace file; prepare pre-generated object values for on-demand fill; identify workload type (block, key-value, object)'}",
+        "{'step': 4, 'action': 'Replay trace in closed loop', 'detail': 'Iterate through all requests in trace; for each request, perform cache lookup and record hit/miss; do not invoke backend or measure latency'}",
+        "{'step': 5, 'action': 'Compute miss ratio', 'detail': 'Calculate miss ratio as (total misses / total requests); optionally compute byte miss ratio if object sizes are available'}",
+        "{'step': 6, 'action': 'Aggregate and report results', 'detail': 'Collect metrics across all algorithm-trace pairs; compute miss ratio reduction relative to baseline (e.g., FIFO); output summary statistics (mean, percentiles)'}"
+      ],
+      "constraints": [
+        "Trace replay must run in closed loop without external I/O",
+        "Memory must be pre-allocated during initialization",
+        "Backend latency must not influence hit/miss recording",
+        "Algorithm components (S, M, G) must be compatible with slab allocator or linked-list/hash-table implementations"
+      ],
+      "cautions": [
+        "Large trace datasets may require significant memory; pre-allocate conservatively",
+        "Trace replay tool must handle all request types in the trace without dropping or reordering",
+        "Miss ratio metrics are sensitive to cache size and workload composition; report both absolute and relative metrics"
+      ],
+      "output_contract": [
+        "Benchmark results artifact containing: (1) cache hit performance (hit count, hit ratio) for each algorithm-trace combination; (2) miss ratio metrics (absolute and relative to baseline); (3) trace replay completion log confirming all requests processed without error; (4) summary statistics (mean, P10, P50, P90 miss ratio reduction across traces)."
+      ],
+      "examples": [
+        {
+          "input": "Trace dataset (block workload, 1M requests), S3-FIFO algorithm, cache size 1GB, slab allocator pre-configured",
+          "output": "Miss ratio reduction: 14% mean, P90 32% vs. FIFO baseline; trace replay completed, 1M requests processed",
+          "notes": "Closed-loop replay isolates algorithm behavior; no backend latency recorded"
+        },
+        {
+          "input": "Trace dataset (key-value workload, 10M requests), TinyLFU algorithm, cache size 512MB",
+          "output": "Miss ratio reduction: -5% (worse than FIFO on this trace); trace replay completed, 10M requests processed",
+          "notes": "TinyLFU may underperform on certain workloads; relative metrics highlight algorithm sensitivity"
+        }
+      ],
+      "tags": [
+        "cache_eviction",
+        "benchmarking",
+        "simulation",
+        "trace_replay",
+        "performance_testing",
+        "algorithm_evaluation"
+      ],
+      "support_ids": [
+        "3d14f5e7-47e2-5e8a-8c51-629d5b6b2a84"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "f8f9c36b-bf93-51ff-8a1a-1eb56b2d1dfa"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|execute reproducible cache algorithm performance testing without production latency variability|default|cache_benchmarking|simulation_replay|testing|trace-based cache simulation benchmarking",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct session_skill for trace-based cache simulation benchmarking with closed-loop replay methodology. It does not semantically match any existing skill (which cover checkpoint configuration, model evaluation, and fault tolerance). Peer candidates (adaptive queue balancing, algorithm selection, risk assessment) are related but operate at different stages (runtime_optimization, design_decision, design_validation) and task families (cache_tuning, cache_optimization, risk_assessment vs. cache_benchmarking). The candidate's focus on reproducible performance testing via trace replay isolation is a separate capability from algorithm selection or adaptive tuning. Support evidence confirms the methodology is established in literature (section 4 Design and implementation). No conflicts detected.",
+        "parent_skill_id": "45af28b7-7a99-5647-9e84-0b7916ae7ec2",
+        "parent_candidate_ids": [
+          "45af28b7-7a99-5647-9e84-0b7916ae7ec2"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "child_skill_ids": [
+          "96b4f0bd-4385-5ac7-b23a-5631eac86cc2",
+          "c651de49-0a54-5af6-ac24-547343a892d1"
+        ]
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ]
+}

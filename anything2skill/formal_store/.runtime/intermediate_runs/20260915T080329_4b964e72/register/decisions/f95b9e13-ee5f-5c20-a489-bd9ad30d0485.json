@@ -1,0 +1,116 @@
+{
+  "skill_id": "f95b9e13-ee5f-5c20-a489-bd9ad30d0485",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct session_skill at validation_phase stage addressing no-wait locking and abort-retry patterns in optimistic concurrency control (TicToc). It does not semantically overlap with existing skills: the two existing session_skills target third-party script optimization and thread pool configuration (unrelated domains), and the three peer_candidates address parallel logging coordination, timestamp delta encoding, and abort root cause analysis—all different capabilities. The candidate has direct support evidence (section 4.1) and introduces a novel intervention pattern (lock-free abort + sleep + retry) not present in the registry.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "f95b9e13-ee5f-5c20-a489-bd9ad30d0485",
+    "name": "No-Wait Locking in Validation Phase",
+    "description": "Prevents lock thrashing during transaction validation by immediately aborting validation if a required write-set lock is unavailable, then retrying after a short sleep. Allows concurrent validation of non-conflicting transactions without blocking waits.",
+    "skill_body": "During the validation phase, attempt to lock tuples in the transaction's write set in primary key order. If a lock cannot be acquired immediately, abort the validation (releasing any locks already held), sleep for a short period (approximately 1 microsecond), and retry the validation phase. This non-waiting approach minimizes blocking and allows more transactions to validate simultaneously.\n\n## Objective\n\nMinimize blocking and contention during multi-transaction validation by eliminating lock waits\n## Applicable Signals\n\n- Lock contention observed during write-set locking\n- Multiple transactions competing for overlapping tuple locks\n- Thrashing behavior detected (transactions holding locks while waiting for others)\n\n## Contraindications\n\n- Read-only transactions (no write set to lock)\n- Systems with guaranteed low contention or immediate lock availability\n- Workloads where blocking lock acquisition is more efficient than abort-retry cycles\n\n## Intervention Moves\n\n- Attempt to acquire locks on write-set tuples in primary key order\n- Upon lock acquisition failure, immediately abort validation and release held locks\n- Sleep for a brief period (1 microsecond) to reduce restart frequency\n- Retry the validation phase\n\n## Workflow Steps\n\n- Lock write-set tuples in primary key order\n- On lock acquisition failure: abort validation and release held locks\n- Sleep for approximately 1 microsecond\n- Retry validation phase\n\n## Constraints\n\n- Must lock write-set tuples in primary key order to maintain consistency\n- Sleep duration should be tuned to workload characteristics; too long increases latency, too short increases restart overhead\n- Applicable only within TicToc's validation phase algorithm\n\n## Cautions\n\n- Abort-and-retry approach may increase CPU usage in high-contention scenarios if sleep time is too short\n- Performance is sensitive to sleep duration; requires empirical tuning per deployment\n- Not suitable for systems where lock wait times are typically very short\n\n## Output Contract\n\n- Validation phase completes without blocking other transactions. Transaction either commits with all write-set locks held, or validation is aborted and retried. Observable success: reduced lock thrashing, lower restart rate compared to blocking lock acquisition, and increased concurrent validation throughput.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Transaction D holds locks on tuples {x, y}; transactions A, B, C waiting for locks held by each other\n- Therapist/Output: With no-wait: A or B may run in parallel with D instead of sequential validation; when D commits, C acquires lock and progresses\n- Notes: Contrasts with pathological 2PL case where all four transactions validate sequentially",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Minimize blocking and contention during multi-transaction validation by eliminating lock waits",
+    "domain": "default",
+    "task_family": "concurrency_control_optimization",
+    "method_family": "deadlock_prevention",
+    "stage": "validation_phase",
+    "applicable_signals": [
+      "Lock contention observed during write-set locking",
+      "Multiple transactions competing for overlapping tuple locks",
+      "Thrashing behavior detected (transactions holding locks while waiting for others)"
+    ],
+    "contraindications": [
+      "Read-only transactions (no write set to lock)",
+      "Systems with guaranteed low contention or immediate lock availability",
+      "Workloads where blocking lock acquisition is more efficient than abort-retry cycles"
+    ],
+    "intervention_moves": [
+      "Attempt to acquire locks on write-set tuples in primary key order",
+      "Upon lock acquisition failure, immediately abort validation and release held locks",
+      "Sleep for a brief period (1 microsecond) to reduce restart frequency",
+      "Retry the validation phase"
+    ],
+    "triggers": [
+      "Validation phase begins for a transaction with a non-empty write set",
+      "Write-intensive workload detected",
+      "High core count system (multi-socket environment)"
+    ],
+    "workflow_steps": [
+      "Lock write-set tuples in primary key order",
+      "On lock acquisition failure: abort validation and release held locks",
+      "Sleep for approximately 1 microsecond",
+      "Retry validation phase"
+    ],
+    "constraints": [
+      "Must lock write-set tuples in primary key order to maintain consistency",
+      "Sleep duration should be tuned to workload characteristics; too long increases latency, too short increases restart overhead",
+      "Applicable only within TicToc's validation phase algorithm"
+    ],
+    "cautions": [
+      "Abort-and-retry approach may increase CPU usage in high-contention scenarios if sleep time is too short",
+      "Performance is sensitive to sleep duration; requires empirical tuning per deployment",
+      "Not suitable for systems where lock wait times are typically very short"
+    ],
+    "output_contract": [
+      "Validation phase completes without blocking other transactions. Transaction either commits with all write-set locks held, or validation is aborted and retried. Observable success: reduced lock thrashing, lower restart rate compared to blocking lock acquisition, and increased concurrent validation throughput."
+    ],
+    "examples": [
+      {
+        "input": "Transaction D holds locks on tuples {x, y}; transactions A, B, C waiting for locks held by each other",
+        "output": "With no-wait: A or B may run in parallel with D instead of sequential validation; when D commits, C acquires lock and progresses",
+        "notes": "Contrasts with pathological 2PL case where all four transactions validate sequentially"
+      }
+    ],
+    "tags": [
+      "concurrency_control",
+      "transaction_validation",
+      "lock_management",
+      "performance_optimization",
+      "deadlock_prevention"
+    ],
+    "support_ids": [
+      "8a920a36-3f9e-5b86-a552-11ff9c454e66"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "702b29b4-26b6-5879-8888-0b89978ff866"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.82,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|minimize blocking and contention during multi-transaction validation by eliminating lock waits|default|concurrency_control_optimization|deadlock_prevention|validation_phase|no-wait locking in validation phase"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

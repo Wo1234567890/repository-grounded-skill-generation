@@ -1,0 +1,138 @@
+{
+  "skill_id": "6f7e5bc6-904e-565f-aba8-be6b82fdcd9c",
+  "name": "Custom Reward Function Integration",
+  "description": "Execute atomic 2D affine transform operations (scale, translate, apply, invert, rescale) on coordinates and scale domains. Use for coordinate system conversions and scale domain adjustments in response to zoom or pan events.",
+  "skill_body": "Execute single transform operations: scale a transform by a specified amount; translate a transform by a specified amount; apply the transform to points or coordinates; invert the transform to unapply it; rescale x or y scale domains by applying the transform. Each operation is atomic and reusable across zoom, pan, or custom coordinate conversion workflows.\n\n## Objective\n\nExecute single transform operations (scale, translate, invert, rescale) on coordinates or scales\n## Applicable Signals\n\n- zoom.transform() returns a transform object\n- User interaction (zoom, pan) updates transform state\n- Scale domain adjustment required after viewport change\n\n## Contraindications\n\n- 3D transforms or perspective projections\n- Non-affine transformations (e.g., curved warping)\n- Transform state is unavailable or null\n- Coordinate system is not Cartesian\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Obtain or create a transform object (e.g., via d3.zoomTransform(element) or d3.zoomIdentity)', 'input': 'Element reference or identity transform'}\n- {'step': 2, 'action': 'Select the operation: scale, translate, apply, invert, rescaleX, or rescaleY', 'input': 'Transform object and operation parameters (scale factor, translation vector, point, or scale)'}\n- {'step': 3, 'action': 'Execute the operation and capture the result', 'output': 'Transformed coordinate, inverted coordinate, rescaled domain, or modified transform'}\n- {'step': 4, 'action': 'Validate output (check for NaN, verify coordinate is in expected range)', 'validation': 'Output is numeric and within expected bounds'}\n\n## Constraints\n\n- Transform must be a valid 2D affine transform object\n- Input coordinates must be numeric (x, y) pairs or scale domain values\n- Operations assume left-to-right, top-to-bottom screen orientation\n\n## Cautions\n\n- Invert operations may fail or produce NaN if transform is singular (determinant = 0)\n- Rescale operations modify scale domain; ensure scale is mutable before applying\n- Chaining multiple transforms can accumulate floating-point error; consider recomputing from source when precision is critical\n\n## Output Contract\n\n- Returns a transformed coordinate (point or x/y value), an inverted coordinate, a rescaled scale domain, or a new transform object. The output is guaranteed to be a valid numeric value or object that can be used immediately by downstream rendering or scale operations.\n\n## Example Executions\n\n### Example 1\n\n- Input: transform object with scale=2, translate=[10, 20]; point [5, 5]\n- Output: [20, 30]\n- Notes: Point is scaled by 2 and translated by [10, 20]\n\n### Example 2\n\n- Input: transform object; x-scale with domain [0, 100]\n- Output: New x-scale with domain adjusted to account for zoom transform\n- Notes: Rescaled domain is ready for axis redraw\n\n### Example 3\n\n- Input: transform object with scale=2, translate=[10, 20]; point [20, 30]\n- Output: [5, 5]\n- Notes: Inverted point maps back to original data space",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "Transform dataset-specific completions into normalized reward scores",
+  "domain": "default",
+  "task_family": "reward_computation",
+  "method_family": "function_integration",
+  "stage": "reward_scoring",
+  "applicable_signals": [
+    "zoom.transform() returns a transform object",
+    "User interaction (zoom, pan) updates transform state",
+    "Scale domain adjustment required after viewport change"
+  ],
+  "contraindications": [
+    "3D transforms or perspective projections",
+    "Non-affine transformations (e.g., curved warping)",
+    "Transform state is unavailable or null",
+    "Coordinate system is not Cartesian"
+  ],
+  "intervention_moves": [
+    "Invoke map() on the DataStream with a transformation lambda or function object",
+    "Ensure the function accepts one input element and returns exactly one output element",
+    "Chain the result to downstream operations or sinks"
+  ],
+  "triggers": [
+    "Integrating domain-specific or custom reward logic into GRPO training",
+    "Standard reward metrics do not capture desired completion quality",
+    "Need to evaluate completions against custom criteria"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Obtain or create a transform object (e.g., via d3.zoomTransform(element) or d3.zoomIdentity)', 'input': 'Element reference or identity transform'}",
+    "{'step': 2, 'action': 'Select the operation: scale, translate, apply, invert, rescaleX, or rescaleY', 'input': 'Transform object and operation parameters (scale factor, translation vector, point, or scale)'}",
+    "{'step': 3, 'action': 'Execute the operation and capture the result', 'output': 'Transformed coordinate, inverted coordinate, rescaled domain, or modified transform'}",
+    "{'step': 4, 'action': 'Validate output (check for NaN, verify coordinate is in expected range)', 'validation': 'Output is numeric and within expected bounds'}"
+  ],
+  "constraints": [
+    "Transform must be a valid 2D affine transform object",
+    "Input coordinates must be numeric (x, y) pairs or scale domain values",
+    "Operations assume left-to-right, top-to-bottom screen orientation"
+  ],
+  "cautions": [
+    "Invert operations may fail or produce NaN if transform is singular (determinant = 0)",
+    "Rescale operations modify scale domain; ensure scale is mutable before applying",
+    "Chaining multiple transforms can accumulate floating-point error; consider recomputing from source when precision is critical"
+  ],
+  "output_contract": [
+    "Returns a transformed coordinate (point or x/y value), an inverted coordinate, a rescaled scale domain, or a new transform object. The output is guaranteed to be a valid numeric value or object that can be used immediately by downstream rendering or scale operations."
+  ],
+  "examples": [
+    {
+      "input": "transform object with scale=2, translate=[10, 20]; point [5, 5]",
+      "output": "[20, 30]",
+      "notes": "Point is scaled by 2 and translated by [10, 20]"
+    },
+    {
+      "input": "transform object; x-scale with domain [0, 100]",
+      "output": "New x-scale with domain adjusted to account for zoom transform",
+      "notes": "Rescaled domain is ready for axis redraw"
+    },
+    {
+      "input": "transform object with scale=2, translate=[10, 20]; point [20, 30]",
+      "output": "[5, 5]",
+      "notes": "Inverted point maps back to original data space"
+    }
+  ],
+  "tags": [
+    "d3",
+    "transform",
+    "coordinate-conversion",
+    "zoom",
+    "pan",
+    "affine"
+  ],
+  "support_ids": [
+    "5efe90c2-aeda-5947-bb5d-edc1805bdebb",
+    "b8e5ba30-e118-5ec1-8fd1-1d738853e778",
+    "e62e2fa4-4889-5491-adff-3bc909cd6e9c",
+    "51ec9bd5-aee9-5658-a747-a9d592f3082c"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "ddb21002-1d9f-5e0e-a3e3-564e1cfa4364"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.85,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|transform dataset-specific completions into normalized reward scores|default|reward_computation|function_integration|reward_scoring|custom reward function integration",
+    "change_action": "unchanged",
+    "llm_reason": "Candidate skill 'd02a6d61-2980-5c3b-9929-e660f92dcc47' (D3 Transform Manipulation) is semantically distinct from peer candidates and existing skills. It focuses on atomic 2D affine transform operations (scale, translate, invert, rescale) on coordinates and scale domains in D3.js, with clear workflow steps, constraints, and cautions. Peer candidates address different semantic domains: Sequential Scale Transform Selection targets scale constructor selection (not coordinate transformation), Path Command Execution targets path drawing primitives (not affine transforms), and Array Transform Operations targets array restructuring (not geometric transforms). Existing skills address reward computation and async callbacks, which are orthogonal. The candidate has valid support evidence from D3 API documentation and no conflicts. No merge, split, strengthen, revise, or discard action is warranted.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "merged_from_skill_ids": [],
+    "previous_skill_id": "6f7e5bc6-904e-565f-aba8-be6b82fdcd9c"
+  },
+  "version": "0.1.2",
+  "status": "active"
+}

@@ -1,0 +1,121 @@
+{
+  "skill_id": "f9974296-d4e4-517c-a7ed-792855e23ac6",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate skill 'Atexit Handler Global Access Pattern' is a micro-level implementation detail (session_skill at asset_level 2) addressing a narrow Python runtime concern (module-level globals and atexit handler coordination). It lacks semantic alignment with peer_candidates (LiteLLM, Cohere, CamelAI integrations) and existing_skills (ProcessPoolExecutor setup). The support evidence is minimal (1 support, 0 conflicts, from Debugging Roadmap only) and does not establish sufficient organizational value or cross-domain applicability to warrant registry persistence. This pattern is better captured as inline documentation or a code comment within the relevant module rather than as a reusable skill asset.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "f9974296-d4e4-517c-a7ed-792855e23ac6",
+    "name": "Atexit Handler Global Access Pattern",
+    "description": "Enable atexit handlers to access and finalize session context by exposing module-level globals (_init_trace_context, _legacy_session_for_init_trace) through static/class methods or module-scoped variables. Use when atexit cleanup requires session state without circular imports or direct object references.",
+    "skill_body": "To implement atexit handler access to session context:\n1. Define module-level globals (_init_trace_context, _legacy_session_for_init_trace) at module scope, not inside class definitions.\n2. Expose these globals via static or class methods if encapsulation is required.\n3. Copy or reference these globals in the atexit handler registration to avoid scope issues.\n4. Ensure the atexit handler can call finalization methods on the session object without AttributeError.\n5. Verify no circular imports occur between the session module and atexit handler registration.\n\n## Objective\n\nenable_atexit_session_cleanup\n## Applicable Signals\n\n- atexit.register() called during module initialization\n- session cleanup deferred to process exit\n- circular import risk detected between session and handler modules\n\n## Contraindications\n\n- session cleanup is synchronous and completes before atexit registration\n- no session state exists at exit time\n- session object is already garbage-collected before atexit fires\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Define module-level globals at the top of the module', 'detail': 'Create _init_trace_context and _legacy_session_for_init_trace as module-scoped variables, initialized to None or a default state.'}\n- {'step': 2, 'action': 'Expose globals via accessor methods if needed', 'detail': 'Optionally wrap globals in static or class methods to provide controlled access and avoid direct global mutation.'}\n- {'step': 3, 'action': 'Register atexit handler with closure over globals', 'detail': 'In the atexit handler function, reference the module-level globals directly or via accessors. Capture them in a closure if necessary.'}\n- {'step': 4, 'action': 'Implement safe finalization in the atexit handler', 'detail': 'Check that session object is not None, call finalization methods (e.g., flush, close), and catch exceptions to prevent atexit errors.'}\n- {'step': 5, 'action': 'Test atexit behavior during module shutdown', 'detail': 'Verify that the handler fires, accesses session state without AttributeError, and completes without raising exceptions.'}\n\n## Constraints\n\n- Module-level globals must be defined once, not repeated in class definitions\n- Avoid storing session references in multiple global locations; use a single canonical global\n- Do not rely on instance variables; use class or module scope only\n- Atexit handler must not raise exceptions; wrap cleanup in try-except\n\n## Cautions\n\n- Global _active_session patterns can cause confusion; prefer explicit _client_legacy_session_for_init_trace naming\n- Atexit handlers run in reverse registration order; ensure dependencies are ordered correctly\n- Module-level state may be partially torn down by the time atexit fires; check for None before access\n\n## Output Contract\n\n- Atexit handler successfully accesses and finalizes session state without AttributeError, NameError, or circular import errors.\n- Session cleanup completes before process exit.\n- No unhandled exceptions propagate from the atexit handler.\n\n## Example Executions\n\n### Example 1\n\n- Input: Module initialization with session object and atexit registration required.\n- Output: Module-level _legacy_session_for_init_trace is set; atexit handler is registered and can access it on shutdown.\n- Notes: Typical flow: initialize session → store in module global → register atexit handler → handler accesses global on exit.\n\n### Example 2\n\n- Input: Atexit handler attempts to finalize session but session is None.\n- Output: Handler checks for None, skips finalization, and returns cleanly without error.\n- Notes: Defensive pattern: always guard global access with None checks in atexit handlers.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "enable_atexit_session_cleanup",
+    "domain": "default",
+    "task_family": "session_lifecycle_management",
+    "method_family": "exit_handler_coordination",
+    "stage": "initialization",
+    "applicable_signals": [
+      "atexit.register() called during module initialization",
+      "session cleanup deferred to process exit",
+      "circular import risk detected between session and handler modules"
+    ],
+    "contraindications": [
+      "session cleanup is synchronous and completes before atexit registration",
+      "no session state exists at exit time",
+      "session object is already garbage-collected before atexit fires"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "atexit handler registration is required for session finalization",
+      "session object is not directly accessible from atexit scope",
+      "module shutdown must flush or close session state"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Define module-level globals at the top of the module', 'detail': 'Create _init_trace_context and _legacy_session_for_init_trace as module-scoped variables, initialized to None or a default state.'}",
+      "{'step': 2, 'action': 'Expose globals via accessor methods if needed', 'detail': 'Optionally wrap globals in static or class methods to provide controlled access and avoid direct global mutation.'}",
+      "{'step': 3, 'action': 'Register atexit handler with closure over globals', 'detail': 'In the atexit handler function, reference the module-level globals directly or via accessors. Capture them in a closure if necessary.'}",
+      "{'step': 4, 'action': 'Implement safe finalization in the atexit handler', 'detail': 'Check that session object is not None, call finalization methods (e.g., flush, close), and catch exceptions to prevent atexit errors.'}",
+      "{'step': 5, 'action': 'Test atexit behavior during module shutdown', 'detail': 'Verify that the handler fires, accesses session state without AttributeError, and completes without raising exceptions.'}"
+    ],
+    "constraints": [
+      "Module-level globals must be defined once, not repeated in class definitions",
+      "Avoid storing session references in multiple global locations; use a single canonical global",
+      "Do not rely on instance variables; use class or module scope only",
+      "Atexit handler must not raise exceptions; wrap cleanup in try-except"
+    ],
+    "cautions": [
+      "Global _active_session patterns can cause confusion; prefer explicit _client_legacy_session_for_init_trace naming",
+      "Atexit handlers run in reverse registration order; ensure dependencies are ordered correctly",
+      "Module-level state may be partially torn down by the time atexit fires; check for None before access"
+    ],
+    "output_contract": [
+      "Atexit handler successfully accesses and finalizes session state without AttributeError, NameError, or circular import errors.",
+      "Session cleanup completes before process exit.",
+      "No unhandled exceptions propagate from the atexit handler."
+    ],
+    "examples": [
+      {
+        "input": "Module initialization with session object and atexit registration required.",
+        "output": "Module-level _legacy_session_for_init_trace is set; atexit handler is registered and can access it on shutdown.",
+        "notes": "Typical flow: initialize session → store in module global → register atexit handler → handler accesses global on exit."
+      },
+      {
+        "input": "Atexit handler attempts to finalize session but session is None.",
+        "output": "Handler checks for None, skips finalization, and returns cleanly without error.",
+        "notes": "Defensive pattern: always guard global access with None checks in atexit handlers."
+      }
+    ],
+    "tags": [
+      "session_lifecycle",
+      "atexit",
+      "module_globals",
+      "cleanup",
+      "initialization",
+      "exit_handler"
+    ],
+    "support_ids": [
+      "32a67a47-3642-5e42-9de5-63a7167c8429"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "00db5aee-8224-5b16-a88b-a893159c84d6"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.65,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|enable_atexit_session_cleanup|default|session_lifecycle_management|exit_handler_coordination|initialization|atexit handler global access pattern"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

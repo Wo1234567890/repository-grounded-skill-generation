@@ -1,0 +1,116 @@
+{
+  "skill_id": "59e6dec3-97cc-542a-aded-3c467779933a",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill in term_weighting/tf_normalization with clear semantic identity (maximum tf normalization formula with smoothing parameter). It does not match any existing skill by semantic capability. Peer candidates (TF-IDF, IDF Lookup, Outlier Detection) are related but operate at different stages or on different sub-problems. Existing skills are in unrelated domains (tokenization, GRPO loss). Single support evidence confirms the technique is documented. No conflicts detected.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "59e6dec3-97cc-542a-aded-3c467779933a",
+    "name": "Maximum TF Normalization",
+    "description": "Normalize term frequency weights in a document by dividing each term's frequency by the maximum term frequency in that document, using a smoothing parameter to prevent extreme score swings and mitigate bias toward longer documents.",
+    "skill_body": "For each term t in document d, compute normalized term frequency (ntf) using the formula: ntf_t,d = a + (1 - a) * (tf_t,d / tfmax(d)), where tfmax(d) is the maximum term frequency in d, tf_t,d is the raw frequency of term t in d, and a is a smoothing parameter (typically 0.4). The smoothing term a dampens the contribution of the second term to avoid large swings in ntf from modest changes in raw tf.\n\n## Objective\n\nnormalize term frequencies to reduce document-length bias in scoring\n## Applicable Signals\n\n- raw tf-idf scores show bias toward longer documents\n- query results dominated by documents with high absolute term frequencies\n- vector space model scoring in use\n\n## Contraindications\n\n- stop word list is unstable or frequently changes (method is sensitive to stop word configuration)\n- document contains outlier terms with unusually high occurrence counts not representative of document content\n- ranking stability across different stop word configurations is required\n\n## Workflow Steps\n\n- Identify all terms τ in document d and their raw frequencies tf_τ,d\n- Compute tfmax(d) = max(tf_τ,d) across all terms in d\n- For each term t in d, apply formula: ntf_t,d = a + (1 - a) * (tf_t,d / tfmax(d))\n- Use computed ntf values in place of raw tf in downstream scoring (e.g., tf-idf weighting)\n\n## Constraints\n\n- smoothing parameter a must be between 0 and 1; standard value is 0.4\n- requires computation of tfmax(d) for each document before normalization\n- method is unstable with respect to stop word list changes\n\n## Cautions\n\n- Changing the stop word list can dramatically alter term weightings and ranking order, making tuning difficult.\n- Outlier terms with unusually large occurrence counts can skew normalization; consider preprocessing or outlier detection.\n\n## Output Contract\n\n- For each term t in document d, return normalized term frequency (ntf_t,d) as a real number between a and 1.0 (inclusive). This value is suitable for use in tf-idf and vector space scoring without document-length bias.\n\n## Example Executions\n\n### Example 1\n\n- Input: Document d with term frequencies: term_A=5, term_B=3, term_C=1; smoothing parameter a=0.4\n- Output: ntf_A,d = 1.0, ntf_B,d = 0.76, ntf_C,d = 0.52\n- Notes: tfmax(d) = 5; highest-frequency term normalizes to 1.0, others scale proportionally with smoothing applied\n\n### Example 2\n\n- Input: Document d duplicated to create d′ (d appended to itself); raw tf-idf would score d′ twice as high as d\n- Output: Maximum tf normalization prevents this anomaly; d and d′ receive comparable scores\n- Notes: Demonstrates the key benefit: eliminates document-length bias from term repetition",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "normalize term frequencies to reduce document-length bias in scoring",
+    "domain": "default",
+    "task_family": "term_weighting",
+    "method_family": "tf_normalization",
+    "stage": "scoring",
+    "applicable_signals": [
+      "raw tf-idf scores show bias toward longer documents",
+      "query results dominated by documents with high absolute term frequencies",
+      "vector space model scoring in use"
+    ],
+    "contraindications": [
+      "stop word list is unstable or frequently changes (method is sensitive to stop word configuration)",
+      "document contains outlier terms with unusually high occurrence counts not representative of document content",
+      "ranking stability across different stop word configurations is required"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "computing normalized term frequencies for vector space scoring",
+      "document collection exhibits high length variation",
+      "need to prevent longer documents from dominating relevance scores due to natural term repetition"
+    ],
+    "workflow_steps": [
+      "Identify all terms τ in document d and their raw frequencies tf_τ,d",
+      "Compute tfmax(d) = max(tf_τ,d) across all terms in d",
+      "For each term t in d, apply formula: ntf_t,d = a + (1 - a) * (tf_t,d / tfmax(d))",
+      "Use computed ntf values in place of raw tf in downstream scoring (e.g., tf-idf weighting)"
+    ],
+    "constraints": [
+      "smoothing parameter a must be between 0 and 1; standard value is 0.4",
+      "requires computation of tfmax(d) for each document before normalization",
+      "method is unstable with respect to stop word list changes"
+    ],
+    "cautions": [
+      "Changing the stop word list can dramatically alter term weightings and ranking order, making tuning difficult.",
+      "Outlier terms with unusually large occurrence counts can skew normalization; consider preprocessing or outlier detection."
+    ],
+    "output_contract": [
+      "For each term t in document d, return normalized term frequency (ntf_t,d) as a real number between a and 1.0 (inclusive). This value is suitable for use in tf-idf and vector space scoring without document-length bias."
+    ],
+    "examples": [
+      {
+        "input": "Document d with term frequencies: term_A=5, term_B=3, term_C=1; smoothing parameter a=0.4",
+        "output": "ntf_A,d = 1.0, ntf_B,d = 0.76, ntf_C,d = 0.52",
+        "notes": "tfmax(d) = 5; highest-frequency term normalizes to 1.0, others scale proportionally with smoothing applied"
+      },
+      {
+        "input": "Document d duplicated to create d′ (d appended to itself); raw tf-idf would score d′ twice as high as d",
+        "output": "Maximum tf normalization prevents this anomaly; d and d′ receive comparable scores",
+        "notes": "Demonstrates the key benefit: eliminates document-length bias from term repetition"
+      }
+    ],
+    "tags": [
+      "term_weighting",
+      "tf_normalization",
+      "vector_space_model",
+      "scoring",
+      "document_length_bias",
+      "smoothing"
+    ],
+    "support_ids": [
+      "0cdd5b90-068f-58f1-9ba3-9c3e4a72da56"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "f09b7547-27a3-5d11-a54a-1e29636def8f"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|normalize term frequencies to reduce document-length bias in scoring|default|term_weighting|tf_normalization|scoring|maximum tf normalization"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

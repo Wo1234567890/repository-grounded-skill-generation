@@ -1,0 +1,601 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "data_source_setup",
+  "run_id": "20260915T073312_1bca6e3c",
+  "skills": [
+    {
+      "skill_id": "42bbed97-509d-5d9f-b1db-349f906ba284",
+      "name": "File-based Data Source Configuration",
+      "description": "Configure and instantiate file-based data sources in Flink DataStream API, supporting text files and custom input formats with explicit file processing mode selection to preserve exactly-once semantics.",
+      "skill_body": "When initializing a Flink job that reads from local or distributed file systems, use readTextFile(path) for line-by-line text file ingestion or readFile(fileInputFormat, path) for custom format parsing. Always explicitly set the file processing mode: use PROCESS_ONCE for one-time reads (default, preserves exactly-once semantics) or PROCESS_CONTINUOUSLY only when continuous monitoring is required and re-processing of entire files on modification is acceptable. Document the mode choice and its semantic implications.\n\n## Objective\n\nSet up reusable file source connectors with correct processing mode selection and semantic awareness\n## Applicable Signals\n\n- Flink job initialization phase\n- Data source requirement is local or distributed file system\n- Need to choose between one-time or continuous file monitoring\n\n## Contraindications\n\n- Source is socket-based (use socketTextStream instead)\n- Source is collection-based (use fromCollection, fromElements, or generateSequence instead)\n- Source is custom connector such as Kafka (use addSource with appropriate connector)\n- File processing mode is already determined by upstream requirements\n\n## Intervention Moves\n\n- Select readTextFile(path) for text files respecting TextInputFormat specification\n- Select readFile(fileInputFormat, path) for custom file input formats\n- Explicitly set watchType to FileProcessingMode.PROCESS_ONCE (default) or PROCESS_CONTINUOUSLY\n- Document file processing mode choice and its impact on exactly-once semantics\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Determine file source type', 'detail': 'Identify whether source is text file or requires custom input format'}\n- {'step': 2, 'action': 'Select appropriate source method', 'detail': 'Use readTextFile(path) for text files or readFile(fileInputFormat, path) for custom formats'}\n- {'step': 3, 'action': 'Determine processing mode requirement', 'detail': 'Decide between PROCESS_ONCE (one-time, preserves exactly-once) or PROCESS_CONTINUOUSLY (continuous monitoring)'}\n- {'step': 4, 'action': 'Configure and attach source', 'detail': 'Instantiate source with selected method and explicitly set file processing mode'}\n- {'step': 5, 'action': 'Document semantic implications', 'detail': 'Record processing mode choice and its impact on exactly-once semantics for downstream reference'}\n\n## Constraints\n\n- All elements in a collection-based source must be of the same type\n- PROCESS_CONTINUOUSLY mode breaks exactly-once semantics when files are appended or modified\n- File input format must respect TextInputFormat specification for readTextFile\n\n## Cautions\n\n- PROCESS_CONTINUOUSLY causes entire file contents to be re-processed on any modification, breaking exactly-once guarantees\n- Appending data to a file under PROCESS_CONTINUOUSLY will trigger full re-processing of all prior contents\n\n## Output Contract\n\n- Configured StreamExecutionEnvironment with file-based source (readTextFile or readFile) attached; file processing mode explicitly set and documented; exactly-once semantic implications clearly noted for the chosen mode",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+      "parent_candidate_ids": [
+        "85e9f4bf-55a0-5330-9bfe-d6575db46c9c"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "parent",
+      "objective": "Set up reusable file source connectors with correct processing mode selection and semantic awareness",
+      "domain": "default",
+      "task_family": "data_source_setup",
+      "method_family": "flink_api_configuration",
+      "stage": "initialization",
+      "applicable_signals": [
+        "Flink job initialization phase",
+        "Data source requirement is local or distributed file system",
+        "Need to choose between one-time or continuous file monitoring"
+      ],
+      "contraindications": [
+        "Source is socket-based (use socketTextStream instead)",
+        "Source is collection-based (use fromCollection, fromElements, or generateSequence instead)",
+        "Source is custom connector such as Kafka (use addSource with appropriate connector)",
+        "File processing mode is already determined by upstream requirements"
+      ],
+      "intervention_moves": [
+        "Select readTextFile(path) for text files respecting TextInputFormat specification",
+        "Select readFile(fileInputFormat, path) for custom file input formats",
+        "Explicitly set watchType to FileProcessingMode.PROCESS_ONCE (default) or PROCESS_CONTINUOUSLY",
+        "Document file processing mode choice and its impact on exactly-once semantics"
+      ],
+      "triggers": [
+        "Initializing a Flink job that reads from local or distributed file systems",
+        "Choosing between one-time or continuous file monitoring"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Determine file source type', 'detail': 'Identify whether source is text file or requires custom input format'}",
+        "{'step': 2, 'action': 'Select appropriate source method', 'detail': 'Use readTextFile(path) for text files or readFile(fileInputFormat, path) for custom formats'}",
+        "{'step': 3, 'action': 'Determine processing mode requirement', 'detail': 'Decide between PROCESS_ONCE (one-time, preserves exactly-once) or PROCESS_CONTINUOUSLY (continuous monitoring)'}",
+        "{'step': 4, 'action': 'Configure and attach source', 'detail': 'Instantiate source with selected method and explicitly set file processing mode'}",
+        "{'step': 5, 'action': 'Document semantic implications', 'detail': 'Record processing mode choice and its impact on exactly-once semantics for downstream reference'}"
+      ],
+      "constraints": [
+        "All elements in a collection-based source must be of the same type",
+        "PROCESS_CONTINUOUSLY mode breaks exactly-once semantics when files are appended or modified",
+        "File input format must respect TextInputFormat specification for readTextFile"
+      ],
+      "cautions": [
+        "PROCESS_CONTINUOUSLY causes entire file contents to be re-processed on any modification, breaking exactly-once guarantees",
+        "Appending data to a file under PROCESS_CONTINUOUSLY will trigger full re-processing of all prior contents"
+      ],
+      "output_contract": [
+        "Configured StreamExecutionEnvironment with file-based source (readTextFile or readFile) attached; file processing mode explicitly set and documented; exactly-once semantic implications clearly noted for the chosen mode"
+      ],
+      "examples": [],
+      "tags": [
+        "flink",
+        "datastream_api",
+        "data_source",
+        "file_processing",
+        "exactly_once_semantics",
+        "stream_initialization"
+      ],
+      "support_ids": [
+        "3d65362c-a8ca-5edd-8b24-0971bc79dad4"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "8116d5d6-5e6a-5a95-92bd-f71fa8e0be64"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|set up reusable file source connectors with correct processing mode selection and semantic awareness|default|data_source_setup|flink_api_configuration|initialization|file-based data source configuration",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+        "parent_candidate_ids": [
+          "85e9f4bf-55a0-5330-9bfe-d6575db46c9c"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "parent"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "8b1d1a11-2c9f-51cc-a047-8f2acc5e25ad",
+      "name": "Collection-based Data Source Creation",
+      "description": "Create in-memory data streams from Java collections, iterators, or element sequences in Flink, with type safety and parallel generation support. Use for test data, prototyping, or small reference datasets.",
+      "skill_body": "Instantiate a bounded DataStream<T> from a local collection, iterator, or sequence. Choose the appropriate method based on data source type and parallelization need. Ensure all elements are of the same type. Verify the resulting DataStream is ready for downstream operators.\n\n## Objective\n\nInstantiate bounded data streams from local collections for testing or small-scale processing\n## Applicable Signals\n\n- Data is bounded and fits in memory\n- All elements are homogeneous type\n- Source is local (not external file, socket, or message queue)\n- Pipeline is in development, testing, or small-scale mode\n\n## Contraindications\n\n- Data volume is large or unbounded\n- Source is external (files, sockets, Kafka, databases)\n- Elements have heterogeneous types\n- Production pipeline requiring scalable data ingestion\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify data source type', 'detail': 'Determine whether source is a Collection, Iterator, element sequence, or numeric range'}\n- {'step': 2, 'action': 'Select appropriate method', 'detail': 'fromCollection(Collection) for Java collections; fromCollection(Iterator, Class) for iterators; fromElements(T...) for varargs; fromParallelCollection(SplittableIterator, Class) for parallel iteration; generateSequence(from, to) for numeric ranges'}\n- {'step': 3, 'action': 'Ensure type consistency', 'detail': 'Verify all elements are of the same type; provide explicit type class when required by method signature'}\n- {'step': 4, 'action': 'Invoke method on StreamExecutionEnvironment', 'detail': 'Call selected method on env instance to create DataStream<T>'}\n- {'step': 5, 'action': 'Verify DataStream creation', 'detail': 'Confirm DataStream<T> object is created with correct type parameter and is ready for downstream operators'}\n\n## Constraints\n\n- All elements in the collection must be of the same type\n- Collection must fit entirely in memory\n- Iterator-based sources require explicit type class parameter\n- Parallel collection methods require SplittableIterator implementation\n\n## Cautions\n\n- Re-processing entire file contents on modification can break exactly-once semantics; use only for bounded, static collections\n- Large collections may cause memory exhaustion; validate data size before execution\n- Type mismatches will cause runtime errors; ensure homogeneous types\n\n## Output Contract\n\n- DataStream<T> object created from collection/iterator/sequence with correct type parameter; ready for downstream operators (map, filter, window, sink, etc.)\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Java List<Integer> containing [1, 2, 3, 4, 5]\n- Therapist/Output: DataStream<Integer> env.fromCollection(list)\n- Notes: Bounded stream suitable for testing aggregations or joins\n\n### Example 2\n\n- Client/Input: Numeric range from 0 to 100\n- Therapist/Output: DataStream<Long> env.generateSequence(0, 100)\n- Notes: Parallel generation of sequence; useful for load testing\n\n### Example 3\n\n- Client/Input: Custom Iterator<String> with explicit type class\n- Therapist/Output: DataStream<String> env.fromCollection(iterator, String.class)\n- Notes: Type class required when type cannot be inferred from iterator",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [
+        "cc343101-3e7f-581c-8368-f0ac6ecafdbe"
+      ],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Instantiate bounded data streams from local collections for testing or small-scale processing",
+      "domain": "default",
+      "task_family": "data_source_setup",
+      "method_family": "flink_api_configuration",
+      "stage": "initialization",
+      "applicable_signals": [
+        "Data is bounded and fits in memory",
+        "All elements are homogeneous type",
+        "Source is local (not external file, socket, or message queue)",
+        "Pipeline is in development, testing, or small-scale mode"
+      ],
+      "contraindications": [
+        "Data volume is large or unbounded",
+        "Source is external (files, sockets, Kafka, databases)",
+        "Elements have heterogeneous types",
+        "Production pipeline requiring scalable data ingestion"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Creating test data streams for unit or integration tests",
+        "Prototyping Flink pipelines with synthetic data",
+        "Loading small reference datasets into memory for join or broadcast operations",
+        "Generating numeric sequences for demonstration or validation"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Identify data source type', 'detail': 'Determine whether source is a Collection, Iterator, element sequence, or numeric range'}",
+        "{'step': 2, 'action': 'Select appropriate method', 'detail': 'fromCollection(Collection) for Java collections; fromCollection(Iterator, Class) for iterators; fromElements(T...) for varargs; fromParallelCollection(SplittableIterator, Class) for parallel iteration; generateSequence(from, to) for numeric ranges'}",
+        "{'step': 3, 'action': 'Ensure type consistency', 'detail': 'Verify all elements are of the same type; provide explicit type class when required by method signature'}",
+        "{'step': 4, 'action': 'Invoke method on StreamExecutionEnvironment', 'detail': 'Call selected method on env instance to create DataStream<T>'}",
+        "{'step': 5, 'action': 'Verify DataStream creation', 'detail': 'Confirm DataStream<T> object is created with correct type parameter and is ready for downstream operators'}"
+      ],
+      "constraints": [
+        "All elements in the collection must be of the same type",
+        "Collection must fit entirely in memory",
+        "Iterator-based sources require explicit type class parameter",
+        "Parallel collection methods require SplittableIterator implementation"
+      ],
+      "cautions": [
+        "Re-processing entire file contents on modification can break exactly-once semantics; use only for bounded, static collections",
+        "Large collections may cause memory exhaustion; validate data size before execution",
+        "Type mismatches will cause runtime errors; ensure homogeneous types"
+      ],
+      "output_contract": [
+        "DataStream<T> object created from collection/iterator/sequence with correct type parameter; ready for downstream operators (map, filter, window, sink, etc.)"
+      ],
+      "examples": [
+        {
+          "input": "Java List<Integer> containing [1, 2, 3, 4, 5]",
+          "output": "DataStream<Integer> env.fromCollection(list)",
+          "notes": "Bounded stream suitable for testing aggregations or joins"
+        },
+        {
+          "input": "Numeric range from 0 to 100",
+          "output": "DataStream<Long> env.generateSequence(0, 100)",
+          "notes": "Parallel generation of sequence; useful for load testing"
+        },
+        {
+          "input": "Custom Iterator<String> with explicit type class",
+          "output": "DataStream<String> env.fromCollection(iterator, String.class)",
+          "notes": "Type class required when type cannot be inferred from iterator"
+        }
+      ],
+      "tags": [
+        "data_source",
+        "collection",
+        "initialization",
+        "testing",
+        "bounded_stream",
+        "flink_api"
+      ],
+      "support_ids": [
+        "6bc1210a-5b45-520a-9279-168423f7c20f"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "4ea5754c-babf-57ea-b881-cb33b9e79750"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.78,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|instantiate bounded data streams from local collections for testing or small-scale processing|default|data_source_setup|flink_api_configuration|initialization|collection-based data source creation",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct session_skill for collection-based data source creation in Flink, semantically separate from file-based sources, custom source functions, and socket sources represented in peer_candidates. No existing skill in the registry matches this capability. The peer_candidates are sibling skills in the same task_family (data_source_setup) but cover different source types (files, custom functions, sockets). The existing_skills registry contains unrelated domains (GRPO training, ProcessPoolExecutor). This is a new, non-overlapping capability.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "child_skill_ids": [
+          "cc343101-3e7f-581c-8368-f0ac6ecafdbe"
+        ]
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "b4f0b265-62ea-5406-8b19-8336dca59031",
+      "name": "Socket-based Data Source Connection",
+      "description": "Establish and configure socket-based data sources in Flink to read text streams from network sockets with configurable element delimiters.",
+      "skill_body": "Use socketTextStream to connect to a network socket endpoint and parse incoming text data. Configure the delimiter to separate elements in the stream. The resulting DataStream<String> is ready for downstream processing.\n\n## Objective\n\nConnect to a socket endpoint and parse incoming text data with delimiter-based element separation\n## Applicable Signals\n\n- Network socket availability\n- Text-based data stream\n- Known delimiter specification\n\n## Contraindications\n\n- Source is file-based\n- Source is collection-based\n- Using managed connector (e.g., Kafka)\n- High-throughput production workload\n- Binary or non-text data\n\n## Workflow Steps\n\n- Obtain StreamExecutionEnvironment instance\n- Call socketTextStream(hostname, port, delimiter) method\n- Verify DataStream<String> is created and connected\n- Proceed to apply transformations or sinks\n\n## Constraints\n\n- All elements must be text-based\n- Delimiter must be specified and consistent\n- Socket endpoint must be reachable and stable\n\n## Cautions\n\n- Socket connections may be interrupted; implement reconnection logic if needed\n- Delimiter parsing assumes well-formed delimited text; malformed data may cause parsing errors\n\n## Output Contract\n\n- DataStream<String> connected to socket with delimiter parsing configured; ready to receive and process incoming text elements",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+      "parent_candidate_ids": [
+        "85e9f4bf-55a0-5330-9bfe-d6575db46c9c"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "parent",
+      "objective": "Connect to a socket endpoint and parse incoming text data with delimiter-based element separation",
+      "domain": "default",
+      "task_family": "data_source_setup",
+      "method_family": "flink_api_configuration",
+      "stage": "initialization",
+      "applicable_signals": [
+        "Network socket availability",
+        "Text-based data stream",
+        "Known delimiter specification"
+      ],
+      "contraindications": [
+        "Source is file-based",
+        "Source is collection-based",
+        "Using managed connector (e.g., Kafka)",
+        "High-throughput production workload",
+        "Binary or non-text data"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Streaming data from a network socket",
+        "Elements are text-based and separated by a known delimiter",
+        "Testing or low-throughput scenarios"
+      ],
+      "workflow_steps": [
+        "Obtain StreamExecutionEnvironment instance",
+        "Call socketTextStream(hostname, port, delimiter) method",
+        "Verify DataStream<String> is created and connected",
+        "Proceed to apply transformations or sinks"
+      ],
+      "constraints": [
+        "All elements must be text-based",
+        "Delimiter must be specified and consistent",
+        "Socket endpoint must be reachable and stable"
+      ],
+      "cautions": [
+        "Socket connections may be interrupted; implement reconnection logic if needed",
+        "Delimiter parsing assumes well-formed delimited text; malformed data may cause parsing errors"
+      ],
+      "output_contract": [
+        "DataStream<String> connected to socket with delimiter parsing configured; ready to receive and process incoming text elements"
+      ],
+      "examples": [],
+      "tags": [
+        "flink",
+        "datastream",
+        "source",
+        "socket",
+        "network",
+        "text_stream"
+      ],
+      "support_ids": [
+        "1acc7245-e17f-5ed1-b13d-b73919694194"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "484cacf9-dfc7-5dd8-8ffa-22c37bb4feeb"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.76,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|connect to a socket endpoint and parse incoming text data with delimiter-based element separation|default|data_source_setup|flink_api_configuration|initialization|socket-based data source connection",
+        "llm_reason": "Candidate is a semantically distinct Flink data source capability (socket-based streaming) with different asset_type, granularity, domain, task_family, and method_family from all existing skills. Existing skills are Azure networking and web performance optimization; peer_candidates are file/collection/custom sources in same domain but different source types. Socket source is a legitimate fourth data source variant in the data_source_setup task family and should be persisted as a new session_skill.",
+        "change_action": "create",
+        "parent_skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+        "parent_candidate_ids": [
+          "85e9f4bf-55a0-5330-9bfe-d6575db46c9c"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "parent"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "87f86160-f44f-511c-82f8-58083943120b",
+      "name": "Custom Source Function Integration",
+      "description": "Attach and configure custom or third-party source functions (e.g., Kafka consumer) to a Flink DataStream using the addSource() API. Use this skill when connecting to managed message brokers, databases, or proprietary systems where a source function implementation is already available or provided by the Flink connectors library.",
+      "skill_body": "Call addSource(sourceFunction) on the StreamExecutionEnvironment or DataStream to attach a custom source function. Ensure the source function is instantiated with required configuration (e.g., FlinkKafkaConsumer with broker addresses, topic, and deserialization schema). The source function must implement the SourceFunction interface and be ready to emit elements of type T.\n\n## Objective\n\nIntegrate external data sources via pluggable source functions for enterprise connectors\n## Applicable Signals\n\n- Need to connect to managed message brokers (Kafka, Pulsar)\n- Integrating with external databases or proprietary systems\n- Source function implementation is already available or provided by Flink connectors library\n\n## Contraindications\n\n- Source is a built-in type (file, socket, collection)\n- Custom source function is not yet implemented or tested\n- Source function lacks required SourceFunction interface implementation\n\n## Workflow Steps\n\n- Instantiate the custom source function with required configuration parameters\n- Call addSource(sourceFunction) on StreamExecutionEnvironment or intermediate DataStream\n- Verify the returned DataStream<T> is properly typed and ready for downstream operations\n\n## Constraints\n\n- Source function must implement SourceFunction<T> interface\n- Source function must be instantiated with all required configuration before passing to addSource()\n- Type parameter T must be consistent across the DataStream pipeline\n\n## Cautions\n\n- Ensure external connector library (e.g., flink-connector-kafka) is included in project dependencies\n- Verify source function configuration (broker addresses, credentials, topic/queue names) before deployment\n- Test source function behavior in isolation before integrating into full pipeline\n\n## Output Contract\n\n- Returns a DataStream<T> with the custom source function attached and initialized. The source is ready to emit elements of type T into the pipeline.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: StreamExecutionEnvironment env; need to read from Kafka topic 'events'\n- Therapist/Output: DataStream<String> stream = env.addSource(new FlinkKafkaConsumer<>(\"events\", new SimpleStringSchema(), kafkaProps))\n- Notes: FlinkKafkaConsumer is instantiated with topic name, deserialization schema, and properties before passing to addSource()",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Integrate external data sources via pluggable source functions for enterprise connectors",
+      "domain": "default",
+      "task_family": "data_source_setup",
+      "method_family": "flink_api_configuration",
+      "stage": "initialization",
+      "applicable_signals": [
+        "Need to connect to managed message brokers (Kafka, Pulsar)",
+        "Integrating with external databases or proprietary systems",
+        "Source function implementation is already available or provided by Flink connectors library"
+      ],
+      "contraindications": [
+        "Source is a built-in type (file, socket, collection)",
+        "Custom source function is not yet implemented or tested",
+        "Source function lacks required SourceFunction interface implementation"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Connecting to managed message brokers (Kafka, Pulsar), databases, or proprietary systems; source function is already implemented or available from Flink connectors library"
+      ],
+      "workflow_steps": [
+        "Instantiate the custom source function with required configuration parameters",
+        "Call addSource(sourceFunction) on StreamExecutionEnvironment or intermediate DataStream",
+        "Verify the returned DataStream<T> is properly typed and ready for downstream operations"
+      ],
+      "constraints": [
+        "Source function must implement SourceFunction<T> interface",
+        "Source function must be instantiated with all required configuration before passing to addSource()",
+        "Type parameter T must be consistent across the DataStream pipeline"
+      ],
+      "cautions": [
+        "Ensure external connector library (e.g., flink-connector-kafka) is included in project dependencies",
+        "Verify source function configuration (broker addresses, credentials, topic/queue names) before deployment",
+        "Test source function behavior in isolation before integrating into full pipeline"
+      ],
+      "output_contract": [
+        "Returns a DataStream<T> with the custom source function attached and initialized. The source is ready to emit elements of type T into the pipeline."
+      ],
+      "examples": [
+        {
+          "input": "StreamExecutionEnvironment env; need to read from Kafka topic 'events'",
+          "output": "DataStream<String> stream = env.addSource(new FlinkKafkaConsumer<>(\"events\", new SimpleStringSchema(), kafkaProps))",
+          "notes": "FlinkKafkaConsumer is instantiated with topic name, deserialization schema, and properties before passing to addSource()"
+        }
+      ],
+      "tags": [
+        "data_source",
+        "connector",
+        "kafka",
+        "external_integration",
+        "flink_api"
+      ],
+      "support_ids": [
+        "5b7c0831-629d-5a43-889f-e3cbb07d2bf0"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "3cd98e70-2bd0-5fbe-b754-6ee595362bee"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.72,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|integrate external data sources via pluggable source functions for enterprise connectors|default|data_source_setup|flink_api_configuration|initialization|custom source function integration",
+        "change_action": "create",
+        "llm_reason": "Candidate 'Custom Source Function Integration' is a distinct session_skill for pluggable enterprise source connectors (Kafka, databases, proprietary systems) using addSource() API. It differs semantically from peer candidates (file-based, collection-based, socket-based sources) which target specific built-in source types. Existing skills are unrelated (Next.js metadata, executor concurrency). No merge, split, or revision applies. Support evidence is minimal but not conflicting. Candidate should be created as a new capability.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "parent"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "801c179f-de4d-4acb-b577-ecd6d7544951",
+      "entity_type": "skill",
+      "entity_id": "42bbed97-509d-5d9f-b1db-349f906ba284",
+      "action": "create",
+      "changed_at": "2026-09-14T21:32:29+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "create",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "42bbed97-509d-5d9f-b1db-349f906ba284",
+        "doc_ids": [
+          "8a36b10a-4e32-5b2b-bc38-0c56680e2cda"
+        ],
+        "support_added": [
+          "3d65362c-a8ca-5edd-8b24-0971bc79dad4"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "f5e14636-ae40-44dc-9ab8-c76b9078c456",
+      "entity_type": "skill",
+      "entity_id": "8b1d1a11-2c9f-51cc-a047-8f2acc5e25ad",
+      "action": "create",
+      "changed_at": "2026-09-14T21:32:29+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct session_skill for collection-based data source creation in Flink, semantically separate from file-based sources, custom source functions, and socket sources represented in peer_candidates. No existing skill in the registry matches this capability. The peer_candidates are sibling skills in the same task_family (data_source_setup) but cover different source types (files, custom functions, sockets). The existing_skills registry contains unrelated domains (GRPO training, ProcessPoolExecutor). This is a new, non-overlapping capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "8b1d1a11-2c9f-51cc-a047-8f2acc5e25ad",
+        "doc_ids": [
+          "8a36b10a-4e32-5b2b-bc38-0c56680e2cda"
+        ],
+        "support_added": [
+          "6bc1210a-5b45-520a-9279-168423f7c20f"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "4ed83984-4fe3-4540-8301-68230de91647",
+      "entity_type": "skill",
+      "entity_id": "b4f0b265-62ea-5406-8b19-8336dca59031",
+      "action": "create",
+      "changed_at": "2026-09-14T21:32:29+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a semantically distinct Flink data source capability (socket-based streaming) with different asset_type, granularity, domain, task_family, and method_family from all existing skills. Existing skills are Azure networking and web performance optimization; peer_candidates are file/collection/custom sources in same domain but different source types. Socket source is a legitimate fourth data source variant in the data_source_setup task family and should be persisted as a new session_skill.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "b4f0b265-62ea-5406-8b19-8336dca59031",
+        "doc_ids": [
+          "8a36b10a-4e32-5b2b-bc38-0c56680e2cda"
+        ],
+        "support_added": [
+          "1acc7245-e17f-5ed1-b13d-b73919694194"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "fc60038f-07a7-45f1-9ce5-43b314bf3e81",
+      "entity_type": "skill",
+      "entity_id": "87f86160-f44f-511c-82f8-58083943120b",
+      "action": "create",
+      "changed_at": "2026-09-14T21:32:29+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate 'Custom Source Function Integration' is a distinct session_skill for pluggable enterprise source connectors (Kafka, databases, proprietary systems) using addSource() API. It differs semantically from peer candidates (file-based, collection-based, socket-based sources) which target specific built-in source types. Existing skills are unrelated (Next.js metadata, executor concurrency). No merge, split, or revision applies. Support evidence is minimal but not conflicting. Candidate should be created as a new capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "87f86160-f44f-511c-82f8-58083943120b",
+        "doc_ids": [
+          "8a36b10a-4e32-5b2b-bc38-0c56680e2cda"
+        ],
+        "support_added": [
+          "5b7c0831-629d-5a43-889f-e3cbb07d2bf0"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

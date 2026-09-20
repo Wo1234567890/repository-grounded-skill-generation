@@ -1,0 +1,112 @@
+{
+  "skill_id": "20fcfee5-f751-568f-bc84-e74bdd47026d",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct safety rule for ProcessPoolExecutor deadlock prevention (architectural constraint on callable content). It differs semantically and operationally from peer candidates: it targets callable function bodies (execution-time constraint), while peer skill 4000cc6b addresses module importability (initialization constraint), peer d2d734a8 addresses worker crash recovery (exception handling), and peer 3a7c2fc9 addresses ThreadPoolExecutor inter-future dependencies (design-time analysis). Existing skills are unrelated (Virtual WAN routing). No merge, split, or revision relationship applies. Candidate has clear support evidence and no conflicts.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "20fcfee5-f751-568f-bc84-e74bdd47026d",
+    "name": "ProcessPoolExecutor Deadlock Prevention Rule",
+    "description": "Enforce constraint that Executor or Future methods must not be called from within callables submitted to ProcessPoolExecutor to prevent deadlock.",
+    "skill_body": "When designing or reviewing callable functions for ProcessPoolExecutor submission, verify that the function body does not call Executor.submit(), Future.result(), Future.cancel(), or any other Executor/Future methods. Such nested calls will cause deadlock in the worker process.\n\n## Objective\n\nPrevent deadlock in process pool execution\n## Applicable Signals\n\n- Function is being submitted to ProcessPoolExecutor via executor.submit() or executor.map()\n- Code review or static analysis of process pool task implementations\n\n## Contraindications\n\n- ThreadPoolExecutor usage (lower deadlock risk due to shared memory model)\n- Single-process or synchronous execution contexts\n- Interactive interpreter (ProcessPoolExecutor requires importable __main__ module)\n\n## Intervention Moves\n\n- Scan callable function body for Executor method calls (submit, map, shutdown)\n- Scan callable function body for Future method calls (result, cancel, done, exception)\n- If found, refactor to move blocking calls outside the callable or use ThreadPoolExecutor instead\n\n## Constraints\n\n- Rule applies only to ProcessPoolExecutor, not ThreadPoolExecutor\n- Constraint is architectural; violation causes hard deadlock, not graceful failure\n\n## Cautions\n\n- Deadlock may not manifest immediately; it occurs when worker process attempts to acquire pool lock while main process waits for worker result\n- Indirect calls to Executor/Future methods (via helper functions) also trigger deadlock\n\n## Output Contract\n\n- Callable function submitted to ProcessPoolExecutor contains no direct or indirect calls to Executor.submit(), Executor.map(), Future.result(), Future.cancel(), Future.done(), or Future.exception(). Verification artifact: code review checklist or static analysis report confirming absence of these method calls in function body.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Function submitted to ProcessPoolExecutor that calls executor.submit() internally\n- Therapist/Output: Deadlock detected; refactor to remove nested executor call or use ThreadPoolExecutor\n- Notes: Nested submit() call causes worker to wait for pool lock held by main process\n\n### Example 2\n\n- Client/Input: Function submitted to ProcessPoolExecutor that calls future.result() to wait for another task\n- Therapist/Output: Deadlock detected; move result() call outside the callable or restructure task dependency\n- Notes: Worker process blocks on result() while main process may be waiting for this worker",
+    "asset_type": "safety_rule",
+    "granularity": "session",
+    "asset_node_id": "safety_rule_node",
+    "asset_path": "family_root/safety_module/safety_rule_node",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Prevent deadlock in process pool execution",
+    "domain": "default",
+    "task_family": "parallel_task_execution",
+    "method_family": "deadlock_prevention",
+    "stage": "execution",
+    "applicable_signals": [
+      "Function is being submitted to ProcessPoolExecutor via executor.submit() or executor.map()",
+      "Code review or static analysis of process pool task implementations"
+    ],
+    "contraindications": [
+      "ThreadPoolExecutor usage (lower deadlock risk due to shared memory model)",
+      "Single-process or synchronous execution contexts",
+      "Interactive interpreter (ProcessPoolExecutor requires importable __main__ module)"
+    ],
+    "intervention_moves": [
+      "Scan callable function body for Executor method calls (submit, map, shutdown)",
+      "Scan callable function body for Future method calls (result, cancel, done, exception)",
+      "If found, refactor to move blocking calls outside the callable or use ThreadPoolExecutor instead"
+    ],
+    "triggers": [
+      "Code review of functions submitted to ProcessPoolExecutor",
+      "Design phase for parallel task decomposition using process pools",
+      "Debugging deadlock or hang in ProcessPoolExecutor workflows"
+    ],
+    "workflow_steps": [],
+    "constraints": [
+      "Rule applies only to ProcessPoolExecutor, not ThreadPoolExecutor",
+      "Constraint is architectural; violation causes hard deadlock, not graceful failure"
+    ],
+    "cautions": [
+      "Deadlock may not manifest immediately; it occurs when worker process attempts to acquire pool lock while main process waits for worker result",
+      "Indirect calls to Executor/Future methods (via helper functions) also trigger deadlock"
+    ],
+    "output_contract": [
+      "Callable function submitted to ProcessPoolExecutor contains no direct or indirect calls to Executor.submit(), Executor.map(), Future.result(), Future.cancel(), Future.done(), or Future.exception(). Verification artifact: code review checklist or static analysis report confirming absence of these method calls in function body."
+    ],
+    "examples": [
+      {
+        "input": "Function submitted to ProcessPoolExecutor that calls executor.submit() internally",
+        "output": "Deadlock detected; refactor to remove nested executor call or use ThreadPoolExecutor",
+        "notes": "Nested submit() call causes worker to wait for pool lock held by main process"
+      },
+      {
+        "input": "Function submitted to ProcessPoolExecutor that calls future.result() to wait for another task",
+        "output": "Deadlock detected; move result() call outside the callable or restructure task dependency",
+        "notes": "Worker process blocks on result() while main process may be waiting for this worker"
+      }
+    ],
+    "tags": [
+      "deadlock_prevention",
+      "process_pool",
+      "concurrent.futures",
+      "safety_constraint",
+      "python_parallelism"
+    ],
+    "support_ids": [
+      "9586830b-d740-5c42-bf74-50a68776e831"
+    ],
+    "metadata": {
+      "risk_class": "high",
+      "source_draft_ids": [
+        "365f92b1-90ba-5d1f-beba-351e7f99fbe3"
+      ],
+      "support_summary": {
+        "support": 0,
+        "constraint": 1,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.9,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||safety_rule|session|safety_rule_node|prevent deadlock in process pool execution|default|parallel_task_execution|deadlock_prevention|execution|processpoolexecutor deadlock prevention rule"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

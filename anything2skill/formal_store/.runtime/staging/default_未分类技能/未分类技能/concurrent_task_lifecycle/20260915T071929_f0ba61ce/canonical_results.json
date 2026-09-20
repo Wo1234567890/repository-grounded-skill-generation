@@ -1,0 +1,148 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "concurrent_task_lifecycle",
+  "run_id": "20260915T071929_f0ba61ce",
+  "skills": [
+    {
+      "skill_id": "157ba223-e016-562c-b401-649bc2bf7959",
+      "name": "Future State Transition Control",
+      "description": "Atomically finalize a Future object's state by setting its result or exception exactly once. Enforces state immutability and prevents double-transition. Use when an Executor implementation or test harness needs to mark a parallel task as complete.",
+      "skill_body": "Call set_result(result) or set_exception(exception) on a Future object to atomically finalize its state. Each Future may transition to done state only once. After either method succeeds, the Future is immutable and subsequent calls will raise InvalidStateError. Use only within Executor implementations or unit tests.\n\n## Objective\n\natomically finalize Future state\n## Applicable Signals\n\n- Future object exists and is not yet done\n- Task execution has produced a result or raised an exception\n- Caller is Executor implementation or test code\n\n## Contraindications\n\n- Future is already done (set_result or set_exception already called)\n- Caller is not an Executor implementation or unit test\n- Future object is None or invalid\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check that Future is not yet done', 'detail': 'Verify Future state before attempting transition'}\n- {'step': 2, 'action': 'Call set_result(result) if task succeeded', 'detail': 'Pass the computed result value to finalize Future'}\n- {'step': 3, 'action': 'Call set_exception(exception) if task raised', 'detail': 'Pass the Exception object to record failure'}\n- {'step': 4, 'action': 'Future transitions to done state', 'detail': 'State is now immutable; subsequent calls will raise InvalidStateError'}\n\n## Constraints\n\n- Method can only be called once per Future\n- Cannot be called after set_result() or set_exception() have already been called\n- Raises InvalidStateError if Future is already done (Python 3.8+)\n\n## Cautions\n\n- This method is intended for internal use by Executor implementations and tests only\n- Misuse outside of Executor context may lead to state corruption\n- InvalidStateError indicates an attempt to transition an already-finalized Future\n\n## Output Contract\n\n- Future transitions to done state with result or exception recorded. Subsequent calls to set_result() or set_exception() on the same Future raise concurrent.futures.InvalidStateError. Downstream callers can now safely call result() or exception() without blocking.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "atomically finalize Future state",
+      "domain": "default",
+      "task_family": "concurrent_task_lifecycle",
+      "method_family": "state_mutation",
+      "stage": "task_completion",
+      "applicable_signals": [
+        "Future object exists and is not yet done",
+        "Task execution has produced a result or raised an exception",
+        "Caller is Executor implementation or test code"
+      ],
+      "contraindications": [
+        "Future is already done (set_result or set_exception already called)",
+        "Caller is not an Executor implementation or unit test",
+        "Future object is None or invalid"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Executor implementation completes a parallel task and must record outcome",
+        "Unit test harness needs to simulate task completion",
+        "Parallel task result or exception is ready to be stored"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check that Future is not yet done', 'detail': 'Verify Future state before attempting transition'}",
+        "{'step': 2, 'action': 'Call set_result(result) if task succeeded', 'detail': 'Pass the computed result value to finalize Future'}",
+        "{'step': 3, 'action': 'Call set_exception(exception) if task raised', 'detail': 'Pass the Exception object to record failure'}",
+        "{'step': 4, 'action': 'Future transitions to done state', 'detail': 'State is now immutable; subsequent calls will raise InvalidStateError'}"
+      ],
+      "constraints": [
+        "Method can only be called once per Future",
+        "Cannot be called after set_result() or set_exception() have already been called",
+        "Raises InvalidStateError if Future is already done (Python 3.8+)"
+      ],
+      "cautions": [
+        "This method is intended for internal use by Executor implementations and tests only",
+        "Misuse outside of Executor context may lead to state corruption",
+        "InvalidStateError indicates an attempt to transition an already-finalized Future"
+      ],
+      "output_contract": [
+        "Future transitions to done state with result or exception recorded. Subsequent calls to set_result() or set_exception() on the same Future raise concurrent.futures.InvalidStateError. Downstream callers can now safely call result() or exception() without blocking."
+      ],
+      "examples": [],
+      "tags": [
+        "concurrent.futures",
+        "Future",
+        "state_management",
+        "executor",
+        "task_completion",
+        "idempotency"
+      ],
+      "support_ids": [
+        "f9d2b5ea-9a06-5a1e-9c10-fc43ef656889"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "a25987e9-5775-5a8a-a493-a5a1f2455a2a"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|atomically finalize future state|default|concurrent_task_lifecycle|state_mutation|task_completion|future state transition control",
+        "llm_reason": "Candidate is a distinct micro_skill addressing Future state finalization (set_result/set_exception atomicity), which is semantically different from the peer candidates (polling, cancellation, exception inspection) and existing skills (reward engineering, connection mapping). No existing skill covers atomic Future state transition with immutability enforcement. Peer candidates handle state inspection and cancellation, not state mutation/finalization.",
+        "change_action": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "7e0560dc-f697-481c-8e40-dc93dfe70311",
+      "entity_type": "skill",
+      "entity_id": "157ba223-e016-562c-b401-649bc2bf7959",
+      "action": "create",
+      "changed_at": "2026-09-14T21:18:39+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill addressing Future state finalization (set_result/set_exception atomicity), which is semantically different from the peer candidates (polling, cancellation, exception inspection) and existing skills (reward engineering, connection mapping). No existing skill covers atomic Future state transition with immutability enforcement. Peer candidates handle state inspection and cancellation, not state mutation/finalization.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "157ba223-e016-562c-b401-649bc2bf7959",
+        "doc_ids": [
+          "771b7202-2a1d-5eea-bda3-df5cd4ea6620"
+        ],
+        "support_added": [
+          "f9d2b5ea-9a06-5a1e-9c10-fc43ef656889"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

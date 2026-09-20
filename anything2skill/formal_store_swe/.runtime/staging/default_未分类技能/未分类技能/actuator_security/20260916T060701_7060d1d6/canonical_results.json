@@ -1,0 +1,165 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "actuator_security",
+  "run_id": "20260916T060701_7060d1d6",
+  "skills": [
+    {
+      "skill_id": "c101555d-ef0e-5d4e-b321-4067b6a85ebe",
+      "name": "Configure Actuator Endpoint Value Sanitization",
+      "description": "Set sanitization policy for sensitive values in /env and /configprops endpoints using NEVER, ALWAYS, or WHEN_AUTHORIZED modes to control exposure of configuration secrets in Spring Boot 3.0.",
+      "skill_body": "Apply sanitization policy to actuator endpoints by setting management.endpoints.web.exposure.include or management.endpoints.web.exposure.exclude, then configure the sanitization level via management.endpoints.web.exposure.sanitization-mode (or equivalent property). For QuartzEndpoint, use management.endpoint.quartz.show-values. Verify that sensitive keys (passwords, tokens, API keys) are masked according to the chosen policy before exposing endpoints to untrusted users.\n\n## Objective\n\nEnforce value masking policy for sensitive actuator endpoints to prevent credential leakage\n## Applicable Signals\n\n- Spring Boot version upgrade to 3.0+\n- Actuator module enabled and endpoints exposed\n- Configuration contains credential-like values\n\n## Contraindications\n\n- Actuator endpoints are not exposed or disabled\n- No sensitive values in application configuration\n- Application runs in fully isolated environment with no external access\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify which actuator endpoints are exposed', 'detail': 'Check management.endpoints.web.exposure.include and management.endpoints.web.exposure.exclude properties'}\n- {'step': 2, 'action': 'Choose sanitization mode', 'detail': 'Select NEVER (all values masked), ALWAYS (all values visible), or WHEN_AUTHORIZED (conditional visibility)'}\n- {'step': 3, 'action': 'Configure sanitization property', 'detail': 'Set management.endpoints.web.exposure.sanitization-mode or equivalent to chosen mode'}\n- {'step': 4, 'action': 'If using QuartzEndpoint, configure its sanitization', 'detail': 'Set management.endpoint.quartz.show-values to NEVER, ALWAYS, or WHEN_AUTHORIZED'}\n- {'step': 5, 'action': 'Test endpoint access and verify masking', 'detail': 'Call /env and /configprops endpoints; confirm sensitive values are masked or visible per policy'}\n\n## Constraints\n\n- Sanitization policy applies only to /env and /configprops endpoints by default\n- For JMX, users are always considered authorized; for HTTP, authorization depends on authentication and role\n- User-defined sanitizing functions still apply regardless of policy mode\n\n## Cautions\n\n- ALWAYS mode exposes all values; use only in development or fully trusted environments\n- WHEN_AUTHORIZED requires proper authentication and role configuration to be effective\n- NEVER (default) masks all values; verify this does not break legitimate monitoring or debugging workflows\n\n## Output Contract\n\n- Sanitization policy applied and verified: sensitive values in /env and /configprops endpoints are masked (NEVER), visible (ALWAYS), or conditionally visible (WHEN_AUTHORIZED) according to configuration; QuartzEndpoint sanitization configured if endpoint is used.\n\n## Example Executions\n\n### Example 1\n\n- Input: Spring Boot 3.0 application with /env endpoint exposed; management.endpoints.web.exposure.include=env,health\n- Output: Set management.endpoints.web.exposure.sanitization-mode=NEVER; all configuration values masked by default when /env is accessed\n- Notes: Default behavior; no additional configuration needed unless ALWAYS or WHEN_AUTHORIZED is required\n\n### Example 2\n\n- Input: Development environment requiring full visibility of configuration for debugging\n- Output: Set management.endpoints.web.exposure.sanitization-mode=ALWAYS; all values visible in /env and /configprops responses\n- Notes: Use only in development; never in production\n\n### Example 3\n\n- Input: Production environment with authenticated users; sensitive values should be visible only to authorized admins\n- Output: Set management.endpoints.web.exposure.sanitization-mode=WHEN_AUTHORIZED; values visible only if user is authenticated and has required role\n- Notes: Requires proper Spring Security configuration and role-based access control",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Enforce value masking policy for sensitive actuator endpoints to prevent credential leakage",
+      "domain": "default",
+      "task_family": "actuator_security",
+      "method_family": "data_sanitization",
+      "stage": "migration_setup",
+      "applicable_signals": [
+        "Spring Boot version upgrade to 3.0+",
+        "Actuator module enabled and endpoints exposed",
+        "Configuration contains credential-like values"
+      ],
+      "contraindications": [
+        "Actuator endpoints are not exposed or disabled",
+        "No sensitive values in application configuration",
+        "Application runs in fully isolated environment with no external access"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Migrating application to Spring Boot 3.0",
+        "/env or /configprops endpoints are exposed",
+        "Sensitive configuration values (passwords, keys, tokens) present in application properties"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Identify which actuator endpoints are exposed', 'detail': 'Check management.endpoints.web.exposure.include and management.endpoints.web.exposure.exclude properties'}",
+        "{'step': 2, 'action': 'Choose sanitization mode', 'detail': 'Select NEVER (all values masked), ALWAYS (all values visible), or WHEN_AUTHORIZED (conditional visibility)'}",
+        "{'step': 3, 'action': 'Configure sanitization property', 'detail': 'Set management.endpoints.web.exposure.sanitization-mode or equivalent to chosen mode'}",
+        "{'step': 4, 'action': 'If using QuartzEndpoint, configure its sanitization', 'detail': 'Set management.endpoint.quartz.show-values to NEVER, ALWAYS, or WHEN_AUTHORIZED'}",
+        "{'step': 5, 'action': 'Test endpoint access and verify masking', 'detail': 'Call /env and /configprops endpoints; confirm sensitive values are masked or visible per policy'}"
+      ],
+      "constraints": [
+        "Sanitization policy applies only to /env and /configprops endpoints by default",
+        "For JMX, users are always considered authorized; for HTTP, authorization depends on authentication and role",
+        "User-defined sanitizing functions still apply regardless of policy mode"
+      ],
+      "cautions": [
+        "ALWAYS mode exposes all values; use only in development or fully trusted environments",
+        "WHEN_AUTHORIZED requires proper authentication and role configuration to be effective",
+        "NEVER (default) masks all values; verify this does not break legitimate monitoring or debugging workflows"
+      ],
+      "output_contract": [
+        "Sanitization policy applied and verified: sensitive values in /env and /configprops endpoints are masked (NEVER), visible (ALWAYS), or conditionally visible (WHEN_AUTHORIZED) according to configuration; QuartzEndpoint sanitization configured if endpoint is used."
+      ],
+      "examples": [
+        {
+          "input": "Spring Boot 3.0 application with /env endpoint exposed; management.endpoints.web.exposure.include=env,health",
+          "output": "Set management.endpoints.web.exposure.sanitization-mode=NEVER; all configuration values masked by default when /env is accessed",
+          "notes": "Default behavior; no additional configuration needed unless ALWAYS or WHEN_AUTHORIZED is required"
+        },
+        {
+          "input": "Development environment requiring full visibility of configuration for debugging",
+          "output": "Set management.endpoints.web.exposure.sanitization-mode=ALWAYS; all values visible in /env and /configprops responses",
+          "notes": "Use only in development; never in production"
+        },
+        {
+          "input": "Production environment with authenticated users; sensitive values should be visible only to authorized admins",
+          "output": "Set management.endpoints.web.exposure.sanitization-mode=WHEN_AUTHORIZED; values visible only if user is authenticated and has required role",
+          "notes": "Requires proper Spring Security configuration and role-based access control"
+        }
+      ],
+      "tags": [
+        "spring-boot-3",
+        "actuator",
+        "security",
+        "sanitization",
+        "configuration",
+        "migration"
+      ],
+      "support_ids": [
+        "79cfe936-b84d-56f5-a8cf-6f5fa558cf61"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "0829c8d5-5f74-5102-960c-8c96c4a155fe"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.88,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|enforce value masking policy for sensitive actuator endpoints to prevent credential leakage|default|actuator_security|data_sanitization|migration_setup|configure actuator endpoint value sanitization",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct safety_rule at session granularity addressing actuator endpoint value sanitization policy (NEVER/ALWAYS/WHEN_AUTHORIZED modes) for Spring Boot 3.0. It is semantically different from the peer 'Configure Actuator Endpoint Exposure' (which controls which endpoints are exposed via inclusion/exclusion) and the macro orchestrator. The existing_skills are unrelated (Flink buffer timeout, Maven repository auth). No merge, split, or revision relationship exists with any indexed skill.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "a1807ac2-0b07-48f9-9082-f623f6a3bd2e",
+      "entity_type": "skill",
+      "entity_id": "c101555d-ef0e-5d4e-b321-4067b6a85ebe",
+      "action": "create",
+      "changed_at": "2026-09-15T20:04:50+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct safety_rule at session granularity addressing actuator endpoint value sanitization policy (NEVER/ALWAYS/WHEN_AUTHORIZED modes) for Spring Boot 3.0. It is semantically different from the peer 'Configure Actuator Endpoint Exposure' (which controls which endpoints are exposed via inclusion/exclusion) and the macro orchestrator. The existing_skills are unrelated (Flink buffer timeout, Maven repository auth). No merge, split, or revision relationship exists with any indexed skill.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "c101555d-ef0e-5d4e-b321-4067b6a85ebe",
+        "doc_ids": [
+          "8a0719aa-8715-5b31-81e8-b6b7665dcece"
+        ],
+        "support_added": [
+          "79cfe936-b84d-56f5-a8cf-6f5fa558cf61"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

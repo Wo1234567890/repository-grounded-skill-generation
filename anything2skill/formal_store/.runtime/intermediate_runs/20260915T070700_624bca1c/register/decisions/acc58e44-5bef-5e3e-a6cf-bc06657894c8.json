@@ -1,0 +1,107 @@
+{
+  "skill_id": "acc58e44-5bef-5e3e-a6cf-bc06657894c8",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a micro-level safety_rule for concurrent.futures exception classification and recovery with distinct semantic identity (classify executor/future exceptions and route to recovery handlers). Peer candidates address different executor types (BrokenProcessPool for ProcessPoolExecutor, ThreadPoolExecutor deadlock, ProcessPoolExecutor deadlock prevention) at session granularity or design stage. Existing skills are unrelated (Azure routing). No semantic overlap, merge, split, or revision target identified.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "acc58e44-5bef-5e3e-a6cf-bc06657894c8",
+    "name": "Concurrent Futures Exception Classification and Recovery",
+    "description": "Classify exceptions raised by concurrent.futures operations (CancelledError, TimeoutError, BrokenExecutor, InvalidStateError) and route to appropriate recovery handlers (retry, fallback, escalate, or abort) to implement robust error recovery in parallel task workflows.",
+    "skill_body": "When an Executor or Future operation raises an exception, classify it as one of four types: (1) CancelledError—future was cancelled; (2) TimeoutError—future operation exceeded timeout; (3) BrokenExecutor—executor is broken and cannot accept new tasks; (4) InvalidStateError—Future state is invalid (e.g., set_result() called twice). For each type, trigger the appropriate recovery action: retry, fallback, or escalation.\n\n## Objective\n\nclassify and respond to executor/future failures\n## Applicable Signals\n\n- concurrent.futures.CancelledError raised\n- concurrent.futures.TimeoutError raised\n- concurrent.futures.BrokenExecutor raised\n- concurrent.futures.InvalidStateError raised\n\n## Contraindications\n\n- Synchronous (non-concurrent) code path\n- No parallel tasks are in flight\n\n## Intervention Moves\n\n- Catch exception and identify type\n- Log exception type and context\n- Route to appropriate recovery handler (retry, fallback, escalate, or abort)\n\n## Workflow Steps\n\n- Catch exception from concurrent.futures operation\n- Identify exception type (CancelledError, TimeoutError, BrokenExecutor, or InvalidStateError)\n- Log exception type and relevant context\n- Route to appropriate recovery handler based on exception type\n\n## Constraints\n\n- Exception must originate from concurrent.futures module\n- Classification must occur before recovery action is selected\n\n## Cautions\n\n- BrokenExecutor indicates executor is permanently broken; do not attempt to reuse the same executor instance\n- InvalidStateError (Python 3.8+) indicates Future is already done; do not call set_result() or set_exception() again\n- TimeoutError is a deprecated alias of built-in TimeoutError as of Python 3.11\n\n## Output Contract\n\n- Exception is caught, classified into one of four types, and appropriate recovery action (retry, fallback, or escalation) is triggered; downstream caller receives clear signal of failure mode and recommended next step.",
+    "asset_type": "safety_rule",
+    "granularity": "micro",
+    "asset_node_id": "safety_rule_node",
+    "asset_path": "family_root/safety_module/safety_rule_node",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "classify and respond to executor/future failures",
+    "domain": "default",
+    "task_family": "concurrent_error_handling",
+    "method_family": "exception_classification",
+    "stage": "error_recovery",
+    "applicable_signals": [
+      "concurrent.futures.CancelledError raised",
+      "concurrent.futures.TimeoutError raised",
+      "concurrent.futures.BrokenExecutor raised",
+      "concurrent.futures.InvalidStateError raised"
+    ],
+    "contraindications": [
+      "Synchronous (non-concurrent) code path",
+      "No parallel tasks are in flight"
+    ],
+    "intervention_moves": [
+      "Catch exception and identify type",
+      "Log exception type and context",
+      "Route to appropriate recovery handler (retry, fallback, escalate, or abort)"
+    ],
+    "triggers": [
+      "Executor or Future operation raises an exception",
+      "Caller must decide whether to retry, escalate, or abort"
+    ],
+    "workflow_steps": [
+      "Catch exception from concurrent.futures operation",
+      "Identify exception type (CancelledError, TimeoutError, BrokenExecutor, or InvalidStateError)",
+      "Log exception type and relevant context",
+      "Route to appropriate recovery handler based on exception type"
+    ],
+    "constraints": [
+      "Exception must originate from concurrent.futures module",
+      "Classification must occur before recovery action is selected"
+    ],
+    "cautions": [
+      "BrokenExecutor indicates executor is permanently broken; do not attempt to reuse the same executor instance",
+      "InvalidStateError (Python 3.8+) indicates Future is already done; do not call set_result() or set_exception() again",
+      "TimeoutError is a deprecated alias of built-in TimeoutError as of Python 3.11"
+    ],
+    "output_contract": [
+      "Exception is caught, classified into one of four types, and appropriate recovery action (retry, fallback, or escalation) is triggered; downstream caller receives clear signal of failure mode and recommended next step."
+    ],
+    "examples": [],
+    "tags": [
+      "concurrent.futures",
+      "exception_handling",
+      "error_recovery",
+      "parallel_tasks",
+      "safety_rule"
+    ],
+    "support_ids": [
+      "37a71121-17e5-564f-8dd0-8422ed109c57"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "b3568f41-7ed3-53a3-9791-4ab2fdebbfd7"
+      ],
+      "support_summary": {
+        "support": 0,
+        "constraint": 1,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.82,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||safety_rule|micro|safety_rule_node|classify and respond to executor/future failures|default|concurrent_error_handling|exception_classification|error_recovery|concurrent futures exception classification and recovery"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

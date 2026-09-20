@@ -1,0 +1,121 @@
+{
+  "skill_id": "d8ea0a6a-2ee7-5ade-872e-dde9abd80350",
+  "name": "Assemble and Retrieve Tracing Client Instance",
+  "description": "Construct a complete initialization parameter dictionary from user inputs and configuration, then retrieve or create a singleton client instance for tracing operations.",
+  "skill_body": "Merge user-provided tags with default tags using set union to eliminate duplicates. Detect execution environment (Jupyter notebook vs. standard Python) to determine auto-start behavior. Assemble all initialization parameters into a single dictionary, then call get_client() to obtain or create the singleton client instance.\n\n## Objective\n\nInitialize and obtain a ready-to-use tracing client with merged configuration\n## Applicable Signals\n\n- user_provides_api_key\n- user_provides_endpoint\n- user_provides_tags_or_default_tags\n- initialization_parameters_complete\n\n## Contraindications\n\n- Client is already initialized and active\n- Configuration changes are not needed\n- Tracing is disabled or skipped\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Merge tags and default_tags', 'detail': 'If both tags and default_tags are provided, combine them using set union to eliminate duplicates. If only one is provided, use that. If neither, set merged_tags to None.'}\n- {'step': 2, 'action': 'Detect execution environment', 'detail': 'Attempt to call get_ipython().__class__.__name__ to check for Jupyter/ZMQInteractiveShell. If NameError is raised, assume standard Python environment. Set auto_start_session to False if Jupyter is detected, otherwise leave as provided.'}\n- {'step': 3, 'action': 'Assemble initialization dictionary', 'detail': 'Create init_kwargs dictionary with all parameters: api_key, endpoint, app_url, max_wait_time, max_queue_size, default_tags (merged), trace_name, instrument_llm_calls, auto_start_session, auto_init, skip_auto_end_session, env_data_opt_out, log_level, fail_safe, log_session_replay_url, exporter_endpoint, plus any additional kwargs.'}\n- {'step': 4, 'action': 'Retrieve or create client instance', 'detail': 'Call get_client() with the assembled init_kwargs to obtain the singleton client instance. This creates a new instance if none exists, or returns the existing one.'}\n\n## Constraints\n\n- API key must be provided or retrievable from environment\n- Tags parameter and default_tags parameter are optional but may both be present\n- Environment detection (Jupyter vs. standard) must complete before setting auto_start_session\n\n## Cautions\n\n- Tag merging uses set union; order is not preserved.\n- Jupyter detection relies on exception handling; ensure NameError is the only expected exception.\n- get_client() is a singleton factory; multiple calls with different parameters may not reinitialize an existing client.\n\n## Output Contract\n\n- A client instance (new or existing) with all initialization parameters applied, ready to accept trace events and manage session lifecycle.",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "5cb1141a-bd9a-5686-a22e-969b744a44a8",
+  "parent_candidate_ids": [
+    "5cb1141a-bd9a-5686-a22e-969b744a44a8"
+  ],
+  "child_skill_ids": [
+    "178a5caa-cb2a-53ca-af41-94d900f83d6d"
+  ],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "parent",
+  "visible_role": "parent",
+  "objective": "Initialize and obtain a ready-to-use tracing client with merged configuration",
+  "domain": "default",
+  "task_family": "session_initialization",
+  "method_family": "client_factory",
+  "stage": "initialization",
+  "applicable_signals": [
+    "user_provides_api_key",
+    "user_provides_endpoint",
+    "user_provides_tags_or_default_tags",
+    "initialization_parameters_complete"
+  ],
+  "contraindications": [
+    "Client is already initialized and active",
+    "Configuration changes are not needed",
+    "Tracing is disabled or skipped"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Starting a new tracing session",
+    "Resuming an existing tracing session",
+    "All configuration parameters (API key, endpoint, tags, queue settings) are available"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Merge tags and default_tags', 'detail': 'If both tags and default_tags are provided, combine them using set union to eliminate duplicates. If only one is provided, use that. If neither, set merged_tags to None.'}",
+    "{'step': 2, 'action': 'Detect execution environment', 'detail': 'Attempt to call get_ipython().__class__.__name__ to check for Jupyter/ZMQInteractiveShell. If NameError is raised, assume standard Python environment. Set auto_start_session to False if Jupyter is detected, otherwise leave as provided.'}",
+    "{'step': 3, 'action': 'Assemble initialization dictionary', 'detail': 'Create init_kwargs dictionary with all parameters: api_key, endpoint, app_url, max_wait_time, max_queue_size, default_tags (merged), trace_name, instrument_llm_calls, auto_start_session, auto_init, skip_auto_end_session, env_data_opt_out, log_level, fail_safe, log_session_replay_url, exporter_endpoint, plus any additional kwargs.'}",
+    "{'step': 4, 'action': 'Retrieve or create client instance', 'detail': 'Call get_client() with the assembled init_kwargs to obtain the singleton client instance. This creates a new instance if none exists, or returns the existing one.'}"
+  ],
+  "constraints": [
+    "API key must be provided or retrievable from environment",
+    "Tags parameter and default_tags parameter are optional but may both be present",
+    "Environment detection (Jupyter vs. standard) must complete before setting auto_start_session"
+  ],
+  "cautions": [
+    "Tag merging uses set union; order is not preserved.",
+    "Jupyter detection relies on exception handling; ensure NameError is the only expected exception.",
+    "get_client() is a singleton factory; multiple calls with different parameters may not reinitialize an existing client."
+  ],
+  "output_contract": [
+    "A client instance (new or existing) with all initialization parameters applied, ready to accept trace events and manage session lifecycle."
+  ],
+  "examples": [],
+  "tags": [
+    "initialization",
+    "client_factory",
+    "configuration",
+    "tracing",
+    "session_setup"
+  ],
+  "support_ids": [
+    "892ad281-e69b-5bb0-a4b0-789da6f50da2"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "529655cd-9963-50f3-8d6a-d09563975ef5"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.8,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|initialize and obtain a ready-to-use tracing client with merged configuration|default|session_initialization|client_factory|initialization|assemble and retrieve tracing client instance",
+    "change_action": "create",
+    "llm_reason": "create",
+    "parent_skill_id": "5cb1141a-bd9a-5686-a22e-969b744a44a8",
+    "parent_candidate_ids": [
+      "5cb1141a-bd9a-5686-a22e-969b744a44a8"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "parent",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "178a5caa-cb2a-53ca-af41-94d900f83d6d"
+    ]
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

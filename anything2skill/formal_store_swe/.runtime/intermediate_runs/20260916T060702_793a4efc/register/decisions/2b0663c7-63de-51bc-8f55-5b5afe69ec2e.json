@@ -1,0 +1,123 @@
+{
+  "skill_id": "2b0663c7-63de-51bc-8f55-5b5afe69ec2e",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "2b0663c7-63de-51bc-8f55-5b5afe69ec2e",
+    "name": "Contention-Level Workload Evaluation",
+    "description": "Execute and measure concurrency control algorithm performance under medium and high contention YCSB workloads to assess behavior across different conflict intensities and isolation levels.",
+    "skill_body": "Run YCSB benchmark with 40 threads at medium and high contention levels. For each contention level, measure throughput (Million txn/s) and abort rate (%) across all target algorithms. Test under serializable (SR), repeatable read (RR), and snapshot isolation (SI) isolation levels where supported. Record commit timestamp growth rates and relative performance deltas between contention levels.\n\n## Objective\n\nCharacterize algorithm performance across contention spectrum to expose robustness and optimization effectiveness under varying conflict rates.\n## Applicable Signals\n\n- Comparing multiple concurrency control algorithms\n- Testing algorithm robustness under varying conflict rates\n- Validating optimization effectiveness across workload conditions\n- Assessing isolation level performance trade-offs\n\n## Contraindications\n\n- Single fixed-contention workload only\n- Non-transactional systems\n- Workloads without tunable conflict parameters\n- Systems unable to support multiple isolation levels\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Configure YCSB benchmark', 'detail': 'Set up medium-contention workload (sufficient parallelism for optimistic algorithms to show small improvements)'}\n- {'step': 2, 'action': 'Execute medium-contention test', 'detail': 'Run all target algorithms under SR, RR, and SI isolation levels (where supported) with 40 threads; record throughput and abort rate'}\n- {'step': 3, 'action': 'Configure high-contention workload', 'detail': 'Increase contention to expose algorithm behavior under significant hotspot conflicts'}\n- {'step': 4, 'action': 'Execute high-contention test', 'detail': 'Run all target algorithms under SR, RR, and SI isolation levels (where supported) with 40 threads; record throughput and abort rate'}\n- {'step': 5, 'action': 'Analyze timestamp growth', 'detail': 'Track commit timestamp values over time; compare growth rate relative to number of committed transactions'}\n- {'step': 6, 'action': 'Compute performance deltas', 'detail': 'Calculate throughput and abort rate improvements/degradation from SR to RR and SI for each algorithm and contention level'}\n\n## Constraints\n\n- Use YCSB benchmark with configurable contention parameters\n- Run with consistent thread count (40 threads recommended)\n- Test at minimum two contention levels: medium and high\n- Measure both throughput and abort rate for each configuration\n- Support isolation levels appropriate to each algorithm (SR mandatory; RR and SI where applicable)\n\n## Cautions\n\n- Lower isolation levels (RR, SI) may not be supported by all algorithms; document unsupported combinations\n- High contention workloads may show reduced abort rate improvements due to saturation on hotspot tuples\n- Timestamp growth rates vary significantly by contention level; track separately for analysis\n\n## Output Contract\n\n- Structured performance report containing: (a) throughput (Million txn/s) and abort rate (%) tables for medium and high contention levels, organized by algorithm and isolation level; (b) relative performance improvements (%) from SR baseline to RR and SI; (c) timestamp growth rate analysis showing logical time growth relative to committed transaction count; (d) summary of algorithm robustness across contention spectrum.\n\n## Example Executions\n\n### Example 1\n\n- Input: Target algorithms: DL_DETECT, HEKATON, NO_WAIT, SILO, TICTOC; medium-contention YCSB; 40 threads\n- Output: Medium contention: TICTOC SR throughput 2.57M txn/s (1.76% abort), RR throughput 2.69M txn/s (0.72% abort); DL_DETECT SR throughput 0.43M txn/s (0.35% abort), RR throughput 0.72M txn/s (0.10% abort)\n- Notes: Optimistic algorithms show 4.7% improvement SR→RR; pessimistic algorithms show 67.4% improvement\n\n### Example 2\n\n- Input: Target algorithms: DL_DETECT, HEKATON, NO_WAIT, SILO, TICTOC; high-contention YCSB; 40 threads\n- Output: High contention: TICTOC SR throughput 1.04M txn/s (1.76% abort), RR throughput 1.04M txn/s (0.72% abort); NO_WAIT SR throughput 0.35M txn/s (63.2% abort), RR throughput 1.89M txn/s (9.9% abort)\n- Notes: High contention reduces isolation level benefits; RR slightly better than SI; abort rates remain high due to hotspot saturation",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Characterize algorithm performance across contention spectrum to expose robustness and optimization effectiveness under varying conflict rates.",
+    "domain": "default",
+    "task_family": "workload_testing",
+    "method_family": "parametric_benchmarking",
+    "stage": "evaluation",
+    "applicable_signals": [
+      "Comparing multiple concurrency control algorithms",
+      "Testing algorithm robustness under varying conflict rates",
+      "Validating optimization effectiveness across workload conditions",
+      "Assessing isolation level performance trade-offs"
+    ],
+    "contraindications": [
+      "Single fixed-contention workload only",
+      "Non-transactional systems",
+      "Workloads without tunable conflict parameters",
+      "Systems unable to support multiple isolation levels"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Comparing concurrency control algorithms",
+      "Testing robustness under varying conflict rates",
+      "Validating optimization effectiveness across workload conditions"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Configure YCSB benchmark', 'detail': 'Set up medium-contention workload (sufficient parallelism for optimistic algorithms to show small improvements)'}",
+      "{'step': 2, 'action': 'Execute medium-contention test', 'detail': 'Run all target algorithms under SR, RR, and SI isolation levels (where supported) with 40 threads; record throughput and abort rate'}",
+      "{'step': 3, 'action': 'Configure high-contention workload', 'detail': 'Increase contention to expose algorithm behavior under significant hotspot conflicts'}",
+      "{'step': 4, 'action': 'Execute high-contention test', 'detail': 'Run all target algorithms under SR, RR, and SI isolation levels (where supported) with 40 threads; record throughput and abort rate'}",
+      "{'step': 5, 'action': 'Analyze timestamp growth', 'detail': 'Track commit timestamp values over time; compare growth rate relative to number of committed transactions'}",
+      "{'step': 6, 'action': 'Compute performance deltas', 'detail': 'Calculate throughput and abort rate improvements/degradation from SR to RR and SI for each algorithm and contention level'}"
+    ],
+    "constraints": [
+      "Use YCSB benchmark with configurable contention parameters",
+      "Run with consistent thread count (40 threads recommended)",
+      "Test at minimum two contention levels: medium and high",
+      "Measure both throughput and abort rate for each configuration",
+      "Support isolation levels appropriate to each algorithm (SR mandatory; RR and SI where applicable)"
+    ],
+    "cautions": [
+      "Lower isolation levels (RR, SI) may not be supported by all algorithms; document unsupported combinations",
+      "High contention workloads may show reduced abort rate improvements due to saturation on hotspot tuples",
+      "Timestamp growth rates vary significantly by contention level; track separately for analysis"
+    ],
+    "output_contract": [
+      "Structured performance report containing: (a) throughput (Million txn/s) and abort rate (%) tables for medium and high contention levels, organized by algorithm and isolation level; (b) relative performance improvements (%) from SR baseline to RR and SI; (c) timestamp growth rate analysis showing logical time growth relative to committed transaction count; (d) summary of algorithm robustness across contention spectrum."
+    ],
+    "examples": [
+      {
+        "input": "Target algorithms: DL_DETECT, HEKATON, NO_WAIT, SILO, TICTOC; medium-contention YCSB; 40 threads",
+        "output": "Medium contention: TICTOC SR throughput 2.57M txn/s (1.76% abort), RR throughput 2.69M txn/s (0.72% abort); DL_DETECT SR throughput 0.43M txn/s (0.35% abort), RR throughput 0.72M txn/s (0.10% abort)",
+        "notes": "Optimistic algorithms show 4.7% improvement SR→RR; pessimistic algorithms show 67.4% improvement"
+      },
+      {
+        "input": "Target algorithms: DL_DETECT, HEKATON, NO_WAIT, SILO, TICTOC; high-contention YCSB; 40 threads",
+        "output": "High contention: TICTOC SR throughput 1.04M txn/s (1.76% abort), RR throughput 1.04M txn/s (0.72% abort); NO_WAIT SR throughput 0.35M txn/s (63.2% abort), RR throughput 1.89M txn/s (9.9% abort)",
+        "notes": "High contention reduces isolation level benefits; RR slightly better than SI; abort rates remain high due to hotspot saturation"
+      }
+    ],
+    "tags": [
+      "benchmarking",
+      "concurrency_control",
+      "performance_evaluation",
+      "isolation_levels",
+      "YCSB",
+      "contention_analysis"
+    ],
+    "support_ids": [
+      "60391557-14d5-5224-8e7b-d7b038b4369d"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "acb68f73-1eb3-5f06-9ad9-bf51cfb19274"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|characterize algorithm performance across contention spectrum to expose robustness and optimization effectiveness under varying conflict rates.|default|workload_testing|parametric_benchmarking|evaluation|contention-level workload evaluation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

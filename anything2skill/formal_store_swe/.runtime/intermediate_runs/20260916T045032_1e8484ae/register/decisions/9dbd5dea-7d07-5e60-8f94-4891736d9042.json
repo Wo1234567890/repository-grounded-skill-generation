@@ -1,0 +1,130 @@
+{
+  "skill_id": "9dbd5dea-7d07-5e60-8f94-4891736d9042",
+  "action": "merge",
+  "matched_skill_ids": [
+    "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881"
+  ],
+  "reason": "Candidate is a SLURM job submission wrapper that orchestrates the same distributed training workflow already covered by peer candidates (Accelerate orchestration + DeepSpeed ZeRO Stage 3). The candidate adds SLURM-specific syntax but does not introduce a distinct capability—it is a job scheduler integration layer for capabilities already represented. Merging into Accelerate and DeepSpeed skills avoids duplication and consolidates multi-node training guidance into the orchestration and memory-efficiency layers where it belongs.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "9dbd5dea-7d07-5e60-8f94-4891736d9042",
+    "name": "SLURM Multi-Node Training Job Configuration",
+    "description": "Define and submit SLURM job scripts to coordinate training across multiple compute nodes with dedicated generation nodes, specifying resource allocation, node assignment, and inter-node communication.",
+    "skill_body": "Create a SLURM job script that allocates multiple nodes for distributed training and reserves dedicated nodes for generation workloads. Specify node counts, GPU allocation per node, inter-node communication settings, and job submission parameters. Ensure training nodes and generation nodes are properly isolated and coordinated.\n\n## Objective\n\nConfigure and submit scalable multi-node training jobs on HPC clusters\n## Applicable Signals\n\n- Submitting jobs to SLURM-managed clusters\n- Allocating multiple nodes for large model training\n- Separating training and generation workloads across nodes\n- Training models larger than single-node GPU memory capacity\n\n## Contraindications\n\n- Non-SLURM environments (e.g., Kubernetes, cloud-native platforms)\n- Single-node training scenarios\n- Cloud-managed training platforms without SLURM access\n- Environments without multi-node GPU infrastructure\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Define SLURM header directives', 'detail': 'Specify job name, partition, number of nodes, tasks per node, GPUs per node, time limit, and output/error log paths'}\n- {'step': 2, 'action': 'Allocate training nodes', 'detail': 'Reserve N nodes for distributed training with DeepSpeed ZeRO Stage 3 and Accelerate configuration'}\n- {'step': 3, 'action': 'Allocate generation nodes', 'detail': 'Reserve dedicated node(s) for vLLM-powered generation, separate from training node pool'}\n- {'step': 4, 'action': 'Configure inter-node communication', 'detail': 'Set environment variables for distributed training (MASTER_ADDR, MASTER_PORT, RANK, WORLD_SIZE)'}\n- {'step': 5, 'action': 'Load required modules and activate environment', 'detail': 'Load CUDA, cuDNN, and other dependencies; activate Python virtual environment'}\n- {'step': 6, 'action': 'Launch training on training nodes', 'detail': 'Use srun or torchrun to start training script on allocated training nodes'}\n- {'step': 7, 'action': 'Launch generation service on generation nodes', 'detail': 'Start vLLM server on dedicated generation node(s) in parallel with training'}\n- {'step': 8, 'action': 'Submit job to SLURM queue', 'detail': 'Execute sbatch command with configured script; verify job submission and obtain job ID'}\n\n## Constraints\n\n- SLURM cluster must be available and accessible\n- Sufficient GPU nodes must be available in the partition\n- Training and generation nodes must have compatible GPU types\n- Network connectivity between nodes must be stable\n- DeepSpeed and Accelerate must be installed in the environment\n- vLLM must be installed on generation nodes\n\n## Cautions\n\n- Ensure MASTER_ADDR and MASTER_PORT are correctly set to avoid communication failures\n- Verify node count and GPU allocation match model size requirements\n- Monitor job logs for inter-node communication errors\n- Set appropriate time limits to avoid premature job termination\n- Confirm generation node is reachable from training nodes before job starts\n\n## Output Contract\n\n- SLURM job script created and validated\n- Job successfully submitted to queue\n- Training nodes allocated and confirmed\n- Generation nodes reserved and isolated\n- Job status visible in squeue output\n- Inter-node communication established and verified\n\n## Example Executions\n\n### Example 1\n\n- Input: Train Qwen2.5-72B model on 4 training nodes with 1 dedicated generation node\n- Output: SLURM script with #SBATCH directives for 5 total nodes, 4 assigned to training with DeepSpeed ZeRO Stage 3, 1 assigned to vLLM generation; job submitted with sbatch; job ID returned\n- Notes: Training on 4 nodes, generation on 5th node; requires DeepSpeed ZeRO Stage 3 for model state distribution and Accelerate for distributed training coordination",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Configure and submit scalable multi-node training jobs on HPC clusters",
+    "domain": "default",
+    "task_family": "distributed_training",
+    "method_family": "job_scheduling",
+    "stage": "training_deployment",
+    "applicable_signals": [
+      "Submitting jobs to SLURM-managed clusters",
+      "Allocating multiple nodes for large model training",
+      "Separating training and generation workloads across nodes",
+      "Training models larger than single-node GPU memory capacity"
+    ],
+    "contraindications": [
+      "Non-SLURM environments (e.g., Kubernetes, cloud-native platforms)",
+      "Single-node training scenarios",
+      "Cloud-managed training platforms without SLURM access",
+      "Environments without multi-node GPU infrastructure"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Submitting jobs to SLURM-managed clusters",
+      "Allocating multiple nodes for training",
+      "Separating training and generation workloads across nodes"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Define SLURM header directives', 'detail': 'Specify job name, partition, number of nodes, tasks per node, GPUs per node, time limit, and output/error log paths'}",
+      "{'step': 2, 'action': 'Allocate training nodes', 'detail': 'Reserve N nodes for distributed training with DeepSpeed ZeRO Stage 3 and Accelerate configuration'}",
+      "{'step': 3, 'action': 'Allocate generation nodes', 'detail': 'Reserve dedicated node(s) for vLLM-powered generation, separate from training node pool'}",
+      "{'step': 4, 'action': 'Configure inter-node communication', 'detail': 'Set environment variables for distributed training (MASTER_ADDR, MASTER_PORT, RANK, WORLD_SIZE)'}",
+      "{'step': 5, 'action': 'Load required modules and activate environment', 'detail': 'Load CUDA, cuDNN, and other dependencies; activate Python virtual environment'}",
+      "{'step': 6, 'action': 'Launch training on training nodes', 'detail': 'Use srun or torchrun to start training script on allocated training nodes'}",
+      "{'step': 7, 'action': 'Launch generation service on generation nodes', 'detail': 'Start vLLM server on dedicated generation node(s) in parallel with training'}",
+      "{'step': 8, 'action': 'Submit job to SLURM queue', 'detail': 'Execute sbatch command with configured script; verify job submission and obtain job ID'}"
+    ],
+    "constraints": [
+      "SLURM cluster must be available and accessible",
+      "Sufficient GPU nodes must be available in the partition",
+      "Training and generation nodes must have compatible GPU types",
+      "Network connectivity between nodes must be stable",
+      "DeepSpeed and Accelerate must be installed in the environment",
+      "vLLM must be installed on generation nodes"
+    ],
+    "cautions": [
+      "Ensure MASTER_ADDR and MASTER_PORT are correctly set to avoid communication failures",
+      "Verify node count and GPU allocation match model size requirements",
+      "Monitor job logs for inter-node communication errors",
+      "Set appropriate time limits to avoid premature job termination",
+      "Confirm generation node is reachable from training nodes before job starts"
+    ],
+    "output_contract": [
+      "SLURM job script created and validated",
+      "Job successfully submitted to queue",
+      "Training nodes allocated and confirmed",
+      "Generation nodes reserved and isolated",
+      "Job status visible in squeue output",
+      "Inter-node communication established and verified"
+    ],
+    "examples": [
+      {
+        "input": "Train Qwen2.5-72B model on 4 training nodes with 1 dedicated generation node",
+        "output": "SLURM script with #SBATCH directives for 5 total nodes, 4 assigned to training with DeepSpeed ZeRO Stage 3, 1 assigned to vLLM generation; job submitted with sbatch; job ID returned",
+        "notes": "Training on 4 nodes, generation on 5th node; requires DeepSpeed ZeRO Stage 3 for model state distribution and Accelerate for distributed training coordination"
+      }
+    ],
+    "tags": [
+      "slurm",
+      "multi_node",
+      "distributed_training",
+      "hpc",
+      "job_scheduling",
+      "resource_allocation"
+    ],
+    "support_ids": [
+      "18eb409a-c5e3-575a-b949-ad13ef7b1226"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "abdd04ef-0c99-5037-ba7b-8decc2f592b2"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.78,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|configure and submit scalable multi-node training jobs on hpc clusters|default|distributed_training|job_scheduling|training_deployment|slurm multi-node training job configuration"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

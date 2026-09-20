@@ -1,0 +1,141 @@
+{
+  "skill_id": "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa",
+  "name": "Mooncake Transfer Engine Integration for Disaggregated Inference",
+  "description": "Protocol for integrating Mooncake Transfer Engine as a backend connector in distributed inference and KV cache systems. Enables zero-copy RDMA-based data transfer across compute nodes for disaggregated prefill-decode pipelines.",
+  "skill_body": "To integrate Mooncake Transfer Engine: (1) Identify target inference framework (vLLM, SGLang, TensorRT LLM, or equivalent). (2) Register MooncakeTransferEngineConnector or MooncakeStoreConnector as the KV cache transfer backend. (3) Configure RDMA network paths between prefill and decode nodes. (4) Verify zero-copy transfer by monitoring cross-node data movement without GPU memory staging. (5) Validate throughput and latency against baseline non-disaggregated pipeline.\n\n## Objective\n\nEnable high-performance cross-node data transfer in disaggregated LLM inference\n## Applicable Signals\n\n- Deploying multi-node LLM serving with prefill-decode separation\n- Implementing KV cache transfer between compute and cache nodes\n- Integrating disaggregated inference connectors in vLLM, SGLang, TensorRT LLM, or similar frameworks\n- Requiring zero-copy cross-device or cross-machine data movement\n\n## Contraindications\n\n- Single-node inference without disaggregation\n- Non-disaggregated pipelines where encoder and decoder run on same node\n- Systems without RDMA hardware support or high-speed interconnect\n- Environments where GPU memory staging is acceptable and latency is not critical\n\n## Intervention Moves\n\n- Register Mooncake connector (MooncakeTransferEngineConnector or MooncakeStoreConnector) in target framework\n- Configure RDMA network paths and device mappings\n- Enable hierarchical KV cache storage across device, host, and remote layers\n- Validate zero-copy transfer and measure cross-node throughput\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify target inference framework and version', 'detail': 'Confirm framework supports Mooncake integration (vLLM v1+, SGLang with HiCache, TensorRT LLM, vLLM-Omni, vLLM-Ascend, or LMDeploy)'}\n- {'step': 2, 'action': 'Register Mooncake connector as KV cache backend', 'detail': \"Instantiate MooncakeTransferEngineConnector or MooncakeStoreConnector and bind to framework's cache transfer interface\"}\n- {'step': 3, 'action': 'Configure RDMA network and node topology', 'detail': 'Set up RDMA paths between prefill nodes, decode nodes, and cache nodes; verify network connectivity'}\n- {'step': 4, 'action': 'Enable disaggregated prefill-decode pipeline', 'detail': 'Activate encoder/transformer service decoupling; route multimodal embeddings or KV cache through Mooncake Transfer Engine'}\n- {'step': 5, 'action': 'Verify zero-copy transfer and measure performance', 'detail': 'Monitor cross-node data movement; confirm no GPU memory staging; measure throughput (tokens/sec) and latency'}\n\n## Constraints\n\n- RDMA hardware and high-speed interconnect required\n- Target framework must have Mooncake connector support or plugin interface\n- Disaggregated inference topology must be explicitly configured\n- Network latency and bandwidth must be suitable for cross-node KV cache transfer\n\n## Cautions\n\n- Verify RDMA driver and firmware compatibility before deployment\n- Monitor network saturation during high-throughput inference; adjust batch sizes if needed\n- Ensure encoder and decoder node placement minimizes cross-node hops\n- Test failover and recovery paths in production-like environments\n\n## Output Contract\n\n- Mooncake Transfer Engine connector successfully registered and operational in target inference framework; zero-copy transfer verified; cross-node KV cache or embedding transfer achieves expected throughput and latency without GPU memory staging\n\n## Example Executions\n\n### Example 1\n\n- Input: vLLM v1 deployment with prefill-decode disaggregation on 2 H100 nodes\n- Output: MooncakeTransferEngineConnector registered as KV cache backend; prefill node encodes multimodal input, transfers embeddings via RDMA to decode node; decode node generates tokens at 288k tokens/sec throughput\n- Notes: Based on Kimi K2 deployment pattern on 128 H200 GPUs\n\n### Example 2\n\n- Input: SGLang with Encode-Prefill-Decode (EPD) disaggregation across 3 nodes\n- Output: Vision Transformer encoder on node 1 produces embeddings; Mooncake Transfer Engine transfers embeddings to prefill node 2; decode node 3 receives KV cache via same backend; zero-copy verified\n- Notes: EPD disaggregation pattern with multimodal encoder decoupling",
+  "asset_type": "macro_protocol",
+  "granularity": "macro",
+  "asset_node_id": "macro_skill",
+  "asset_path": "family_root/macro_skill",
+  "asset_level": 1,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [
+    "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+    "f00a01e7-562c-57f6-b971-5727898aa3da",
+    "fa5cae39-4b30-5fe9-be61-0f615b21136a"
+  ],
+  "hierarchy_confidence": 1.0,
+  "hierarchy_status": "parent",
+  "visible_role": "parent",
+  "objective": "Enable high-performance cross-node data transfer in disaggregated LLM inference",
+  "domain": "default",
+  "task_family": "distributed_inference",
+  "method_family": "rdma_transfer_backend",
+  "stage": "deployment_integration",
+  "applicable_signals": [
+    "Deploying multi-node LLM serving with prefill-decode separation",
+    "Implementing KV cache transfer between compute and cache nodes",
+    "Integrating disaggregated inference connectors in vLLM, SGLang, TensorRT LLM, or similar frameworks",
+    "Requiring zero-copy cross-device or cross-machine data movement"
+  ],
+  "contraindications": [
+    "Single-node inference without disaggregation",
+    "Non-disaggregated pipelines where encoder and decoder run on same node",
+    "Systems without RDMA hardware support or high-speed interconnect",
+    "Environments where GPU memory staging is acceptable and latency is not critical"
+  ],
+  "intervention_moves": [
+    "Register Mooncake connector (MooncakeTransferEngineConnector or MooncakeStoreConnector) in target framework",
+    "Configure RDMA network paths and device mappings",
+    "Enable hierarchical KV cache storage across device, host, and remote layers",
+    "Validate zero-copy transfer and measure cross-node throughput"
+  ],
+  "triggers": [
+    "Integrating disaggregated prefill-decode inference",
+    "Deploying multi-node LLM serving",
+    "Implementing KV cache transfer between compute and cache nodes"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Identify target inference framework and version', 'detail': 'Confirm framework supports Mooncake integration (vLLM v1+, SGLang with HiCache, TensorRT LLM, vLLM-Omni, vLLM-Ascend, or LMDeploy)'}",
+    "{'step': 2, 'action': 'Register Mooncake connector as KV cache backend', 'detail': \"Instantiate MooncakeTransferEngineConnector or MooncakeStoreConnector and bind to framework's cache transfer interface\"}",
+    "{'step': 3, 'action': 'Configure RDMA network and node topology', 'detail': 'Set up RDMA paths between prefill nodes, decode nodes, and cache nodes; verify network connectivity'}",
+    "{'step': 4, 'action': 'Enable disaggregated prefill-decode pipeline', 'detail': 'Activate encoder/transformer service decoupling; route multimodal embeddings or KV cache through Mooncake Transfer Engine'}",
+    "{'step': 5, 'action': 'Verify zero-copy transfer and measure performance', 'detail': 'Monitor cross-node data movement; confirm no GPU memory staging; measure throughput (tokens/sec) and latency'}"
+  ],
+  "constraints": [
+    "RDMA hardware and high-speed interconnect required",
+    "Target framework must have Mooncake connector support or plugin interface",
+    "Disaggregated inference topology must be explicitly configured",
+    "Network latency and bandwidth must be suitable for cross-node KV cache transfer"
+  ],
+  "cautions": [
+    "Verify RDMA driver and firmware compatibility before deployment",
+    "Monitor network saturation during high-throughput inference; adjust batch sizes if needed",
+    "Ensure encoder and decoder node placement minimizes cross-node hops",
+    "Test failover and recovery paths in production-like environments"
+  ],
+  "output_contract": [
+    "Mooncake Transfer Engine connector successfully registered and operational in target inference framework; zero-copy transfer verified; cross-node KV cache or embedding transfer achieves expected throughput and latency without GPU memory staging"
+  ],
+  "examples": [
+    {
+      "input": "vLLM v1 deployment with prefill-decode disaggregation on 2 H100 nodes",
+      "output": "MooncakeTransferEngineConnector registered as KV cache backend; prefill node encodes multimodal input, transfers embeddings via RDMA to decode node; decode node generates tokens at 288k tokens/sec throughput",
+      "notes": "Based on Kimi K2 deployment pattern on 128 H200 GPUs"
+    },
+    {
+      "input": "SGLang with Encode-Prefill-Decode (EPD) disaggregation across 3 nodes",
+      "output": "Vision Transformer encoder on node 1 produces embeddings; Mooncake Transfer Engine transfers embeddings to prefill node 2; decode node 3 receives KV cache via same backend; zero-copy verified",
+      "notes": "EPD disaggregation pattern with multimodal encoder decoupling"
+    }
+  ],
+  "tags": [
+    "disaggregated_inference",
+    "kv_cache_transfer",
+    "rdma",
+    "multi_node",
+    "llm_serving"
+  ],
+  "support_ids": [
+    "850d58f1-0138-5781-a673-a4868bc5ad42"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "6a18adf9-bf8b-5608-847b-24e8e2a8d04c"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.75,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||macro_protocol|macro|macro_skill|enable high-performance cross-node data transfer in disaggregated llm inference|default|distributed_inference|rdma_transfer_backend|deployment_integration|mooncake transfer engine integration for disaggregated inference",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct macro-level protocol focused on Mooncake Transfer Engine integration as a backend connector for disaggregated inference. While peer candidates address related concerns (disaggregated architecture, KV cache management, checkpoint distribution), this skill fills a specific integration gap: how to register and configure Mooncake Transfer Engine within inference frameworks to enable zero-copy RDMA-based cross-node data transfer. The workflow steps, constraints, and cautions are concrete and actionable for deployment. No conflicts detected in support evidence. Peer overlap is architectural/operational context, not redundancy.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 1.0,
+    "hierarchy_status": "parent",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+      "f00a01e7-562c-57f6-b971-5727898aa3da",
+      "fa5cae39-4b30-5fe9-be61-0f615b21136a"
+    ]
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

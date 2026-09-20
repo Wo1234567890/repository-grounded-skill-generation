@@ -1,0 +1,122 @@
+{
+  "skill_id": "313b7a3c-84b1-5a40-ae5d-a3a62ba41e01",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a safety_rule (asset_type) with micro granularity targeting GRPO reward scaling configuration. Existing skills registry contains only one safety_rule entry (Virtual WAN routing), which is in a completely different domain (networking/Azure). The peer_candidates are all micro_skill asset_type entries in the GRPO/ML domain. The candidate does not match any existing skill by semantic capability, domain, task_family, or asset_type. However, the peer_candidates (loss formulation, reward function signature, reward function definition) suggest this candidate belongs in a micro_skill layer, not safety_rule layer. A safety_rule should enforce constraints across workflows; this candidate is a configuration parameter selection task that belongs as a micro_skill. Discard the malformed candidate and recommend re-submission as micro_skill asset_type aligned with peer GRPO training skills.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "313b7a3c-84b1-5a40-ae5d-a3a62ba41e01",
+    "name": "GRPO Reward Scaling Configuration",
+    "description": "Configure reward scaling behavior in GRPO training by setting the `scale_rewards` parameter in GRPOConfig. Controls whether standard-deviation-based reward normalization is applied during advantage computation to mitigate question-level difficulty bias.",
+    "skill_body": "When initializing GRPO training, determine whether to enable or disable std(r)-based reward scaling. Scaling by standard deviation of rewards can introduce question-level difficulty bias where models are biased toward specific question types. Set `scale_rewards=False` to disable scaling if difficulty-dependent bias is observed in reward distribution, or `scale_rewards=True` to apply scaling for normalized advantage values. This choice must be made before training loop initialization and affects all prompts uniformly.\n\n## Objective\n\nPrevent reward scaling bias in advantage computation during GRPO training\n## Applicable Signals\n\n- GRPOConfig instantiation\n- Reward distribution analysis shows difficulty-dependent variance\n- Training metrics indicate bias toward specific question types\n\n## Contraindications\n\n- Reward scaling is already disabled in upstream configuration\n- Custom reward function handles normalization internally\n- Advantage computation uses alternative normalization method\n\n## Intervention Moves\n\n- Assess reward distribution for question-level difficulty bias\n- Set `scale_rewards` parameter in GRPOConfig based on bias assessment\n- Initialize trainer with configured GRPOConfig\n- Monitor advantage distribution and loss values during training\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Assess reward distribution', 'detail': 'Analyze whether question-level difficulty bias is present in reward values across the training batch'}\n- {'step': 2, 'action': 'Set scale_rewards parameter', 'detail': 'In GRPOConfig, set `scale_rewards=False` to disable std(r) scaling, or `scale_rewards=True` to enable it'}\n- {'step': 3, 'action': 'Initialize trainer', 'detail': 'Pass configured GRPOConfig to GRPO trainer before starting training loop'}\n- {'step': 4, 'action': 'Monitor training metrics', 'detail': 'Track advantage distribution and loss values to validate scaling choice effectiveness'}\n\n## Constraints\n\n- Parameter must be set before training loop initialization\n- Applies only to std(r)-based scaling; does not affect other normalization strategies\n- Setting affects all prompts in the batch uniformly\n\n## Cautions\n\n- Disabling scaling may increase variance in advantage estimates\n- Enabling scaling may introduce bias for questions of varying difficulty\n- Choice should be validated against training metrics and reward distribution analysis\n\n## Output Contract\n\n- GRPOConfig object with `scale_rewards` parameter explicitly set to True or False; training proceeds with selected scaling policy applied consistently across all advantage computations\n\n## Example Executions\n\n### Example 1\n\n- Input: GRPOConfig with default settings; reward distribution shows high variance across question difficulties\n- Output: Set `scale_rewards=False` in GRPOConfig to disable std(r) scaling\n- Notes: Prevents difficulty-dependent bias at the cost of higher variance in advantage estimates\n\n### Example 2\n\n- Input: GRPOConfig initialization; no observed difficulty bias in rewards\n- Output: Set `scale_rewards=True` (or use default) to apply std(r) scaling\n- Notes: Normalizes advantage values while maintaining question-level fairness",
+    "asset_type": "safety_rule",
+    "granularity": "micro",
+    "asset_node_id": "safety_rule_node",
+    "asset_path": "family_root/safety_module/safety_rule_node",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Prevent reward scaling bias in advantage computation during GRPO training",
+    "domain": "default",
+    "task_family": "reward_normalization",
+    "method_family": "scaling_policy",
+    "stage": "advantage_computation",
+    "applicable_signals": [
+      "GRPOConfig instantiation",
+      "Reward distribution analysis shows difficulty-dependent variance",
+      "Training metrics indicate bias toward specific question types"
+    ],
+    "contraindications": [
+      "Reward scaling is already disabled in upstream configuration",
+      "Custom reward function handles normalization internally",
+      "Advantage computation uses alternative normalization method"
+    ],
+    "intervention_moves": [
+      "Assess reward distribution for question-level difficulty bias",
+      "Set `scale_rewards` parameter in GRPOConfig based on bias assessment",
+      "Initialize trainer with configured GRPOConfig",
+      "Monitor advantage distribution and loss values during training"
+    ],
+    "triggers": [
+      "Configuring GRPO training initialization",
+      "Observed question-level difficulty bias in reward distribution",
+      "Using std(r) scaling in advantage calculation"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Assess reward distribution', 'detail': 'Analyze whether question-level difficulty bias is present in reward values across the training batch'}",
+      "{'step': 2, 'action': 'Set scale_rewards parameter', 'detail': 'In GRPOConfig, set `scale_rewards=False` to disable std(r) scaling, or `scale_rewards=True` to enable it'}",
+      "{'step': 3, 'action': 'Initialize trainer', 'detail': 'Pass configured GRPOConfig to GRPO trainer before starting training loop'}",
+      "{'step': 4, 'action': 'Monitor training metrics', 'detail': 'Track advantage distribution and loss values to validate scaling choice effectiveness'}"
+    ],
+    "constraints": [
+      "Parameter must be set before training loop initialization",
+      "Applies only to std(r)-based scaling; does not affect other normalization strategies",
+      "Setting affects all prompts in the batch uniformly"
+    ],
+    "cautions": [
+      "Disabling scaling may increase variance in advantage estimates",
+      "Enabling scaling may introduce bias for questions of varying difficulty",
+      "Choice should be validated against training metrics and reward distribution analysis"
+    ],
+    "output_contract": [
+      "GRPOConfig object with `scale_rewards` parameter explicitly set to True or False; training proceeds with selected scaling policy applied consistently across all advantage computations"
+    ],
+    "examples": [
+      {
+        "input": "GRPOConfig with default settings; reward distribution shows high variance across question difficulties",
+        "output": "Set `scale_rewards=False` in GRPOConfig to disable std(r) scaling",
+        "notes": "Prevents difficulty-dependent bias at the cost of higher variance in advantage estimates"
+      },
+      {
+        "input": "GRPOConfig initialization; no observed difficulty bias in rewards",
+        "output": "Set `scale_rewards=True` (or use default) to apply std(r) scaling",
+        "notes": "Normalizes advantage values while maintaining question-level fairness"
+      }
+    ],
+    "tags": [
+      "grpo",
+      "reward_scaling",
+      "bias_mitigation",
+      "configuration",
+      "safety",
+      "advantage_computation"
+    ],
+    "support_ids": [
+      "bef7d2c7-0bc4-5c5a-b68c-e4a36d7f2be1"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "82efaab7-2a12-5074-806c-af32e6842a37"
+      ],
+      "support_summary": {
+        "support": 0,
+        "constraint": 1,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.82,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||safety_rule|micro|safety_rule_node|prevent reward scaling bias in advantage computation during grpo training|default|reward_normalization|scaling_policy|advantage_computation|grpo reward scaling configuration"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 1,
+  "branch": "full"
+}

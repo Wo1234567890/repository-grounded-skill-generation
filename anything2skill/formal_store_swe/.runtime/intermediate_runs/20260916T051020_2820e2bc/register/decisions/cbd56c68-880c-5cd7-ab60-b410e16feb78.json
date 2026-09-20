@@ -1,0 +1,124 @@
+{
+  "skill_id": "cbd56c68-880c-5cd7-ab60-b410e16feb78",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a specialized Flink streaming session skill focused on windowed word-count aggregation. It differs semantically from peer candidates: 'Flink DataStream Program Construction' is a generic scaffold, 'DataStream Sink Configuration' addresses output only, and 'High Availability Failover Setup' is cluster operations. No existing skill in the registry matches this specific windowed aggregation workflow. The candidate has valid support evidence from DataStream API documentation and introduces a concrete, executable pattern for tumbling window-based counting that is not subsumed by broader peers.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "cbd56c68-880c-5cd7-ab60-b410e16feb78",
+    "name": "Flink Streaming Window Word Count Setup",
+    "description": "Initialize a Flink StreamExecutionEnvironment, ingest text from a socket source, apply flatMap tokenization, key by word, apply tumbling processing-time windows, and aggregate word counts. Use this to build basic streaming aggregation pipelines with fixed time windows.",
+    "skill_body": "Set up a complete Flink streaming job that reads text from a socket, tokenizes it, groups by word, applies a tumbling processing-time window, and outputs aggregated counts. Follow the pattern: create StreamExecutionEnvironment → socketTextStream → flatMap (tokenize) → keyBy (word) → window(TumblingProcessingTimeWindows) → sum(1) → print/sink → env.execute().\n\n## Objective\n\nBuild and execute a complete streaming word-count application with windowed aggregation\n## Applicable Signals\n\n- Need to count or aggregate streaming events over fixed time intervals\n- Have text or tokenizable input from a socket or file source\n- Want to group results by a key field\n- Require processing-time semantics (not event-time)\n\n## Contraindications\n\n- Require event-time semantics or watermarks\n- Need session windows or sliding windows\n- Input is not naturally tokenizable or keyed\n- Require custom aggregation logic beyond sum\n\n## Workflow Steps\n\n- Create StreamExecutionEnvironment via getExecutionEnvironment()\n- Attach socketTextStream source with host and port\n- Apply flatMap to tokenize input (split on non-word characters, filter empty)\n- Map each token to (word, 1) tuple\n- Key the stream by word (f0 field)\n- Apply TumblingProcessingTimeWindows with configured duration (e.g., 5 seconds)\n- Aggregate using sum(1) on the count field\n- Attach print() sink or custom sink\n- Execute job with env.execute(jobName)\n\n## Constraints\n\n- Socket source must be available and listening on specified host:port\n- Window duration must be positive\n- Input must be line-delimited text\n- Processing-time windows do not require watermarks\n\n## Cautions\n\n- Ensure netcat or equivalent is running on the socket before starting the job\n- Window size affects latency; smaller windows produce more frequent output\n- Tokenization logic (split pattern) must match input format\n- Job runs indefinitely until manually stopped\n\n## Output Contract\n\n- Executable Flink job that prints aggregated word counts every configured window duration (e.g., 5 seconds) to stdout or sink, with format (word, count).\n\n## Example Executions\n\n### Example 1\n\n- Input: Socket stream: 'hello world\\nhello flink\\nworld'\n- Output: (hello, 1)\n(world, 1)\n(hello, 2)\n(world, 2)\n- Notes: Within a 5-second window, repeated words accumulate; new window resets counts\n\n### Example 2\n\n- Input: Continuous socket input over 10 seconds with window size 5s\n- Output: Two separate aggregation outputs, one per window period\n- Notes: Each tumbling window is independent; no overlap",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Build and execute a complete streaming word-count application with windowed aggregation",
+    "domain": "default",
+    "task_family": "streaming_aggregation",
+    "method_family": "window_based_counting",
+    "stage": "pipeline_construction",
+    "applicable_signals": [
+      "Need to count or aggregate streaming events over fixed time intervals",
+      "Have text or tokenizable input from a socket or file source",
+      "Want to group results by a key field",
+      "Require processing-time semantics (not event-time)"
+    ],
+    "contraindications": [
+      "Require event-time semantics or watermarks",
+      "Need session windows or sliding windows",
+      "Input is not naturally tokenizable or keyed",
+      "Require custom aggregation logic beyond sum"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Need to count or aggregate streaming events over fixed time intervals; have text or tokenizable input from a socket or file source; want to group results by a key field."
+    ],
+    "workflow_steps": [
+      "Create StreamExecutionEnvironment via getExecutionEnvironment()",
+      "Attach socketTextStream source with host and port",
+      "Apply flatMap to tokenize input (split on non-word characters, filter empty)",
+      "Map each token to (word, 1) tuple",
+      "Key the stream by word (f0 field)",
+      "Apply TumblingProcessingTimeWindows with configured duration (e.g., 5 seconds)",
+      "Aggregate using sum(1) on the count field",
+      "Attach print() sink or custom sink",
+      "Execute job with env.execute(jobName)"
+    ],
+    "constraints": [
+      "Socket source must be available and listening on specified host:port",
+      "Window duration must be positive",
+      "Input must be line-delimited text",
+      "Processing-time windows do not require watermarks"
+    ],
+    "cautions": [
+      "Ensure netcat or equivalent is running on the socket before starting the job",
+      "Window size affects latency; smaller windows produce more frequent output",
+      "Tokenization logic (split pattern) must match input format",
+      "Job runs indefinitely until manually stopped"
+    ],
+    "output_contract": [
+      "Executable Flink job that prints aggregated word counts every configured window duration (e.g., 5 seconds) to stdout or sink, with format (word, count)."
+    ],
+    "examples": [
+      {
+        "input": "Socket stream: 'hello world\\nhello flink\\nworld'",
+        "output": "(hello, 1)\n(world, 1)\n(hello, 2)\n(world, 2)",
+        "notes": "Within a 5-second window, repeated words accumulate; new window resets counts"
+      },
+      {
+        "input": "Continuous socket input over 10 seconds with window size 5s",
+        "output": "Two separate aggregation outputs, one per window period",
+        "notes": "Each tumbling window is independent; no overlap"
+      }
+    ],
+    "tags": [
+      "flink",
+      "streaming",
+      "windowing",
+      "aggregation",
+      "word-count",
+      "socket-source"
+    ],
+    "support_ids": [
+      "ef15010a-2090-5c47-8b2e-6d1eeca8a4dc"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "c0ebbf14-7f0a-5117-8c57-ffd8fb1bf1a1"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|build and execute a complete streaming word-count application with windowed aggregation|default|streaming_aggregation|window_based_counting|pipeline_construction|flink streaming window word count setup"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,113 @@
+{
+  "skill_id": "90f29523-caa8-5956-a438-35d7fd7d9136",
+  "action": "merge",
+  "matched_skill_ids": [
+    "1aaea44c-47b6-537f-99b8-44c0de67c697"
+  ],
+  "reason": "Candidate skill 90f29523-caa8-5956-a438-35d7fd7d9136 (Vector Space Scoring via Cosine Similarity) is semantically identical to three existing peer skills covering the same vector space model scoring capability. All four skills share the same asset_type (session_skill), granularity (session), domain (default), task_family (document_ranking), and method_family (vector_space_model). The candidate describes the mathematical foundation (cosine similarity via dot product normalization) that underlies the implementations in the three peers. Rather than create a duplicate, the candidate should be consolidated into the existing skill registry. The three target skills represent different implementation perspectives (term-at-a-time accumulation with top-K retrieval, TF-IDF weighting emphasis, and general vector similarity) that collectively cover the candidate's scope. No single target is a perfect match, but together they subsume the candidate's capability.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "90f29523-caa8-5956-a438-35d7fd7d9136",
+    "name": "Vector Space Scoring via Cosine Similarity",
+    "description": "Score and rank documents by computing the cosine of the angle between a query vector and document vectors in term space. Use this skill when you need to retrieve and rank multiple documents against a query using the vector space model.",
+    "skill_body": "To score documents using cosine similarity:\n1. Represent the query as a term vector ~v(q) where each dimension corresponds to a term and the value is the term's weight (e.g., tf-idf).\n2. Represent each document as a term vector ~v(d) in the same term space.\n3. Compute the dot product between the query vector and each document vector.\n4. Normalize by the magnitudes of both vectors to obtain the cosine of the angle θ between them.\n5. Rank documents in descending order by their cosine similarity scores.\nThe cosine similarity sim(d, q) = cos θ ranges from 0 (orthogonal, no similarity) to 1 (identical direction, perfect match).\n\n## Objective\n\nRank documents by similarity to query using vector dot product and cosine distance\n## Applicable Signals\n\n- Query and documents are both representable as term vectors\n- Need to rank multiple documents against a single query\n- Vector space model is the chosen retrieval framework\n- Term weights (e.g., tf-idf) are already computed\n\n## Contraindications\n\n- Queries or documents cannot be represented as term vectors\n- Zone-based or parametric scoring is required\n- Relevance depends on document structure or metadata zones rather than term overlap\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Represent query as term vector', 'detail': 'Create vector ~v(q) where each dimension is a term and value is its weight in the query'}\n- {'step': 2, 'action': 'Represent each document as term vector', 'detail': 'Create vector ~v(d) for each document in the same term space'}\n- {'step': 3, 'action': 'Compute dot product', 'detail': 'Calculate ~v(q) · ~v(d) for each document'}\n- {'step': 4, 'action': 'Normalize by vector magnitudes', 'detail': 'Divide dot product by ||~v(q)|| × ||~v(d)|| to obtain cosine of angle θ'}\n- {'step': 5, 'action': 'Rank documents', 'detail': 'Sort documents in descending order by cosine similarity score sim(d, q) = cos θ'}\n\n## Constraints\n\n- Both query and document vectors must be in the same term space (same vocabulary and dimensionality)\n- Term weights must be pre-computed (e.g., using tf-idf weighting)\n- Vectors should be normalized or cosine normalization should be applied during dot product computation\n\n## Cautions\n\n- Cosine similarity treats all terms equally; if certain terms should have higher discriminative power, ensure term weights reflect this (e.g., via idf)\n- High-dimensional sparse vectors may require efficient sparse dot product implementations\n- Ties in similarity scores may require secondary ranking criteria\n\n## Output Contract\n\n- A ranked list of documents sorted by cosine similarity score in descending order. Each entry includes the document identifier and its similarity score sim(d, q) ∈ [0, 1], where 1 indicates perfect match and 0 indicates no term overlap.\n\n## Example Executions\n\n### Example 1\n\n- Input: Query vector ~v(q) with terms 'gossip' and 'jealous'; three document vectors ~v(d1), ~v(d2), ~v(d3) in the same 2D term space\n- Output: Ranked list: [d1 (sim=0.95), d2 (sim=0.72), d3 (sim=0.15)]\n- Notes: Angle θ between ~v(q) and ~v(d1) is smallest, so d1 ranks highest",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Rank documents by similarity to query using vector dot product and cosine distance",
+    "domain": "default",
+    "task_family": "document_ranking",
+    "method_family": "vector_space_model",
+    "stage": "scoring",
+    "applicable_signals": [
+      "Query and documents are both representable as term vectors",
+      "Need to rank multiple documents against a single query",
+      "Vector space model is the chosen retrieval framework",
+      "Term weights (e.g., tf-idf) are already computed"
+    ],
+    "contraindications": [
+      "Queries or documents cannot be represented as term vectors",
+      "Zone-based or parametric scoring is required",
+      "Relevance depends on document structure or metadata zones rather than term overlap"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Executing vector space retrieval; need to score and rank multiple documents against a query"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Represent query as term vector', 'detail': 'Create vector ~v(q) where each dimension is a term and value is its weight in the query'}",
+      "{'step': 2, 'action': 'Represent each document as term vector', 'detail': 'Create vector ~v(d) for each document in the same term space'}",
+      "{'step': 3, 'action': 'Compute dot product', 'detail': 'Calculate ~v(q) · ~v(d) for each document'}",
+      "{'step': 4, 'action': 'Normalize by vector magnitudes', 'detail': 'Divide dot product by ||~v(q)|| × ||~v(d)|| to obtain cosine of angle θ'}",
+      "{'step': 5, 'action': 'Rank documents', 'detail': 'Sort documents in descending order by cosine similarity score sim(d, q) = cos θ'}"
+    ],
+    "constraints": [
+      "Both query and document vectors must be in the same term space (same vocabulary and dimensionality)",
+      "Term weights must be pre-computed (e.g., using tf-idf weighting)",
+      "Vectors should be normalized or cosine normalization should be applied during dot product computation"
+    ],
+    "cautions": [
+      "Cosine similarity treats all terms equally; if certain terms should have higher discriminative power, ensure term weights reflect this (e.g., via idf)",
+      "High-dimensional sparse vectors may require efficient sparse dot product implementations",
+      "Ties in similarity scores may require secondary ranking criteria"
+    ],
+    "output_contract": [
+      "A ranked list of documents sorted by cosine similarity score in descending order. Each entry includes the document identifier and its similarity score sim(d, q) ∈ [0, 1], where 1 indicates perfect match and 0 indicates no term overlap."
+    ],
+    "examples": [
+      {
+        "input": "Query vector ~v(q) with terms 'gossip' and 'jealous'; three document vectors ~v(d1), ~v(d2), ~v(d3) in the same 2D term space",
+        "output": "Ranked list: [d1 (sim=0.95), d2 (sim=0.72), d3 (sim=0.15)]",
+        "notes": "Angle θ between ~v(q) and ~v(d1) is smallest, so d1 ranks highest"
+      }
+    ],
+    "tags": [
+      "vector_space_model",
+      "cosine_similarity",
+      "document_ranking",
+      "information_retrieval",
+      "scoring"
+    ],
+    "support_ids": [
+      "3f4cda28-cca4-5136-8f63-0ec0947a66b1"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "6deb9561-7b9c-543b-950f-cb83f458c45c"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|rank documents by similarity to query using vector dot product and cosine distance|default|document_ranking|vector_space_model|scoring|vector space scoring via cosine similarity"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

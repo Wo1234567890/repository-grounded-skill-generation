@@ -1,0 +1,151 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "compatibility_maintenance",
+  "run_id": "20260916T092343_6a246dcd",
+  "skills": [
+    {
+      "skill_id": "92ed35c6-913a-5714-a07d-66723714d806",
+      "name": "Update legacy global references for backward compatibility",
+      "description": "Synchronize internal trace context and session objects to global module-level variables to maintain compatibility with legacy code paths using indirect access patterns.",
+      "skill_body": "After successfully creating a trace context and legacy session object, update the global module-level variables _client_init_trace_context and _client_legacy_session_for_init_trace to reference the newly created instance state. This ensures that legacy code accessing sessions via indirect patterns (e.g., agentops.legacy.get_session()) receives the current trace context without requiring refactoring.\n\n## Objective\n\nMaintain backward compatibility with legacy session access patterns\n## Applicable Signals\n\n- self._init_trace_context is not None\n- self._legacy_session_for_init_trace is not None\n- Legacy integration is active in the codebase\n\n## Contraindications\n\n- No legacy code integration required\n- Direct context passing is enforced throughout the codebase\n- Trace context creation failed or is None\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Verify trace context is not None and is recording', 'condition': 'self._init_trace_context is not None'}\n- {'step': 2, 'action': 'Verify legacy session object exists', 'condition': 'self._legacy_session_for_init_trace is not None'}\n- {'step': 3, 'action': 'Assign self._init_trace_context to global _client_init_trace_context', 'operation': '_client_init_trace_context = self._init_trace_context'}\n- {'step': 4, 'action': 'Assign self._legacy_session_for_init_trace to global _client_legacy_session_for_init_trace', 'operation': '_client_legacy_session_for_init_trace = self._legacy_session_for_init_trace'}\n\n## Constraints\n\n- Must execute only after trace context and legacy session are successfully initialized\n- Global variables must be updated atomically to avoid inconsistent state\n- Update must occur before any legacy code path attempts to access the session\n\n## Cautions\n\n- Global state mutation; ensure thread-safety if multi-threaded access is possible\n- Legacy code may cache references; updates may not be visible to already-initialized legacy modules\n\n## Output Contract\n\n- Global variables _client_init_trace_context and _client_legacy_session_for_init_trace are updated to match instance state\n- Legacy code paths can now access the current trace context via indirect module-level access",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "2fefe2f0-790d-5e47-99c5-c441046648cf",
+      "parent_candidate_ids": [
+        "2fefe2f0-790d-5e47-99c5-c441046648cf"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Maintain backward compatibility with legacy session access patterns",
+      "domain": "default",
+      "task_family": "compatibility_maintenance",
+      "method_family": "global_state_sync",
+      "stage": "initialization",
+      "applicable_signals": [
+        "self._init_trace_context is not None",
+        "self._legacy_session_for_init_trace is not None",
+        "Legacy integration is active in the codebase"
+      ],
+      "contraindications": [
+        "No legacy code integration required",
+        "Direct context passing is enforced throughout the codebase",
+        "Trace context creation failed or is None"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Trace context created successfully",
+        "Legacy session object instantiated from trace context",
+        "Legacy code may access session via indirect module-level patterns"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Verify trace context is not None and is recording', 'condition': 'self._init_trace_context is not None'}",
+        "{'step': 2, 'action': 'Verify legacy session object exists', 'condition': 'self._legacy_session_for_init_trace is not None'}",
+        "{'step': 3, 'action': 'Assign self._init_trace_context to global _client_init_trace_context', 'operation': '_client_init_trace_context = self._init_trace_context'}",
+        "{'step': 4, 'action': 'Assign self._legacy_session_for_init_trace to global _client_legacy_session_for_init_trace', 'operation': '_client_legacy_session_for_init_trace = self._legacy_session_for_init_trace'}"
+      ],
+      "constraints": [
+        "Must execute only after trace context and legacy session are successfully initialized",
+        "Global variables must be updated atomically to avoid inconsistent state",
+        "Update must occur before any legacy code path attempts to access the session"
+      ],
+      "cautions": [
+        "Global state mutation; ensure thread-safety if multi-threaded access is possible",
+        "Legacy code may cache references; updates may not be visible to already-initialized legacy modules"
+      ],
+      "output_contract": [
+        "Global variables _client_init_trace_context and _client_legacy_session_for_init_trace are updated to match instance state",
+        "Legacy code paths can now access the current trace context via indirect module-level access"
+      ],
+      "examples": [],
+      "tags": [
+        "backward_compatibility",
+        "legacy_support",
+        "global_state",
+        "initialization",
+        "session_management"
+      ],
+      "support_ids": [
+        "5760fdcc-9e32-5d8a-be61-906abb575d60"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "763ea853-a84a-5cb5-9b30-b9b087e668ee"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.78,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|maintain backward compatibility with legacy session access patterns|default|compatibility_maintenance|global_state_sync|initialization|update legacy global references for backward compatibility",
+        "llm_reason": "Candidate is a distinct micro_skill for global state synchronization during initialization, semantically different from peer candidates (callback handler registration, session span decoration, singleton client initialization) and existing skills (local variable management, timestamp conflict detection). No semantic overlap with existing registry. Supported by Debugging Roadmap evidence. Safe to persist as new capability.",
+        "change_action": "create",
+        "parent_skill_id": "2fefe2f0-790d-5e47-99c5-c441046648cf",
+        "parent_candidate_ids": [
+          "2fefe2f0-790d-5e47-99c5-c441046648cf"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "b92b35fc-a822-44c3-8138-9d11782e01cf",
+      "entity_type": "skill",
+      "entity_id": "92ed35c6-913a-5714-a07d-66723714d806",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill for global state synchronization during initialization, semantically different from peer candidates (callback handler registration, session span decoration, singleton client initialization) and existing skills (local variable management, timestamp conflict detection). No semantic overlap with existing registry. Supported by Debugging Roadmap evidence. Safe to persist as new capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "92ed35c6-913a-5714-a07d-66723714d806",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "5760fdcc-9e32-5d8a-be61-906abb575d60"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

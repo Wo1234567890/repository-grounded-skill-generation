@@ -1,0 +1,136 @@
+{
+  "skill_id": "163a4d6b-628f-57cd-b363-f19e095fdf47",
+  "name": "Validate Virtual WAN Route Injection Prefix Specificity",
+  "description": "Classify observed BGP route leak incidents into one of six documented types based on the relationship between offending AS, route origin, and announcement destination. Enables root cause determination and remediation planning by mapping incidents to established leak patterns.",
+  "skill_body": "Given a reported BGP route leak incident, identify the offending AS (the AS announcing a route in violation of intended policies), the source of the route (transit provider, lateral peer, or internal), and the destination where it was announced. Match the incident pattern to one of the six documented route leak types to determine root cause and policy violation.\n\n## Objective\n\ncategorize_route_leak_incident\n## Applicable Signals\n\n- Offending AS identity and its role (transit provider, peer, or customer)\n- Route origin (transit provider, lateral peer, or internal prefix)\n- Announcement destination (peer, transit provider, or customer cone)\n- Whether the announced prefix matches the route origin or is more-specific\n\n## Contraindications\n\n- Incident involves intentional route manipulation or policy-compliant multi-path announcements\n- Non-BGP routing protocols are involved\n- Route announcement is authorized by explicit policy agreement\n\n## Workflow Steps\n\n- Identify the offending AS from incident report\n- Determine route origin relationship (transit provider, lateral peer, or internal)\n- Identify announcement destination (peer, transit provider, or customer cone)\n- Match incident pattern to one of six documented route leak types\n- Document policy violation and root cause pattern\n\n## Constraints\n\n- Classification requires clear identification of the offending AS\n- Route origin and destination relationship must be determinable from incident data\n- Taxonomy covers only documented route leak patterns; novel patterns may not fit existing types\n\n## Cautions\n\n- Type 3 and Type 4 leaks involve lateral peer relationships; verify peer status is non-transit\n- Type 6 leaks involve internal prefixes or more-specific announcements; distinguish from legitimate aggregation\n- Multiple leak types may occur in a single incident; classify the primary violation\n\n## Output Contract\n\n- Incident mapped to one of six route leak types with offending AS identified, policy violation described, and root cause pattern established for remediation planning.",
+  "asset_type": "knowledge_reference",
+  "granularity": "session",
+  "asset_node_id": "knowledge_reference_node",
+  "asset_path": "family_root/knowledge_reference_node",
+  "asset_level": 1,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 1.0,
+  "hierarchy_status": "root",
+  "visible_role": "leaf",
+  "objective": "Document and enforce the technical boundary of Virtual WAN route injection capability to prevent misconfiguration attempts and route injection failures",
+  "domain": "default",
+  "task_family": "virtual_wan_routing",
+  "method_family": "route_injection_limits",
+  "stage": "design",
+  "applicable_signals": [
+    "Offending AS identity and its role (transit provider, peer, or customer)",
+    "Route origin (transit provider, lateral peer, or internal prefix)",
+    "Announcement destination (peer, transit provider, or customer cone)",
+    "Whether the announced prefix matches the route origin or is more-specific"
+  ],
+  "contraindications": [
+    "Incident involves intentional route manipulation or policy-compliant multi-path announcements",
+    "Non-BGP routing protocols are involved",
+    "Route announcement is authorized by explicit policy agreement"
+  ],
+  "intervention_moves": [
+    "Reject or flag route prefix configurations where prefix length equals or exceeds spoke VNet prefix length",
+    "Recommend shorter (less specific) prefix alternatives when validation fails",
+    "Confirm route prefix specificity is valid before deployment"
+  ],
+  "triggers": [
+    "Planning route injection into spoke VNets",
+    "Designing routing policies for Virtual WAN",
+    "Troubleshooting route injection failures",
+    "Validating route prefix configuration before deployment"
+  ],
+  "workflow_steps": [
+    "Identify the offending AS from incident report",
+    "Determine route origin relationship (transit provider, lateral peer, or internal)",
+    "Identify announcement destination (peer, transit provider, or customer cone)",
+    "Match incident pattern to one of six documented route leak types",
+    "Document policy violation and root cause pattern"
+  ],
+  "constraints": [
+    "Classification requires clear identification of the offending AS",
+    "Route origin and destination relationship must be determinable from incident data",
+    "Taxonomy covers only documented route leak patterns; novel patterns may not fit existing types"
+  ],
+  "cautions": [
+    "Type 3 and Type 4 leaks involve lateral peer relationships; verify peer status is non-transit",
+    "Type 6 leaks involve internal prefixes or more-specific announcements; distinguish from legitimate aggregation",
+    "Multiple leak types may occur in a single incident; classify the primary violation"
+  ],
+  "output_contract": [
+    "Incident mapped to one of six route leak types with offending AS identified, policy violation described, and root cause pattern established for remediation planning."
+  ],
+  "examples": [
+    {
+      "input": "Spoke VNET1 prefix: 10.1.0.0/16. Proposed route to inject: 10.0.0.0/8",
+      "output": "Valid. Prefix 10.0.0.0/8 is shorter (less specific) than 10.1.0.0/16. Route can be injected.",
+      "notes": "Shorter prefix means fewer bits specified, allowing Virtual WAN to program the route."
+    },
+    {
+      "input": "Spoke VNET1 prefix: 10.1.0.0/16. Proposed route to inject: 10.1.0.0/24",
+      "output": "Invalid. Prefix 10.1.0.0/24 is more specific than 10.1.0.0/16. Route cannot be injected.",
+      "notes": "More specific prefix (longer) falls within the VNet boundary and violates the constraint."
+    },
+    {
+      "input": "Spoke VNET1 prefix: 10.1.0.0/16. Proposed route to inject: 10.1.0.0/16",
+      "output": "Invalid. Prefix matches the VNet prefix exactly. Route cannot be injected.",
+      "notes": "Equal specificity is not permitted; prefix must be strictly shorter."
+    }
+  ],
+  "tags": [
+    "bgp",
+    "route_leak",
+    "incident_classification",
+    "network_security",
+    "taxonomy"
+  ],
+  "support_ids": [
+    "95b49e70-7347-54a7-9217-023e7ea9bf1d",
+    "985100f7-08a5-5bb8-94d3-21f7bc0f9b22"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "3a66ec6a-df7a-576e-a586-e37b946a8ee4"
+    ],
+    "support_summary": {
+      "support": 0,
+      "constraint": 1,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.88,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||knowledge_reference|session|knowledge_reference_node|document and enforce the technical boundary of virtual wan route injection capability to prevent misconfiguration attempts and route injection failures|default|virtual_wan_routing|route_injection_limits|design|validate virtual wan route injection prefix specificity",
+    "change_action": "merge",
+    "llm_reason": "Candidate is a broader session-level knowledge_reference that subsumes the peer candidate 44a0fe37 (Types 1–4 taxonomy). Both classify route leaks by policy violation context with identical asset_type, granularity, asset_node_id, and task_family. The candidate extends the taxonomy to cover six documented types and adds workflow steps for identifying offending AS and route origin/destination relationships. Merge into the existing Types 1–4 skill and deprecate the narrower peer candidate, as the candidate provides the complete taxonomy reference.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 1.0,
+    "hierarchy_status": "root",
+    "visible_role": "leaf",
+    "merged_from_skill_ids": []
+  },
+  "version": "0.1.1",
+  "status": "active"
+}

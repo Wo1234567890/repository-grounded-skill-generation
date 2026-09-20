@@ -1,0 +1,130 @@
+{
+  "skill_id": "a26898f3-52b3-5b50-b6c8-6fca8104230d",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct session_skill focused on Gradle-specific Spring Boot 3.0 build configuration (mainClass resolution and BootJar layering). Existing skills are Maven-focused (reproducible builds, project setup) or address different Spring Boot 3.0 migration concerns (dependency compatibility, deprecation removal, property prefix migration). Peer candidates address pre-upgrade and upgrade-preparation stages; this skill is build_configuration stage. No semantic overlap with existing registry.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "a26898f3-52b3-5b50-b6c8-6fca8104230d",
+    "name": "Gradle Main Class Resolution and BootJar Configuration",
+    "description": "Update Gradle build configuration to explicitly set main class name and configure BootJar layering using the springBoot DSL and task-specific properties for Spring Boot 3.0 compatibility.",
+    "skill_body": "When migrating to Spring Boot 3.0 with Gradle, main class resolution has been simplified and made consistent across bootJar, bootRun, and bootWar tasks. If your build previously relied on implicit resolution or non-standard source set locations, you must now explicitly configure the main class name using the `mainClass` property in the `springBoot` DSL block. Additionally, BootJar task configuration syntax has changed: replace `isEnabled = false` with `enabled.set(false)` for layering control. Review your current Gradle configuration and apply these updates to ensure consistent builds.\n\n## Objective\n\nEnsure consistent main class resolution and correct BootJar task configuration in Gradle builds for Spring Boot 3.0\n## Applicable Signals\n\n- Gradle build configuration file (build.gradle or build.gradle.kts) exists\n- springBoot DSL block is present or needs to be added\n- BootJar task configuration uses legacy isEnabled property syntax\n- Main class name is not explicitly set in springBoot block\n\n## Contraindications\n\n- Using Maven build system instead of Gradle\n- Main class is already explicitly configured in springBoot DSL with mainClass property\n- BootJar task configuration already uses enabled.set() syntax\n- No custom classpath resolution or non-standard source set locations are in use\n\n## Intervention Moves\n\n- Add or update mainClass property in springBoot DSL block\n- Replace isEnabled = false with enabled.set(false) in BootJar task configuration\n- Configure resolveMainClassName task classpath for non-standard source set locations if needed\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Review current Gradle build configuration', 'detail': 'Open build.gradle or build.gradle.kts and locate the springBoot DSL block and any BootJar task configuration'}\n- {'step': 2, 'action': 'Add or update mainClass property in springBoot DSL', 'detail': 'If not present, add springBoot { mainClass = \"com.example.Application\" } with the correct fully-qualified class name'}\n- {'step': 3, 'action': 'Update BootJar task layering syntax', 'detail': 'Replace isEnabled = false with enabled.set(false) in tasks.named<BootJar>(\"bootJar\") { layered { ... } } block'}\n- {'step': 4, 'action': 'If using custom classpath resolution, update resolveMainClassName task', 'detail': 'Configure the classpath property of resolveMainClassName task to search in non-standard locations if needed'}\n- {'step': 5, 'action': 'Test build and execution', 'detail': 'Run ./gradlew bootJar, ./gradlew bootRun, and ./gradlew bootWar to verify consistent main class resolution and correct JAR structure'}\n\n## Constraints\n\n- Changes apply only to Gradle-based Spring Boot projects\n- springBoot DSL must be available (requires Spring Boot Gradle plugin)\n- Task-specific configuration must use Kotlin DSL syntax (tasks.named<BootJar>(...)) or Groovy equivalent\n- Main class name must be a valid fully-qualified class name\n\n## Cautions\n\n- Ensure the specified main class exists in the main source set output\n- If using custom classpath resolution, update resolveMainClassName task classpath property accordingly\n- Test all three tasks (bootJar, bootRun, bootWar) to verify consistent main class resolution\n- Layering configuration changes affect JAR structure; verify application startup behavior after changes\n\n## Output Contract\n\n- Gradle build successfully resolves main class consistently across bootJar, bootRun, and bootWar tasks\n- BootJar task configuration uses enabled.set() syntax\n- Build completes without main class resolution warnings or errors\n- Generated JAR has correct layering configuration\n\n## Example Executions\n\n### Example 1\n\n- Input: Gradle build.gradle.kts with implicit main class resolution and legacy BootJar syntax\n- Output: springBoot { mainClass = \"com.example.Application\" } added; tasks.named<BootJar>(\"bootJar\") { layered { enabled.set(false) } } configured\n- Notes: Explicit mainClass property ensures consistent resolution; enabled.set() replaces isEnabled for Spring Boot 3.0 compatibility\n\n### Example 2\n\n- Input: Build configuration relying on non-standard source set location for main class\n- Output: tasks.named(\"resolveMainClassName\") { classpath.setFrom(...) } configured to search custom locations; springBoot { mainClass = \"...\" } set as fallback\n- Notes: Custom classpath resolution allows flexibility while maintaining explicit configuration",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Ensure consistent main class resolution and correct BootJar task configuration in Gradle builds for Spring Boot 3.0",
+    "domain": "default",
+    "task_family": "gradle_build_configuration",
+    "method_family": "dsl_property_migration",
+    "stage": "build_configuration",
+    "applicable_signals": [
+      "Gradle build configuration file (build.gradle or build.gradle.kts) exists",
+      "springBoot DSL block is present or needs to be added",
+      "BootJar task configuration uses legacy isEnabled property syntax",
+      "Main class name is not explicitly set in springBoot block"
+    ],
+    "contraindications": [
+      "Using Maven build system instead of Gradle",
+      "Main class is already explicitly configured in springBoot DSL with mainClass property",
+      "BootJar task configuration already uses enabled.set() syntax",
+      "No custom classpath resolution or non-standard source set locations are in use"
+    ],
+    "intervention_moves": [
+      "Add or update mainClass property in springBoot DSL block",
+      "Replace isEnabled = false with enabled.set(false) in BootJar task configuration",
+      "Configure resolveMainClassName task classpath for non-standard source set locations if needed"
+    ],
+    "triggers": [
+      "Migrating Spring Boot 2.x to 3.0 with Gradle build system",
+      "Main class resolution was previously implicit or relied on non-standard source set locations",
+      "BootJar layering needs explicit configuration",
+      "Build tasks (bootJar, bootRun, bootWar) show inconsistent main class resolution"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Review current Gradle build configuration', 'detail': 'Open build.gradle or build.gradle.kts and locate the springBoot DSL block and any BootJar task configuration'}",
+      "{'step': 2, 'action': 'Add or update mainClass property in springBoot DSL', 'detail': 'If not present, add springBoot { mainClass = \"com.example.Application\" } with the correct fully-qualified class name'}",
+      "{'step': 3, 'action': 'Update BootJar task layering syntax', 'detail': 'Replace isEnabled = false with enabled.set(false) in tasks.named<BootJar>(\"bootJar\") { layered { ... } } block'}",
+      "{'step': 4, 'action': 'If using custom classpath resolution, update resolveMainClassName task', 'detail': 'Configure the classpath property of resolveMainClassName task to search in non-standard locations if needed'}",
+      "{'step': 5, 'action': 'Test build and execution', 'detail': 'Run ./gradlew bootJar, ./gradlew bootRun, and ./gradlew bootWar to verify consistent main class resolution and correct JAR structure'}"
+    ],
+    "constraints": [
+      "Changes apply only to Gradle-based Spring Boot projects",
+      "springBoot DSL must be available (requires Spring Boot Gradle plugin)",
+      "Task-specific configuration must use Kotlin DSL syntax (tasks.named<BootJar>(...)) or Groovy equivalent",
+      "Main class name must be a valid fully-qualified class name"
+    ],
+    "cautions": [
+      "Ensure the specified main class exists in the main source set output",
+      "If using custom classpath resolution, update resolveMainClassName task classpath property accordingly",
+      "Test all three tasks (bootJar, bootRun, bootWar) to verify consistent main class resolution",
+      "Layering configuration changes affect JAR structure; verify application startup behavior after changes"
+    ],
+    "output_contract": [
+      "Gradle build successfully resolves main class consistently across bootJar, bootRun, and bootWar tasks",
+      "BootJar task configuration uses enabled.set() syntax",
+      "Build completes without main class resolution warnings or errors",
+      "Generated JAR has correct layering configuration"
+    ],
+    "examples": [
+      {
+        "input": "Gradle build.gradle.kts with implicit main class resolution and legacy BootJar syntax",
+        "output": "springBoot { mainClass = \"com.example.Application\" } added; tasks.named<BootJar>(\"bootJar\") { layered { enabled.set(false) } } configured",
+        "notes": "Explicit mainClass property ensures consistent resolution; enabled.set() replaces isEnabled for Spring Boot 3.0 compatibility"
+      },
+      {
+        "input": "Build configuration relying on non-standard source set location for main class",
+        "output": "tasks.named(\"resolveMainClassName\") { classpath.setFrom(...) } configured to search custom locations; springBoot { mainClass = \"...\" } set as fallback",
+        "notes": "Custom classpath resolution allows flexibility while maintaining explicit configuration"
+      }
+    ],
+    "tags": [
+      "spring-boot-3-migration",
+      "gradle",
+      "build-configuration",
+      "dsl-migration",
+      "bootjar",
+      "main-class-resolution"
+    ],
+    "support_ids": [
+      "f6dc8603-544e-5b7e-b54c-8f8f156ab981"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "e74bb5b2-cd9e-5a8a-8566-722c492b53b6"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.9,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|ensure consistent main class resolution and correct bootjar task configuration in gradle builds for spring boot 3.0|default|gradle_build_configuration|dsl_property_migration|build_configuration|gradle main class resolution and bootjar configuration"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

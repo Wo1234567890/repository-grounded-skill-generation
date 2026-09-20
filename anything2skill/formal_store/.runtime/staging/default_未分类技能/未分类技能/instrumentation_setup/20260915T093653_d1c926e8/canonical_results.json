@@ -1,0 +1,589 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "instrumentation_setup",
+  "run_id": "20260915T093653_d1c926e8",
+  "skills": [
+    {
+      "skill_id": "b97a82ff-caa3-5758-b4a0-2cf5db1a9d5b",
+      "name": "Package Installation Detection",
+      "description": "Determine whether a Python module is an installed library (in site-packages) or a local module, to decide whether to apply instrumentation. Uses normalized path comparison against site-packages directories.",
+      "skill_body": "Check if a module's file path is located within any site-packages directory. Normalize both the module path and site-packages directories using os.path.normcase and os.path.realpath. Compare the module path against all normalized site-packages directories (including user site if present). Return True if the module is found in any site-packages directory; return False if it is a local module or not in any site-packages location.\n\n## Objective\n\nclassify_module_origin\n## Applicable Signals\n\n- module object with __file__ attribute available\n- package name to be classified\n\n## Contraindications\n\n- module path already known to be local or excluded\n- built-in modules (skip instrumentation detection)\n- module __file__ attribute is None or unavailable\n\n## Workflow Steps\n\n- Retrieve site-packages directories using site.getsitepackages() and site.USER_SITE\n- Normalize module path: os.path.normcase(os.path.realpath(os.path.abspath(module_obj.__file__)))\n- Normalize each site-packages directory path\n- Iterate through normalized site-packages directories\n- Check if module_path starts with any site-packages directory path\n- Return True if match found; return False if no match after all directories checked\n\n## Constraints\n\n- module_path must be normalized using os.path.normcase and os.path.realpath\n- site-packages directories must be retrieved via site.getsitepackages() and site.USER_SITE\n- all path comparisons must use normalized paths\n- handle case where site.getsitepackages() returns a string instead of list\n\n## Cautions\n\n- Path normalization is critical for cross-platform compatibility\n- site.USER_SITE may be None; check existence before adding to list\n- site.getsitepackages() may return string or list; handle both cases\n\n## Output Contract\n\n- Boolean return value: True if module is an installed library in site-packages; False if module is local or not in any site-packages directory.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "8ab6381a-e2f5-5666-8d1e-85fa59b9301a",
+        "940d307d-ee0e-5807-8c39-4c5d23259d41"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "classify_module_origin",
+      "domain": "default",
+      "task_family": "instrumentation_setup",
+      "method_family": "path_inspection",
+      "stage": "initialization",
+      "applicable_signals": [
+        "module object with __file__ attribute available",
+        "package name to be classified"
+      ],
+      "contraindications": [
+        "module path already known to be local or excluded",
+        "built-in modules (skip instrumentation detection)",
+        "module __file__ attribute is None or unavailable"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "module import interception during dynamic package loading",
+        "need to decide whether to apply instrumentation to a package"
+      ],
+      "workflow_steps": [
+        "Retrieve site-packages directories using site.getsitepackages() and site.USER_SITE",
+        "Normalize module path: os.path.normcase(os.path.realpath(os.path.abspath(module_obj.__file__)))",
+        "Normalize each site-packages directory path",
+        "Iterate through normalized site-packages directories",
+        "Check if module_path starts with any site-packages directory path",
+        "Return True if match found; return False if no match after all directories checked"
+      ],
+      "constraints": [
+        "module_path must be normalized using os.path.normcase and os.path.realpath",
+        "site-packages directories must be retrieved via site.getsitepackages() and site.USER_SITE",
+        "all path comparisons must use normalized paths",
+        "handle case where site.getsitepackages() returns a string instead of list"
+      ],
+      "cautions": [
+        "Path normalization is critical for cross-platform compatibility",
+        "site.USER_SITE may be None; check existence before adding to list",
+        "site.getsitepackages() may return string or list; handle both cases"
+      ],
+      "output_contract": [
+        "Boolean return value: True if module is an installed library in site-packages; False if module is local or not in any site-packages directory."
+      ],
+      "examples": [],
+      "tags": [
+        "path_inspection",
+        "module_classification",
+        "instrumentation_gating",
+        "initialization"
+      ],
+      "support_ids": [
+        "2ff55fcb-08ea-54ff-a64d-d0dc1d452332"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "03f7725a-b507-57b6-909b-0a81494f2a42"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|micro_skill_node|classify_module_origin|default|instrumentation_setup|path_inspection|initialization|package installation detection",
+        "change_action": "create",
+        "llm_reason": "Candidate skill 'Package Installation Detection' is semantically distinct from all existing skills. It addresses module origin classification (installed vs. local) via path inspection, which is orthogonal to the existing skills' concerns (Spring MVC configuration, timestamp extension). The peer candidates (conditional instrumentation, eligibility checks, version validation) are related but operate at different decision layers and do not subsume this path-based classification capability. No existing skill covers normalized path comparison against site-packages directories.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "8ab6381a-e2f5-5666-8d1e-85fa59b9301a",
+          "940d307d-ee0e-5807-8c39-4c5d23259d41"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "291617a0-293a-55d3-b5bb-fc9486e4bf69",
+      "name": "Instrumentor Instance Factory",
+      "description": "Create and return a new instance of a specified instrumentor class from a dynamically loaded module. Encapsulates the instantiation logic for instrumentation handlers.",
+      "skill_body": "Call get_instance() after confirming module availability and version requirements. The method retrieves the instrumentor class by name from the loaded module and instantiates it with no arguments. If the class_name does not exist in the module, an AttributeError will be raised.\n\n## Objective\n\ninstantiate an instrumentor handler from module metadata\n## Applicable Signals\n\n- should_activate property returns True\n- module property successfully imports the target module\n- Caller ready to begin instrumentation workflow\n\n## Contraindications\n\n- Module is not available or should_activate returned False\n- Version check failed or minimum version requirement not met\n- class_name does not exist in the loaded module\n- Module import raised an exception\n\n## Workflow Steps\n\n- Retrieve the loaded module via self.module property\n- Use getattr() to fetch the class object by class_name\n- Call the class constructor with no arguments\n- Return the new instance\n\n## Constraints\n\n- Must be called after module availability is confirmed\n- Instrumentor class must exist in the module with the specified class_name\n- Instantiation assumes zero-argument constructor\n\n## Cautions\n\n- Will raise AttributeError if class_name is not found in module\n- No validation of instrumentor instance state after creation; caller must verify readiness\n\n## Output Contract\n\n- Returns a new instance of BaseInstrumentor (or subclass) ready for use in instrumentation workflow. Raises AttributeError if class_name not found in module.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "68d2ebdb-9167-542f-8604-e8b7fac3db57",
+        "8ab6381a-e2f5-5666-8d1e-85fa59b9301a"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "instantiate an instrumentor handler from module metadata",
+      "domain": "default",
+      "task_family": "instrumentation_setup",
+      "method_family": "dynamic_instantiation",
+      "stage": "initialization",
+      "applicable_signals": [
+        "should_activate property returns True",
+        "module property successfully imports the target module",
+        "Caller ready to begin instrumentation workflow"
+      ],
+      "contraindications": [
+        "Module is not available or should_activate returned False",
+        "Version check failed or minimum version requirement not met",
+        "class_name does not exist in the loaded module",
+        "Module import raised an exception"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Module availability confirmed via should_activate check",
+        "Version requirements validated and met",
+        "Need to create a live instrumentor instance for monitoring or patching"
+      ],
+      "workflow_steps": [
+        "Retrieve the loaded module via self.module property",
+        "Use getattr() to fetch the class object by class_name",
+        "Call the class constructor with no arguments",
+        "Return the new instance"
+      ],
+      "constraints": [
+        "Must be called after module availability is confirmed",
+        "Instrumentor class must exist in the module with the specified class_name",
+        "Instantiation assumes zero-argument constructor"
+      ],
+      "cautions": [
+        "Will raise AttributeError if class_name is not found in module",
+        "No validation of instrumentor instance state after creation; caller must verify readiness"
+      ],
+      "output_contract": [
+        "Returns a new instance of BaseInstrumentor (or subclass) ready for use in instrumentation workflow. Raises AttributeError if class_name not found in module."
+      ],
+      "examples": [],
+      "tags": [
+        "instrumentation",
+        "dynamic_loading",
+        "factory_pattern",
+        "initialization"
+      ],
+      "support_ids": [
+        "3fba5b17-c98d-58db-a736-54c434d836da"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "34874e05-8d33-5e2f-bc2c-94f60ed98cb3"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|instantiate an instrumentor handler from module metadata|default|instrumentation_setup|dynamic_instantiation|initialization|instrumentor instance factory",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill for dynamic instrumentor instantiation with unique semantic identity (factory pattern for handler creation). It does not overlap with peer candidates (exit handler registration, legacy state sync, compatibility bridge) or existing skills (executor patterns, future inspection). No split, merge, or revision relationship detected. Support evidence confirms the skill's presence in documentation.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "68d2ebdb-9167-542f-8604-e8b7fac3db57",
+          "8ab6381a-e2f5-5666-8d1e-85fa59b9301a"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "8ab6381a-e2f5-5666-8d1e-85fa59b9301a",
+      "name": "Package Instrumentation Initialization",
+      "description": "Conditionally start monitoring and instrumenting Python packages using import hooks, with safeguards to prevent redundant or conflicting instrumentation of agentic libraries.",
+      "skill_body": "Check if instrumentation is already active by examining _active_instrumentors. If empty, install the import hook (_import_monitor) to begin package monitoring. During iteration over sys.modules, check _has_agentic_library flag; if set, stop instrumentation to avoid double-instrumenting agentic libraries. Populate _active_instrumentors and set _has_agentic_library correctly based on detected libraries.\n\n## Objective\n\nInitialize and manage package-level instrumentation state with conflict prevention\n## Applicable Signals\n\n- _active_instrumentors list is empty\n- Import monitoring has not yet been installed\n- System module scan is required to detect agentic libraries\n\n## Contraindications\n\n- Instrumentation is already active (_active_instrumentors is non-empty)\n- An agentic library has already been instrumented (_has_agentic_library is True)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if _active_instrumentors is empty', 'condition': 'If empty, proceed; if non-empty, return without action'}\n- {'step': 2, 'action': 'Install import hook by setting builtins.__import__ = _import_monitor', 'condition': 'Only if _active_instrumentors was empty'}\n- {'step': 3, 'action': 'Iterate over sys.modules.keys() to scan for agentic libraries', 'condition': 'Continue until _has_agentic_library is set or all modules are scanned'}\n- {'step': 4, 'action': 'For each module, validate type and check if it is an agentic library', 'condition': 'Skip non-ModuleType entries; break if agentic library detected'}\n- {'step': 5, 'action': 'Populate _active_instrumentors and set _has_agentic_library flag', 'condition': 'Based on scan results'}\n\n## Constraints\n\n- Must check _has_agentic_library flag before instrumenting each package\n- Must break iteration loop if agentic library is detected during scan\n- Must validate module type before processing (isinstance check for ModuleType)\n- Must not instrument packages already in _instrumenting_packages list\n\n## Cautions\n\n- Installing import hook affects all subsequent module imports; ensure no other instrumentation is active first\n- Agentic library detection must complete before instrumenting non-agentic packages to prevent conflicts\n\n## Output Contract\n\n- Import hook (_import_monitor) is installed\n- _active_instrumentors list is populated with detected instrumentors\n- _has_agentic_library flag is set correctly to prevent further instrumentation of conflicting libraries",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "2142ee5d-6d0f-5077-9736-8fbf5a8844d3",
+      "parent_candidate_ids": [
+        "2142ee5d-6d0f-5077-9736-8fbf5a8844d3",
+        "048797be-e3b0-5c18-81d2-f1ef6e933f06"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.55,
+      "hierarchy_status": "linked",
+      "visible_role": "parent",
+      "objective": "Initialize and manage package-level instrumentation state with conflict prevention",
+      "domain": "default",
+      "task_family": "instrumentation_setup",
+      "method_family": "import_hook_management",
+      "stage": "initialization",
+      "applicable_signals": [
+        "_active_instrumentors list is empty",
+        "Import monitoring has not yet been installed",
+        "System module scan is required to detect agentic libraries"
+      ],
+      "contraindications": [
+        "Instrumentation is already active (_active_instrumentors is non-empty)",
+        "An agentic library has already been instrumented (_has_agentic_library is True)"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "AgentOps monitoring is first activated",
+        "No active instrumentors are currently running (_active_instrumentors is empty)",
+        "Agentic library detection is needed to avoid double-instrumentation"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check if _active_instrumentors is empty', 'condition': 'If empty, proceed; if non-empty, return without action'}",
+        "{'step': 2, 'action': 'Install import hook by setting builtins.__import__ = _import_monitor', 'condition': 'Only if _active_instrumentors was empty'}",
+        "{'step': 3, 'action': 'Iterate over sys.modules.keys() to scan for agentic libraries', 'condition': 'Continue until _has_agentic_library is set or all modules are scanned'}",
+        "{'step': 4, 'action': 'For each module, validate type and check if it is an agentic library', 'condition': 'Skip non-ModuleType entries; break if agentic library detected'}",
+        "{'step': 5, 'action': 'Populate _active_instrumentors and set _has_agentic_library flag', 'condition': 'Based on scan results'}"
+      ],
+      "constraints": [
+        "Must check _has_agentic_library flag before instrumenting each package",
+        "Must break iteration loop if agentic library is detected during scan",
+        "Must validate module type before processing (isinstance check for ModuleType)",
+        "Must not instrument packages already in _instrumenting_packages list"
+      ],
+      "cautions": [
+        "Installing import hook affects all subsequent module imports; ensure no other instrumentation is active first",
+        "Agentic library detection must complete before instrumenting non-agentic packages to prevent conflicts"
+      ],
+      "output_contract": [
+        "Import hook (_import_monitor) is installed",
+        "_active_instrumentors list is populated with detected instrumentors",
+        "_has_agentic_library flag is set correctly to prevent further instrumentation of conflicting libraries"
+      ],
+      "examples": [],
+      "tags": [
+        "instrumentation",
+        "initialization",
+        "import_hook",
+        "package_monitoring",
+        "conflict_prevention"
+      ],
+      "support_ids": [
+        "e0c51184-d29a-5646-93f6-fe63485eb0c1"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "3e8ca54e-852f-5914-b69c-0194ea8b9d9f"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|initialize and manage package-level instrumentation state with conflict prevention|default|instrumentation_setup|import_hook_management|initialization|package instrumentation initialization",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct session_skill for package instrumentation initialization with import hook management. It does not semantically match any existing skill (which cover data stream transformations, reward scaling, and task polling). Peer candidates are related but separate initialization concerns (SDK setup, trace initialization, instrumentor configuration). No merge, split, or revision relationship exists.",
+        "parent_skill_id": "2142ee5d-6d0f-5077-9736-8fbf5a8844d3",
+        "parent_candidate_ids": [
+          "2142ee5d-6d0f-5077-9736-8fbf5a8844d3",
+          "048797be-e3b0-5c18-81d2-f1ef6e933f06"
+        ],
+        "hierarchy_confidence": 0.55,
+        "hierarchy_status": "linked",
+        "visible_role": "parent"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "68d2ebdb-9167-542f-8604-e8b7fac3db57",
+      "name": "CommonInstrumentor Configuration and Wrapping",
+      "description": "Configure and instantiate a CommonInstrumentor with InstrumentorConfig and WrapConfig to create reusable instrumentation templates for LLM providers and agentic frameworks.",
+      "skill_body": "Import CommonInstrumentor, InstrumentorConfig, and WrapConfig from agentops.instrumentation.common. Define InstrumentorConfig with target library name and version constraints. Create WrapConfig instances specifying which methods to wrap and their attribute handlers. Instantiate CommonInstrumentor with the config objects. The instrumentor is then ready to wrap target library methods and extract telemetry attributes.\n\n## Objective\n\nSet up a reusable instrumentation template for a specific LLM provider or agentic library\n## Applicable Signals\n\n- New library integration requirement\n- Need for OpenTelemetry instrumentation\n- Method-level telemetry extraction needed\n\n## Contraindications\n\n- Instrumentation for the target library is already complete\n- Target library version is below the minimum supported version\n- Library does not expose wrappable methods\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Import CommonInstrumentor, InstrumentorConfig, and WrapConfig', 'detail': 'from agentops.instrumentation.common import CommonInstrumentor, InstrumentorConfig, WrapConfig'}\n- {'step': 2, 'action': 'Define InstrumentorConfig with library metadata', 'detail': 'Specify target library name, version constraints, and initialization parameters'}\n- {'step': 3, 'action': 'Create WrapConfig instances for target methods', 'detail': 'For each method to instrument, define WrapConfig with method path and attribute handler'}\n- {'step': 4, 'action': 'Define attribute handlers', 'detail': 'Create handler functions that extract telemetry attributes from args, kwargs, and return values; return AttributeMap'}\n- {'step': 5, 'action': 'Instantiate CommonInstrumentor', 'detail': 'Pass InstrumentorConfig and list of WrapConfig objects to CommonInstrumentor constructor'}\n- {'step': 6, 'action': 'Verify instrumentor is ready', 'detail': 'Confirm CommonInstrumentor instance is created and ready to wrap methods'}\n\n## Constraints\n\n- InstrumentorConfig must specify a supported library name\n- WrapConfig must reference methods that exist in the target library\n- Attribute handlers must return AttributeMap objects\n- CommonInstrumentor must be instantiated before wrapping begins\n\n## Cautions\n\n- Verify target library version meets minimum requirements before configuration\n- Attribute handlers should gracefully handle missing return values or kwargs\n- Do not configure multiple instrumentors for the same library in the same session\n\n## Output Contract\n\n- CommonInstrumentor instance is created with InstrumentorConfig and WrapConfig, ready to instrument target library methods and extract attributes. The instrumentor can be used to wrap methods and collect telemetry data.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "2142ee5d-6d0f-5077-9736-8fbf5a8844d3",
+      "parent_candidate_ids": [
+        "2142ee5d-6d0f-5077-9736-8fbf5a8844d3",
+        "048797be-e3b0-5c18-81d2-f1ef6e933f06"
+      ],
+      "child_skill_ids": [
+        "88ec988c-cb23-50ce-b6e6-eb8aec788c7a"
+      ],
+      "hierarchy_confidence": 0.55,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Set up a reusable instrumentation template for a specific LLM provider or agentic library",
+      "domain": "default",
+      "task_family": "instrumentation_setup",
+      "method_family": "template_configuration",
+      "stage": "initialization",
+      "applicable_signals": [
+        "New library integration requirement",
+        "Need for OpenTelemetry instrumentation",
+        "Method-level telemetry extraction needed"
+      ],
+      "contraindications": [
+        "Instrumentation for the target library is already complete",
+        "Target library version is below the minimum supported version",
+        "Library does not expose wrappable methods"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Adding support for a new LLM provider (OpenAI, Anthropic, Google GenAI, IBM WatsonX, etc.)",
+        "Adding support for a new agentic framework (CrewAI, AutoGen, Agno, Mem0, smolagents, etc.)",
+        "A standardized instrumentation pattern is needed for telemetry collection"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Import CommonInstrumentor, InstrumentorConfig, and WrapConfig', 'detail': 'from agentops.instrumentation.common import CommonInstrumentor, InstrumentorConfig, WrapConfig'}",
+        "{'step': 2, 'action': 'Define InstrumentorConfig with library metadata', 'detail': 'Specify target library name, version constraints, and initialization parameters'}",
+        "{'step': 3, 'action': 'Create WrapConfig instances for target methods', 'detail': 'For each method to instrument, define WrapConfig with method path and attribute handler'}",
+        "{'step': 4, 'action': 'Define attribute handlers', 'detail': 'Create handler functions that extract telemetry attributes from args, kwargs, and return values; return AttributeMap'}",
+        "{'step': 5, 'action': 'Instantiate CommonInstrumentor', 'detail': 'Pass InstrumentorConfig and list of WrapConfig objects to CommonInstrumentor constructor'}",
+        "{'step': 6, 'action': 'Verify instrumentor is ready', 'detail': 'Confirm CommonInstrumentor instance is created and ready to wrap methods'}"
+      ],
+      "constraints": [
+        "InstrumentorConfig must specify a supported library name",
+        "WrapConfig must reference methods that exist in the target library",
+        "Attribute handlers must return AttributeMap objects",
+        "CommonInstrumentor must be instantiated before wrapping begins"
+      ],
+      "cautions": [
+        "Verify target library version meets minimum requirements before configuration",
+        "Attribute handlers should gracefully handle missing return values or kwargs",
+        "Do not configure multiple instrumentors for the same library in the same session"
+      ],
+      "output_contract": [
+        "CommonInstrumentor instance is created with InstrumentorConfig and WrapConfig, ready to instrument target library methods and extract attributes. The instrumentor can be used to wrap methods and collect telemetry data."
+      ],
+      "examples": [],
+      "tags": [
+        "instrumentation",
+        "opentelemetry",
+        "llm_provider",
+        "agentic_framework",
+        "telemetry",
+        "configuration"
+      ],
+      "support_ids": [
+        "fd655c2a-f975-53f8-bc28-2e5456018b59"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "2369efea-4a3e-5c22-b166-70c8833477f2"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.78,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|set up a reusable instrumentation template for a specific llm provider or agentic library|default|instrumentation_setup|template_configuration|initialization|commoninstrumentor configuration and wrapping",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "2142ee5d-6d0f-5077-9736-8fbf5a8844d3",
+        "parent_candidate_ids": [
+          "2142ee5d-6d0f-5077-9736-8fbf5a8844d3",
+          "048797be-e3b0-5c18-81d2-f1ef6e933f06"
+        ],
+        "hierarchy_confidence": 0.55,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "child_skill_ids": [
+          "88ec988c-cb23-50ce-b6e6-eb8aec788c7a"
+        ]
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "995d3c45-15b0-4f1c-a8ef-896867478742",
+      "entity_type": "skill",
+      "entity_id": "b97a82ff-caa3-5758-b4a0-2cf5db1a9d5b",
+      "action": "create",
+      "changed_at": "2026-09-14T23:32:37+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate skill 'Package Installation Detection' is semantically distinct from all existing skills. It addresses module origin classification (installed vs. local) via path inspection, which is orthogonal to the existing skills' concerns (Spring MVC configuration, timestamp extension). The peer candidates (conditional instrumentation, eligibility checks, version validation) are related but operate at different decision layers and do not subsume this path-based classification capability. No existing skill covers normalized path comparison against site-packages directories.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "b97a82ff-caa3-5758-b4a0-2cf5db1a9d5b",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "2ff55fcb-08ea-54ff-a64d-d0dc1d452332"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "c5a3f4f6-1646-4aad-b17d-d992cb11422c",
+      "entity_type": "skill",
+      "entity_id": "291617a0-293a-55d3-b5bb-fc9486e4bf69",
+      "action": "create",
+      "changed_at": "2026-09-14T23:32:37+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill for dynamic instrumentor instantiation with unique semantic identity (factory pattern for handler creation). It does not overlap with peer candidates (exit handler registration, legacy state sync, compatibility bridge) or existing skills (executor patterns, future inspection). No split, merge, or revision relationship detected. Support evidence confirms the skill's presence in documentation.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "291617a0-293a-55d3-b5bb-fc9486e4bf69",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "3fba5b17-c98d-58db-a736-54c434d836da"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "a6fa76dd-a20f-438c-86eb-be2ddd61f0c6",
+      "entity_type": "skill",
+      "entity_id": "8ab6381a-e2f5-5666-8d1e-85fa59b9301a",
+      "action": "create",
+      "changed_at": "2026-09-14T23:32:37+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct session_skill for package instrumentation initialization with import hook management. It does not semantically match any existing skill (which cover data stream transformations, reward scaling, and task polling). Peer candidates are related but separate initialization concerns (SDK setup, trace initialization, instrumentor configuration). No merge, split, or revision relationship exists.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "8ab6381a-e2f5-5666-8d1e-85fa59b9301a",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "e0c51184-d29a-5646-93f6-fe63485eb0c1"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "77f6f34b-9fc9-4071-b55a-d235e3a2a3a3",
+      "entity_type": "skill",
+      "entity_id": "68d2ebdb-9167-542f-8604-e8b7fac3db57",
+      "action": "create",
+      "changed_at": "2026-09-14T23:32:37+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "create",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "68d2ebdb-9167-542f-8604-e8b7fac3db57",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "fd655c2a-f975-53f8-bc28-2e5456018b59"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

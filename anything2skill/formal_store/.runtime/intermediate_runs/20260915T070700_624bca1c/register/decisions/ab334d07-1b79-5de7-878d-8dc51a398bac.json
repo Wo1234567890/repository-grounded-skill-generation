@@ -1,0 +1,109 @@
+{
+  "skill_id": "ab334d07-1b79-5de7-878d-8dc51a398bac",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "ab334d07-1b79-5de7-878d-8dc51a398bac",
+    "name": "ProcessPoolExecutor Initialization with Worker Setup",
+    "description": "Initialize a ProcessPoolExecutor with an optional initializer callable and initargs to configure per-worker process state. Handle BrokenProcessPool exceptions when initializer fails on any worker.",
+    "skill_body": "Create a ProcessPoolExecutor instance by passing an initializer callable and initargs tuple. The initializer runs once at the start of each worker process before any tasks are submitted. If the initializer raises an exception, all pending jobs will raise BrokenProcessPool and further job submissions will fail. Ensure the __main__ module is importable by worker subprocesses and do not call Executor or Future methods from within submitted callables.\n\n## Objective\n\nSet up a process pool with per-worker initialization and error handling for CPU-bound tasks requiring process isolation\n## Applicable Signals\n\n- CPU-bound workload identified\n- Worker process state initialization needed\n- Multiple independent worker processes required\n\n## Contraindications\n\n- Interactive interpreter environment\n- Calling Executor or Future methods from within submitted callables\n- __main__ module not importable by worker subprocesses\n- Tasks requiring thread-local state or GIL-dependent operations\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Define initializer callable (optional) that accepts initargs', 'detail': 'Initializer runs once per worker process at startup'}\n- {'step': 2, 'action': 'Prepare initargs tuple with arguments for initializer', 'detail': 'Arguments are passed to initializer in order'}\n- {'step': 3, 'action': 'Create ProcessPoolExecutor with initializer and initargs parameters', 'detail': 'Executor instantiation triggers initializer execution on each worker'}\n- {'step': 4, 'action': 'Submit tasks to executor using submit() or map()', 'detail': 'Tasks execute on workers after initialization completes'}\n- {'step': 5, 'action': 'Catch BrokenProcessPool exception if initializer fails', 'detail': 'All pending jobs raise BrokenProcessPool; further submissions fail'}\n\n## Constraints\n\n- Initializer must be a callable or None\n- initargs must be a tuple of arguments passable to initializer\n- Initializer exception propagates as BrokenProcessPool to all pending jobs\n- Worker subprocesses must be able to import __main__\n\n## Cautions\n\n- If initializer raises an exception, the entire pool enters a broken state\n- Do not submit Executor or Future method calls from within task callables to avoid deadlock\n- ProcessPoolExecutor will not work in interactive interpreter\n\n## Output Contract\n\n- ProcessPoolExecutor instance with initializer executed on each worker process. If initializer succeeds, executor is ready for task submission. If initializer raises an exception, BrokenProcessPool is raised for all pending jobs and the pool becomes unusable.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Set up a process pool with per-worker initialization and error handling for CPU-bound tasks requiring process isolation",
+    "domain": "default",
+    "task_family": "parallel_task_execution",
+    "method_family": "process_pool_initialization",
+    "stage": "initialization",
+    "applicable_signals": [
+      "CPU-bound workload identified",
+      "Worker process state initialization needed",
+      "Multiple independent worker processes required"
+    ],
+    "contraindications": [
+      "Interactive interpreter environment",
+      "Calling Executor or Future methods from within submitted callables",
+      "__main__ module not importable by worker subprocesses",
+      "Tasks requiring thread-local state or GIL-dependent operations"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Need to execute CPU-bound tasks with process isolation",
+      "Per-worker state setup required (e.g., database connections, shared resources)",
+      "Worker processes must initialize before accepting tasks"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Define initializer callable (optional) that accepts initargs', 'detail': 'Initializer runs once per worker process at startup'}",
+      "{'step': 2, 'action': 'Prepare initargs tuple with arguments for initializer', 'detail': 'Arguments are passed to initializer in order'}",
+      "{'step': 3, 'action': 'Create ProcessPoolExecutor with initializer and initargs parameters', 'detail': 'Executor instantiation triggers initializer execution on each worker'}",
+      "{'step': 4, 'action': 'Submit tasks to executor using submit() or map()', 'detail': 'Tasks execute on workers after initialization completes'}",
+      "{'step': 5, 'action': 'Catch BrokenProcessPool exception if initializer fails', 'detail': 'All pending jobs raise BrokenProcessPool; further submissions fail'}"
+    ],
+    "constraints": [
+      "Initializer must be a callable or None",
+      "initargs must be a tuple of arguments passable to initializer",
+      "Initializer exception propagates as BrokenProcessPool to all pending jobs",
+      "Worker subprocesses must be able to import __main__"
+    ],
+    "cautions": [
+      "If initializer raises an exception, the entire pool enters a broken state",
+      "Do not submit Executor or Future method calls from within task callables to avoid deadlock",
+      "ProcessPoolExecutor will not work in interactive interpreter"
+    ],
+    "output_contract": [
+      "ProcessPoolExecutor instance with initializer executed on each worker process. If initializer succeeds, executor is ready for task submission. If initializer raises an exception, BrokenProcessPool is raised for all pending jobs and the pool becomes unusable."
+    ],
+    "examples": [],
+    "tags": [
+      "concurrent.futures",
+      "ProcessPoolExecutor",
+      "process_pool",
+      "worker_initialization",
+      "parallel_execution",
+      "CPU_bound"
+    ],
+    "support_ids": [
+      "661c5b8c-297f-5df1-943f-78c48951ac7b"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "5057816c-086e-5f69-9e69-1d1c5ec31c1e"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.82,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|set up a process pool with per-worker initialization and error handling for cpu-bound tasks requiring process isolation|default|parallel_task_execution|process_pool_initialization|initialization|processpoolexecutor initialization with worker setup"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

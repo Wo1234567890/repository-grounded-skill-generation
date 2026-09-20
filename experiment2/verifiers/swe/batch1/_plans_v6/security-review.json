@@ -1,0 +1,261 @@
+{
+  "task_id": "security-review",
+  "model": "claude-haiku-4-5-20251001",
+  "raw_plan": {
+    "requirements": [
+      {
+        "id": "R1",
+        "requirement": "File api/serializers.py must exist and contain modifications for FeedingExportSerializer and SleepExportSerializer",
+        "primitive": "FILE_EXISTS",
+        "args": {
+          "path": "api/serializers.py"
+        },
+        "reason": "Task explicitly names this file as requiring modification"
+      },
+      {
+        "id": "R2",
+        "requirement": "File api/views.py must exist and contain modifications for ExportViewSet",
+        "primitive": "FILE_EXISTS",
+        "args": {
+          "path": "api/views.py"
+        },
+        "reason": "Task explicitly names this file as requiring modification"
+      },
+      {
+        "id": "R3",
+        "requirement": "File api/urls.py must exist and contain export route registrations",
+        "primitive": "FILE_EXISTS",
+        "args": {
+          "path": "api/urls.py"
+        },
+        "reason": "Task explicitly names this file as requiring modification"
+      },
+      {
+        "id": "R4",
+        "requirement": "File tests/test_api.py must exist and contain security test cases",
+        "primitive": "FILE_EXISTS",
+        "args": {
+          "path": "tests/test_api.py"
+        },
+        "reason": "Task explicitly names this file as requiring modification"
+      },
+      {
+        "id": "R5",
+        "requirement": "FeedingExportSerializer class must be defined in api/serializers.py with fields: id, start, end, duration, type, method, amount",
+        "primitive": "IDENTIFIER_IN_FILE",
+        "args": {
+          "path": "api/serializers.py",
+          "value": "FeedingExportSerializer"
+        },
+        "reason": "Task explicitly requires FeedingExportSerializer in api/serializers.py; field validation would require inspecting serializer definition but class presence is verifiable"
+      },
+      {
+        "id": "R6",
+        "requirement": "SleepExportSerializer class must be defined in api/serializers.py with fields: id, start, end, duration, quality",
+        "primitive": "IDENTIFIER_IN_FILE",
+        "args": {
+          "path": "api/serializers.py",
+          "value": "SleepExportSerializer"
+        },
+        "reason": "Task explicitly requires SleepExportSerializer in api/serializers.py; field validation would require inspecting serializer definition but class presence is verifiable"
+      },
+      {
+        "id": "R7",
+        "requirement": "ExportViewSet class must be defined in api/views.py",
+        "primitive": "IDENTIFIER_IN_FILE",
+        "args": {
+          "path": "api/views.py",
+          "value": "ExportViewSet"
+        },
+        "reason": "Task explicitly requires ExportViewSet in api/views.py"
+      },
+      {
+        "id": "R8",
+        "requirement": "API endpoint GET /api/child/{child_id}/export/?type=feeding|sleep must be registered in api/urls.py",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "api/urls.py",
+          "value": "export"
+        },
+        "reason": "Task specifies export route must be registered; checking for 'export' string in urls.py provides partial evidence of route registration"
+      },
+      {
+        "id": "R9",
+        "requirement": "Export endpoint enforces Django Permission authentication requiring IsAuthenticated",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Proper authentication enforcement is runtime/semantic behavior requiring code inspection of permission classes and cannot be verified through static primitives alone"
+      },
+      {
+        "id": "R10",
+        "requirement": "Users can only access their own children's data (authorization check)",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Authorization logic requiring owner verification is semantic behavior that cannot be soundly verified through file structure alone; requires runtime validation"
+      },
+      {
+        "id": "R11",
+        "requirement": "Unauthenticated requests return 401 Unauthorized status code",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "HTTP status code behavior is runtime behavior dependent on authentication implementation details"
+      },
+      {
+        "id": "R12",
+        "requirement": "User accessing another user's child data returns 403 Forbidden status code",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "HTTP status code behavior is runtime behavior dependent on authorization implementation"
+      },
+      {
+        "id": "R13",
+        "requirement": "Authenticated user accessing own child's data returns 200 OK status code",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "HTTP status code behavior is runtime behavior that requires test execution to verify"
+      },
+      {
+        "id": "R14",
+        "requirement": "Export endpoint returns last 30 days of records in JSON format",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Date filtering and JSON response formatting are runtime behaviors that cannot be verified through static analysis alone"
+      },
+      {
+        "id": "R15",
+        "requirement": "Test command 'python manage.py test babybuddy.tests.test_api -v 2' passes with all tests successful",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Test execution and success is runtime behavior that requires running the test suite with specific command and verifying exit code and test results"
+      }
+    ]
+  },
+  "sanitized_requirements": [
+    {
+      "id": "R1",
+      "requirement": "File api/serializers.py must exist and contain modifications for FeedingExportSerializer and SleepExportSerializer",
+      "primitive": "FILE_EXISTS",
+      "args": {
+        "path": "api/serializers.py"
+      },
+      "reason": "Task explicitly names this file as requiring modification"
+    },
+    {
+      "id": "R2",
+      "requirement": "File api/views.py must exist and contain modifications for ExportViewSet",
+      "primitive": "FILE_EXISTS",
+      "args": {
+        "path": "api/views.py"
+      },
+      "reason": "Task explicitly names this file as requiring modification"
+    },
+    {
+      "id": "R3",
+      "requirement": "File api/urls.py must exist and contain export route registrations",
+      "primitive": "FILE_EXISTS",
+      "args": {
+        "path": "api/urls.py"
+      },
+      "reason": "Task explicitly names this file as requiring modification"
+    },
+    {
+      "id": "R4",
+      "requirement": "File tests/test_api.py must exist and contain security test cases",
+      "primitive": "FILE_EXISTS",
+      "args": {
+        "path": "tests/test_api.py"
+      },
+      "reason": "Task explicitly names this file as requiring modification"
+    },
+    {
+      "id": "R5",
+      "requirement": "FeedingExportSerializer class must be defined in api/serializers.py with fields: id, start, end, duration, type, method, amount",
+      "primitive": "IDENTIFIER_IN_FILE",
+      "args": {
+        "path": "api/serializers.py",
+        "value": "FeedingExportSerializer"
+      },
+      "reason": "Task explicitly requires FeedingExportSerializer in api/serializers.py; field validation would require inspecting serializer definition but class presence is verifiable"
+    },
+    {
+      "id": "R6",
+      "requirement": "SleepExportSerializer class must be defined in api/serializers.py with fields: id, start, end, duration, quality",
+      "primitive": "IDENTIFIER_IN_FILE",
+      "args": {
+        "path": "api/serializers.py",
+        "value": "SleepExportSerializer"
+      },
+      "reason": "Task explicitly requires SleepExportSerializer in api/serializers.py; field validation would require inspecting serializer definition but class presence is verifiable"
+    },
+    {
+      "id": "R7",
+      "requirement": "ExportViewSet class must be defined in api/views.py",
+      "primitive": "IDENTIFIER_IN_FILE",
+      "args": {
+        "path": "api/views.py",
+        "value": "ExportViewSet"
+      },
+      "reason": "Task explicitly requires ExportViewSet in api/views.py"
+    },
+    {
+      "id": "R8",
+      "requirement": "API endpoint GET /api/child/{child_id}/export/?type=feeding|sleep must be registered in api/urls.py",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "api/urls.py",
+        "value": "export"
+      },
+      "reason": "Task specifies export route must be registered; checking for 'export' string in urls.py provides partial evidence of route registration"
+    },
+    {
+      "id": "R9",
+      "requirement": "Export endpoint enforces Django Permission authentication requiring IsAuthenticated",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Proper authentication enforcement is runtime/semantic behavior requiring code inspection of permission classes and cannot be verified through static primitives alone"
+    },
+    {
+      "id": "R10",
+      "requirement": "Users can only access their own children's data (authorization check)",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Authorization logic requiring owner verification is semantic behavior that cannot be soundly verified through file structure alone; requires runtime validation"
+    },
+    {
+      "id": "R11",
+      "requirement": "Unauthenticated requests return 401 Unauthorized status code",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "HTTP status code behavior is runtime behavior dependent on authentication implementation details"
+    },
+    {
+      "id": "R12",
+      "requirement": "User accessing another user's child data returns 403 Forbidden status code",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "HTTP status code behavior is runtime behavior dependent on authorization implementation"
+    },
+    {
+      "id": "R13",
+      "requirement": "Authenticated user accessing own child's data returns 200 OK status code",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "HTTP status code behavior is runtime behavior that requires test execution to verify"
+    },
+    {
+      "id": "R14",
+      "requirement": "Export endpoint returns last 30 days of records in JSON format",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Date filtering and JSON response formatting are runtime behaviors that cannot be verified through static analysis alone"
+    },
+    {
+      "id": "R15",
+      "requirement": "Test command 'python manage.py test babybuddy.tests.test_api -v 2' passes with all tests successful",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Test execution and success is runtime behavior that requires running the test suite with specific command and verifying exit code and test results"
+    }
+  ],
+  "warnings": []
+}

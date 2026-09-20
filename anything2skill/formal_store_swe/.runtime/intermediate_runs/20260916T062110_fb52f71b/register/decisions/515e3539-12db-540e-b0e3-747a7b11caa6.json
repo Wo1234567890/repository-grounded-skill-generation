@@ -1,0 +1,120 @@
+{
+  "skill_id": "515e3539-12db-540e-b0e3-747a7b11caa6",
+  "action": "merge",
+  "matched_skill_ids": [
+    "1aaea44c-47b6-537f-99b8-44c0de67c697"
+  ],
+  "reason": "Candidate 515e3539 describes a specific implementation strategy (term-at-a-time accumulation with priority queue extraction) for vector space document ranking. The three peer candidates (90f29523, 415a5490, 36fa7e1d) all address the same semantic capability: scoring and ranking documents by vector similarity in a term space. The candidate is a narrower algorithmic variant of the broader vector space ranking capability already covered by these peers. Rather than create a duplicate skill, the candidate's implementation details (term-at-a-time accumulation, priority queue optimization, postings structure constraints) should strengthen the existing skills' intervention_moves and cautions to reflect this efficient retrieval strategy. The candidate does not introduce new capability identity—it refines how existing vector space ranking is executed.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "515e3539-12db-540e-b0e3-747a7b11caa6",
+    "name": "Vector Space Score Computation",
+    "description": "Compute and rank the top K documents by vector space similarity scores for a given query using term-at-a-time accumulation. Iterates over query terms, updates document score accumulators, and extracts the K highest-scoring documents in decreasing order.",
+    "skill_body": "Given a query represented as a vector of weighted terms and a collection of N documents with precomputed term weights (tf, tf-idf, or other), execute the following steps: (1) Initialize a Scores array of size N with zeros and retrieve document length normalization factors. (2) For each query term t, calculate its weight in the query vector. (3) For each document, add the contribution of term t (product of query term weight and document term weight) to the document's accumulator. (4) After all query terms are processed, extract and return the K documents with the highest scores in decreasing order. Use a priority queue for efficient top-K extraction.\n\n## Objective\n\nRetrieve and rank top K documents by decreasing vector space score\n## Applicable Signals\n\n- Query vector with weighted terms available\n- Document collection with precomputed term weights (tf or tf-idf)\n- Document length normalization factors precomputed\n- K (number of top results) specified by caller\n\n## Contraindications\n\n- Query or document vectors not yet computed\n- Only raw text or term frequencies available without weighting scheme\n- Document term weights not precomputed or stored in postings\n\n## Intervention Moves\n\n- Term-at-a-time accumulation: process one query term at a time to update all document scores incrementally\n- Priority queue extraction: use efficient data structure to avoid full sort of N scores\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Initialize data structures', 'detail': 'Create Scores array of size N initialized to zero; load Length array with precomputed document normalization factors'}\n- {'step': 2, 'action': 'Iterate over query terms', 'detail': 'For each term t in the query vector, proceed to steps 3–4'}\n- {'step': 3, 'action': 'Calculate query term weight', 'detail': 'Compute weight wft,query for term t in the query vector (e.g., using tf-idf or other weighting function)'}\n- {'step': 4, 'action': 'Update document score accumulators', 'detail': \"For each document d in the collection, retrieve wft,d from postings for term t, compute contribution (wft,query × wft,d), and add to Scores[d]. This term-at-a-time accumulation ensures each document's score is updated incrementally\"}\n- {'step': 5, 'action': 'Extract top K documents', 'detail': 'Use a priority queue to efficiently extract the K documents with the highest scores from the Scores array'}\n- {'step': 6, 'action': 'Return ranked results', 'detail': 'Return the K documents ordered by decreasing score'}\n\n## Constraints\n\n- Document term weights must be stored in postings entries (at minimum: term frequency tft,d per postings entry)\n- Inverse document frequency idft or N/dft must be available (either precomputed or derivable from postings header)\n- Document length normalization factors must be precomputed and stored in Length array\n- K must be a positive integer less than or equal to N\n\n## Cautions\n\n- Storing floating-point weights in postings can be space-inefficient; consider storing only term frequency and deriving idf from postings header\n- Priority queue extraction is required for efficient top-K retrieval; naive sorting of all N scores is inefficient for large collections\n\n## Output Contract\n\n- Ordered list of K documents, each with its vector space score, sorted in decreasing order by score. Ready for presentation to user or downstream processing (e.g., snippet generation, result formatting).\n\n## Example Executions\n\n### Example 1\n\n- Input: Query: ['machine', 'learning']; K=10; N=1000 documents with precomputed tf-idf weights; Length array with normalization factors\n- Output: Ordered list of 10 documents with highest vector space scores, e.g., [(doc_id_42, score=0.87), (doc_id_15, score=0.81), ..., (doc_id_99, score=0.72)]\n- Notes: Typical search engine first-page result ranking scenario",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Retrieve and rank top K documents by decreasing vector space score",
+    "domain": "default",
+    "task_family": "document_ranking",
+    "method_family": "vector_space_model",
+    "stage": "scoring_and_retrieval",
+    "applicable_signals": [
+      "Query vector with weighted terms available",
+      "Document collection with precomputed term weights (tf or tf-idf)",
+      "Document length normalization factors precomputed",
+      "K (number of top results) specified by caller"
+    ],
+    "contraindications": [
+      "Query or document vectors not yet computed",
+      "Only raw text or term frequencies available without weighting scheme",
+      "Document term weights not precomputed or stored in postings"
+    ],
+    "intervention_moves": [
+      "Term-at-a-time accumulation: process one query term at a time to update all document scores incrementally",
+      "Priority queue extraction: use efficient data structure to avoid full sort of N scores"
+    ],
+    "triggers": [
+      "Query submitted in vector space model context",
+      "Need to identify K best-matching documents for ranked retrieval",
+      "Search engine result ranking required (e.g., K=10 for first page)"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Initialize data structures', 'detail': 'Create Scores array of size N initialized to zero; load Length array with precomputed document normalization factors'}",
+      "{'step': 2, 'action': 'Iterate over query terms', 'detail': 'For each term t in the query vector, proceed to steps 3–4'}",
+      "{'step': 3, 'action': 'Calculate query term weight', 'detail': 'Compute weight wft,query for term t in the query vector (e.g., using tf-idf or other weighting function)'}",
+      "{'step': 4, 'action': 'Update document score accumulators', 'detail': \"For each document d in the collection, retrieve wft,d from postings for term t, compute contribution (wft,query × wft,d), and add to Scores[d]. This term-at-a-time accumulation ensures each document's score is updated incrementally\"}",
+      "{'step': 5, 'action': 'Extract top K documents', 'detail': 'Use a priority queue to efficiently extract the K documents with the highest scores from the Scores array'}",
+      "{'step': 6, 'action': 'Return ranked results', 'detail': 'Return the K documents ordered by decreasing score'}"
+    ],
+    "constraints": [
+      "Document term weights must be stored in postings entries (at minimum: term frequency tft,d per postings entry)",
+      "Inverse document frequency idft or N/dft must be available (either precomputed or derivable from postings header)",
+      "Document length normalization factors must be precomputed and stored in Length array",
+      "K must be a positive integer less than or equal to N"
+    ],
+    "cautions": [
+      "Storing floating-point weights in postings can be space-inefficient; consider storing only term frequency and deriving idf from postings header",
+      "Priority queue extraction is required for efficient top-K retrieval; naive sorting of all N scores is inefficient for large collections"
+    ],
+    "output_contract": [
+      "Ordered list of K documents, each with its vector space score, sorted in decreasing order by score. Ready for presentation to user or downstream processing (e.g., snippet generation, result formatting)."
+    ],
+    "examples": [
+      {
+        "input": "Query: ['machine', 'learning']; K=10; N=1000 documents with precomputed tf-idf weights; Length array with normalization factors",
+        "output": "Ordered list of 10 documents with highest vector space scores, e.g., [(doc_id_42, score=0.87), (doc_id_15, score=0.81), ..., (doc_id_99, score=0.72)]",
+        "notes": "Typical search engine first-page result ranking scenario"
+      }
+    ],
+    "tags": [
+      "vector_space_model",
+      "document_ranking",
+      "information_retrieval",
+      "tf-idf",
+      "scoring",
+      "top-k_retrieval"
+    ],
+    "support_ids": [
+      "04603d73-2b7f-591f-b7fa-b76c49f65fab"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "f2c6af59-8acf-51c0-b0b2-e3b5e1d679b1"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|retrieve and rank top k documents by decreasing vector space score|default|document_ranking|vector_space_model|scoring_and_retrieval|vector space score computation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

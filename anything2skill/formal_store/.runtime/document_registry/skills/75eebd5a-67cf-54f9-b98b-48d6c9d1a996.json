@@ -1,0 +1,126 @@
+{
+  "skill_id": "75eebd5a-67cf-54f9-b98b-48d6c9d1a996",
+  "name": "ThreadPoolExecutor Context Manager Setup",
+  "description": "Use ThreadPoolExecutor with a `with` statement to automatically manage executor lifecycle and ensure all submitted tasks complete before context exit.",
+  "skill_body": "Initialize a ThreadPoolExecutor using the `with` statement. Submit your asynchronous tasks within the context block. The executor will automatically shut down with wait=True when the block exits, ensuring all submitted futures complete before proceeding. This pattern eliminates the need for explicit shutdown() calls and prevents resource leaks.\n\n## Objective\n\nSafely initialize and teardown a thread pool without explicit shutdown calls\n## Applicable Signals\n\n- Submitting multiple short-lived asynchronous tasks\n- All tasks should complete before proceeding to next code section\n- Want to avoid manual shutdown() calls\n- Need automatic resource cleanup\n\n## Contraindications\n\n- Tasks require long-running background execution after the context block exits\n- Executor must remain open and accessible across multiple code sections\n- Need to submit tasks dynamically after initial context setup\n\n## Intervention Moves\n\n- Wrap ThreadPoolExecutor instantiation in a `with` statement\n- Submit all tasks within the context block using executor.submit()\n- Allow context exit to trigger automatic shutdown with wait=True\n\n## Workflow Steps\n\n- Create ThreadPoolExecutor instance within `with` statement header\n- Submit callable tasks using executor.submit(function, *args)\n- Optionally store returned Future objects for later result retrieval\n- Exit the `with` block (automatic shutdown with wait=True occurs here)\n- Access results from stored Future objects after context exit if needed\n\n## Constraints\n\n- All task submission must occur within the `with` block\n- Context exit will block until all submitted futures complete\n- Cannot reuse executor after context exit\n\n## Cautions\n\n- If any submitted task raises an exception, it will not prevent context exit but will be raised when accessing the future result\n- Long-running tasks within the context will delay context exit and block subsequent code\n\n## Output Contract\n\n- All submitted futures complete execution\n- Executor is shut down with wait=True\n- No resource leaks\n- Context block returns control only after all tasks finish\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Submit four file copy tasks to a thread pool with max_workers=4\n- Therapist/Output: All four copy operations complete before the `with` block exits; executor is automatically shut down\n- Notes: Typical use case for batch processing of independent tasks",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "14a91775-8c41-5053-967f-aa0bb64cd7bc",
+  "parent_candidate_ids": [
+    "14a91775-8c41-5053-967f-aa0bb64cd7bc"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "linked",
+  "visible_role": "leaf",
+  "objective": "Safely initialize and teardown a thread pool without explicit shutdown calls",
+  "domain": "default",
+  "task_family": "parallel_task_execution",
+  "method_family": "context_manager_pattern",
+  "stage": "setup",
+  "applicable_signals": [
+    "Submitting multiple short-lived asynchronous tasks",
+    "All tasks should complete before proceeding to next code section",
+    "Want to avoid manual shutdown() calls",
+    "Need automatic resource cleanup"
+  ],
+  "contraindications": [
+    "Tasks require long-running background execution after the context block exits",
+    "Executor must remain open and accessible across multiple code sections",
+    "Need to submit tasks dynamically after initial context setup"
+  ],
+  "intervention_moves": [
+    "Wrap ThreadPoolExecutor instantiation in a `with` statement",
+    "Submit all tasks within the context block using executor.submit()",
+    "Allow context exit to trigger automatic shutdown with wait=True"
+  ],
+  "triggers": [
+    "Submitting multiple short-lived asynchronous tasks that should all complete before proceeding; want to avoid manual shutdown() calls."
+  ],
+  "workflow_steps": [
+    "Create ThreadPoolExecutor instance within `with` statement header",
+    "Submit callable tasks using executor.submit(function, *args)",
+    "Optionally store returned Future objects for later result retrieval",
+    "Exit the `with` block (automatic shutdown with wait=True occurs here)",
+    "Access results from stored Future objects after context exit if needed"
+  ],
+  "constraints": [
+    "All task submission must occur within the `with` block",
+    "Context exit will block until all submitted futures complete",
+    "Cannot reuse executor after context exit"
+  ],
+  "cautions": [
+    "If any submitted task raises an exception, it will not prevent context exit but will be raised when accessing the future result",
+    "Long-running tasks within the context will delay context exit and block subsequent code"
+  ],
+  "output_contract": [
+    "All submitted futures complete execution",
+    "Executor is shut down with wait=True",
+    "No resource leaks",
+    "Context block returns control only after all tasks finish"
+  ],
+  "examples": [
+    {
+      "input": "Submit four file copy tasks to a thread pool with max_workers=4",
+      "output": "All four copy operations complete before the `with` block exits; executor is automatically shut down",
+      "notes": "Typical use case for batch processing of independent tasks"
+    }
+  ],
+  "tags": [
+    "threading",
+    "context_manager",
+    "resource_management",
+    "executor_lifecycle"
+  ],
+  "support_ids": [
+    "90589035-31c4-5821-ad0e-2791897b16d1"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "290f7e32-94f4-5e0d-831f-53e94878e73b"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.85,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|safely initialize and teardown a thread pool without explicit shutdown calls|default|parallel_task_execution|context_manager_pattern|setup|threadpoolexecutor context manager setup",
+    "llm_reason": "Candidate is a distinct micro_skill for ThreadPoolExecutor context manager pattern (setup stage, context_manager_pattern method). Peer candidates address different aspects (worker initialization, worker count tuning, ProcessPoolExecutor lifecycle) and existing skills are unrelated (image optimization, reward functions). No semantic overlap with registry.",
+    "change_action": "create",
+    "parent_skill_id": "14a91775-8c41-5053-967f-aa0bb64cd7bc",
+    "parent_candidate_ids": [
+      "14a91775-8c41-5053-967f-aa0bb64cd7bc"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "linked",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

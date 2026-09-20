@@ -1,0 +1,105 @@
+{
+  "skill_id": "0c0081a4-f1dd-5ae0-99bc-c820bc1934a0",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate skill 'Decide Package Instrumentation Eligibility' does not align with existing skill registry. It is a session_skill focused on instrumentation filtering logic specific to OpenTelemetry/AgentOps initialization, while existing skills cover unrelated domains (Scala imports, relevance scoring, agent initialization). Peer candidates (module origin detection, SDK installation, agent initialization) are also semantically distinct and do not form a coherent split relationship. The candidate has minimal support evidence (1 snippet from Debugging Roadmap) and no conflict evidence, but lacks sufficient integration context or reusable capability definition to warrant registry persistence. Recommend re-evaluation once broader instrumentation workflow and registry patterns are established.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "0c0081a4-f1dd-5ae0-99bc-c820bc1934a0",
+    "name": "Decide Package Instrumentation Eligibility",
+    "description": "Determine whether a package should be instrumented based on its presence in target provider or agentic library registries and current instrumentation state. Filters candidates after import hook is triggered, handling special cases for agentic libraries and provider packages.",
+    "skill_body": "Check if the package name exists in TARGET_PACKAGES (union of PROVIDERS and AGENTIC_LIBRARIES keys). Verify that the package is not already in _instrumenting_packages and that global instrumentation is not disabled. Return a boolean decision to instrument or skip, with reasoning logged.\n\n## Objective\n\nfilter_instrumentation_candidates\n## Applicable Signals\n\n- package_name in TARGET_PACKAGES\n- package not in _instrumenting_packages\n- global instrumentation enabled\n\n## Contraindications\n\n- package is already actively instrumented\n- package is not a known provider or agentic library\n- instrumentation is disabled globally\n- package is a local module (not installed)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if package_name is in TARGET_PACKAGES set', 'condition': 'package_name must be a valid string'}\n- {'step': 2, 'action': 'Verify package is not already in _instrumenting_packages', 'condition': 'avoid duplicate instrumentation'}\n- {'step': 3, 'action': 'If package is in AGENTIC_LIBRARIES, set _has_agentic_library = True', 'condition': 'special case for agentic library detection'}\n- {'step': 4, 'action': 'Return boolean decision and log reasoning', 'condition': 'always log decision for debugging'}\n\n## Constraints\n\n- TARGET_PACKAGES must be initialized before lookup\n- package_name must be a string\n- _instrumenting_packages state must be accessible\n\n## Cautions\n\n- Do not instrument the same package twice; check _instrumenting_packages first\n- Special handling required for agentic libraries; update _has_agentic_library flag if applicable\n\n## Output Contract\n\n- Boolean decision (True to instrument, False to skip) with reasoning logged; state updated in _has_agentic_library or _instrumenting_packages if applicable. Caller receives clear signal for next action.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "filter_instrumentation_candidates",
+    "domain": "default",
+    "task_family": "instrumentation_setup",
+    "method_family": "registry_lookup",
+    "stage": "initialization",
+    "applicable_signals": [
+      "package_name in TARGET_PACKAGES",
+      "package not in _instrumenting_packages",
+      "global instrumentation enabled"
+    ],
+    "contraindications": [
+      "package is already actively instrumented",
+      "package is not a known provider or agentic library",
+      "instrumentation is disabled globally",
+      "package is a local module (not installed)"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "import hook is triggered for a package",
+      "package name is available for lookup",
+      "instrumentation system is active"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Check if package_name is in TARGET_PACKAGES set', 'condition': 'package_name must be a valid string'}",
+      "{'step': 2, 'action': 'Verify package is not already in _instrumenting_packages', 'condition': 'avoid duplicate instrumentation'}",
+      "{'step': 3, 'action': 'If package is in AGENTIC_LIBRARIES, set _has_agentic_library = True', 'condition': 'special case for agentic library detection'}",
+      "{'step': 4, 'action': 'Return boolean decision and log reasoning', 'condition': 'always log decision for debugging'}"
+    ],
+    "constraints": [
+      "TARGET_PACKAGES must be initialized before lookup",
+      "package_name must be a string",
+      "_instrumenting_packages state must be accessible"
+    ],
+    "cautions": [
+      "Do not instrument the same package twice; check _instrumenting_packages first",
+      "Special handling required for agentic libraries; update _has_agentic_library flag if applicable"
+    ],
+    "output_contract": [
+      "Boolean decision (True to instrument, False to skip) with reasoning logged; state updated in _has_agentic_library or _instrumenting_packages if applicable. Caller receives clear signal for next action."
+    ],
+    "examples": [],
+    "tags": [
+      "instrumentation",
+      "package_filtering",
+      "registry_lookup",
+      "initialization",
+      "state_management"
+    ],
+    "support_ids": [
+      "81e7a6c4-ffc8-5815-b4b0-b875b5c13599"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "96b6a7be-b186-52d9-a1b3-d8b1ea23c695"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|micro_skill_node|filter_instrumentation_candidates|default|instrumentation_setup|registry_lookup|initialization|decide package instrumentation eligibility"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

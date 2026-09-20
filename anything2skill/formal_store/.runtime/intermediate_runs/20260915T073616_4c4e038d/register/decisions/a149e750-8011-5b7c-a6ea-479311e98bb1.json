@@ -1,0 +1,121 @@
+{
+  "skill_id": "a149e750-8011-5b7c-a6ea-479311e98bb1",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "a149e750-8011-5b7c-a6ea-479311e98bb1",
+    "name": "S3-FIFO Quick Demotion Tuning",
+    "description": "Adjust the static FIFO queue size (S) as a percentage of cache size to balance demotion speed and precision, filtering out low-value objects while preserving popular ones. Establishes baseline miss ratio, sets initial S configuration, measures demotion speed and precision metrics, and iteratively tunes S within 5–20% range to achieve lower miss ratio than LRU baseline.",
+    "skill_body": "Set S to a percentage of total cache size. Start with 10% as a baseline. Measure miss ratio, demotion speed (time in S before eviction), and precision (fraction of evicted objects not reused soon). Adjust S within the range 5–20% for most workloads, or 1–10% for large caches. Log both speed and precision metrics to confirm improvement over LRU baseline.\n\n## Objective\n\noptimize_cache_eviction_policy\n## Applicable Signals\n\n- elevated miss ratio compared to LRU\n- availability of trace data or workload profile\n- need for predictable demotion behavior\n\n## Contraindications\n\n- cache size is extremely small (< 100 objects)\n- workload is purely random with no temporal locality\n- real-time latency constraints prohibit ghost queue overhead\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Establish baseline miss ratio using LRU eviction age as reference.'}\n- {'step': 2, 'action': 'Set S to 10% of cache size as initial configuration.'}\n- {'step': 3, 'action': 'Measure quick demotion speed: calculate (time in S) / (LRU eviction age) using logical time in request count.'}\n- {'step': 4, 'action': 'Measure quick demotion precision: count objects evicted from S that are not reused within (cache size / miss ratio) requests.'}\n- {'step': 5, 'action': 'Record miss ratio and compare to baseline.'}\n- {'step': 6, 'action': 'If miss ratio is not improved, adjust S within 5–20% range and repeat steps 3–5.'}\n- {'step': 7, 'action': 'Confirm that both speed and precision metrics are logged and that miss ratio is lower than LRU baseline.'}\n\n## Constraints\n\n- S must be a static percentage of cache size\n- S size should remain between 5% and 20% for most workloads to avoid precision cliffs\n- Smaller S increases demotion speed but reduces precision; larger S increases precision but slows demotion\n\n## Cautions\n\n- When S is very small, popular objects may not accumulate enough hits before eviction, reducing precision.\n- When S is very large, many unpopular objects are moved to M, reducing precision and increasing miss ratio.\n- Precision shows non-monotonic behavior; peak precision occurs at an intermediate S size.\n\n## Output Contract\n\n- S size is set to a percentage of cache size (typically 5–20%, or 1–10% for large caches)\n- Miss ratio is reduced compared to LRU baseline\n- Demotion speed and precision metrics are measured and logged\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Cache size 1000 objects, Twitter trace with many requests per object and constant new object generation.\n- Therapist/Output: S set to 1% of cache size (10 objects) for maximum demotion speed; miss ratio reduced by ~15% compared to LRU.\n- Notes: Smaller S is effective when workload has high object reuse frequency.\n\n### Example 2\n\n- Client/Input: Cache size 10000 objects, MSR trace with moderate request patterns.\n- Therapist/Output: S set to 10% of cache size (1000 objects); miss ratio reduced by ~8% compared to LRU; precision and speed both balanced.\n- Notes: 10% is a robust default that generalizes across diverse traces.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "optimize_cache_eviction_policy",
+    "domain": "default",
+    "task_family": "cache_management",
+    "method_family": "queue_sizing_tuning",
+    "stage": "configuration",
+    "applicable_signals": [
+      "elevated miss ratio compared to LRU",
+      "availability of trace data or workload profile",
+      "need for predictable demotion behavior"
+    ],
+    "contraindications": [
+      "cache size is extremely small (< 100 objects)",
+      "workload is purely random with no temporal locality",
+      "real-time latency constraints prohibit ghost queue overhead"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "cache miss ratio is suboptimal relative to baseline",
+      "workload characteristics are known or measurable",
+      "S size adjustment is needed across multiple traces"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Establish baseline miss ratio using LRU eviction age as reference.'}",
+      "{'step': 2, 'action': 'Set S to 10% of cache size as initial configuration.'}",
+      "{'step': 3, 'action': 'Measure quick demotion speed: calculate (time in S) / (LRU eviction age) using logical time in request count.'}",
+      "{'step': 4, 'action': 'Measure quick demotion precision: count objects evicted from S that are not reused within (cache size / miss ratio) requests.'}",
+      "{'step': 5, 'action': 'Record miss ratio and compare to baseline.'}",
+      "{'step': 6, 'action': 'If miss ratio is not improved, adjust S within 5–20% range and repeat steps 3–5.'}",
+      "{'step': 7, 'action': 'Confirm that both speed and precision metrics are logged and that miss ratio is lower than LRU baseline.'}"
+    ],
+    "constraints": [
+      "S must be a static percentage of cache size",
+      "S size should remain between 5% and 20% for most workloads to avoid precision cliffs",
+      "Smaller S increases demotion speed but reduces precision; larger S increases precision but slows demotion"
+    ],
+    "cautions": [
+      "When S is very small, popular objects may not accumulate enough hits before eviction, reducing precision.",
+      "When S is very large, many unpopular objects are moved to M, reducing precision and increasing miss ratio.",
+      "Precision shows non-monotonic behavior; peak precision occurs at an intermediate S size."
+    ],
+    "output_contract": [
+      "S size is set to a percentage of cache size (typically 5–20%, or 1–10% for large caches)",
+      "Miss ratio is reduced compared to LRU baseline",
+      "Demotion speed and precision metrics are measured and logged"
+    ],
+    "examples": [
+      {
+        "input": "Cache size 1000 objects, Twitter trace with many requests per object and constant new object generation.",
+        "output": "S set to 1% of cache size (10 objects) for maximum demotion speed; miss ratio reduced by ~15% compared to LRU.",
+        "notes": "Smaller S is effective when workload has high object reuse frequency."
+      },
+      {
+        "input": "Cache size 10000 objects, MSR trace with moderate request patterns.",
+        "output": "S set to 10% of cache size (1000 objects); miss ratio reduced by ~8% compared to LRU; precision and speed both balanced.",
+        "notes": "10% is a robust default that generalizes across diverse traces."
+      }
+    ],
+    "tags": [
+      "cache_eviction",
+      "queue_sizing",
+      "performance_tuning",
+      "fifo_algorithm",
+      "demotion_precision"
+    ],
+    "support_ids": [
+      "8bf07c72-af76-515d-a499-53d22b2a61f1"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "1c388fff-c137-52c0-8ed3-d8907661f4eb"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|optimize_cache_eviction_policy|default|cache_management|queue_sizing_tuning|configuration|s3-fifo quick demotion tuning"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

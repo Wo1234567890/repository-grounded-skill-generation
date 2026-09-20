@@ -1,0 +1,129 @@
+{
+  "skill_id": "3a3fe5d1-7b9d-5fce-b88a-cf4d2c0ba476",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct session_skill for Spring Boot 3.0 metrics migration using Observation conventions. It does not overlap with existing skills (Maven setup, cache eviction) and addresses a specific upgrade workflow not covered by peer candidates (MongoDB test infrastructure, configuration properties, database dependencies). The semantic capability—reimplementing custom metrics tagging via ServerRequestObservationConvention—is novel and well-supported by Spring Boot 3.0 migration guidance.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "3a3fe5d1-7b9d-5fce-b88a-cf4d2c0ba476",
+    "name": "Migrate Custom Observation Convention from TagProvider",
+    "description": "Replace deprecated TagProvider/TagContributor instrumentation with custom ServerRequestObservationConvention implementation. Reimplement custom metrics tagging using the new Observation convention pattern to preserve custom metric tags during Spring Boot 3.0 migration.",
+    "skill_body": "When you have custom TagProvider or TagContributor classes in your Spring Boot 2.x codebase, migrate them to Spring Boot 3.0 by extending DefaultServerRequestObservationConvention or implementing ServerRequestObservationConvention directly. Override getLowCardinalityKeyValues() to add custom KeyValue pairs, and override getContextualName() to set trace names. Preserve your custom tag logic by calling super methods and appending custom KeyValues.\n\n## Objective\n\nReimplement custom metrics tagging using new Observation convention pattern\n## Applicable Signals\n\n- Custom TagProvider or TagContributor classes exist in codebase\n- Migrating to Spring Boot 3.0\n- Need to preserve custom metric tags during upgrade\n- Observation API integration is active\n\n## Contraindications\n\n- No custom tags are defined in codebase\n- Using only default observation instrumentation without overrides\n- TagProvider classes are not overridden or extended\n\n## Intervention Moves\n\n- Identify all custom TagProvider and TagContributor implementations\n- Create new class extending DefaultServerRequestObservationConvention or implementing ServerRequestObservationConvention\n- Override getLowCardinalityKeyValues() to preserve custom tags\n- Override getContextualName() for custom trace naming\n- Register custom convention bean in Spring configuration\n- Test that custom tags appear in metrics and traces\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Locate all custom TagProvider, TagContributor, and *Tags classes in codebase'}\n- {'step': 2, 'action': 'Create new class extending DefaultServerRequestObservationConvention or implementing ServerRequestObservationConvention'}\n- {'step': 3, 'action': 'Override getLowCardinalityKeyValues(ServerRequestObservationContext context) to add custom KeyValue pairs using super.getLowCardinalityKeyValues(context).and(customKeyValue)'}\n- {'step': 4, 'action': 'Override getContextualName(ServerRequestObservationContext context) to set custom trace names'}\n- {'step': 5, 'action': \"Override getName() to return metric name (e.g., 'http.server.requests')\"}\n- {'step': 6, 'action': 'Register custom convention as Spring bean'}\n- {'step': 7, 'action': 'Remove or disable old TagProvider and TagContributor implementations'}\n- {'step': 8, 'action': 'Test that custom tags appear in metrics and traces with expected values'}\n\n## Constraints\n\n- Custom convention must implement or extend ServerRequestObservationConvention interface\n- getLowCardinalityKeyValues() must return KeyValues object\n- getContextualName() must return String for trace naming\n- Custom KeyValue pairs should use consistent naming conventions\n\n## Cautions\n\n- Deprecated TagProvider and TagContributor classes are kept during deprecation phase but will be removed in future versions\n- Duplicate instrumentation risk if both old and new conventions are active; ensure old classes are removed\n- Custom tags must have low cardinality to avoid metric explosion\n\n## Output Contract\n\n- Custom ServerRequestObservationConvention class implemented with overridden getLowCardinalityKeyValues() and getContextualName() methods; custom tags preserved and visible in metrics and traces; old TagProvider/TagContributor classes removed from active codebase\n\n## Example Executions\n\n### Example 1\n\n- Input: Existing custom TagProvider that adds 'custom.method' tag to metrics\n- Output: New ExtendedServerRequestObservationConvention class extending DefaultServerRequestObservationConvention with getLowCardinalityKeyValues() returning super values plus KeyValue.of('custom.method', context.getCarrier().getMethod())\n- Notes: Preserves default tags while adding custom tag\n\n### Example 2\n\n- Input: Custom TagContributor implementing full tag set\n- Output: New CustomServerRequestObservationConvention implementing ServerRequestObservationConvention with getName(), getContextualName(), and getLowCardinalityKeyValues() methods returning custom KeyValues\n- Notes: Full control over all tags; no inheritance from defaults",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Reimplement custom metrics tagging using new Observation convention pattern",
+    "domain": "default",
+    "task_family": "metrics_migration",
+    "method_family": "observation_convention_extension",
+    "stage": "upgrade",
+    "applicable_signals": [
+      "Custom TagProvider or TagContributor classes exist in codebase",
+      "Migrating to Spring Boot 3.0",
+      "Need to preserve custom metric tags during upgrade",
+      "Observation API integration is active"
+    ],
+    "contraindications": [
+      "No custom tags are defined in codebase",
+      "Using only default observation instrumentation without overrides",
+      "TagProvider classes are not overridden or extended"
+    ],
+    "intervention_moves": [
+      "Identify all custom TagProvider and TagContributor implementations",
+      "Create new class extending DefaultServerRequestObservationConvention or implementing ServerRequestObservationConvention",
+      "Override getLowCardinalityKeyValues() to preserve custom tags",
+      "Override getContextualName() for custom trace naming",
+      "Register custom convention bean in Spring configuration",
+      "Test that custom tags appear in metrics and traces"
+    ],
+    "triggers": [
+      "Custom TagProvider or TagContributor classes exist in codebase",
+      "Migrating to Spring Boot 3.0",
+      "Need to preserve custom metric tags"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Locate all custom TagProvider, TagContributor, and *Tags classes in codebase'}",
+      "{'step': 2, 'action': 'Create new class extending DefaultServerRequestObservationConvention or implementing ServerRequestObservationConvention'}",
+      "{'step': 3, 'action': 'Override getLowCardinalityKeyValues(ServerRequestObservationContext context) to add custom KeyValue pairs using super.getLowCardinalityKeyValues(context).and(customKeyValue)'}",
+      "{'step': 4, 'action': 'Override getContextualName(ServerRequestObservationContext context) to set custom trace names'}",
+      "{'step': 5, 'action': \"Override getName() to return metric name (e.g., 'http.server.requests')\"}",
+      "{'step': 6, 'action': 'Register custom convention as Spring bean'}",
+      "{'step': 7, 'action': 'Remove or disable old TagProvider and TagContributor implementations'}",
+      "{'step': 8, 'action': 'Test that custom tags appear in metrics and traces with expected values'}"
+    ],
+    "constraints": [
+      "Custom convention must implement or extend ServerRequestObservationConvention interface",
+      "getLowCardinalityKeyValues() must return KeyValues object",
+      "getContextualName() must return String for trace naming",
+      "Custom KeyValue pairs should use consistent naming conventions"
+    ],
+    "cautions": [
+      "Deprecated TagProvider and TagContributor classes are kept during deprecation phase but will be removed in future versions",
+      "Duplicate instrumentation risk if both old and new conventions are active; ensure old classes are removed",
+      "Custom tags must have low cardinality to avoid metric explosion"
+    ],
+    "output_contract": [
+      "Custom ServerRequestObservationConvention class implemented with overridden getLowCardinalityKeyValues() and getContextualName() methods; custom tags preserved and visible in metrics and traces; old TagProvider/TagContributor classes removed from active codebase"
+    ],
+    "examples": [
+      {
+        "input": "Existing custom TagProvider that adds 'custom.method' tag to metrics",
+        "output": "New ExtendedServerRequestObservationConvention class extending DefaultServerRequestObservationConvention with getLowCardinalityKeyValues() returning super values plus KeyValue.of('custom.method', context.getCarrier().getMethod())",
+        "notes": "Preserves default tags while adding custom tag"
+      },
+      {
+        "input": "Custom TagContributor implementing full tag set",
+        "output": "New CustomServerRequestObservationConvention implementing ServerRequestObservationConvention with getName(), getContextualName(), and getLowCardinalityKeyValues() methods returning custom KeyValues",
+        "notes": "Full control over all tags; no inheritance from defaults"
+      }
+    ],
+    "tags": [
+      "spring-boot-3-migration",
+      "metrics",
+      "observation-api",
+      "deprecation-handling",
+      "instrumentation"
+    ],
+    "support_ids": [
+      "b284f89a-c321-5441-b268-59cd3a6f4712"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "126a1110-162a-5fa3-96d2-e0f0cc5a0100"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|reimplement custom metrics tagging using new observation convention pattern|default|metrics_migration|observation_convention_extension|upgrade|migrate custom observation convention from tagprovider"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

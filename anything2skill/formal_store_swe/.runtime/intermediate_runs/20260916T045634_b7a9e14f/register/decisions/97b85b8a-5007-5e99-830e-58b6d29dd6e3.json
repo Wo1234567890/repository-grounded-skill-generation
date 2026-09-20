@@ -1,0 +1,115 @@
+{
+  "skill_id": "97b85b8a-5007-5e99-830e-58b6d29dd6e3",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct safety rule for ProcessPoolExecutor initializer exception handling at the session/initialization stage. It does not semantically overlap with existing skills (which cover Virtual WAN routing) or peer candidates (which address ThreadPoolExecutor deadlock prevention, BrokenProcessPool recovery, and BrokenThreadPool handling). While peer candidate 41105c9d addresses BrokenProcessPool recovery post-failure, this candidate enforces proactive exception propagation during initializer execution—a complementary but distinct capability at an earlier stage (initialization vs. execution). The candidate has clear support evidence and no conflicts.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "97b85b8a-5007-5e99-830e-58b6d29dd6e3",
+    "name": "ProcessPoolExecutor Initializer Exception Handling",
+    "description": "Enforce exception propagation when a ProcessPoolExecutor worker process initializer fails. Automatically raise BrokenProcessPool on all pending jobs and block new job submissions to prevent silent failures and deadlocks.",
+    "skill_body": "When an initializer callable passed to ProcessPoolExecutor raises an exception during worker process startup, the pool enters a broken state. All currently pending jobs must immediately raise BrokenProcessPool. Any subsequent attempt to submit new jobs to the pool must also raise BrokenProcessPool. This guardrail prevents resource leaks, hidden deadlocks, and cascading failures in parallel task execution.\n\n## Objective\n\nPrevent silent failures and deadlocks when ProcessPoolExecutor worker initialization fails\n## Applicable Signals\n\n- initializer callable raises exception during worker process startup\n- pending job exists in pool queue at time of initializer failure\n- new job submission attempt after initializer failure\n\n## Contraindications\n\n- ThreadPoolExecutor (does not use initializer pattern)\n- successful initializer execution (no exception raised)\n- pool already in broken state from prior failure\n\n## Intervention Moves\n\n- Detect initializer exception in worker process at startup\n- Mark pool as broken and prevent new worker threads from starting\n- Raise BrokenProcessPool on all queued or in-flight jobs\n- Block all new job submissions with immediate BrokenProcessPool exception\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Detect initializer exception', 'detail': 'Monitor initializer callable execution in each worker process at startup'}\n- {'step': 2, 'action': 'Mark pool as broken', 'detail': 'Set internal pool state to BrokenProcessPool; prevent new worker threads from starting'}\n- {'step': 3, 'action': 'Raise BrokenProcessPool on pending jobs', 'detail': 'Iterate all jobs currently queued or in-flight; raise BrokenProcessPool exception on each'}\n- {'step': 4, 'action': 'Block new submissions', 'detail': 'Raise BrokenProcessPool immediately on any call to submit(), map(), or map_async() after pool is broken'}\n\n## Constraints\n\n- Initializer must be a callable or None\n- Initializer exception must propagate before any worker task execution\n- BrokenProcessPool state must persist for the lifetime of the pool instance\n\n## Cautions\n\n- Do not attempt to recover or retry the pool after BrokenProcessPool is raised\n- Do not call Executor or Future methods from within the initializer callable (will cause deadlock)\n- Ensure initializer logic is isolated and does not depend on external state that may be unavailable in worker subprocess\n\n## Output Contract\n\n- BrokenProcessPool exception raised on all pending jobs and any new job submission attempts; pool marked as unusable and no further tasks can be executed\n\n## Example Executions\n\n### Example 1\n\n- Input: ProcessPoolExecutor(max_workers=2, initializer=failing_init_func, initargs=(arg1,))\n- Output: BrokenProcessPool raised on all pending jobs; subsequent submit() calls raise BrokenProcessPool\n- Notes: Initializer raises exception during worker startup; pool becomes unusable immediately",
+    "asset_type": "safety_rule",
+    "granularity": "session",
+    "asset_node_id": "safety_rule_node",
+    "asset_path": "family_root/safety_module/safety_rule_node",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Prevent silent failures and deadlocks when ProcessPoolExecutor worker initialization fails",
+    "domain": "default",
+    "task_family": "parallel_task_execution",
+    "method_family": "error_handling",
+    "stage": "initialization",
+    "applicable_signals": [
+      "initializer callable raises exception during worker process startup",
+      "pending job exists in pool queue at time of initializer failure",
+      "new job submission attempt after initializer failure"
+    ],
+    "contraindications": [
+      "ThreadPoolExecutor (does not use initializer pattern)",
+      "successful initializer execution (no exception raised)",
+      "pool already in broken state from prior failure"
+    ],
+    "intervention_moves": [
+      "Detect initializer exception in worker process at startup",
+      "Mark pool as broken and prevent new worker threads from starting",
+      "Raise BrokenProcessPool on all queued or in-flight jobs",
+      "Block all new job submissions with immediate BrokenProcessPool exception"
+    ],
+    "triggers": [
+      "ProcessPoolExecutor initializer callable raises an exception during worker startup"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Detect initializer exception', 'detail': 'Monitor initializer callable execution in each worker process at startup'}",
+      "{'step': 2, 'action': 'Mark pool as broken', 'detail': 'Set internal pool state to BrokenProcessPool; prevent new worker threads from starting'}",
+      "{'step': 3, 'action': 'Raise BrokenProcessPool on pending jobs', 'detail': 'Iterate all jobs currently queued or in-flight; raise BrokenProcessPool exception on each'}",
+      "{'step': 4, 'action': 'Block new submissions', 'detail': 'Raise BrokenProcessPool immediately on any call to submit(), map(), or map_async() after pool is broken'}"
+    ],
+    "constraints": [
+      "Initializer must be a callable or None",
+      "Initializer exception must propagate before any worker task execution",
+      "BrokenProcessPool state must persist for the lifetime of the pool instance"
+    ],
+    "cautions": [
+      "Do not attempt to recover or retry the pool after BrokenProcessPool is raised",
+      "Do not call Executor or Future methods from within the initializer callable (will cause deadlock)",
+      "Ensure initializer logic is isolated and does not depend on external state that may be unavailable in worker subprocess"
+    ],
+    "output_contract": [
+      "BrokenProcessPool exception raised on all pending jobs and any new job submission attempts; pool marked as unusable and no further tasks can be executed"
+    ],
+    "examples": [
+      {
+        "input": "ProcessPoolExecutor(max_workers=2, initializer=failing_init_func, initargs=(arg1,))",
+        "output": "BrokenProcessPool raised on all pending jobs; subsequent submit() calls raise BrokenProcessPool",
+        "notes": "Initializer raises exception during worker startup; pool becomes unusable immediately"
+      }
+    ],
+    "tags": [
+      "concurrent.futures",
+      "ProcessPoolExecutor",
+      "initializer",
+      "exception_handling",
+      "pool_lifecycle",
+      "deadlock_prevention"
+    ],
+    "support_ids": [
+      "0f5128e1-f113-5526-938a-135245c3a933"
+    ],
+    "metadata": {
+      "risk_class": "high",
+      "source_draft_ids": [
+        "0bf732d3-f8ce-5614-a1c1-1f36db926165"
+      ],
+      "support_summary": {
+        "support": 0,
+        "constraint": 1,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.88,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||safety_rule|session|safety_rule_node|prevent silent failures and deadlocks when processpoolexecutor worker initialization fails|default|parallel_task_execution|error_handling|initialization|processpoolexecutor initializer exception handling"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

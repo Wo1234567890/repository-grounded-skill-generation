@@ -1,0 +1,117 @@
+{
+  "skill_id": "23b4d169-3404-56ef-bab2-b728019aad04",
+  "action": "split",
+  "matched_skill_ids": [
+    "1b6ff8c7-f678-5ea0-aa12-6b8c0835c787"
+  ],
+  "reason": "Candidate 'Initialize GRPO Training Session' represents the initialization/setup phase (stage: initialization) that logically precedes the existing 'GRPO Training Execution' skill (stage: training_execution). Both are session_skill layer, same asset_node_id, same task_family (model_training), and both address GRPO workflow. The candidate is a narrower, earlier-stage child workflow that should split from the broader training execution skill. Peer candidates (Accelerate orchestration, SLURM job config) are orthogonal distributed training concerns, not GRPO-specific initialization.",
+  "split_parent_id": "1b6ff8c7-f678-5ea0-aa12-6b8c0835c787",
+  "skill": {
+    "skill_id": "23b4d169-3404-56ef-bab2-b728019aad04",
+    "name": "Initialize GRPO Training Session",
+    "description": "Set up and configure a GRPO trainer with model, reward function, dataset, and training arguments to begin post-training optimization for language models using Group Relative Policy Optimization.",
+    "skill_body": "Load the training dataset, define a reward function that scores completions, create a GRPOConfig with output directory and logging parameters, instantiate a GRPOTrainer with the model identifier, reward function, configuration, and dataset, then verify the trainer is ready to execute training.\n\n## Objective\n\nSet up and execute a complete GRPO training session\n## Applicable Signals\n\n- Starting a new GRPO training run with a base model\n- Reward function is defined and callable\n- Training dataset is loaded and non-empty\n- Need to configure output directory and logging parameters\n\n## Contraindications\n\n- Model is already mid-training or checkpoint exists\n- Reward function is undefined, incompatible, or returns invalid scores\n- Dataset is empty, malformed, or missing required columns\n- Output directory permissions are insufficient\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Load training dataset', 'detail': 'Use datasets.load_dataset() to fetch the training corpus; verify dataset contains prompt column'}\n- {'step': 2, 'action': 'Define reward function', 'detail': 'Create a callable that accepts completions and optional kwargs, returns list of numeric scores'}\n- {'step': 3, 'action': 'Create GRPOConfig', 'detail': 'Instantiate GRPOConfig with output_dir, logging_steps, and other training hyperparameters'}\n- {'step': 4, 'action': 'Instantiate GRPOTrainer', 'detail': 'Pass model identifier, reward_funcs, args (GRPOConfig), and train_dataset to GRPOTrainer constructor'}\n- {'step': 5, 'action': 'Verify trainer readiness', 'detail': 'Confirm GRPOTrainer instance is created without errors and ready to call .train()'}\n\n## Constraints\n\n- Reward function must accept completions and return numeric scores\n- Dataset must be loaded before trainer instantiation\n- Model identifier must be valid and accessible\n- GRPOConfig output_dir must be writable\n\n## Cautions\n\n- Reward function must be deterministic or handle stochasticity explicitly\n- Large models may require distributed training setup; verify node configuration before scaling\n- Dataset completion column is ignored in GRPO; only prompts are used for generation\n\n## Output Contract\n\n- GRPOTrainer instance created and ready to call .train()\n- Training configuration persisted to output directory\n- No exceptions raised during initialization\n\n## Example Executions\n\n### Example 1\n\n- Input: model='Qwen/Qwen2-0.5B-Instruct', dataset=tldr_train_split, reward_func=reward_len (scores by completion length), output_dir='Qwen2-0.5B-GRPO'\n- Output: GRPOTrainer instance with all components bound; .train() method callable\n- Notes: Reward function rewards completions close to 20 characters via negative absolute difference",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Set up and execute a complete GRPO training session",
+    "domain": "default",
+    "task_family": "model_training",
+    "method_family": "reinforcement_learning",
+    "stage": "initialization",
+    "applicable_signals": [
+      "Starting a new GRPO training run with a base model",
+      "Reward function is defined and callable",
+      "Training dataset is loaded and non-empty",
+      "Need to configure output directory and logging parameters"
+    ],
+    "contraindications": [
+      "Model is already mid-training or checkpoint exists",
+      "Reward function is undefined, incompatible, or returns invalid scores",
+      "Dataset is empty, malformed, or missing required columns",
+      "Output directory permissions are insufficient"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Starting a new GRPO training run with a base model, reward function, and training dataset; need to configure output directory, logging, and trainer parameters"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Load training dataset', 'detail': 'Use datasets.load_dataset() to fetch the training corpus; verify dataset contains prompt column'}",
+      "{'step': 2, 'action': 'Define reward function', 'detail': 'Create a callable that accepts completions and optional kwargs, returns list of numeric scores'}",
+      "{'step': 3, 'action': 'Create GRPOConfig', 'detail': 'Instantiate GRPOConfig with output_dir, logging_steps, and other training hyperparameters'}",
+      "{'step': 4, 'action': 'Instantiate GRPOTrainer', 'detail': 'Pass model identifier, reward_funcs, args (GRPOConfig), and train_dataset to GRPOTrainer constructor'}",
+      "{'step': 5, 'action': 'Verify trainer readiness', 'detail': 'Confirm GRPOTrainer instance is created without errors and ready to call .train()'}"
+    ],
+    "constraints": [
+      "Reward function must accept completions and return numeric scores",
+      "Dataset must be loaded before trainer instantiation",
+      "Model identifier must be valid and accessible",
+      "GRPOConfig output_dir must be writable"
+    ],
+    "cautions": [
+      "Reward function must be deterministic or handle stochasticity explicitly",
+      "Large models may require distributed training setup; verify node configuration before scaling",
+      "Dataset completion column is ignored in GRPO; only prompts are used for generation"
+    ],
+    "output_contract": [
+      "GRPOTrainer instance created and ready to call .train()",
+      "Training configuration persisted to output directory",
+      "No exceptions raised during initialization"
+    ],
+    "examples": [
+      {
+        "input": "model='Qwen/Qwen2-0.5B-Instruct', dataset=tldr_train_split, reward_func=reward_len (scores by completion length), output_dir='Qwen2-0.5B-GRPO'",
+        "output": "GRPOTrainer instance with all components bound; .train() method callable",
+        "notes": "Reward function rewards completions close to 20 characters via negative absolute difference"
+      }
+    ],
+    "tags": [
+      "grpo",
+      "training",
+      "reinforcement_learning",
+      "language_model",
+      "post_training"
+    ],
+    "support_ids": [
+      "a055bb7c-8b6e-5126-80da-e83fec83ea39"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "7c6ae24b-d772-50da-881e-c7c311876b6b"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.92,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|set up and execute a complete grpo training session|default|model_training|reinforcement_learning|initialization|initialize grpo training session"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

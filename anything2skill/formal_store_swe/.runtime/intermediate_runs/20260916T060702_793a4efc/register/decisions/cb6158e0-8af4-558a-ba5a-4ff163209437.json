@@ -1,0 +1,116 @@
+{
+  "skill_id": "cb6158e0-8af4-558a-ba5a-4ff163209437",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for ablation-based incremental optimization measurement with controlled baseline/layer-by-layer isolation. Peer candidates address different concerns (bottleneck scaling, timestamp extension, read-set validation) and existing skills are unrelated (cache queue sizing, DataStream collection). No semantic overlap or split relationship detected.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "cb6158e0-8af4-558a-ba5a-4ff163209437",
+    "name": "Optimization Impact Measurement",
+    "description": "Incremental performance measurement protocol for isolating the contribution of individual optimizations to overall throughput and abort rate improvements. Measures baseline, single-optimization, and cumulative-optimization configurations to quantify each layer's impact through controlled ablation-style measurement.",
+    "skill_body": "Execute an ablation-style measurement sequence: (1) Establish baseline metrics (No Opts). (2) Apply first optimization layer and measure throughput and abort rate. (3) Incrementally add subsequent optimization layers, measuring after each addition. (4) Record normalized runtime and abort rate for each configuration state. (5) Calculate delta between consecutive states to isolate individual contribution. (6) Verify that cumulative improvements match sum of incremental gains (within measurement variance).\n\n## Objective\n\nQuantify individual optimization contributions through controlled incremental measurement\n## Applicable Signals\n\n- System has measurable optimization layers that can be toggled independently\n- Throughput and abort rate metrics are available and stable\n- Baseline (unoptimized) configuration is executable and measurable\n\n## Contraindications\n\n- Comparing fundamentally different algorithms (use algorithm comparison instead)\n- Evaluating non-optimization changes (e.g., hardware, workload shifts)\n- Systems without discrete, independently toggleable optimization layers\n- Scenarios where measurement overhead or variance exceeds optimization signal\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Establish baseline configuration', 'detail': 'Run system with no optimizations enabled (No Opts state). Record throughput (million txn/s) and abort rate. This is the reference point for all delta calculations.'}\n- {'step': 2, 'action': 'Apply first optimization layer', 'detail': 'Enable the first optimization (e.g., NoWait). Measure throughput and abort rate under identical workload. Calculate delta from baseline.'}\n- {'step': 3, 'action': 'Apply subsequent optimization layers incrementally', 'detail': 'For each additional optimization (e.g., PreAbort), enable it while keeping previous optimizations active. Measure throughput and abort rate. Record delta from previous state.'}\n- {'step': 4, 'action': 'Normalize and aggregate results', 'detail': 'Express all metrics relative to baseline (e.g., normalized runtime = runtime_optimized / runtime_baseline). Tabulate configuration progression and per-layer contribution.'}\n- {'step': 5, 'action': 'Validate additivity and document interactions', 'detail': 'Compare cumulative improvement (All Opts vs. No Opts) against sum of incremental improvements. If significant deviation, investigate and document interaction effects.'}\n\n## Constraints\n\n- Each configuration state must be measured under identical workload and environmental conditions\n- Optimization layers must be independently toggleable to isolate contributions\n- Measurement must capture both throughput (million txn/s) and abort rate metrics\n- Sufficient sample size or run duration to reduce measurement noise below optimization signal\n\n## Cautions\n\n- Interaction effects between optimization layers may cause cumulative improvement to differ from sum of individual contributions; document and investigate non-additive results\n- Abort rate and throughput may trade off; report both metrics to avoid misleading conclusions\n- Normalized runtime should be calculated consistently across all configuration states\n\n## Output Contract\n\n- Structured measurement report containing: (1) Baseline metrics (No Opts: throughput, abort rate, normalized runtime). (2) Per-layer incremental metrics (throughput delta, abort rate delta, normalized runtime delta for each optimization layer). (3) Cumulative metrics (All Opts: total throughput improvement, total abort rate change, total normalized runtime). (4) Validation note on additivity of improvements. Caller receives clear quantification of each optimization's individual contribution and can make informed decisions on optimization inclusion.\n\n## Example Executions\n\n### Example 1\n\n- Input: System with three toggleable optimizations: NoWait, PreAbort, Manager overhead reduction. Baseline throughput 1.0 million txn/s, abort rate 0.8.\n- Output: No Opts: 1.0 Mtxn/s, 0.8 abort rate. NoWait: 1.3 Mtxn/s (+30%), 0.6 abort rate (-25%). NoWait+PreAbort: 1.6 Mtxn/s (+23% from NoWait), 0.5 abort rate (-17%). All Opts: 2.0 Mtxn/s (+25% from NoWait+PreAbort), 0.2 abort rate (-60%). Cumulative: +100% throughput, -75% abort rate.\n- Notes: Demonstrates incremental measurement and cumulative aggregation; abort rate shows non-linear improvement (interaction effect documented).",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Quantify individual optimization contributions through controlled incremental measurement",
+    "domain": "default",
+    "task_family": "performance_analysis",
+    "method_family": "ablation_measurement",
+    "stage": "optimization_validation",
+    "applicable_signals": [
+      "System has measurable optimization layers that can be toggled independently",
+      "Throughput and abort rate metrics are available and stable",
+      "Baseline (unoptimized) configuration is executable and measurable"
+    ],
+    "contraindications": [
+      "Comparing fundamentally different algorithms (use algorithm comparison instead)",
+      "Evaluating non-optimization changes (e.g., hardware, workload shifts)",
+      "Systems without discrete, independently toggleable optimization layers",
+      "Scenarios where measurement overhead or variance exceeds optimization signal"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Validating effectiveness of a proposed optimization",
+      "Isolating performance bottlenecks in a multi-layer system",
+      "Justifying inclusion of an optimization in production configuration",
+      "Comparing baseline vs. optimized system configurations"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Establish baseline configuration', 'detail': 'Run system with no optimizations enabled (No Opts state). Record throughput (million txn/s) and abort rate. This is the reference point for all delta calculations.'}",
+      "{'step': 2, 'action': 'Apply first optimization layer', 'detail': 'Enable the first optimization (e.g., NoWait). Measure throughput and abort rate under identical workload. Calculate delta from baseline.'}",
+      "{'step': 3, 'action': 'Apply subsequent optimization layers incrementally', 'detail': 'For each additional optimization (e.g., PreAbort), enable it while keeping previous optimizations active. Measure throughput and abort rate. Record delta from previous state.'}",
+      "{'step': 4, 'action': 'Normalize and aggregate results', 'detail': 'Express all metrics relative to baseline (e.g., normalized runtime = runtime_optimized / runtime_baseline). Tabulate configuration progression and per-layer contribution.'}",
+      "{'step': 5, 'action': 'Validate additivity and document interactions', 'detail': 'Compare cumulative improvement (All Opts vs. No Opts) against sum of incremental improvements. If significant deviation, investigate and document interaction effects.'}"
+    ],
+    "constraints": [
+      "Each configuration state must be measured under identical workload and environmental conditions",
+      "Optimization layers must be independently toggleable to isolate contributions",
+      "Measurement must capture both throughput (million txn/s) and abort rate metrics",
+      "Sufficient sample size or run duration to reduce measurement noise below optimization signal"
+    ],
+    "cautions": [
+      "Interaction effects between optimization layers may cause cumulative improvement to differ from sum of individual contributions; document and investigate non-additive results",
+      "Abort rate and throughput may trade off; report both metrics to avoid misleading conclusions",
+      "Normalized runtime should be calculated consistently across all configuration states"
+    ],
+    "output_contract": [
+      "Structured measurement report containing: (1) Baseline metrics (No Opts: throughput, abort rate, normalized runtime). (2) Per-layer incremental metrics (throughput delta, abort rate delta, normalized runtime delta for each optimization layer). (3) Cumulative metrics (All Opts: total throughput improvement, total abort rate change, total normalized runtime). (4) Validation note on additivity of improvements. Caller receives clear quantification of each optimization's individual contribution and can make informed decisions on optimization inclusion."
+    ],
+    "examples": [
+      {
+        "input": "System with three toggleable optimizations: NoWait, PreAbort, Manager overhead reduction. Baseline throughput 1.0 million txn/s, abort rate 0.8.",
+        "output": "No Opts: 1.0 Mtxn/s, 0.8 abort rate. NoWait: 1.3 Mtxn/s (+30%), 0.6 abort rate (-25%). NoWait+PreAbort: 1.6 Mtxn/s (+23% from NoWait), 0.5 abort rate (-17%). All Opts: 2.0 Mtxn/s (+25% from NoWait+PreAbort), 0.2 abort rate (-60%). Cumulative: +100% throughput, -75% abort rate.",
+        "notes": "Demonstrates incremental measurement and cumulative aggregation; abort rate shows non-linear improvement (interaction effect documented)."
+      }
+    ],
+    "tags": [
+      "performance_measurement",
+      "ablation_study",
+      "optimization_validation",
+      "throughput_analysis",
+      "abort_rate_analysis",
+      "incremental_measurement"
+    ],
+    "support_ids": [
+      "c2df28fa-956a-5c75-b300-7c10c63103fd"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "a5d816d0-d584-54b4-bada-641b797856eb"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.78,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|quantify individual optimization contributions through controlled incremental measurement|default|performance_analysis|ablation_measurement|optimization_validation|optimization impact measurement"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

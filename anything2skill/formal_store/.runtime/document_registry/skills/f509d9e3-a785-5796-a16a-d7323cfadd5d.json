@@ -1,0 +1,129 @@
+{
+  "skill_id": "f509d9e3-a785-5796-a16a-d7323cfadd5d",
+  "name": "ThreadPoolExecutor Worker Initialization",
+  "description": "Configure per-worker thread initialization using the initializer and initargs parameters to set up shared resources (database connections, logging context, file handles) once at thread startup. Reduces per-task overhead by amortizing expensive resource setup across multiple tasks executed by the same worker thread.",
+  "skill_body": "Pass an optional initializer callable and initargs tuple to ThreadPoolExecutor. The initializer will be called exactly once at the start of each worker thread. Use this to set up thread-local resources such as database connections, file handles, or logging contexts. If the initializer raises an exception, all pending jobs will raise BrokenThreadPool and the pool becomes unusable.\n\n## Objective\n\nInitialize shared resources once per worker thread to reduce per-task overhead\n## Applicable Signals\n\n- Resource initialization is expensive and repeated per task\n- Tasks are stateful and depend on thread-local setup\n- Pool will execute many tasks over its lifetime\n\n## Contraindications\n\n- Tasks are stateless and require no per-thread setup\n- Initializer function raises an exception (will break the pool and make it unusable)\n- Resources must be task-specific rather than thread-specific\n\n## Workflow Steps\n\n- Define an initializer function that accepts the arguments specified in initargs\n- Pass the initializer callable and initargs tuple to ThreadPoolExecutor constructor\n- Submit tasks to the executor; each worker thread will call initializer once before executing any task\n- Tasks can access thread-local state initialized by the initializer\n- If initializer raises an exception, catch BrokenThreadPool and handle pool failure\n\n## Constraints\n\n- Initializer must be a callable that accepts the arguments in initargs\n- initargs must be a tuple of arguments to pass to the initializer\n- If initializer raises any exception, all currently pending jobs will raise BrokenThreadPool\n- Any attempt to submit more jobs after initializer failure will also raise BrokenThreadPool\n\n## Cautions\n\n- Ensure initializer does not raise exceptions; test thoroughly before deployment\n- Initializer runs once per worker thread, not once per pool; do not assume single execution\n- Thread-local state set in initializer is accessible to all tasks executed by that worker\n\n## Output Contract\n\n- Initializer function executes exactly once per worker thread at startup. All tasks submitted to that worker can access the initialized state. If initializer raises an exception, BrokenThreadPool is raised for all pending and future jobs, and the pool becomes unusable.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: ThreadPoolExecutor with initializer that sets up a database connection per worker\n- Therapist/Output: Each worker thread connects to the database once; all tasks in that worker reuse the connection\n- Notes: Reduces connection overhead from O(tasks) to O(workers)\n\n### Example 2\n\n- Client/Input: Initializer raises an exception during pool startup\n- Therapist/Output: BrokenThreadPool exception is raised for all pending jobs and any new submissions\n- Notes: Pool becomes unusable; must create a new executor",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "ab334d07-1b79-5de7-878d-8dc51a398bac",
+  "parent_candidate_ids": [
+    "ab334d07-1b79-5de7-878d-8dc51a398bac"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "linked",
+  "visible_role": "leaf",
+  "objective": "Initialize shared resources once per worker thread to reduce per-task overhead",
+  "domain": "default",
+  "task_family": "parallel_task_execution",
+  "method_family": "worker_initialization",
+  "stage": "setup",
+  "applicable_signals": [
+    "Resource initialization is expensive and repeated per task",
+    "Tasks are stateful and depend on thread-local setup",
+    "Pool will execute many tasks over its lifetime"
+  ],
+  "contraindications": [
+    "Tasks are stateless and require no per-thread setup",
+    "Initializer function raises an exception (will break the pool and make it unusable)",
+    "Resources must be task-specific rather than thread-specific"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Each worker thread needs to initialize expensive resources before executing tasks",
+    "Tasks require thread-local state (database connection, file handle, logging context)",
+    "Per-task initialization overhead is significant and should be amortized across multiple tasks"
+  ],
+  "workflow_steps": [
+    "Define an initializer function that accepts the arguments specified in initargs",
+    "Pass the initializer callable and initargs tuple to ThreadPoolExecutor constructor",
+    "Submit tasks to the executor; each worker thread will call initializer once before executing any task",
+    "Tasks can access thread-local state initialized by the initializer",
+    "If initializer raises an exception, catch BrokenThreadPool and handle pool failure"
+  ],
+  "constraints": [
+    "Initializer must be a callable that accepts the arguments in initargs",
+    "initargs must be a tuple of arguments to pass to the initializer",
+    "If initializer raises any exception, all currently pending jobs will raise BrokenThreadPool",
+    "Any attempt to submit more jobs after initializer failure will also raise BrokenThreadPool"
+  ],
+  "cautions": [
+    "Ensure initializer does not raise exceptions; test thoroughly before deployment",
+    "Initializer runs once per worker thread, not once per pool; do not assume single execution",
+    "Thread-local state set in initializer is accessible to all tasks executed by that worker"
+  ],
+  "output_contract": [
+    "Initializer function executes exactly once per worker thread at startup. All tasks submitted to that worker can access the initialized state. If initializer raises an exception, BrokenThreadPool is raised for all pending and future jobs, and the pool becomes unusable."
+  ],
+  "examples": [
+    {
+      "input": "ThreadPoolExecutor with initializer that sets up a database connection per worker",
+      "output": "Each worker thread connects to the database once; all tasks in that worker reuse the connection",
+      "notes": "Reduces connection overhead from O(tasks) to O(workers)"
+    },
+    {
+      "input": "Initializer raises an exception during pool startup",
+      "output": "BrokenThreadPool exception is raised for all pending jobs and any new submissions",
+      "notes": "Pool becomes unusable; must create a new executor"
+    }
+  ],
+  "tags": [
+    "concurrent.futures",
+    "ThreadPoolExecutor",
+    "worker_initialization",
+    "thread_pool",
+    "resource_management",
+    "python312"
+  ],
+  "support_ids": [
+    "101b2415-e751-59ce-8c5d-aefaefa5e570"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "66296a2d-128f-51a0-a811-b90bbba71ab6"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.8,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|initialize shared resources once per worker thread to reduce per-task overhead|default|parallel_task_execution|worker_initialization|setup|threadpoolexecutor worker initialization",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct micro_skill for ThreadPoolExecutor worker initialization (initializer/initargs pattern) with no semantic overlap to existing skills. Existing skills are in reward_engineering domain; peer_candidates are sibling ThreadPoolExecutor configuration skills (context manager, worker count, ProcessPoolExecutor lifecycle) but represent different method_family and stage. Candidate has unique objective, workflow, and constraints focused on per-worker resource setup amortization.",
+    "parent_skill_id": "ab334d07-1b79-5de7-878d-8dc51a398bac",
+    "parent_candidate_ids": [
+      "ab334d07-1b79-5de7-878d-8dc51a398bac"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "linked",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

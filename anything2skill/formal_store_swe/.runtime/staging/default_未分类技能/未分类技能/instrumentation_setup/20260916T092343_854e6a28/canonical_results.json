@@ -1,0 +1,615 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "instrumentation_setup",
+  "run_id": "20260916T092343_854e6a28",
+  "skills": [
+    {
+      "skill_id": "f47f8f37-a51c-56ae-adc6-6d703827d0d7",
+      "name": "Detect Installed Package vs Local Module",
+      "description": "Classify whether a Python module is an installed library (in site-packages) or a local development module by normalizing file paths and comparing against site-packages directories. Used during instrumentation initialization to decide whether to apply monitoring.",
+      "skill_body": "Check if a module's file path is located within any site-packages directory. Normalize both the module path and site-packages paths using os.path.normcase and os.path.realpath. Compare the module path prefix against all normalized site-packages directories (including user site if present). Return True if the module is in site-packages (installed library); return False if it is a local module or not found in any site-packages directory.\n\n## Objective\n\nclassify_module_origin\n## Applicable Signals\n\n- module object with __file__ attribute available\n- import hook or instrumentation initialization phase active\n- package name and module path provided\n\n## Contraindications\n\n- module path is already known to be a built-in or third-party library from prior context\n- non-Python environments or modules without __file__ attribute\n- module is a namespace package without a concrete file path\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Normalize the module file path using os.path.normcase(os.path.realpath(os.path.abspath(module_obj.__file__)))'}\n- {'step': 2, 'action': 'Retrieve site-packages directories via site.getsitepackages(); handle both string and list return types'}\n- {'step': 3, 'action': 'If site.USER_SITE exists and is a valid path, append it to the site-packages directories list'}\n- {'step': 4, 'action': 'Normalize all site-packages directory paths using os.path.normcase(os.path.realpath(p)) and filter out non-existent paths'}\n- {'step': 5, 'action': 'Iterate through normalized site-packages directories and check if module_path starts with any of them'}\n- {'step': 6, 'action': 'If a match is found, log debug message and return True (installed library)'}\n- {'step': 7, 'action': 'If no match is found after checking all directories, log debug message and return False (local module)'}\n\n## Constraints\n\n- module must have a valid __file__ attribute\n- site-packages directories must be accessible and readable\n- path normalization must use os.path.normcase and os.path.realpath for cross-platform consistency\n\n## Cautions\n\n- site.getsitepackages() may return a string or list depending on Python version; handle both cases\n- user site directory (site.USER_SITE) may be None or non-existent; check existence before use\n- symlinks and relative paths must be resolved to absolute normalized paths for accurate comparison\n\n## Output Contract\n\n- Returns a boolean flag: True if the module is an installed library (located in site-packages), False if it is a local module or not found in any site-packages directory. Includes debug logging of the classification decision for traceability.\n\n## Example Executions\n\n### Example 1\n\n- Input: module_obj with __file__ = '/usr/local/lib/python3.9/site-packages/requests/__init__.py'\n- Output: True (installed library)\n- Notes: Module path starts with normalized site-packages directory\n\n### Example 2\n\n- Input: module_obj with __file__ = '/home/user/project/local_module.py'\n- Output: False (local module)\n- Notes: Module path does not match any site-packages directory",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "db7d6c09-b85e-5ef5-b1cc-54656bec2509",
+        "c4301c20-1a1c-5e6e-8227-1dde6375d2be"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "classify_module_origin",
+      "domain": "default",
+      "task_family": "instrumentation_setup",
+      "method_family": "path_inspection",
+      "stage": "initialization",
+      "applicable_signals": [
+        "module object with __file__ attribute available",
+        "import hook or instrumentation initialization phase active",
+        "package name and module path provided"
+      ],
+      "contraindications": [
+        "module path is already known to be a built-in or third-party library from prior context",
+        "non-Python environments or modules without __file__ attribute",
+        "module is a namespace package without a concrete file path"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "deciding whether to instrument a dynamically imported package",
+        "called during module import interception",
+        "need to classify module as library or local before applying instrumentation"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Normalize the module file path using os.path.normcase(os.path.realpath(os.path.abspath(module_obj.__file__)))'}",
+        "{'step': 2, 'action': 'Retrieve site-packages directories via site.getsitepackages(); handle both string and list return types'}",
+        "{'step': 3, 'action': 'If site.USER_SITE exists and is a valid path, append it to the site-packages directories list'}",
+        "{'step': 4, 'action': 'Normalize all site-packages directory paths using os.path.normcase(os.path.realpath(p)) and filter out non-existent paths'}",
+        "{'step': 5, 'action': 'Iterate through normalized site-packages directories and check if module_path starts with any of them'}",
+        "{'step': 6, 'action': 'If a match is found, log debug message and return True (installed library)'}",
+        "{'step': 7, 'action': 'If no match is found after checking all directories, log debug message and return False (local module)'}"
+      ],
+      "constraints": [
+        "module must have a valid __file__ attribute",
+        "site-packages directories must be accessible and readable",
+        "path normalization must use os.path.normcase and os.path.realpath for cross-platform consistency"
+      ],
+      "cautions": [
+        "site.getsitepackages() may return a string or list depending on Python version; handle both cases",
+        "user site directory (site.USER_SITE) may be None or non-existent; check existence before use",
+        "symlinks and relative paths must be resolved to absolute normalized paths for accurate comparison"
+      ],
+      "output_contract": [
+        "Returns a boolean flag: True if the module is an installed library (located in site-packages), False if it is a local module or not found in any site-packages directory. Includes debug logging of the classification decision for traceability."
+      ],
+      "examples": [
+        {
+          "input": "module_obj with __file__ = '/usr/local/lib/python3.9/site-packages/requests/__init__.py'",
+          "output": "True (installed library)",
+          "notes": "Module path starts with normalized site-packages directory"
+        },
+        {
+          "input": "module_obj with __file__ = '/home/user/project/local_module.py'",
+          "output": "False (local module)",
+          "notes": "Module path does not match any site-packages directory"
+        }
+      ],
+      "tags": [
+        "instrumentation",
+        "module_classification",
+        "path_inspection",
+        "import_interception",
+        "site_packages_detection"
+      ],
+      "support_ids": [
+        "86127805-ffe9-5b13-a8a0-aa5f95381ff2"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "a17538c0-84d0-50ac-a8c6-f438401c46f6"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|micro_skill_node|classify_module_origin|default|instrumentation_setup|path_inspection|initialization|detect installed package vs local module",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct session_skill for classifying module origin during instrumentation initialization. It has no semantic overlap with existing skills (Path Command Execution is graphics-focused; Resolve Scala Standard Library Module Import is Scala-specific dependency resolution). Peer candidates operate at different stages (eligibility filtering, SDK installation, agent initialization) and do not subsume this path-inspection capability. The skill addresses a specific, well-defined objective (classify_module_origin) with concrete workflow steps and cross-platform path normalization logic that should be preserved as a new capability.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "db7d6c09-b85e-5ef5-b1cc-54656bec2509",
+          "c4301c20-1a1c-5e6e-8227-1dde6375d2be"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "db7d6c09-b85e-5ef5-b1cc-54656bec2509",
+      "name": "Initialize Package Instrumentation",
+      "description": "Start monitoring and instrumenting Python packages using import hooks if not already active. Prevents duplicate instrumentation and respects agentic library precedence by checking _has_agentic_library flag and _active_instrumentors collection.",
+      "skill_body": "Call this skill at system startup or when AgentOps monitoring needs to begin. The skill checks if instrumentation is already active by examining _active_instrumentors. If empty, it replaces builtins.__import__ with _import_monitor to intercept all module loads. If an agentic library (OpenAI, Anthropic, CrewAI, AG2/AutoGen, Google GenAI, IBM WatsonX, Google ADK, Agno, Mem0, smolagents) is detected as already instrumented, the skill returns early to avoid conflicts.\n\n## Objective\n\nSet up runtime instrumentation of package imports with safety guards against duplicate and conflicting instrumentation\n## Applicable Signals\n\n- System startup or initialization phase\n- _active_instrumentors collection is empty\n- _has_agentic_library flag is False\n\n## Contraindications\n\n- An agentic library (OpenAI, Anthropic, CrewAI, AG2/AutoGen, Google GenAI, IBM WatsonX, Google ADK, Agno, Mem0, smolagents) is already instrumented\n- Instrumentation is already active (_active_instrumentors is non-empty)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if _active_instrumentors is empty', 'condition': 'If empty, proceed; if non-empty, return (already initialized)'}\n- {'step': 2, 'action': 'Replace builtins.__import__ with _import_monitor', 'condition': 'Only if _active_instrumentors was empty'}\n- {'step': 3, 'action': 'Check _has_agentic_library flag', 'condition': 'If True, return immediately to avoid conflicts'}\n- {'step': 4, 'action': 'Iterate through sys.modules.keys()', 'condition': 'For each module, check if it is a ModuleType instance'}\n- {'step': 5, 'action': 'For each valid module, check if package_to_check is in _instrumenting_packages or already instrumented', 'condition': 'If not instrumented, retrieve target_module_obj from sys.modules'}\n- {'step': 6, 'action': 'Break loop if _has_agentic_library becomes True during iteration', 'condition': 'Prevents further instrumentation if agentic library is detected'}\n\n## Constraints\n\n- Must check _has_agentic_library before proceeding\n- Must iterate through sys.modules.keys() safely; break if agentic library is detected during iteration\n- Must verify module type before processing (isinstance check for ModuleType)\n- Must not instrument packages already in _instrumenting_packages\n\n## Cautions\n\n- Replacing builtins.__import__ is a global operation; ensure no other import hooks conflict\n- Early return if agentic library detected prevents cascading instrumentation\n\n## Output Contract\n\n- builtins.__import__ is replaced with _import_monitor; _active_instrumentors is populated; system is ready to intercept module loads. Returns early without modification if agentic library is already instrumented or if instrumentation is already active.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "5cb1141a-bd9a-5686-a22e-969b744a44a8",
+      "parent_candidate_ids": [
+        "5cb1141a-bd9a-5686-a22e-969b744a44a8"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "parent",
+      "objective": "Set up runtime instrumentation of package imports with safety guards against duplicate and conflicting instrumentation",
+      "domain": "default",
+      "task_family": "instrumentation_setup",
+      "method_family": "import_hook_installation",
+      "stage": "initialization",
+      "applicable_signals": [
+        "System startup or initialization phase",
+        "_active_instrumentors collection is empty",
+        "_has_agentic_library flag is False"
+      ],
+      "contraindications": [
+        "An agentic library (OpenAI, Anthropic, CrewAI, AG2/AutoGen, Google GenAI, IBM WatsonX, Google ADK, Agno, Mem0, smolagents) is already instrumented",
+        "Instrumentation is already active (_active_instrumentors is non-empty)"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "AgentOps monitoring needs to begin",
+        "_active_instrumentors is empty",
+        "No agentic library is already instrumented"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check if _active_instrumentors is empty', 'condition': 'If empty, proceed; if non-empty, return (already initialized)'}",
+        "{'step': 2, 'action': 'Replace builtins.__import__ with _import_monitor', 'condition': 'Only if _active_instrumentors was empty'}",
+        "{'step': 3, 'action': 'Check _has_agentic_library flag', 'condition': 'If True, return immediately to avoid conflicts'}",
+        "{'step': 4, 'action': 'Iterate through sys.modules.keys()', 'condition': 'For each module, check if it is a ModuleType instance'}",
+        "{'step': 5, 'action': 'For each valid module, check if package_to_check is in _instrumenting_packages or already instrumented', 'condition': 'If not instrumented, retrieve target_module_obj from sys.modules'}",
+        "{'step': 6, 'action': 'Break loop if _has_agentic_library becomes True during iteration', 'condition': 'Prevents further instrumentation if agentic library is detected'}"
+      ],
+      "constraints": [
+        "Must check _has_agentic_library before proceeding",
+        "Must iterate through sys.modules.keys() safely; break if agentic library is detected during iteration",
+        "Must verify module type before processing (isinstance check for ModuleType)",
+        "Must not instrument packages already in _instrumenting_packages"
+      ],
+      "cautions": [
+        "Replacing builtins.__import__ is a global operation; ensure no other import hooks conflict",
+        "Early return if agentic library detected prevents cascading instrumentation"
+      ],
+      "output_contract": [
+        "builtins.__import__ is replaced with _import_monitor; _active_instrumentors is populated; system is ready to intercept module loads. Returns early without modification if agentic library is already instrumented or if instrumentation is already active."
+      ],
+      "examples": [],
+      "tags": [
+        "instrumentation",
+        "import_hook",
+        "initialization",
+        "monitoring",
+        "agentops"
+      ],
+      "support_ids": [
+        "7522cfa5-4c6f-50ce-a649-00392d79a847"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "215f3b36-79e0-5abc-a66a-847ab9367839"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|set up runtime instrumentation of package imports with safety guards against duplicate and conflicting instrumentation|default|instrumentation_setup|import_hook_installation|initialization|initialize package instrumentation",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "5cb1141a-bd9a-5686-a22e-969b744a44a8",
+        "parent_candidate_ids": [
+          "5cb1141a-bd9a-5686-a22e-969b744a44a8"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "parent"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "f51af5de-39df-59d7-a895-20bfd95920c7",
+      "name": "OpenAI Library Instrumentation Setup",
+      "description": "Configure and initialize OpenTelemetry instrumentation for OpenAI client library with version-specific handling and streaming wrapper registration. Establishes comprehensive observability for OpenAI API calls including chat completions, beta endpoints, and responses APIs.",
+      "skill_body": "Initialize an OpenaiInstrumentor instance by: (1) creating an InstrumentorConfig with library metadata, wrapped methods, and metrics enabled; (2) detecting OpenAI library version and applying version-specific initialization (legacy v0 fallback or v1 standard); (3) registering custom streaming wrappers for chat completion, async chat completion, beta chat completion parse, and responses APIs using wrap_function_wrapper. Ensure all wrapped methods are configured before instrumentation completes.\n\n## Objective\n\nSet up comprehensive observability instrumentation for OpenAI API calls with version compatibility and streaming support\n## Applicable Signals\n\n- openai library version >= 0.27.0 detected\n- instrumentation framework initialized\n- metrics collection enabled in configuration\n\n## Contraindications\n\n- OpenAI library is not a project dependency\n- Instrumentation is already active for OpenAI\n- Telemetry collection is explicitly disabled\n- Application does not require distributed tracing\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Create InstrumentorConfig', 'details': 'Instantiate InstrumentorConfig with library_name, library_version, wrapped_methods from _get_wrapped_methods(), metrics_enabled=True, and dependencies=[\"openai >= 0.27.0\"]'}\n- {'step': 2, 'action': 'Call parent __init__', 'details': 'Pass config to super().__init__(config) to initialize CommonInstrumentor base'}\n- {'step': 3, 'action': 'Detect OpenAI version', 'details': 'In _initialize(), call is_openai_v1() to determine library version'}\n- {'step': 4, 'action': 'Apply version-specific initialization', 'details': 'If not v1 (legacy v0): instantiate OpenAIV0Instrumentor, call instrument(**kwargs), and clear wrapped_methods list. Otherwise, proceed to custom wrapping.'}\n- {'step': 5, 'action': 'Register streaming wrappers', 'details': 'In _custom_wrap(), if is_openai_v1() and self._tracer exists, use wrap_function_wrapper to register wrappers for: (a) openai.resources.chat.completions.Completions.create (sync), (b) openai.resources.chat.completions.AsyncCompletions.create (async), (c) openai.resources.beta.chat.completions.Completions.parse (beta sync), (d) openai.resources.beta.chat.completions.AsyncCompletions.parse (beta async), (e) openai.resources.responses.Responses.create (responses API)'}\n- {'step': 6, 'action': 'Verify instrumentation complete', 'details': 'Confirm all wrapped methods are registered and tracer is active'}\n\n## Constraints\n\n- OpenAI library version must be >= 0.27.0\n- CommonInstrumentor base class must be available\n- wrapt library must be available for function wrapping\n- Tracer instance must be initialized before custom wrapping\n\n## Cautions\n\n- Version detection (is_openai_v1) must execute before initialization to avoid wrapping legacy endpoints incorrectly\n- For OpenAI v0, skip normal instrumentation and delegate to OpenAIV0Instrumentor to prevent double-wrapping\n- Streaming wrappers require tracer to be non-null; check self._tracer before attempting custom wraps\n\n## Output Contract\n\n- Instrumentor instance fully configured with: (1) InstrumentorConfig containing library metadata and wrapped method list; (2) version-specific initialization applied (legacy fallback or v1 standard); (3) all streaming wrappers registered for chat completions, beta endpoints, and responses APIs; (4) metrics collection enabled; (5) ready for downstream telemetry collection and tracing of OpenAI API calls\n\n## Example Executions\n\n### Example 1\n\n- Input: OpenAI library v1.0+ installed; agent requires distributed tracing\n- Output: OpenaiInstrumentor instance with v1 streaming wrappers registered for Completions.create, AsyncCompletions.create, beta Completions.parse, AsyncCompletions.parse, and Responses.create; metrics enabled\n- Notes: Standard path for modern OpenAI library\n\n### Example 2\n\n- Input: OpenAI library v0.x installed; legacy support required\n- Output: OpenaiInstrumentor delegates to OpenAIV0Instrumentor; wrapped_methods cleared to prevent double-wrapping\n- Notes: Fallback path for older OpenAI versions",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "5b89c0b3-be95-5d38-bd12-c76c956f8ce5",
+        "5cb1141a-bd9a-5686-a22e-969b744a44a8"
+      ],
+      "child_skill_ids": [
+        "349bba6e-84a4-5c14-9203-5a926dfbe7a0",
+        "632f9b0e-d20b-5fa0-b0a2-df6b66a333cd",
+        "cd0bfed4-59ec-5259-90fd-1903beb88f0e"
+      ],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Set up comprehensive observability instrumentation for OpenAI API calls with version compatibility and streaming support",
+      "domain": "default",
+      "task_family": "instrumentation_setup",
+      "method_family": "opentelemetry_configuration",
+      "stage": "initialization",
+      "applicable_signals": [
+        "openai library version >= 0.27.0 detected",
+        "instrumentation framework initialized",
+        "metrics collection enabled in configuration"
+      ],
+      "contraindications": [
+        "OpenAI library is not a project dependency",
+        "Instrumentation is already active for OpenAI",
+        "Telemetry collection is explicitly disabled",
+        "Application does not require distributed tracing"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "OpenAI client library is added as a project dependency",
+        "Agent or application requires telemetry collection and distributed tracing",
+        "Integration with observability platform (e.g., AgentOps) is initiated"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Create InstrumentorConfig', 'details': 'Instantiate InstrumentorConfig with library_name, library_version, wrapped_methods from _get_wrapped_methods(), metrics_enabled=True, and dependencies=[\"openai >= 0.27.0\"]'}",
+        "{'step': 2, 'action': 'Call parent __init__', 'details': 'Pass config to super().__init__(config) to initialize CommonInstrumentor base'}",
+        "{'step': 3, 'action': 'Detect OpenAI version', 'details': 'In _initialize(), call is_openai_v1() to determine library version'}",
+        "{'step': 4, 'action': 'Apply version-specific initialization', 'details': 'If not v1 (legacy v0): instantiate OpenAIV0Instrumentor, call instrument(**kwargs), and clear wrapped_methods list. Otherwise, proceed to custom wrapping.'}",
+        "{'step': 5, 'action': 'Register streaming wrappers', 'details': 'In _custom_wrap(), if is_openai_v1() and self._tracer exists, use wrap_function_wrapper to register wrappers for: (a) openai.resources.chat.completions.Completions.create (sync), (b) openai.resources.chat.completions.AsyncCompletions.create (async), (c) openai.resources.beta.chat.completions.Completions.parse (beta sync), (d) openai.resources.beta.chat.completions.AsyncCompletions.parse (beta async), (e) openai.resources.responses.Responses.create (responses API)'}",
+        "{'step': 6, 'action': 'Verify instrumentation complete', 'details': 'Confirm all wrapped methods are registered and tracer is active'}"
+      ],
+      "constraints": [
+        "OpenAI library version must be >= 0.27.0",
+        "CommonInstrumentor base class must be available",
+        "wrapt library must be available for function wrapping",
+        "Tracer instance must be initialized before custom wrapping"
+      ],
+      "cautions": [
+        "Version detection (is_openai_v1) must execute before initialization to avoid wrapping legacy endpoints incorrectly",
+        "For OpenAI v0, skip normal instrumentation and delegate to OpenAIV0Instrumentor to prevent double-wrapping",
+        "Streaming wrappers require tracer to be non-null; check self._tracer before attempting custom wraps"
+      ],
+      "output_contract": [
+        "Instrumentor instance fully configured with: (1) InstrumentorConfig containing library metadata and wrapped method list; (2) version-specific initialization applied (legacy fallback or v1 standard); (3) all streaming wrappers registered for chat completions, beta endpoints, and responses APIs; (4) metrics collection enabled; (5) ready for downstream telemetry collection and tracing of OpenAI API calls"
+      ],
+      "examples": [
+        {
+          "input": "OpenAI library v1.0+ installed; agent requires distributed tracing",
+          "output": "OpenaiInstrumentor instance with v1 streaming wrappers registered for Completions.create, AsyncCompletions.create, beta Completions.parse, AsyncCompletions.parse, and Responses.create; metrics enabled",
+          "notes": "Standard path for modern OpenAI library"
+        },
+        {
+          "input": "OpenAI library v0.x installed; legacy support required",
+          "output": "OpenaiInstrumentor delegates to OpenAIV0Instrumentor; wrapped_methods cleared to prevent double-wrapping",
+          "notes": "Fallback path for older OpenAI versions"
+        }
+      ],
+      "tags": [
+        "observability",
+        "instrumentation",
+        "opentelemetry",
+        "openai",
+        "telemetry",
+        "tracing"
+      ],
+      "support_ids": [
+        "9eccb6d5-3c54-5f00-a0b0-26d65297401e"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "947a35b5-379c-575f-83f3-83d424b70a9c"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|set up comprehensive observability instrumentation for openai api calls with version compatibility and streaming support|default|instrumentation_setup|opentelemetry_configuration|initialization|openai library instrumentation setup",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct OpenAI-specific instrumentation setup skill (session_skill, instrumentation_setup task_family) with no semantic overlap to existing skills which cover Jakarta EE/Spring Framework migration and Spring Boot dependency management. Peer candidates (Initialize Package Instrumentation, LiteLLM Integration Setup, Cohere SDK Integration Setup) are related but represent different instrumentation layers and provider integrations, not the same capability. Candidate has clear support evidence and no conflicts.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "5b89c0b3-be95-5d38-bd12-c76c956f8ce5",
+          "5cb1141a-bd9a-5686-a22e-969b744a44a8"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "child_skill_ids": [
+          "349bba6e-84a4-5c14-9203-5a926dfbe7a0",
+          "632f9b0e-d20b-5fa0-b0a2-df6b66a333cd",
+          "cd0bfed4-59ec-5259-90fd-1903beb88f0e"
+        ]
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "ce876721-97f3-53be-9f13-b151f476dbe4",
+      "name": "Create OpenAI Instrumentation Metrics",
+      "description": "Initialize a standardized metrics dictionary for OpenAI API instrumentation by invoking StandardMetrics.create_standard_metrics with a provided Meter instance. This skill is invoked during instrumentation setup to establish observability metrics collection.",
+      "skill_body": "Call StandardMetrics.create_standard_metrics(meter) to generate a complete metrics dictionary. Pass the Meter instance provided during instrumentation initialization. Return the resulting dictionary without modification.\n\n## Objective\n\nInitialize metrics collection for OpenAI instrumentation\n## Applicable Signals\n\n- instrumentation_setup_phase_entered\n- meter_instance_provided\n- observability_metrics_required\n\n## Contraindications\n\n- Metrics have already been created for this instrumentation session\n- Instrumentation is disabled or metrics are not required\n- Meter instance is null or invalid\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Receive Meter instance as parameter', 'validation': 'Verify Meter is not null and is of expected type'}\n- {'step': 2, 'action': 'Invoke StandardMetrics.create_standard_metrics(meter)', 'validation': 'Confirm method call succeeds without exception'}\n- {'step': 3, 'action': 'Return metrics dictionary', 'validation': 'Verify dictionary is non-empty and contains expected metric keys'}\n\n## Constraints\n\n- Meter parameter must be a valid Meter instance\n- StandardMetrics.create_standard_metrics must be available in the runtime environment\n- Execution must occur during instrumentation setup phase, before method wrapping\n\n## Cautions\n\n- Do not call this skill multiple times for the same instrumentation session; cache the result\n- Ensure the Meter instance is properly initialized before passing it to this skill\n\n## Output Contract\n\n- Returns a Dict[str, Any] containing standardized metrics keyed by metric name, ready for collection and observation during OpenAI API calls.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "812e7026-499e-5857-812c-08f5685e456e",
+      "parent_candidate_ids": [
+        "812e7026-499e-5857-812c-08f5685e456e",
+        "f51af5de-39df-59d7-a895-20bfd95920c7"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.55,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Initialize metrics collection for OpenAI instrumentation",
+      "domain": "default",
+      "task_family": "instrumentation_setup",
+      "method_family": "metrics_initialization",
+      "stage": "initialization",
+      "applicable_signals": [
+        "instrumentation_setup_phase_entered",
+        "meter_instance_provided",
+        "observability_metrics_required"
+      ],
+      "contraindications": [
+        "Metrics have already been created for this instrumentation session",
+        "Instrumentation is disabled or metrics are not required",
+        "Meter instance is null or invalid"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "OpenAI instrumentation is being configured",
+        "Metrics collection needs to be initialized",
+        "Meter instance is available and ready"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Receive Meter instance as parameter', 'validation': 'Verify Meter is not null and is of expected type'}",
+        "{'step': 2, 'action': 'Invoke StandardMetrics.create_standard_metrics(meter)', 'validation': 'Confirm method call succeeds without exception'}",
+        "{'step': 3, 'action': 'Return metrics dictionary', 'validation': 'Verify dictionary is non-empty and contains expected metric keys'}"
+      ],
+      "constraints": [
+        "Meter parameter must be a valid Meter instance",
+        "StandardMetrics.create_standard_metrics must be available in the runtime environment",
+        "Execution must occur during instrumentation setup phase, before method wrapping"
+      ],
+      "cautions": [
+        "Do not call this skill multiple times for the same instrumentation session; cache the result",
+        "Ensure the Meter instance is properly initialized before passing it to this skill"
+      ],
+      "output_contract": [
+        "Returns a Dict[str, Any] containing standardized metrics keyed by metric name, ready for collection and observation during OpenAI API calls."
+      ],
+      "examples": [],
+      "tags": [
+        "instrumentation",
+        "metrics",
+        "openai",
+        "observability",
+        "initialization"
+      ],
+      "support_ids": [
+        "e179380c-e5c7-5645-bce1-578ee6d58505"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "0f22f1aa-9dda-50de-883e-6fe829ca60d6"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|initialize metrics collection for openai instrumentation|default|instrumentation_setup|metrics_initialization|initialization|create openai instrumentation metrics",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill for OpenAI instrumentation metrics initialization. It does not semantically match any existing skill (which cover relevance scoring, graphics path operations, and other unrelated domains). Peer candidates are in different task families (agent_instrumentation, observability_instrumentation, agent_setup) and do not represent splits of this skill. The candidate has clear support evidence and no conflicts, warranting creation as a new capability.",
+        "parent_skill_id": "812e7026-499e-5857-812c-08f5685e456e",
+        "parent_candidate_ids": [
+          "812e7026-499e-5857-812c-08f5685e456e",
+          "f51af5de-39df-59d7-a895-20bfd95920c7"
+        ],
+        "hierarchy_confidence": 0.55,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "41949366-09a6-44e0-b07d-8be67ff5b428",
+      "entity_type": "skill",
+      "entity_id": "f47f8f37-a51c-56ae-adc6-6d703827d0d7",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct session_skill for classifying module origin during instrumentation initialization. It has no semantic overlap with existing skills (Path Command Execution is graphics-focused; Resolve Scala Standard Library Module Import is Scala-specific dependency resolution). Peer candidates operate at different stages (eligibility filtering, SDK installation, agent initialization) and do not subsume this path-inspection capability. The skill addresses a specific, well-defined objective (classify_module_origin) with concrete workflow steps and cross-platform path normalization logic that should be preserved as a new capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "f47f8f37-a51c-56ae-adc6-6d703827d0d7",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "86127805-ffe9-5b13-a8a0-aa5f95381ff2"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "be8e7f5c-d324-4c48-a27a-6d51315fdba2",
+      "entity_type": "skill",
+      "entity_id": "db7d6c09-b85e-5ef5-b1cc-54656bec2509",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "create",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "db7d6c09-b85e-5ef5-b1cc-54656bec2509",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "7522cfa5-4c6f-50ce-a649-00392d79a847"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "ec5b5c47-6779-49b3-868c-c944bfcd5fbb",
+      "entity_type": "skill",
+      "entity_id": "f51af5de-39df-59d7-a895-20bfd95920c7",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct OpenAI-specific instrumentation setup skill (session_skill, instrumentation_setup task_family) with no semantic overlap to existing skills which cover Jakarta EE/Spring Framework migration and Spring Boot dependency management. Peer candidates (Initialize Package Instrumentation, LiteLLM Integration Setup, Cohere SDK Integration Setup) are related but represent different instrumentation layers and provider integrations, not the same capability. Candidate has clear support evidence and no conflicts.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "f51af5de-39df-59d7-a895-20bfd95920c7",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "9eccb6d5-3c54-5f00-a0b0-26d65297401e"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "f4a9e091-a12d-4144-ac56-402e05ba64fb",
+      "entity_type": "skill",
+      "entity_id": "ce876721-97f3-53be-9f13-b151f476dbe4",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill for OpenAI instrumentation metrics initialization. It does not semantically match any existing skill (which cover relevance scoring, graphics path operations, and other unrelated domains). Peer candidates are in different task families (agent_instrumentation, observability_instrumentation, agent_setup) and do not represent splits of this skill. The candidate has clear support evidence and no conflicts, warranting creation as a new capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "ce876721-97f3-53be-9f13-b151f476dbe4",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "e179380c-e5c7-5645-bce1-578ee6d58505"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "skill_id": "c30abe9c-61b1-5b82-8d9d-0dd9adec4871",
+  "action": "merge",
+  "matched_skill_ids": [
+    "168e9557-8fc3-577b-8f2b-21fe7a0c6ea5"
+  ],
+  "reason": "Candidate 'Weighted Zone Scoring' is a broader session-level workflow that encompasses zone indexing, weight assignment, and multi-term aggregation. Peer candidate 'Weighted Zone Score Computation' (8466bfb2-cbec-5b4f-b679-b4476dbf2c51) covers the core zone-weighted combination logic but operates on Boolean signals only. The candidate extends this to term-frequency-based scoring across multiple zones and query terms, making it a superset capability. Both are session_skill, same granularity and asset_node_id. The candidate should merge into the existing skill, which should be revised to reflect the richer TF-based zone weighting model. Peer 'Learn Zone Weights from Relevance Judgments' (9d5ecb66-7fd5-59e0-8078-7d96f3a85568) is a separate training-stage skill and should remain distinct. TF-IDF Vector Scoring (381c3785-2b0d-524d-a6c6-138603a5b9dd) is a different method_family (tf_idf_weighting vs zone_weighting) and should not merge.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "c30abe9c-61b1-5b82-8d9d-0dd9adec4871",
+    "name": "Weighted Zone Scoring",
+    "description": "Assign differential weights to document zones (author, title, abstract, body) and compute ranked retrieval scores by combining zone-specific term frequencies. Use when documents have structured fields and relevance varies by field type.",
+    "skill_body": "For each query term, retrieve its frequency in each zone of candidate documents. Multiply each zone frequency by its assigned weight. Sum the weighted frequencies across all zones to produce a final relevance score. Rank documents by descending score.\n\n## Objective\n\nCompute relevance scores that reflect zone importance in ranked retrieval\n## Applicable Signals\n\n- Query submitted against zone-indexed collection\n- Relevance ranking required\n- Zone weights are defined or learnable\n\n## Contraindications\n\n- Documents are unstructured or single-field\n- Zone importance is unknown or uniform across all zones\n- No zone-aware index available\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Index documents with zone encoding', 'detail': 'Encode zone information as extensions of dictionary entries or in postings list'}\n- {'step': 2, 'action': 'Assign or learn zone weights', 'detail': 'Define weight for each zone (e.g., author=2, title=4, abstract=3, body=1) based on domain relevance'}\n- {'step': 3, 'action': 'For each query term, retrieve zone-specific frequencies', 'detail': 'Look up term in zone index; extract frequency in author, title, abstract, body zones'}\n- {'step': 4, 'action': 'Compute weighted zone contribution', 'detail': 'Multiply each zone frequency by its weight; sum across zones for single term score'}\n- {'step': 5, 'action': 'Aggregate scores across query terms', 'detail': 'Sum weighted scores for all query terms to produce final document score'}\n- {'step': 6, 'action': 'Rank and return results', 'detail': 'Sort documents by descending score; return ranked list with score breakdown by zone'}\n\n## Constraints\n\n- Zone weights must be assigned or learned before scoring\n- Zone index must encode zone information (either in dictionary or postings)\n- All candidate documents must have consistent zone structure\n\n## Cautions\n\n- Zone weights significantly impact ranking; verify weights reflect actual relevance importance\n- Inconsistent zone presence across documents may skew scores\n\n## Output Contract\n\n- Ranked result set ordered by combined zone-weighted scores; each result includes final score and optionally score breakdown by zone (author contribution, title contribution, abstract contribution, body contribution)",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Compute relevance scores that reflect zone importance in ranked retrieval",
+    "domain": "default",
+    "task_family": "scoring",
+    "method_family": "zone_weighting",
+    "stage": "ranking",
+    "applicable_signals": [
+      "Query submitted against zone-indexed collection",
+      "Relevance ranking required",
+      "Zone weights are defined or learnable"
+    ],
+    "contraindications": [
+      "Documents are unstructured or single-field",
+      "Zone importance is unknown or uniform across all zones",
+      "No zone-aware index available"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Document collection has multiple structured zones (author, title, abstract, body)",
+      "Need to rank results by relevance with zone-specific importance",
+      "Zone-aware index is available"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Index documents with zone encoding', 'detail': 'Encode zone information as extensions of dictionary entries or in postings list'}",
+      "{'step': 2, 'action': 'Assign or learn zone weights', 'detail': 'Define weight for each zone (e.g., author=2, title=4, abstract=3, body=1) based on domain relevance'}",
+      "{'step': 3, 'action': 'For each query term, retrieve zone-specific frequencies', 'detail': 'Look up term in zone index; extract frequency in author, title, abstract, body zones'}",
+      "{'step': 4, 'action': 'Compute weighted zone contribution', 'detail': 'Multiply each zone frequency by its weight; sum across zones for single term score'}",
+      "{'step': 5, 'action': 'Aggregate scores across query terms', 'detail': 'Sum weighted scores for all query terms to produce final document score'}",
+      "{'step': 6, 'action': 'Rank and return results', 'detail': 'Sort documents by descending score; return ranked list with score breakdown by zone'}"
+    ],
+    "constraints": [
+      "Zone weights must be assigned or learned before scoring",
+      "Zone index must encode zone information (either in dictionary or postings)",
+      "All candidate documents must have consistent zone structure"
+    ],
+    "cautions": [
+      "Zone weights significantly impact ranking; verify weights reflect actual relevance importance",
+      "Inconsistent zone presence across documents may skew scores"
+    ],
+    "output_contract": [
+      "Ranked result set ordered by combined zone-weighted scores; each result includes final score and optionally score breakdown by zone (author contribution, title contribution, abstract contribution, body contribution)"
+    ],
+    "examples": [],
+    "tags": [
+      "ranking",
+      "zone_weighting",
+      "parametric_search",
+      "scored_retrieval",
+      "information_retrieval",
+      "ranked_boolean_retrieval"
+    ],
+    "support_ids": [
+      "3fbc5b7e-6dc4-5263-bdff-2ad6b8e6097b"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "099f75d7-dc1c-50d3-aa6a-217b0531d12b"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|compute relevance scores that reflect zone importance in ranked retrieval|default|scoring|zone_weighting|ranking|weighted zone scoring"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

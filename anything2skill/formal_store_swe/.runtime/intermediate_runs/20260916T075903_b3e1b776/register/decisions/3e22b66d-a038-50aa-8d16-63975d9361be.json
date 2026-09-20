@@ -1,0 +1,106 @@
+{
+  "skill_id": "3e22b66d-a038-50aa-8d16-63975d9361be",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill addressing thread-safe singleton client retrieval via double-checked locking pattern. It differs semantically and operationally from existing skills: ThreadPoolExecutor initialization (worker thread setup), Submit Callable (async task dispatch), and peer candidates (agent instantiation, observability setup). No existing skill covers the double-checked locking pattern for singleton client retrieval. Peer candidates operate in different task families (agent_instantiation, agent_observability_setup) and do not overlap. Support evidence from Debugging Roadmap validates the pattern. Safe to persist as new capability.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "3e22b66d-a038-50aa-8d16-63975d9361be",
+    "name": "Thread-Safe Singleton Client Retrieval",
+    "description": "Retrieve or initialize a singleton client instance using double-checked locking pattern to ensure thread safety and prevent race conditions during concurrent access.",
+    "skill_body": "Implement a thread-safe getter function that returns a singleton Client instance. Use double-checked locking: first check if the instance exists without acquiring a lock; if null, acquire a lock and check again before initializing. Return the initialized instance on all subsequent calls without re-initialization.\n\n## Objective\n\nObtain thread-safe singleton client instance\n## Applicable Signals\n\n- Multi-threaded execution environment detected\n- Lazy initialization required for expensive resource\n- Shared client instance requested from multiple call sites\n\n## Contraindications\n\n- Client instance is already guaranteed to be initialized\n- Single-threaded execution with no concurrency\n- Client lifecycle is managed externally or by a framework\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if singleton instance (_client) is None without lock', 'rationale': 'Avoid lock overhead on repeated calls after initialization'}\n- {'step': 2, 'action': 'If None, acquire lock (_client_lock)', 'rationale': 'Serialize initialization to prevent multiple threads from creating instances'}\n- {'step': 3, 'action': 'Check again if instance is None inside lock', 'rationale': 'Another thread may have initialized while waiting for lock'}\n- {'step': 4, 'action': 'If still None, instantiate Client() and assign to _client', 'rationale': 'Create singleton instance exactly once'}\n- {'step': 5, 'action': 'Release lock and return _client', 'rationale': 'Ensure lock is released and caller receives initialized instance'}\n\n## Constraints\n\n- Lock object must be initialized before first use\n- Global state (_client variable) must be accessible to the function\n- Lock acquisition must be reentrant-safe or used only for initialization\n\n## Cautions\n\n- Double-checked locking relies on memory visibility guarantees; ensure language/runtime supports volatile or atomic semantics\n- Lock contention during initialization may impact performance under high concurrency\n- If Client constructor raises an exception, subsequent calls will retry initialization\n\n## Output Contract\n\n- Returns initialized Client instance. Subsequent calls return the same instance without re-initialization. Caller is guaranteed thread-safe access to a single shared Client object.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Obtain thread-safe singleton client instance",
+    "domain": "default",
+    "task_family": "client_initialization",
+    "method_family": "double_checked_locking",
+    "stage": "setup",
+    "applicable_signals": [
+      "Multi-threaded execution environment detected",
+      "Lazy initialization required for expensive resource",
+      "Shared client instance requested from multiple call sites"
+    ],
+    "contraindications": [
+      "Client instance is already guaranteed to be initialized",
+      "Single-threaded execution with no concurrency",
+      "Client lifecycle is managed externally or by a framework"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Multiple threads or async tasks need to access a shared client instance",
+      "Client initialization is expensive or must occur only once",
+      "Concurrent access to a singleton resource is expected"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Check if singleton instance (_client) is None without lock', 'rationale': 'Avoid lock overhead on repeated calls after initialization'}",
+      "{'step': 2, 'action': 'If None, acquire lock (_client_lock)', 'rationale': 'Serialize initialization to prevent multiple threads from creating instances'}",
+      "{'step': 3, 'action': 'Check again if instance is None inside lock', 'rationale': 'Another thread may have initialized while waiting for lock'}",
+      "{'step': 4, 'action': 'If still None, instantiate Client() and assign to _client', 'rationale': 'Create singleton instance exactly once'}",
+      "{'step': 5, 'action': 'Release lock and return _client', 'rationale': 'Ensure lock is released and caller receives initialized instance'}"
+    ],
+    "constraints": [
+      "Lock object must be initialized before first use",
+      "Global state (_client variable) must be accessible to the function",
+      "Lock acquisition must be reentrant-safe or used only for initialization"
+    ],
+    "cautions": [
+      "Double-checked locking relies on memory visibility guarantees; ensure language/runtime supports volatile or atomic semantics",
+      "Lock contention during initialization may impact performance under high concurrency",
+      "If Client constructor raises an exception, subsequent calls will retry initialization"
+    ],
+    "output_contract": [
+      "Returns initialized Client instance. Subsequent calls return the same instance without re-initialization. Caller is guaranteed thread-safe access to a single shared Client object."
+    ],
+    "examples": [],
+    "tags": [
+      "concurrency",
+      "singleton",
+      "thread-safety",
+      "lazy-initialization",
+      "double-checked-locking"
+    ],
+    "support_ids": [
+      "cc666b44-f35a-5a5c-8806-9d16a829750a"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "ba143b32-f328-511e-b626-11ee6f990498"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|obtain thread-safe singleton client instance|default|client_initialization|double_checked_locking|setup|thread-safe singleton client retrieval"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

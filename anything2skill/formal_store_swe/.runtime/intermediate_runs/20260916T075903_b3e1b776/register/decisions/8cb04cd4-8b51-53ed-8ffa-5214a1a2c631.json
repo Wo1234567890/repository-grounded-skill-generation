@@ -1,0 +1,110 @@
+{
+  "skill_id": "8cb04cd4-8b51-53ed-8ffa-5214a1a2c631",
+  "action": "strengthen",
+  "matched_skill_ids": [
+    "8ab7d9c6-0610-506d-b327-c9d8908c0519"
+  ],
+  "reason": "Candidate skill has direct support evidence from Integrations section showing the exact workflow pattern (buffer initialization, event iteration, finish_reason check, text concatenation). No conflicts detected. Peer candidates address different concerns (agent event filtering, telemetry extraction, token usage attribution) and do not overlap semantically. Strengthening adds confidence to the existing micro_skill without material revision.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "8cb04cd4-8b51-53ed-8ffa-5214a1a2c631",
+    "name": "Stream Response Aggregation",
+    "description": "Collect and buffer streamed event data from an LLM response, checking for completion signals and concatenating text chunks until the stream terminates.",
+    "skill_body": "Iterate over incoming stream events. For each event, check if finish_reason equals 'stop'. If stop signal is detected, print the aggregated response and exit the loop. Otherwise, append the event text to the response buffer. Continue until stream is exhausted.\n\n## Objective\n\nAggregate streamed LLM output into a complete response\n## Applicable Signals\n\n- event.data.choices[0].finish_reason available in stream\n- event.text contains partial response content\n- Stream iteration protocol supported by caller\n\n## Contraindications\n\n- Using non-streaming or batch API responses\n- Response data already fully buffered in memory\n- Synchronous single-response APIs without event iteration\n\n## Workflow Steps\n\n- Initialize empty response buffer\n- Begin iteration over message stream\n- For each event, check event.data.choices[0].finish_reason\n- If finish_reason == 'stop', print response and break\n- Otherwise, concatenate event.text to response buffer\n- Continue until stream exhausted\n\n## Constraints\n\n- finish_reason must be accessible at event.data.choices[0].finish_reason\n- event.text must contain the text chunk to append\n- Stream must be iterable and terminate cleanly\n\n## Cautions\n\n- Ensure event structure matches expected schema before accessing nested fields\n- Handle potential None or missing finish_reason gracefully\n- Verify stream iteration does not raise exceptions on termination\n\n## Output Contract\n\n- Complete aggregated response string printed to output; stream fully consumed and finish_reason == 'stop' confirmed.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "leaf",
+    "objective": "Aggregate streamed LLM output into a complete response",
+    "domain": "default",
+    "task_family": "llm_response_handling",
+    "method_family": "event_stream_processing",
+    "stage": "response_collection",
+    "applicable_signals": [
+      "event.data.choices[0].finish_reason available in stream",
+      "event.text contains partial response content",
+      "Stream iteration protocol supported by caller"
+    ],
+    "contraindications": [
+      "Using non-streaming or batch API responses",
+      "Response data already fully buffered in memory",
+      "Synchronous single-response APIs without event iteration"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Receiving streaming output from an LLM API where events arrive incrementally",
+      "OpenAI Agents SDK or similar streaming endpoint returns event stream",
+      "Need to buffer partial text chunks until completion signal"
+    ],
+    "workflow_steps": [
+      "Initialize empty response buffer",
+      "Begin iteration over message stream",
+      "For each event, check event.data.choices[0].finish_reason",
+      "If finish_reason == 'stop', print response and break",
+      "Otherwise, concatenate event.text to response buffer",
+      "Continue until stream exhausted"
+    ],
+    "constraints": [
+      "finish_reason must be accessible at event.data.choices[0].finish_reason",
+      "event.text must contain the text chunk to append",
+      "Stream must be iterable and terminate cleanly"
+    ],
+    "cautions": [
+      "Ensure event structure matches expected schema before accessing nested fields",
+      "Handle potential None or missing finish_reason gracefully",
+      "Verify stream iteration does not raise exceptions on termination"
+    ],
+    "output_contract": [
+      "Complete aggregated response string printed to output; stream fully consumed and finish_reason == 'stop' confirmed."
+    ],
+    "examples": [],
+    "tags": [
+      "streaming",
+      "llm_integration",
+      "response_handling",
+      "event_processing",
+      "buffer_aggregation"
+    ],
+    "support_ids": [
+      "9df09201-466e-5abe-960d-9253a36923ce"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "3004a5ce-cc43-50c2-b834-234f3066aeb7"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|aggregate streamed llm output into a complete response|default|llm_response_handling|event_stream_processing|response_collection|stream response aggregation",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

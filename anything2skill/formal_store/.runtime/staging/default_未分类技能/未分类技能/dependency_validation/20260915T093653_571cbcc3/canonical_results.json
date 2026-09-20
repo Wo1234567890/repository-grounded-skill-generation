@@ -1,0 +1,154 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "dependency_validation",
+  "run_id": "20260915T093653_571cbcc3",
+  "skills": [
+    {
+      "skill_id": "c3904908-74ec-5bc8-a110-9b9c50374155",
+      "name": "Module Availability and Version Check",
+      "description": "Verify that a required Python package or module is installed and meets minimum version requirements before attempting to use it. Returns a boolean indicating readiness for instrumentation or import.",
+      "skill_body": "Check if a module is available and its version meets the minimum requirement. For stdlib modules (e.g., concurrent.futures), compare against sys.version_info. For third-party packages, use the package_name if provided; otherwise derive from module_name. Call get_library_version to retrieve the installed version. Compare the installed version against min_version using semantic versioning. Return True if available and version >= min_version; return False if unavailable or version is insufficient. Catch and suppress exceptions, returning False on any error.\n\n## Objective\n\npre-flight validation of module availability and version compatibility\n## Applicable Signals\n\n- instrumentation_request\n- module_import_attempt\n- handler_activation_decision\n\n## Contraindications\n\n- Module is already confirmed to be loaded and in use\n- Version constraints are not applicable or undefined\n- Runtime environment does not support version introspection\n\n## Workflow Steps\n\n- {'step': 1, 'action': \"Check if package_name is 'python' (stdlib special case)\", 'detail': \"If true, extract sys.version_info.major, minor, micro and format as 'X.Y.Z'\"}\n- {'step': 2, 'action': 'Determine provider_name for version lookup', 'detail': 'Use explicit package_name if provided; otherwise split module_name and take the last component'}\n- {'step': 3, 'action': 'Retrieve installed version', 'detail': 'Call get_library_version(provider_name) to obtain the version string'}\n- {'step': 4, 'action': 'Compare versions', 'detail': 'Parse both installed version and min_version using semantic versioning; return True if installed >= min_version'}\n- {'step': 5, 'action': 'Handle errors gracefully', 'detail': 'Wrap entire logic in try-except; return False on any exception'}\n\n## Constraints\n\n- min_version must be a valid semantic version string\n- package_name or module_name must be provided\n- Exceptions during version lookup must be caught and treated as unavailable\n\n## Cautions\n\n- Special handling required for stdlib modules (package_name == 'python'); use sys.version_info instead of get_library_version\n- Version comparison is strict (>=); pre-release or development versions may not match expected semantics\n- get_library_version may return 'unknown' if the package is not installed or introspection fails\n\n## Output Contract\n\n- Boolean result: True if package is available and version >= min_version; False if unavailable, version is insufficient, or any error occurs. No exception is raised; all errors are suppressed and treated as unavailable.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "f8ac0674-da50-5e4a-90a1-794b56c8a3ab",
+        "68d2ebdb-9167-542f-8604-e8b7fac3db57"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "pre-flight validation of module availability and version compatibility",
+      "domain": "default",
+      "task_family": "dependency_validation",
+      "method_family": "version_checking",
+      "stage": "initialization",
+      "applicable_signals": [
+        "instrumentation_request",
+        "module_import_attempt",
+        "handler_activation_decision"
+      ],
+      "contraindications": [
+        "Module is already confirmed to be loaded and in use",
+        "Version constraints are not applicable or undefined",
+        "Runtime environment does not support version introspection"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Before instrumenting or importing a module",
+        "When deciding whether to activate an instrumentation handler",
+        "When gating downstream operations on module readiness"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': \"Check if package_name is 'python' (stdlib special case)\", 'detail': \"If true, extract sys.version_info.major, minor, micro and format as 'X.Y.Z'\"}",
+        "{'step': 2, 'action': 'Determine provider_name for version lookup', 'detail': 'Use explicit package_name if provided; otherwise split module_name and take the last component'}",
+        "{'step': 3, 'action': 'Retrieve installed version', 'detail': 'Call get_library_version(provider_name) to obtain the version string'}",
+        "{'step': 4, 'action': 'Compare versions', 'detail': 'Parse both installed version and min_version using semantic versioning; return True if installed >= min_version'}",
+        "{'step': 5, 'action': 'Handle errors gracefully', 'detail': 'Wrap entire logic in try-except; return False on any exception'}"
+      ],
+      "constraints": [
+        "min_version must be a valid semantic version string",
+        "package_name or module_name must be provided",
+        "Exceptions during version lookup must be caught and treated as unavailable"
+      ],
+      "cautions": [
+        "Special handling required for stdlib modules (package_name == 'python'); use sys.version_info instead of get_library_version",
+        "Version comparison is strict (>=); pre-release or development versions may not match expected semantics",
+        "get_library_version may return 'unknown' if the package is not installed or introspection fails"
+      ],
+      "output_contract": [
+        "Boolean result: True if package is available and version >= min_version; False if unavailable, version is insufficient, or any error occurs. No exception is raised; all errors are suppressed and treated as unavailable."
+      ],
+      "examples": [],
+      "tags": [
+        "dependency_check",
+        "version_validation",
+        "module_readiness",
+        "instrumentation_guard",
+        "pre_flight_check"
+      ],
+      "support_ids": [
+        "38a5e118-21f2-5e25-bec6-6ae75dc5b0a6"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "71c090ef-2d33-5f39-a3a9-35c1582782e6"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|micro_skill_node|pre-flight validation of module availability and version compatibility|default|dependency_validation|version_checking|initialization|module availability and version check",
+        "llm_reason": "Candidate is a distinct session_skill for pre-flight module availability and version validation. It does not semantically match any existing skill (which are Spring WebFlux/MVC configuration and content preloading). Peer candidates (Package Instrumentation Check, Package Installation Detection, Conditional Package Instrumentation Decision) are related but operate at different stages and with different objectives in the instrumentation pipeline. This skill fills a specific dependency validation gap and should be persisted as a new capability.",
+        "change_action": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "f8ac0674-da50-5e4a-90a1-794b56c8a3ab",
+          "68d2ebdb-9167-542f-8604-e8b7fac3db57"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "0ead49f9-ce92-4209-b176-fd28247d4a8e",
+      "entity_type": "skill",
+      "entity_id": "c3904908-74ec-5bc8-a110-9b9c50374155",
+      "action": "create",
+      "changed_at": "2026-09-14T23:32:37+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct session_skill for pre-flight module availability and version validation. It does not semantically match any existing skill (which are Spring WebFlux/MVC configuration and content preloading). Peer candidates (Package Instrumentation Check, Package Installation Detection, Conditional Package Instrumentation Decision) are related but operate at different stages and with different objectives in the instrumentation pipeline. This skill fills a specific dependency validation gap and should be persisted as a new capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "c3904908-74ec-5bc8-a110-9b9c50374155",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "38a5e118-21f2-5e25-bec6-6ae75dc5b0a6"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

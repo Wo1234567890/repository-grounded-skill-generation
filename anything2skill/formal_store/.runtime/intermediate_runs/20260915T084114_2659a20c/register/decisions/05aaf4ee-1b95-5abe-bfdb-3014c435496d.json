@@ -1,0 +1,107 @@
+{
+  "skill_id": "05aaf4ee-1b95-5abe-bfdb-3014c435496d",
+  "action": "merge",
+  "matched_skill_ids": [
+    "fb580e02-5e97-5a98-9a88-593c837d8917"
+  ],
+  "reason": "Candidate 05aaf4ee is semantically identical to peer cbb51606 (both decide instrumentation eligibility via conditional checks on package lists and agentic state). They share the same objective (instrumentation routing), asset_type (session_skill), granularity (session), stage (initialization), and task_family (instrumentation_setup). The candidate's three-condition check (already_instrumented, agentic_libraries, providers) is a refinement of the peer's state-based routing logic. Merge into the peer to consolidate overlapping capabilities and avoid duplication.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "05aaf4ee-1b95-5abe-bfdb-3014c435496d",
+    "name": "Package Instrumentation Check",
+    "description": "Determine whether a software package should be instrumented for monitoring by evaluating three conditions: whether it is already instrumented by AgentOps, whether it is a targeted agentic library, and whether it is a known provider. Returns a boolean decision to proceed with or skip instrumentation.",
+    "skill_body": "Check if the package should be instrumented by verifying: (1) if already instrumented by AgentOps, return False and log skip reason; (2) if package is in AGENTIC_LIBRARIES or PROVIDERS, return True; (3) otherwise return False with debug log. Always log the decision rationale.\n\n## Objective\n\ndecide_instrumentation_eligibility\n## Applicable Signals\n\n- package_name provided\n- instrumentation decision required before hook application\n\n## Contraindications\n\n- Do not use if package is already confirmed instrumented by AgentOps\n- Do not use if package is not in AGENTIC_LIBRARIES or PROVIDERS lists\n\n## Intervention Moves\n\n- Check _is_package_instrumented(package_name) first; if true, log and return False\n- Check if package_name in AGENTIC_LIBRARIES; if true, proceed to provider check\n- Check if package_name in PROVIDERS; if true, return True\n- If neither agentic nor provider, log default False decision\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if package is already instrumented', 'condition': '_is_package_instrumented(package_name)', 'outcome': 'If true, log skip reason and return False'}\n- {'step': 2, 'action': 'Check if package is a targeted agentic library', 'condition': 'package_name in AGENTIC_LIBRARIES', 'outcome': 'Set is_target_agentic flag'}\n- {'step': 3, 'action': 'Check if package is a known provider', 'condition': 'package_name in PROVIDERS', 'outcome': 'Set is_target_provider flag'}\n- {'step': 4, 'action': 'Evaluate eligibility', 'condition': 'is_target_agentic OR is_target_provider', 'outcome': 'If true, return True; otherwise log default False and return False'}\n\n## Constraints\n\n- AGENTIC_LIBRARIES and PROVIDERS lists must be available and current\n- Package name must be a valid string identifier\n\n## Cautions\n\n- Ensure AGENTIC_LIBRARIES and PROVIDERS are synchronized with current package ecosystem\n- Log entries should include package name and decision reason for troubleshooting\n\n## Output Contract\n\n- Boolean decision (True to instrument, False to skip) with corresponding debug log entry confirming the decision rationale and the condition that triggered it.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "decide_instrumentation_eligibility",
+    "domain": "default",
+    "task_family": "package_monitoring",
+    "method_family": "conditional_check",
+    "stage": "initialization",
+    "applicable_signals": [
+      "package_name provided",
+      "instrumentation decision required before hook application"
+    ],
+    "contraindications": [
+      "Do not use if package is already confirmed instrumented by AgentOps",
+      "Do not use if package is not in AGENTIC_LIBRARIES or PROVIDERS lists"
+    ],
+    "intervention_moves": [
+      "Check _is_package_instrumented(package_name) first; if true, log and return False",
+      "Check if package_name in AGENTIC_LIBRARIES; if true, proceed to provider check",
+      "Check if package_name in PROVIDERS; if true, return True",
+      "If neither agentic nor provider, log default False decision"
+    ],
+    "triggers": [
+      "A package is encountered during agent setup or initialization",
+      "System needs to determine whether to apply instrumentation hooks to a package"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Check if package is already instrumented', 'condition': '_is_package_instrumented(package_name)', 'outcome': 'If true, log skip reason and return False'}",
+      "{'step': 2, 'action': 'Check if package is a targeted agentic library', 'condition': 'package_name in AGENTIC_LIBRARIES', 'outcome': 'Set is_target_agentic flag'}",
+      "{'step': 3, 'action': 'Check if package is a known provider', 'condition': 'package_name in PROVIDERS', 'outcome': 'Set is_target_provider flag'}",
+      "{'step': 4, 'action': 'Evaluate eligibility', 'condition': 'is_target_agentic OR is_target_provider', 'outcome': 'If true, return True; otherwise log default False and return False'}"
+    ],
+    "constraints": [
+      "AGENTIC_LIBRARIES and PROVIDERS lists must be available and current",
+      "Package name must be a valid string identifier"
+    ],
+    "cautions": [
+      "Ensure AGENTIC_LIBRARIES and PROVIDERS are synchronized with current package ecosystem",
+      "Log entries should include package name and decision reason for troubleshooting"
+    ],
+    "output_contract": [
+      "Boolean decision (True to instrument, False to skip) with corresponding debug log entry confirming the decision rationale and the condition that triggered it."
+    ],
+    "examples": [],
+    "tags": [
+      "package_monitoring",
+      "instrumentation",
+      "conditional_logic",
+      "initialization",
+      "agent_setup"
+    ],
+    "support_ids": [
+      "5107090a-7b8d-56cc-8820-1b4d93b36dbc"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "080f8f0e-cc2a-5cf8-bf11-a50ad4063b67"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|micro_skill_node|decide_instrumentation_eligibility|default|package_monitoring|conditional_check|initialization|package instrumentation check"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

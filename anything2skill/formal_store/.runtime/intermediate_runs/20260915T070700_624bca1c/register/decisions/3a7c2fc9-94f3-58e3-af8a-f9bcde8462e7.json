@@ -1,0 +1,115 @@
+{
+  "skill_id": "3a7c2fc9-94f3-58e3-af8a-f9bcde8462e7",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct safety rule for ThreadPoolExecutor deadlock avoidance with specific circular-wait detection logic and intervention moves. Peer candidates address ProcessPoolExecutor deadlock prevention, module importability, and BrokenProcessPool exception handling—all different executor types, stages, and failure modes. Existing skills are unrelated (Virtual WAN routing). No semantic overlap with any registered skill.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "3a7c2fc9-94f3-58e3-af8a-f9bcde8462e7",
+    "name": "ThreadPoolExecutor Deadlock Avoidance",
+    "description": "Detect and prevent circular wait conditions where futures block on other futures' results within the same ThreadPoolExecutor. Identifies scenarios where a limited number of worker threads can become exhausted if a submitted task calls .result() on another future in the same pool.",
+    "skill_body": "Review task submission logic before execution. Identify any submitted callable that may invoke .result() on another future from the same executor. Check for circular dependencies: task A waiting on task B, and task B waiting on task A. Verify that the number of worker threads is sufficient for all concurrent blocking operations. If a task must wait on another future's result, ensure either (1) the dependent future is submitted to a different executor, (2) the pool has enough workers to run both tasks concurrently, or (3) the task uses a non-blocking pattern such as callbacks or chaining.\n\n## Objective\n\nPrevent deadlock when futures have inter-dependencies within ThreadPoolExecutor\n## Applicable Signals\n\n- Task submission logic includes .result() calls on other futures\n- Multiple futures are submitted to the same ThreadPoolExecutor\n- Task design involves inter-task synchronization or result polling\n\n## Contraindications\n\n- Tasks are independent and do not call .result() on other futures\n- Using ProcessPoolExecutor (different concurrency model; deadlock risk is lower but still possible with insufficient workers)\n- All futures are submitted to different executors\n\n## Intervention Moves\n\n- Refactor task to avoid blocking on sibling futures; use callbacks or future chaining instead\n- Increase max_workers to at least the number of potentially concurrent blocking tasks\n- Submit dependent tasks to a separate executor to break the circular wait\n- Use non-blocking patterns such as executor.map() or future.add_done_callback()\n\n## Constraints\n\n- Applies only to ThreadPoolExecutor, not ProcessPoolExecutor or other executor types\n- Circular dependencies must be detected at design time; runtime detection is difficult\n- Increasing max_workers is a mitigation but not a complete solution if task logic is inherently circular\n\n## Cautions\n\n- A single worker thread executing a task that calls .result() on another future will block indefinitely if all other workers are also blocked\n- With max_workers=1, any task that calls .result() on a future will deadlock\n- Deadlock may not manifest immediately; it depends on task scheduling and timing\n\n## Output Contract\n\n- Task design review confirms no circular waits; all futures can progress without blocking on sibling futures. Documented evidence that either (1) no task calls .result() on another future, (2) dependent futures are in separate executors, or (3) max_workers is sufficient for concurrent blocking operations.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Two tasks submitted to ThreadPoolExecutor(max_workers=2): task A calls b.result(), task B calls a.result().\n- Therapist/Output: Deadlock detected. Recommendation: refactor to use callbacks or submit one task to a separate executor.\n- Notes: Circular dependency with insufficient workers.\n\n### Example 2\n\n- Client/Input: Single task submitted to ThreadPoolExecutor(max_workers=1) that calls executor.submit(pow, 5, 2).result().\n- Therapist/Output: Deadlock detected. The single worker is blocked waiting for itself. Recommendation: increase max_workers or use non-blocking pattern.\n- Notes: Self-blocking scenario with max_workers=1.",
+    "asset_type": "safety_rule",
+    "granularity": "session",
+    "asset_node_id": "safety_rule_node",
+    "asset_path": "family_root/safety_module/safety_rule_node",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Prevent deadlock when futures have inter-dependencies within ThreadPoolExecutor",
+    "domain": "default",
+    "task_family": "parallel_task_execution",
+    "method_family": "dependency_analysis",
+    "stage": "design",
+    "applicable_signals": [
+      "Task submission logic includes .result() calls on other futures",
+      "Multiple futures are submitted to the same ThreadPoolExecutor",
+      "Task design involves inter-task synchronization or result polling"
+    ],
+    "contraindications": [
+      "Tasks are independent and do not call .result() on other futures",
+      "Using ProcessPoolExecutor (different concurrency model; deadlock risk is lower but still possible with insufficient workers)",
+      "All futures are submitted to different executors"
+    ],
+    "intervention_moves": [
+      "Refactor task to avoid blocking on sibling futures; use callbacks or future chaining instead",
+      "Increase max_workers to at least the number of potentially concurrent blocking tasks",
+      "Submit dependent tasks to a separate executor to break the circular wait",
+      "Use non-blocking patterns such as executor.map() or future.add_done_callback()"
+    ],
+    "triggers": [
+      "Designing task submission logic where one submitted task may call .result() on another future in the same pool"
+    ],
+    "workflow_steps": [],
+    "constraints": [
+      "Applies only to ThreadPoolExecutor, not ProcessPoolExecutor or other executor types",
+      "Circular dependencies must be detected at design time; runtime detection is difficult",
+      "Increasing max_workers is a mitigation but not a complete solution if task logic is inherently circular"
+    ],
+    "cautions": [
+      "A single worker thread executing a task that calls .result() on another future will block indefinitely if all other workers are also blocked",
+      "With max_workers=1, any task that calls .result() on a future will deadlock",
+      "Deadlock may not manifest immediately; it depends on task scheduling and timing"
+    ],
+    "output_contract": [
+      "Task design review confirms no circular waits; all futures can progress without blocking on sibling futures. Documented evidence that either (1) no task calls .result() on another future, (2) dependent futures are in separate executors, or (3) max_workers is sufficient for concurrent blocking operations."
+    ],
+    "examples": [
+      {
+        "input": "Two tasks submitted to ThreadPoolExecutor(max_workers=2): task A calls b.result(), task B calls a.result().",
+        "output": "Deadlock detected. Recommendation: refactor to use callbacks or submit one task to a separate executor.",
+        "notes": "Circular dependency with insufficient workers."
+      },
+      {
+        "input": "Single task submitted to ThreadPoolExecutor(max_workers=1) that calls executor.submit(pow, 5, 2).result().",
+        "output": "Deadlock detected. The single worker is blocked waiting for itself. Recommendation: increase max_workers or use non-blocking pattern.",
+        "notes": "Self-blocking scenario with max_workers=1."
+      }
+    ],
+    "tags": [
+      "concurrency",
+      "deadlock",
+      "thread_pool",
+      "futures",
+      "safety",
+      "design_review"
+    ],
+    "support_ids": [
+      "16e94d7d-5739-570b-ab8c-544afed0c37a"
+    ],
+    "metadata": {
+      "risk_class": "high",
+      "source_draft_ids": [
+        "25968ed9-5574-5da2-a29c-6e6ba1c69be6"
+      ],
+      "support_summary": {
+        "support": 0,
+        "constraint": 1,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.9,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||safety_rule|session|safety_rule_node|prevent deadlock when futures have inter-dependencies within threadpoolexecutor|default|parallel_task_execution|dependency_analysis|design|threadpoolexecutor deadlock avoidance"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

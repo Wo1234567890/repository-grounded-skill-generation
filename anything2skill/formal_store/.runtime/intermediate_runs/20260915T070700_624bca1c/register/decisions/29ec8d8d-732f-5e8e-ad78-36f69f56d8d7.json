@@ -1,0 +1,110 @@
+{
+  "skill_id": "29ec8d8d-732f-5e8e-ad78-36f69f56d8d7",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill in async_task_result_handling (result retrieval with timeout) that does not semantically match any existing skill. Existing skills are in reward_engineering and loss_computation domains. Peer candidates (Future state polling, exception inspection, cancellation status) are related but represent different stages and methods within the concurrent.futures workflow. This candidate fills a specific gap: blocking result retrieval with timeout handling, which is a separate capability from state inspection, exception inspection, or cancellation control.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "29ec8d8d-732f-5e8e-ad78-36f69f56d8d7",
+    "name": "Future Result Retrieval with Timeout",
+    "description": "Retrieve the result of an asynchronous task execution with optional timeout handling. Blocks until the result is available or the timeout expires, raising TimeoutError if the result is not available within the specified timeout window.",
+    "skill_body": "Call result(timeout=None) on a Future object to obtain the return value from a completed parallel task. If timeout is specified (int or float, in seconds), the method will wait up to that duration. If the timeout expires before completion, TimeoutError is raised. If the future was cancelled, CancelledError is raised. If the task raised an exception, that exception is re-raised by this method. If timeout is None or omitted, there is no limit to the wait time.\n\n## Objective\n\nSafely retrieve completed task output or handle timeout and cancellation states\n## Applicable Signals\n\n- Caller has a Future object from a submitted parallel task\n- Caller needs the return value from the task\n- Caller must enforce a maximum wait time\n- Caller is ready to handle blocking I/O\n\n## Contraindications\n\n- Future has not been submitted to an executor\n- Caller does not need to wait for completion\n- Synchronous blocking is unacceptable in the calling context\n- Caller only needs to check if the task is done without retrieving the value\n\n## Intervention Moves\n\n- Call result(timeout=seconds) to retrieve the value with a bounded wait\n- Call result() without timeout for unbounded wait\n- Catch TimeoutError to handle timeout expiration\n- Catch CancelledError to handle pre-cancellation state\n- Catch task-raised exceptions to handle task failure\n\n## Constraints\n\n- timeout parameter must be int, float, or None\n- timeout must be non-negative if specified\n- Method blocks the calling thread until result is available or timeout expires\n- Cannot be called before the Future is submitted to an executor\n\n## Cautions\n\n- If timeout is 0, the method will return immediately or raise TimeoutError\n- If the task raised an exception, calling result() will re-raise that exception\n- If the future was cancelled before result() was called, CancelledError is raised\n- Blocking behavior may cause deadlock if called from a thread that is needed by the executor\n\n## Output Contract\n\n- Returns the value returned by the completed call. On failure, raises one of: TimeoutError (if timeout expired), CancelledError (if future was cancelled), or the original exception raised by the task.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "leaf",
+    "objective": "Safely retrieve completed task output or handle timeout and cancellation states",
+    "domain": "default",
+    "task_family": "async_task_result_handling",
+    "method_family": "future_polling",
+    "stage": "result_collection",
+    "applicable_signals": [
+      "Caller has a Future object from a submitted parallel task",
+      "Caller needs the return value from the task",
+      "Caller must enforce a maximum wait time",
+      "Caller is ready to handle blocking I/O"
+    ],
+    "contraindications": [
+      "Future has not been submitted to an executor",
+      "Caller does not need to wait for completion",
+      "Synchronous blocking is unacceptable in the calling context",
+      "Caller only needs to check if the task is done without retrieving the value"
+    ],
+    "intervention_moves": [
+      "Call result(timeout=seconds) to retrieve the value with a bounded wait",
+      "Call result() without timeout for unbounded wait",
+      "Catch TimeoutError to handle timeout expiration",
+      "Catch CancelledError to handle pre-cancellation state",
+      "Catch task-raised exceptions to handle task failure"
+    ],
+    "triggers": [
+      "Caller needs to obtain the return value from a submitted parallel task and must enforce a maximum wait time or handle cancellation"
+    ],
+    "workflow_steps": [],
+    "constraints": [
+      "timeout parameter must be int, float, or None",
+      "timeout must be non-negative if specified",
+      "Method blocks the calling thread until result is available or timeout expires",
+      "Cannot be called before the Future is submitted to an executor"
+    ],
+    "cautions": [
+      "If timeout is 0, the method will return immediately or raise TimeoutError",
+      "If the task raised an exception, calling result() will re-raise that exception",
+      "If the future was cancelled before result() was called, CancelledError is raised",
+      "Blocking behavior may cause deadlock if called from a thread that is needed by the executor"
+    ],
+    "output_contract": [
+      "Returns the value returned by the completed call. On failure, raises one of: TimeoutError (if timeout expired), CancelledError (if future was cancelled), or the original exception raised by the task."
+    ],
+    "examples": [],
+    "tags": [
+      "concurrent.futures",
+      "Future",
+      "result_retrieval",
+      "timeout_handling",
+      "parallel_task",
+      "async_result"
+    ],
+    "support_ids": [
+      "2a8c5652-923f-5523-850d-07b349ae1874"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "1a4eb689-a941-5b3a-9388-c4a19b6c86fa"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|safely retrieve completed task output or handle timeout and cancellation states|default|async_task_result_handling|future_polling|result_collection|future result retrieval with timeout",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

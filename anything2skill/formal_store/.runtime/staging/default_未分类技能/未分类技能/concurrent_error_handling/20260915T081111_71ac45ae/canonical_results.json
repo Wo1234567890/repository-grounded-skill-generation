@@ -1,0 +1,132 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "concurrent_error_handling",
+  "run_id": "20260915T081111_71ac45ae",
+  "skills": [
+    {
+      "skill_id": "acc58e44-5bef-5e3e-a6cf-bc06657894c8",
+      "name": "Concurrent Futures Exception Classification and Recovery",
+      "description": "Enforces strictly increasing commit timestamps for all transactions writing to the same tuple by acquiring exclusive locks during write phase and atomically updating both write timestamp (wts) and read timestamp (rts) to the transaction's commit timestamp. Guarantees a total order among all writers to the same tuple.",
+      "skill_body": "When a transaction enters its write phase for a tuple, acquire an exclusive lock on that tuple. Once locked, read the current wts and rts from the tuple's metadata. Set both the write timestamp (wts) and read timestamp (rts) of the tuple to the transaction's commit timestamp. Release the lock after the write completes. This ensures that any subsequent transaction writing to the same tuple will have a strictly greater commit timestamp, preventing write-write conflicts and maintaining serializability.\n\n## Objective\n\nprevent_write_conflicts\n## Applicable Signals\n\n- write operation on tuple detected\n- tuple not yet locked by current transaction\n- commit timestamp assigned to transaction\n\n## Contraindications\n\n- tuple is already locked by another transaction (must wait or abort)\n- read-only transactions (no write phase)\n- scenarios where equal commit timestamps across writers are acceptable\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Acquire exclusive lock on tuple', 'condition': 'tuple not locked by another transaction'}\n- {'step': 2, 'action': 'Read current wts and rts from tuple metadata', 'condition': 'lock acquired'}\n- {'step': 3, 'action': 'Set tuple.wts = commit_ts', 'condition': 'commit_ts assigned to transaction'}\n- {'step': 4, 'action': 'Set tuple.rts = commit_ts', 'condition': 'wts update complete'}\n- {'step': 5, 'action': 'Release lock after write completes', 'condition': 'write phase finished'}\n\n## Constraints\n\n- tuple must be locked before write begins\n- both wts and rts must be atomically updated to commit_ts\n- rts never decreases; only increases or stays equal during write\n- only one transaction can write to a tuple at any time due to exclusive locking\n\n## Cautions\n\n- lock contention may reduce parallelism if many transactions write to the same tuple\n- deadlock risk if multiple transactions lock tuples in different orders\n\n## Output Contract\n\n- Tuple is locked during write\n- Both wts and rts are atomically set to the transaction's commit_ts\n- Any subsequent transaction writing to the same tuple will have a strictly greater commit_ts than the current transaction\n- A total order is established among all writers to that tuple\n- Write-write conflicts are prevented and serializability is maintained",
+      "asset_type": "safety_rule",
+      "granularity": "micro",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "classify and respond to executor/future failures",
+      "domain": "default",
+      "task_family": "concurrent_error_handling",
+      "method_family": "exception_classification",
+      "stage": "error_recovery",
+      "applicable_signals": [
+        "write operation on tuple detected",
+        "tuple not yet locked by current transaction",
+        "commit timestamp assigned to transaction"
+      ],
+      "contraindications": [
+        "tuple is already locked by another transaction (must wait or abort)",
+        "read-only transactions (no write phase)",
+        "scenarios where equal commit timestamps across writers are acceptable"
+      ],
+      "intervention_moves": [
+        "Catch exception and identify type",
+        "Log exception type and context",
+        "Route to appropriate recovery handler (retry, fallback, escalate, or abort)"
+      ],
+      "triggers": [
+        "Executor or Future operation raises an exception",
+        "Caller must decide whether to retry, escalate, or abort"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Acquire exclusive lock on tuple', 'condition': 'tuple not locked by another transaction'}",
+        "{'step': 2, 'action': 'Read current wts and rts from tuple metadata', 'condition': 'lock acquired'}",
+        "{'step': 3, 'action': 'Set tuple.wts = commit_ts', 'condition': 'commit_ts assigned to transaction'}",
+        "{'step': 4, 'action': 'Set tuple.rts = commit_ts', 'condition': 'wts update complete'}",
+        "{'step': 5, 'action': 'Release lock after write completes', 'condition': 'write phase finished'}"
+      ],
+      "constraints": [
+        "tuple must be locked before write begins",
+        "both wts and rts must be atomically updated to commit_ts",
+        "rts never decreases; only increases or stays equal during write",
+        "only one transaction can write to a tuple at any time due to exclusive locking"
+      ],
+      "cautions": [
+        "lock contention may reduce parallelism if many transactions write to the same tuple",
+        "deadlock risk if multiple transactions lock tuples in different orders"
+      ],
+      "output_contract": [
+        "Tuple is locked during write",
+        "Both wts and rts are atomically set to the transaction's commit_ts",
+        "Any subsequent transaction writing to the same tuple will have a strictly greater commit_ts than the current transaction",
+        "A total order is established among all writers to that tuple",
+        "Write-write conflicts are prevented and serializability is maintained"
+      ],
+      "examples": [],
+      "tags": [
+        "write_locking",
+        "timestamp_ordering",
+        "conflict_prevention",
+        "serializability",
+        "concurrency_control",
+        "exclusive_locking"
+      ],
+      "support_ids": [
+        "37a71121-17e5-564f-8dd0-8422ed109c57",
+        "635fb834-277c-50d8-8e3a-e809ee3c79b7"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "b3568f41-7ed3-53a3-9791-4ab2fdebbfd7"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.82,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|micro|safety_rule_node|classify and respond to executor/future failures|default|concurrent_error_handling|exception_classification|error_recovery|concurrent futures exception classification and recovery",
+        "change_action": "unchanged",
+        "llm_reason": "Candidate skill is a well-defined safety_rule for write-phase timestamp management in optimistic concurrency control. It has clear semantic identity (tuple write timestamp uniqueness via exclusive locking), supported evidence from protocol specification, no conflicts, and distinct asset_type/granularity/asset_node_id from peer candidates. Peer candidates address different concerns: OCC bottleneck detection (performance validation), read-set validation (validation phase), and lock-free reads (read phase). No merge, split, or revision is warranted.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf",
+        "previous_skill_id": "acc58e44-5bef-5e3e-a6cf-bc06657894c8"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": []
+}

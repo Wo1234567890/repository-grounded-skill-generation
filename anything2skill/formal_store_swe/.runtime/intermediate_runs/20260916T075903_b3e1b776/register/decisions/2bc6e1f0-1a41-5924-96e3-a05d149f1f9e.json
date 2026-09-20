@@ -1,0 +1,103 @@
+{
+  "skill_id": "2bc6e1f0-1a41-5924-96e3-a05d149f1f9e",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct trace lifecycle termination micro_skill with no semantic overlap to existing skills. Existing skills cover data preparation (dataset filtering), UI interaction safety (control disabling), and trace metadata updates—none address trace finalization. Peer candidates (Trace Context Cleanup, Trace Metadata Update, Start Trace Session) are complementary trace management skills at the same layer but different methods (cleanup, metadata, initialization vs. termination). Candidate has clear support evidence from Debugging Roadmap and well-defined constraints/cautions for safe trace closure.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "2bc6e1f0-1a41-5924-96e3-a05d149f1f9e",
+    "name": "End Trace and Finalize",
+    "description": "Terminates the current trace (root span) and finalizes its state. If no trace context is provided, closes all active session spans. Use when completing a debugging session or marking trace completion status.",
+    "skill_body": "Call end_trace() to finalize the current trace with a specified end state. Provide an optional trace_context to target a specific trace; if omitted, all active session spans are closed. Set end_state to TraceState.SUCCESS, TraceState.FAILURE, a custom StatusCode, or a string status. The trace and all its spans are marked complete and no longer accept new events.\n\n## Objective\n\nfinalize trace lifecycle\n## Applicable Signals\n\n- Agent task completion\n- Debugging session end\n- Explicit trace closure request\n\n## Contraindications\n\n- Trace has already been ended\n- Only updating metadata without closing the session\n\n## Workflow Steps\n\n- Verify trace is still active (not already ended)\n- Resolve trace_context: use provided context or default to all active session spans\n- Set end_state to specified value (default: TraceState.SUCCESS)\n- Finalize trace and close all associated spans\n- Return confirmation of finalization\n\n## Constraints\n\n- trace_context must be Optional[TraceContext] or None\n- end_state must be TraceState, StatusCode, or string\n- Once end_trace() is called, the trace cannot accept new spans or events\n\n## Cautions\n\n- Calling end_trace() on an already-ended trace may raise an error or be silently ignored depending on implementation.\n- If trace_context is None, all active session spans are terminated; ensure this is the intended behavior.\n\n## Output Contract\n\n- Trace finalized with specified end state (SUCCESS, FAILURE, or custom StatusCode); all spans closed and trace marked complete.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "finalize trace lifecycle",
+    "domain": "default",
+    "task_family": "trace_management",
+    "method_family": "trace_termination",
+    "stage": "teardown",
+    "applicable_signals": [
+      "Agent task completion",
+      "Debugging session end",
+      "Explicit trace closure request"
+    ],
+    "contraindications": [
+      "Trace has already been ended",
+      "Only updating metadata without closing the session"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Completing a trace session",
+      "Finalizing agent operation monitoring",
+      "Closing all active spans"
+    ],
+    "workflow_steps": [
+      "Verify trace is still active (not already ended)",
+      "Resolve trace_context: use provided context or default to all active session spans",
+      "Set end_state to specified value (default: TraceState.SUCCESS)",
+      "Finalize trace and close all associated spans",
+      "Return confirmation of finalization"
+    ],
+    "constraints": [
+      "trace_context must be Optional[TraceContext] or None",
+      "end_state must be TraceState, StatusCode, or string",
+      "Once end_trace() is called, the trace cannot accept new spans or events"
+    ],
+    "cautions": [
+      "Calling end_trace() on an already-ended trace may raise an error or be silently ignored depending on implementation.",
+      "If trace_context is None, all active session spans are terminated; ensure this is the intended behavior."
+    ],
+    "output_contract": [
+      "Trace finalized with specified end state (SUCCESS, FAILURE, or custom StatusCode); all spans closed and trace marked complete."
+    ],
+    "examples": [],
+    "tags": [
+      "trace_lifecycle",
+      "debugging",
+      "session_management",
+      "span_termination"
+    ],
+    "support_ids": [
+      "96fc7819-b6d4-5237-b047-262491037017"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "ae1a2d77-b009-5232-9da6-347af8232f4f"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|finalize trace lifecycle|default|trace_management|trace_termination|teardown|end trace and finalize"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

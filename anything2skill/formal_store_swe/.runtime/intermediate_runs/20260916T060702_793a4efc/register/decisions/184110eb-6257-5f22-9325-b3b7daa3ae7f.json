@@ -1,0 +1,112 @@
+{
+  "skill_id": "184110eb-6257-5f22-9325-b3b7daa3ae7f",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "184110eb-6257-5f22-9325-b3b7daa3ae7f",
+    "name": "Timestamp-Based Conflict Detection",
+    "description": "Verify that read-write or write-read conflicting transactions commit at different logical or physical timestamps by comparing tuple read timestamps (rts) and write timestamps (wts) against transaction commit timestamps. Ensures serializability by confirming distinct commit ordering for conflicting transaction pairs.",
+    "skill_body": "For a pair of transactions with read-write or write-read conflicts on the same tuple:\n1. Retrieve the tuple's current rts (read timestamp) and wts (write timestamp) by atomically reading the tuple's TS_word.\n2. Obtain the commit timestamp of the reading transaction and the writing transaction.\n3. Verify that the reading transaction's commit timestamp is ≤ tuple's current rts.\n4. Verify that the writing transaction's commit timestamp is > tuple's current rts.\n5. If both conditions hold, the transactions have different commit timestamps and conflict is resolved; otherwise, flag a serializability violation and abort/retry the transaction.\n\n## Objective\n\nDetect and enforce timestamp ordering for conflicting transaction pairs to guarantee serializability\n## Applicable Signals\n\n- Tuple has both rts and wts available\n- Transaction commit timestamps are determinable\n- Conflicting tuple access detected in read and write sets\n- Read-write or write-read conflict identified on same tuple\n\n## Contraindications\n\n- Transactions have no overlapping tuple access\n- Both transactions are read-only (no write-read or read-write conflict)\n- Tuple timestamps are unavailable or stale\n- Write set is not yet locked during validation\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify conflicting transaction pair and tuple', 'input': 'Two transactions with overlapping tuple access (one reads, one writes)'}\n- {'step': 2, 'action': \"Atomically read tuple's TS_word containing rts and wts\", 'input': 'Tuple reference'}\n- {'step': 3, 'action': \"Obtain reading transaction's commit timestamp\", 'input': 'Reading transaction context'}\n- {'step': 4, 'action': \"Obtain writing transaction's commit timestamp\", 'input': 'Writing transaction context'}\n- {'step': 5, 'action': 'Compare reading transaction timestamp against tuple rts', 'condition': 'reading_ts ≤ tuple.rts'}\n- {'step': 6, 'action': 'Compare writing transaction timestamp against tuple rts', 'condition': 'writing_ts > tuple.rts'}\n- {'step': 7, 'action': 'Return conflict resolution status', 'output': 'Boolean: true if both conditions hold (conflict resolved), false otherwise'}\n\n## Constraints\n\n- Tuple wts must be updated atomically with tuple value\n- Reading transaction commit timestamp must be determined after write set is locked to ensure accuracy\n- Comparison must use consistent snapshot of tuple timestamps\n- Write set must be locked before reading transaction's commit timestamp is finalized\n\n## Cautions\n\n- Do not compare timestamps before write set is locked; rts may change during validation\n- Ensure tuple timestamps reflect latest committed state, not in-flight writes\n- Tuple's rts in write set might be changed by different transactions; obtain approximate commit timestamp only after write set locking\n\n## Output Contract\n\n- Boolean confirmation that conflicting transactions have distinct commit timestamps. Success: reading transaction timestamp ≤ tuple rts AND writing transaction timestamp > tuple rts. Failure: either condition violated, indicating serializability violation or need for transaction abort/retry. On success, transactions are ordered in serial schedule with reading transaction after writing transaction.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Detect and enforce timestamp ordering for conflicting transaction pairs to guarantee serializability",
+    "domain": "default",
+    "task_family": "transaction_validation",
+    "method_family": "timestamp_comparison",
+    "stage": "validation",
+    "applicable_signals": [
+      "Tuple has both rts and wts available",
+      "Transaction commit timestamps are determinable",
+      "Conflicting tuple access detected in read and write sets",
+      "Read-write or write-read conflict identified on same tuple"
+    ],
+    "contraindications": [
+      "Transactions have no overlapping tuple access",
+      "Both transactions are read-only (no write-read or read-write conflict)",
+      "Tuple timestamps are unavailable or stale",
+      "Write set is not yet locked during validation"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Transaction pair identified with read-write conflict on same tuple",
+      "Transaction pair identified with write-read conflict on same tuple",
+      "Serializability verification required during validation phase"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Identify conflicting transaction pair and tuple', 'input': 'Two transactions with overlapping tuple access (one reads, one writes)'}",
+      "{'step': 2, 'action': \"Atomically read tuple's TS_word containing rts and wts\", 'input': 'Tuple reference'}",
+      "{'step': 3, 'action': \"Obtain reading transaction's commit timestamp\", 'input': 'Reading transaction context'}",
+      "{'step': 4, 'action': \"Obtain writing transaction's commit timestamp\", 'input': 'Writing transaction context'}",
+      "{'step': 5, 'action': 'Compare reading transaction timestamp against tuple rts', 'condition': 'reading_ts ≤ tuple.rts'}",
+      "{'step': 6, 'action': 'Compare writing transaction timestamp against tuple rts', 'condition': 'writing_ts > tuple.rts'}",
+      "{'step': 7, 'action': 'Return conflict resolution status', 'output': 'Boolean: true if both conditions hold (conflict resolved), false otherwise'}"
+    ],
+    "constraints": [
+      "Tuple wts must be updated atomically with tuple value",
+      "Reading transaction commit timestamp must be determined after write set is locked to ensure accuracy",
+      "Comparison must use consistent snapshot of tuple timestamps",
+      "Write set must be locked before reading transaction's commit timestamp is finalized"
+    ],
+    "cautions": [
+      "Do not compare timestamps before write set is locked; rts may change during validation",
+      "Ensure tuple timestamps reflect latest committed state, not in-flight writes",
+      "Tuple's rts in write set might be changed by different transactions; obtain approximate commit timestamp only after write set locking"
+    ],
+    "output_contract": [
+      "Boolean confirmation that conflicting transactions have distinct commit timestamps. Success: reading transaction timestamp ≤ tuple rts AND writing transaction timestamp > tuple rts. Failure: either condition violated, indicating serializability violation or need for transaction abort/retry. On success, transactions are ordered in serial schedule with reading transaction after writing transaction."
+    ],
+    "examples": [],
+    "tags": [
+      "timestamp_ordering",
+      "conflict_detection",
+      "serializability",
+      "transaction_validation",
+      "concurrency_control",
+      "read-write_conflict"
+    ],
+    "support_ids": [
+      "491556a2-4b9d-5901-b3f8-c27d0fcc138f"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "184ca753-480c-5c00-be6a-5363d4abafa3"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|detect and enforce timestamp ordering for conflicting transaction pairs to guarantee serializability|default|transaction_validation|timestamp_comparison|validation|timestamp-based conflict detection"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

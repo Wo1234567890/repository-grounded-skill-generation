@@ -1,0 +1,108 @@
+{
+  "skill_id": "fe90361b-c77a-51db-95b5-d289a13aafe3",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Significant redundancy with peer_candidates. The candidate 'TF-IDF Vector Scoring' is substantially overlapped by peer skill '00e54a34-f399-5fe5-a040-8254c759e481' (TF-IDF Vector Space Scoring), which covers identical methodology (TF×IDF weighting, vector representation, dot product/cosine similarity, document ranking). The peer skill has equivalent workflow steps, constraints, and cautions. The candidate adds minor specificity around normalization methods and length weighting, but this does not justify maintaining both skills in the same batch. Consolidation to the existing peer candidate is recommended.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "fe90361b-c77a-51db-95b5-d289a13aafe3",
+    "name": "TF-IDF Vector Scoring",
+    "description": "Compute relevance scores for documents by combining term frequency, inverse document frequency, and vector normalization. Use when ranking search results or comparing document similarity in information retrieval tasks.",
+    "skill_body": "For each query-document pair: (1) compute term frequency (tf) for each query term in the document; (2) compute inverse document frequency (idf) for each term across the corpus using idf(t) = log(N / df(t)), where N is total documents and df(t) is document frequency of term t; (3) weight each term as tf × idf; (4) normalize the document vector (e.g., by cosine normalization or pivoted document length normalization); (5) compute the dot product of the query vector and normalized document vector to obtain the final relevance score. Return ranked list of documents sorted by descending score.\n\n## Objective\n\nscore_and_rank_documents\n## Applicable Signals\n\n- query submitted with multiple terms\n- document collection indexed with term frequencies and document frequencies\n- relevance ranking required for downstream presentation or filtering\n\n## Contraindications\n\n- documents are very short or sparse (tf-idf may not capture meaningful signal)\n- query contains no meaningful terms or is empty\n- real-time latency is critical and precomputation of idf and document vectors is unavailable\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Extract or retrieve term frequencies (tf) for each query term in each candidate document'}\n- {'step': 2, 'action': 'Retrieve or compute inverse document frequency (idf) for each query term: idf(t) = log(N / df(t)), where N is total documents and df(t) is document frequency of term t'}\n- {'step': 3, 'action': 'Compute weighted term vector for query: qi = tf(i) × idf(i) for each term i'}\n- {'step': 4, 'action': 'Compute weighted term vector for each document: di = normalized tf(i) × idf(i), applying chosen normalization (e.g., cosine: divide by L2 norm of document vector, or pivoted document length normalization)'}\n- {'step': 5, 'action': 'Compute relevance score as dot product: score(query, document) = Σ(qi × di)'}\n- {'step': 6, 'action': 'Sort documents by descending score and return ranked list with numeric scores'}\n\n## Constraints\n\n- corpus statistics (document frequency, collection size) must be precomputed or available\n- term tokenization and normalization must be consistent between query and document indexing\n- vector normalization method (cosine, pivoted length, or other) must be chosen and applied consistently\n\n## Cautions\n\n- tf-idf assumes term independence; does not capture semantic relationships or phrase structure\n- very long documents may be over-weighted unless length normalization is applied\n- rare terms receive high idf weight; ensure stopword filtering is applied upstream if needed\n\n## Output Contract\n\n- Ranked list of documents with numeric relevance scores; each document paired with its query-document dot product value (cosine similarity or equivalent normalized score). Scores are comparable across documents for the same query.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "score_and_rank_documents",
+    "domain": "information_retrieval",
+    "task_family": "document_scoring",
+    "method_family": "vector_space_model",
+    "stage": "retrieval_ranking",
+    "applicable_signals": [
+      "query submitted with multiple terms",
+      "document collection indexed with term frequencies and document frequencies",
+      "relevance ranking required for downstream presentation or filtering"
+    ],
+    "contraindications": [
+      "documents are very short or sparse (tf-idf may not capture meaningful signal)",
+      "query contains no meaningful terms or is empty",
+      "real-time latency is critical and precomputation of idf and document vectors is unavailable"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "need to rank documents by relevance to a query",
+      "implementing search engine scoring",
+      "comparing document similarity across a collection"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Extract or retrieve term frequencies (tf) for each query term in each candidate document'}",
+      "{'step': 2, 'action': 'Retrieve or compute inverse document frequency (idf) for each query term: idf(t) = log(N / df(t)), where N is total documents and df(t) is document frequency of term t'}",
+      "{'step': 3, 'action': 'Compute weighted term vector for query: qi = tf(i) × idf(i) for each term i'}",
+      "{'step': 4, 'action': 'Compute weighted term vector for each document: di = normalized tf(i) × idf(i), applying chosen normalization (e.g., cosine: divide by L2 norm of document vector, or pivoted document length normalization)'}",
+      "{'step': 5, 'action': 'Compute relevance score as dot product: score(query, document) = Σ(qi × di)'}",
+      "{'step': 6, 'action': 'Sort documents by descending score and return ranked list with numeric scores'}"
+    ],
+    "constraints": [
+      "corpus statistics (document frequency, collection size) must be precomputed or available",
+      "term tokenization and normalization must be consistent between query and document indexing",
+      "vector normalization method (cosine, pivoted length, or other) must be chosen and applied consistently"
+    ],
+    "cautions": [
+      "tf-idf assumes term independence; does not capture semantic relationships or phrase structure",
+      "very long documents may be over-weighted unless length normalization is applied",
+      "rare terms receive high idf weight; ensure stopword filtering is applied upstream if needed"
+    ],
+    "output_contract": [
+      "Ranked list of documents with numeric relevance scores; each document paired with its query-document dot product value (cosine similarity or equivalent normalized score). Scores are comparable across documents for the same query."
+    ],
+    "examples": [],
+    "tags": [
+      "information_retrieval",
+      "document_ranking",
+      "vector_space_model",
+      "tf-idf",
+      "scoring",
+      "search"
+    ],
+    "support_ids": [
+      "f7bd12a9-6f91-5a28-8598-c5940fac1779"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "3cfa44cf-6e99-5972-858e-1579541ae539"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|score_and_rank_documents|information_retrieval|document_scoring|vector_space_model|retrieval_ranking|tf-idf vector scoring"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 0,
+  "branch": "hits0"
+}

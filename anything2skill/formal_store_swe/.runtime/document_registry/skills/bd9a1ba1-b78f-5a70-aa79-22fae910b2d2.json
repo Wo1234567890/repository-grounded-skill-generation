@@ -1,0 +1,134 @@
+{
+  "skill_id": "bd9a1ba1-b78f-5a70-aa79-22fae910b2d2",
+  "name": "Configure GitHub Actions Notebook Test Workflow",
+  "description": "Set up and maintain the test-notebooks.yml CI workflow to automatically execute Jupyter notebooks on pull requests, manage provider API secrets in the GitHub Actions environment, and exclude notebooks requiring manual testing.",
+  "skill_body": "Configure the test-notebooks.yml GitHub Actions workflow file to trigger on PR events affecting agentops/, examples/, or tests/ directories. Install AgentOps from the main branch, set up provider API keys as environment variables from GitHub secrets, execute each notebook sequentially, skip notebooks listed in exclude_notebooks, and report pass/fail status. Verify the workflow runs on PR merges and supports manual trigger invocation.\n\n## Objective\n\nAutomate notebook-based integration testing in CI/CD pipeline via GitHub Actions configuration\n## Applicable Signals\n\n- PR event with modified notebook or provider code\n- New LLM provider added requiring test coverage\n- Provider API credentials need to be registered in CI environment\n- Notebook exclusion rules need updating\n\n## Contraindications\n\n- Do not use for local notebook debugging or development iteration\n- Do not use for managing provider API keys outside the CI/CD context\n- Do not use for testing notebook logic itself; use local execution instead\n- Do not apply to workflows that do not use GitHub Actions\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Define workflow trigger', 'detail': 'Set on: pull_request with paths filter for agentops/**, examples/**, tests/**; add manual workflow_dispatch for on-demand runs'}\n- {'step': 2, 'action': 'Set up environment', 'detail': 'Configure job to run on ubuntu-latest; set up Python matrix for multiple versions'}\n- {'step': 3, 'action': 'Install dependencies', 'detail': 'Install AgentOps from main branch; install notebook execution dependencies (jupyter, nbconvert, or equivalent)'}\n- {'step': 4, 'action': 'Configure provider secrets', 'detail': 'Export provider API keys from GitHub Actions secrets as environment variables for each LLM provider'}\n- {'step': 5, 'action': 'Execute notebooks', 'detail': 'Iterate over notebooks in examples/ directory; skip notebooks in exclude_notebooks list; execute each notebook and capture output'}\n- {'step': 6, 'action': 'Report results', 'detail': 'Fail workflow if any notebook execution returns non-zero exit code; upload logs or artifacts for debugging'}\n\n## Constraints\n\n- Workflow file must be located in .github/workflows/test-notebooks.yml\n- Trigger paths must include agentops/**, examples/**, and tests/**\n- Provider API keys must be configured as GitHub Actions secrets before workflow execution\n- Notebooks requiring manual testing must be explicitly listed in exclude_notebooks\n- Workflow must support multiple Python versions\n\n## Cautions\n\n- Ensure all provider API secrets are registered in GitHub repository settings before enabling the workflow\n- Verify exclude_notebooks list is updated when adding notebooks that require manual intervention\n- Monitor workflow execution time; long-running notebooks may cause CI timeouts\n- Test workflow changes on a feature branch before merging to main\n\n## Output Contract\n\n- Workflow file is valid YAML, triggers correctly on PR events, installs all dependencies, executes all non-excluded notebooks against actual LLM APIs, and reports pass/fail status. Excluded notebooks are skipped without error. Environment variables for provider API keys are set and accessible to notebook execution.\n\n## Example Executions\n\n### Example 1\n\n- Input: Pull request modifies examples/openai/basic_completion.ipynb\n- Output: Workflow triggers, installs AgentOps, sets OPENAI_API_KEY from GitHub secret, executes all notebooks in examples/ except those in exclude_notebooks, reports success or failure\n- Notes: Demonstrates standard PR-triggered execution path\n\n### Example 2\n\n- Input: New provider notebook added to examples/anthropic/; exclude_notebooks list not updated\n- Output: Workflow executes new notebook; if it requires manual setup, workflow may fail; developer must add notebook name to exclude_notebooks and re-run\n- Notes: Illustrates importance of maintaining exclude_notebooks configuration",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "c31ddfb9-dade-537c-b1a5-7a488905160a",
+  "parent_candidate_ids": [
+    "c31ddfb9-dade-537c-b1a5-7a488905160a"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "linked",
+  "visible_role": "leaf",
+  "objective": "Automate notebook-based integration testing in CI/CD pipeline via GitHub Actions configuration",
+  "domain": "default",
+  "task_family": "ci_cd_configuration",
+  "method_family": "github_actions",
+  "stage": "deployment",
+  "applicable_signals": [
+    "PR event with modified notebook or provider code",
+    "New LLM provider added requiring test coverage",
+    "Provider API credentials need to be registered in CI environment",
+    "Notebook exclusion rules need updating"
+  ],
+  "contraindications": [
+    "Do not use for local notebook debugging or development iteration",
+    "Do not use for managing provider API keys outside the CI/CD context",
+    "Do not use for testing notebook logic itself; use local execution instead",
+    "Do not apply to workflows that do not use GitHub Actions"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Pull request opened or updated with changes to agentops/, examples/, or tests/ directories",
+    "Manual workflow dispatch trigger",
+    "Merge to main branch"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Define workflow trigger', 'detail': 'Set on: pull_request with paths filter for agentops/**, examples/**, tests/**; add manual workflow_dispatch for on-demand runs'}",
+    "{'step': 2, 'action': 'Set up environment', 'detail': 'Configure job to run on ubuntu-latest; set up Python matrix for multiple versions'}",
+    "{'step': 3, 'action': 'Install dependencies', 'detail': 'Install AgentOps from main branch; install notebook execution dependencies (jupyter, nbconvert, or equivalent)'}",
+    "{'step': 4, 'action': 'Configure provider secrets', 'detail': 'Export provider API keys from GitHub Actions secrets as environment variables for each LLM provider'}",
+    "{'step': 5, 'action': 'Execute notebooks', 'detail': 'Iterate over notebooks in examples/ directory; skip notebooks in exclude_notebooks list; execute each notebook and capture output'}",
+    "{'step': 6, 'action': 'Report results', 'detail': 'Fail workflow if any notebook execution returns non-zero exit code; upload logs or artifacts for debugging'}"
+  ],
+  "constraints": [
+    "Workflow file must be located in .github/workflows/test-notebooks.yml",
+    "Trigger paths must include agentops/**, examples/**, and tests/**",
+    "Provider API keys must be configured as GitHub Actions secrets before workflow execution",
+    "Notebooks requiring manual testing must be explicitly listed in exclude_notebooks",
+    "Workflow must support multiple Python versions"
+  ],
+  "cautions": [
+    "Ensure all provider API secrets are registered in GitHub repository settings before enabling the workflow",
+    "Verify exclude_notebooks list is updated when adding notebooks that require manual intervention",
+    "Monitor workflow execution time; long-running notebooks may cause CI timeouts",
+    "Test workflow changes on a feature branch before merging to main"
+  ],
+  "output_contract": [
+    "Workflow file is valid YAML, triggers correctly on PR events, installs all dependencies, executes all non-excluded notebooks against actual LLM APIs, and reports pass/fail status. Excluded notebooks are skipped without error. Environment variables for provider API keys are set and accessible to notebook execution."
+  ],
+  "examples": [
+    {
+      "input": "Pull request modifies examples/openai/basic_completion.ipynb",
+      "output": "Workflow triggers, installs AgentOps, sets OPENAI_API_KEY from GitHub secret, executes all notebooks in examples/ except those in exclude_notebooks, reports success or failure",
+      "notes": "Demonstrates standard PR-triggered execution path"
+    },
+    {
+      "input": "New provider notebook added to examples/anthropic/; exclude_notebooks list not updated",
+      "output": "Workflow executes new notebook; if it requires manual setup, workflow may fail; developer must add notebook name to exclude_notebooks and re-run",
+      "notes": "Illustrates importance of maintaining exclude_notebooks configuration"
+    }
+  ],
+  "tags": [
+    "ci_cd",
+    "github_actions",
+    "notebook_testing",
+    "integration_testing",
+    "workflow_configuration",
+    "automation"
+  ],
+  "support_ids": [
+    "70f1bbb2-722b-588e-ab20-22917746a6e7"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "62e4ad5f-801f-5cbf-94d2-da7f0bac3e84"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.82,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|automate notebook-based integration testing in ci/cd pipeline via github actions configuration|default|ci_cd_configuration|github_actions|deployment|configure github actions notebook test workflow",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct micro_skill for GitHub Actions CI/CD workflow configuration (test-notebooks.yml) with no semantic overlap to existing skills. Existing skills cover D3 variable management, Flink job execution, and unrelated tool/data setup. Peer candidates (Test Data Organization, CrewAI Tool Integration, Nested Span Hierarchy) are orthogonal—they address test data structure, tool provisioning, and observability instrumentation respectively, not CI/CD workflow automation. Candidate has clear support evidence and no conflicts.",
+    "parent_skill_id": "c31ddfb9-dade-537c-b1a5-7a488905160a",
+    "parent_candidate_ids": [
+      "c31ddfb9-dade-537c-b1a5-7a488905160a"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "linked",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

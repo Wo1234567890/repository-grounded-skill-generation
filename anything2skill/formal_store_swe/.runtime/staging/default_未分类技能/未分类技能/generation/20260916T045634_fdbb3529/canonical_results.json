@@ -1,0 +1,147 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "generation",
+  "run_id": "20260916T045634_fdbb3529",
+  "skills": [
+    {
+      "skill_id": "77301bc9-1895-5903-85d4-c09b6dabca74",
+      "name": "Completion Batch Generation",
+      "description": "Sample a batch of prompts and generate G completions per prompt during each GRPO training step. This grouped generation is the core mechanism that enables relative policy optimization by creating multiple candidate outputs for each prompt.",
+      "skill_body": "At each training step, sample a batch of prompts from the dataset. For each prompt, generate G completions using the current policy model. Index and organize completions by prompt to prepare for downstream reward scoring and advantage computation.\n\n## Objective\n\nGenerate multiple candidate completions for policy optimization\n## Applicable Signals\n\n- Training loop iteration begins\n- Prompt batch size and G (completions per prompt) configured\n- Model in inference mode\n\n## Contraindications\n\n- Inference-only mode without training objective\n- Single completion per prompt is sufficient for the use case\n- Computational budget does not support G > 1 completions per prompt\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Load batch of prompts from training dataset'}\n- {'step': 2, 'action': 'Set model to inference mode (no gradients)'}\n- {'step': 3, 'action': 'For each prompt in batch, generate G completions using the policy model'}\n- {'step': 4, 'action': 'Index and organize completions by source prompt'}\n- {'step': 5, 'action': 'Return structured batch: {prompt_id: [completion_1, ..., completion_G]}'}\n\n## Constraints\n\n- G must be >= 1 (number of completions per prompt)\n- All completions must be indexed by source prompt\n- Completion length and format must be consistent for downstream reward scoring\n\n## Cautions\n\n- Generating G completions per prompt increases computational cost linearly with G\n- Ensure model is in evaluation mode to avoid unintended gradient accumulation during generation\n\n## Output Contract\n\n- Structured batch of completions indexed by prompt. Each prompt has exactly G completions. Completions are ready for reward scoring and advantage computation in the next training step.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Generate multiple candidate completions for policy optimization",
+      "domain": "default",
+      "task_family": "generation",
+      "method_family": "batch_sampling",
+      "stage": "data_preparation",
+      "applicable_signals": [
+        "Training loop iteration begins",
+        "Prompt batch size and G (completions per prompt) configured",
+        "Model in inference mode"
+      ],
+      "contraindications": [
+        "Inference-only mode without training objective",
+        "Single completion per prompt is sufficient for the use case",
+        "Computational budget does not support G > 1 completions per prompt"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Start of each GRPO training step",
+        "Batch of prompts loaded and ready for processing",
+        "Policy model available for inference"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Load batch of prompts from training dataset'}",
+        "{'step': 2, 'action': 'Set model to inference mode (no gradients)'}",
+        "{'step': 3, 'action': 'For each prompt in batch, generate G completions using the policy model'}",
+        "{'step': 4, 'action': 'Index and organize completions by source prompt'}",
+        "{'step': 5, 'action': 'Return structured batch: {prompt_id: [completion_1, ..., completion_G]}'}"
+      ],
+      "constraints": [
+        "G must be >= 1 (number of completions per prompt)",
+        "All completions must be indexed by source prompt",
+        "Completion length and format must be consistent for downstream reward scoring"
+      ],
+      "cautions": [
+        "Generating G completions per prompt increases computational cost linearly with G",
+        "Ensure model is in evaluation mode to avoid unintended gradient accumulation during generation"
+      ],
+      "output_contract": [
+        "Structured batch of completions indexed by prompt. Each prompt has exactly G completions. Completions are ready for reward scoring and advantage computation in the next training step."
+      ],
+      "examples": [],
+      "tags": [
+        "grpo",
+        "batch_generation",
+        "policy_optimization",
+        "sampling",
+        "training_step"
+      ],
+      "support_ids": [
+        "608f01a4-bcc0-52ac-b5f2-291ca791c33a"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "82cc9c54-fdd3-5ff3-9037-139de804d10b"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|generate multiple candidate completions for policy optimization|default|generation|batch_sampling|data_preparation|completion batch generation",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill for batch completion generation during GRPO training—a core data preparation operation with no semantic overlap to existing skills (checkpoint distribution and route leak analysis are unrelated domains). Peer candidates address reward function integration at different stages (reward_setup, reward_scoring, reward_definition) and are orthogonal to completion generation. Candidate has clear support from GRPO Trainer documentation and no conflicts.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "55234ddf-a3cc-4cd9-a7de-1436b3c8c937",
+      "entity_type": "skill",
+      "entity_id": "77301bc9-1895-5903-85d4-c09b6dabca74",
+      "action": "create",
+      "changed_at": "2026-09-15T18:56:22+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill for batch completion generation during GRPO training—a core data preparation operation with no semantic overlap to existing skills (checkpoint distribution and route leak analysis are unrelated domains). Peer candidates address reward function integration at different stages (reward_setup, reward_scoring, reward_definition) and are orthogonal to completion generation. Candidate has clear support from GRPO Trainer documentation and no conflicts.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "77301bc9-1895-5903-85d4-c09b6dabca74",
+        "doc_ids": [
+          "1b1cfe5e-1be5-5bc1-9b07-6e37f39e1ae1"
+        ],
+        "support_added": [
+          "608f01a4-bcc0-52ac-b5f2-291ca791c33a"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

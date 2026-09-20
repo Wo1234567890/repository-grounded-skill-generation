@@ -1,0 +1,117 @@
+{
+  "skill_id": "ba427050-7f6d-5312-9015-b85cded85fd1",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for environment variable injection with no semantic overlap to existing skills. Existing skills cover Ehcache migration, D3 variable management, method patching, trace configuration, and AgentOps initialization—none address safe credential loading via dotenv. Peer candidates (method patching, trace config, AgentOps init) are complementary setup operations in different task families. Candidate has clear support evidence and no conflicts.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "ba427050-7f6d-5312-9015-b85cded85fd1",
+    "name": "Load and Inject Environment Variables Safely",
+    "description": "Retrieve API keys from environment or configuration source and inject them into os.environ with fallback defaults, ensuring secure credential handling without hardcoding secrets.",
+    "skill_body": "Load environment variables from a .env file or system environment using dotenv. Retrieve API keys (e.g., OPENAI_API_KEY, AGENTOPS_API_KEY) and inject them into os.environ with fallback defaults. Ensure the keys are available in the environment before downstream client initialization.\n\n## Objective\n\nSafely load and set API credentials without hardcoding secrets\n## Applicable Signals\n\n- dotenv library available\n- .env file present in project root or parent directory\n- System environment variables set\n\n## Contraindications\n\n- Credentials are already in memory\n- Running in a restricted environment where os.environ modification is forbidden\n- Using a secrets manager that handles injection automatically\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Import required modules', 'detail': 'Import dotenv.load_dotenv and os'}\n- {'step': 2, 'action': 'Load .env file', 'detail': 'Call load_dotenv() to read environment variables from .env file'}\n- {'step': 3, 'action': 'Retrieve and inject OPENAI_API_KEY', 'detail': 'Use os.getenv() to retrieve OPENAI_API_KEY from environment; set os.environ[\"OPENAI_API_KEY\"] with fallback default'}\n- {'step': 4, 'action': 'Retrieve and inject AGENTOPS_API_KEY', 'detail': 'Use os.getenv() to retrieve AGENTOPS_API_KEY from environment; set os.environ[\"AGENTOPS_API_KEY\"] with fallback default'}\n- {'step': 5, 'action': 'Verify injection', 'detail': 'Confirm that os.environ contains both keys with non-empty values'}\n\n## Constraints\n\n- dotenv must be imported and load_dotenv() callable\n- os module must be available\n- Fallback defaults should never contain real secrets; use placeholder strings only\n\n## Cautions\n\n- Do not log or print actual API key values\n- Ensure .env file is in .gitignore to prevent accidental secret commits\n- Verify that os.environ modifications persist for the entire application session\n\n## Output Contract\n\n- os.environ contains OPENAI_API_KEY and AGENTOPS_API_KEY with valid values ready for downstream client initialization\n\n## Example Executions\n\n### Example 1\n\n- Input: .env file contains OPENAI_API_KEY=sk-... and AGENTOPS_API_KEY=...\n- Output: os.environ[\"OPENAI_API_KEY\"] and os.environ[\"AGENTOPS_API_KEY\"] are set with loaded values\n- Notes: Standard case: credentials loaded from .env file\n\n### Example 2\n\n- Input: .env file missing; system environment has OPENAI_API_KEY set\n- Output: os.environ[\"OPENAI_API_KEY\"] is set from system environment; AGENTOPS_API_KEY uses fallback default\n- Notes: Partial environment case: one key from system, one from fallback",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Safely load and set API credentials without hardcoding secrets",
+    "domain": "default",
+    "task_family": "credential_management",
+    "method_family": "environment_variable_injection",
+    "stage": "setup",
+    "applicable_signals": [
+      "dotenv library available",
+      ".env file present in project root or parent directory",
+      "System environment variables set"
+    ],
+    "contraindications": [
+      "Credentials are already in memory",
+      "Running in a restricted environment where os.environ modification is forbidden",
+      "Using a secrets manager that handles injection automatically"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Application requires external API keys (OpenAI, AgentOps, etc.)",
+      "Credentials are stored in .env files or system environment",
+      "Before client initialization that depends on environment variables"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Import required modules', 'detail': 'Import dotenv.load_dotenv and os'}",
+      "{'step': 2, 'action': 'Load .env file', 'detail': 'Call load_dotenv() to read environment variables from .env file'}",
+      "{'step': 3, 'action': 'Retrieve and inject OPENAI_API_KEY', 'detail': 'Use os.getenv() to retrieve OPENAI_API_KEY from environment; set os.environ[\"OPENAI_API_KEY\"] with fallback default'}",
+      "{'step': 4, 'action': 'Retrieve and inject AGENTOPS_API_KEY', 'detail': 'Use os.getenv() to retrieve AGENTOPS_API_KEY from environment; set os.environ[\"AGENTOPS_API_KEY\"] with fallback default'}",
+      "{'step': 5, 'action': 'Verify injection', 'detail': 'Confirm that os.environ contains both keys with non-empty values'}"
+    ],
+    "constraints": [
+      "dotenv must be imported and load_dotenv() callable",
+      "os module must be available",
+      "Fallback defaults should never contain real secrets; use placeholder strings only"
+    ],
+    "cautions": [
+      "Do not log or print actual API key values",
+      "Ensure .env file is in .gitignore to prevent accidental secret commits",
+      "Verify that os.environ modifications persist for the entire application session"
+    ],
+    "output_contract": [
+      "os.environ contains OPENAI_API_KEY and AGENTOPS_API_KEY with valid values ready for downstream client initialization"
+    ],
+    "examples": [
+      {
+        "input": ".env file contains OPENAI_API_KEY=sk-... and AGENTOPS_API_KEY=...",
+        "output": "os.environ[\"OPENAI_API_KEY\"] and os.environ[\"AGENTOPS_API_KEY\"] are set with loaded values",
+        "notes": "Standard case: credentials loaded from .env file"
+      },
+      {
+        "input": ".env file missing; system environment has OPENAI_API_KEY set",
+        "output": "os.environ[\"OPENAI_API_KEY\"] is set from system environment; AGENTOPS_API_KEY uses fallback default",
+        "notes": "Partial environment case: one key from system, one from fallback"
+      }
+    ],
+    "tags": [
+      "credential_management",
+      "environment_setup",
+      "api_key_injection",
+      "dotenv",
+      "security"
+    ],
+    "support_ids": [
+      "53b5c31a-8dd6-5390-ba4d-d2474af5e4b8"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "f0419b8f-370c-57f5-92f5-06b73688cfb9"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|safely load and set api credentials without hardcoding secrets|default|credential_management|environment_variable_injection|setup|load and inject environment variables safely"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

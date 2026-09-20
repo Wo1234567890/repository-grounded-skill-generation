@@ -1,0 +1,112 @@
+{
+  "skill_id": "0e20e2d8-98d7-5f5f-91fb-03614b550217",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for tool-LLM binding with callback instrumentation in agent workflows. It does not match any existing skill semantically (existing skills cover DOM events, data streams, and timers—different domains entirely). Peer candidates are related but separate: one covers SDK initialization, one covers SwarmZero config, one covers decorator annotation. This skill is orthogonal—it addresses the specific workflow of attaching tools to an LLM instance with observability callbacks, which is a unique capability not covered by peers or existing registry.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "0e20e2d8-98d7-5f5f-91fb-03614b550217",
+    "name": "Bind Tools to LLM with Callback Tracking",
+    "description": "Attach tool definitions to an LLM instance and ensure each tool has the AgentOps callback handler assigned so that tool invocations are recorded as observable spans during agent execution.",
+    "skill_body": "1. Iterate over each tool in your tools list.\n2. Assign the agentops_handler callback to each tool's callbacks attribute.\n3. Bind the tools to the LLM instance using llm.bind_tools([...]).\n4. Verify that the LLM instance now has tools attached and each tool carries the callback handler.\nResult: Tool calls will be recorded as spans in the AgentOps session.\n\n## Objective\n\nEnable observability of tool usage within an agent workflow\n## Applicable Signals\n\n- Agent workflow includes tool definitions (e.g., @tool decorated functions)\n- AgentOps callback handler has been initialized\n- LLM instance is ready for tool binding\n\n## Contraindications\n\n- Agent does not use external tools\n- Tools are pre-instrumented or managed by a framework that handles callbacks automatically\n- Callback handler has not been initialized before tool binding\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Create or retrieve the AgentOps callback handler instance', 'detail': 'agentops_handler = AgentOpsLangchainCallbackHandler(tags=[...])'}\n- {'step': 2, 'action': 'Define tool functions with @tool decorator', 'detail': 'Each tool should have a clear docstring and return type'}\n- {'step': 3, 'action': 'Assign callback handler to each tool', 'detail': 'for t in tools: t.callbacks = [agentops_handler]'}\n- {'step': 4, 'action': 'Bind tools to LLM instance', 'detail': 'llm_with_tools = llm.bind_tools([tool1, tool2, ...])'}\n- {'step': 5, 'action': 'Verify binding and callback attachment', 'detail': 'Confirm LLM instance has tools and each tool carries the handler'}\n\n## Constraints\n\n- AgentOps callback handler must be instantiated before tool assignment\n- All tools requiring observability must be included in the iteration\n- LLM instance must support bind_tools method\n\n## Cautions\n\n- Ensure callback handler is initialized before assigning to tools\n- All tools in the tools list must be processed; missing tools will not be tracked\n- Tool callbacks must be set before bind_tools is called for consistent recording\n\n## Output Contract\n\n- Tools are bound to the LLM instance; each tool has the AgentOps callback handler attached; subsequent tool invocations will be recorded as spans in the AgentOps session and visible in the dashboard.\n\n## Example Executions\n\n### Example 1\n\n- Input: tools = [find_movie, search_api]; agentops_handler initialized\n- Output: Each tool has t.callbacks = [agentops_handler]; llm_with_tools = llm.bind_tools([find_movie, search_api])\n- Notes: Tool calls will now appear as spans in AgentOps session",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Enable observability of tool usage within an agent workflow",
+    "domain": "default",
+    "task_family": "agent_instrumentation",
+    "method_family": "tool_instrumentation",
+    "stage": "setup",
+    "applicable_signals": [
+      "Agent workflow includes tool definitions (e.g., @tool decorated functions)",
+      "AgentOps callback handler has been initialized",
+      "LLM instance is ready for tool binding"
+    ],
+    "contraindications": [
+      "Agent does not use external tools",
+      "Tools are pre-instrumented or managed by a framework that handles callbacks automatically",
+      "Callback handler has not been initialized before tool binding"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Configuring an LLM-based agent that uses external tools",
+      "Before agent execution begins",
+      "When tools need to be bound to an LLM instance"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Create or retrieve the AgentOps callback handler instance', 'detail': 'agentops_handler = AgentOpsLangchainCallbackHandler(tags=[...])'}",
+      "{'step': 2, 'action': 'Define tool functions with @tool decorator', 'detail': 'Each tool should have a clear docstring and return type'}",
+      "{'step': 3, 'action': 'Assign callback handler to each tool', 'detail': 'for t in tools: t.callbacks = [agentops_handler]'}",
+      "{'step': 4, 'action': 'Bind tools to LLM instance', 'detail': 'llm_with_tools = llm.bind_tools([tool1, tool2, ...])'}",
+      "{'step': 5, 'action': 'Verify binding and callback attachment', 'detail': 'Confirm LLM instance has tools and each tool carries the handler'}"
+    ],
+    "constraints": [
+      "AgentOps callback handler must be instantiated before tool assignment",
+      "All tools requiring observability must be included in the iteration",
+      "LLM instance must support bind_tools method"
+    ],
+    "cautions": [
+      "Ensure callback handler is initialized before assigning to tools",
+      "All tools in the tools list must be processed; missing tools will not be tracked",
+      "Tool callbacks must be set before bind_tools is called for consistent recording"
+    ],
+    "output_contract": [
+      "Tools are bound to the LLM instance; each tool has the AgentOps callback handler attached; subsequent tool invocations will be recorded as spans in the AgentOps session and visible in the dashboard."
+    ],
+    "examples": [
+      {
+        "input": "tools = [find_movie, search_api]; agentops_handler initialized",
+        "output": "Each tool has t.callbacks = [agentops_handler]; llm_with_tools = llm.bind_tools([find_movie, search_api])",
+        "notes": "Tool calls will now appear as spans in AgentOps session"
+      }
+    ],
+    "tags": [
+      "agent_instrumentation",
+      "tool_binding",
+      "observability",
+      "callback_tracking",
+      "langchain"
+    ],
+    "support_ids": [
+      "46420e86-3c42-53f2-8b06-87f8b8615aab"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "d79da92b-42ea-575c-9240-6e90975ba24f"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|enable observability of tool usage within an agent workflow|default|agent_instrumentation|tool_instrumentation|setup|bind tools to llm with callback tracking"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

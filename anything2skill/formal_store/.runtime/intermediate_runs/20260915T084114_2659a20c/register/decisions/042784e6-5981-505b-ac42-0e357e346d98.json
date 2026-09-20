@@ -1,0 +1,111 @@
+{
+  "skill_id": "042784e6-5981-505b-ac42-0e357e346d98",
+  "action": "strengthen",
+  "matched_skill_ids": [
+    "d2d734a8-0322-51e2-a503-f256a0d31d5c"
+  ],
+  "reason": "Candidate is a credential validation safety rule at session granularity with fail-fast exception escalation pattern. While semantically distinct from BrokenProcessPool handling, it shares the same asset_type (safety_rule), granularity (session), asset_node_id (safety_rule_node), asset_level (2), and method_family (exception_escalation). The candidate demonstrates a complementary initialization-stage validation pattern that strengthens the broader exception escalation framework already established in BrokenProcessPool Exception Handling. The support evidence from Debugging Roadmap confirms this is an active constraint in the codebase. Peer candidates are orthogonal (instrumentation safety, agent failure monitoring, code style enforcement) and do not suggest a split relationship.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "042784e6-5981-505b-ac42-0e357e346d98",
+    "name": "API Key Validation and NoApiKeyException Escalation",
+    "description": "Detect and handle BrokenProcessPool exception raised when a worker process in ProcessPoolExecutor terminates abruptly. Prevents undefined behavior such as freezing or deadlock by catching the exception, logging the failure, and ensuring graceful cleanup before escalating to caller. Complements mandatory credential validation at initialization to ensure only properly configured clients enter execution phase.",
+    "skill_body": "Check that self.config.api_key is non-empty and non-None. If the API key is missing or empty, raise NoApiKeyException immediately to halt initialization. This is a mandatory guard that must execute before any API calls or session operations.\n\n## Objective\n\nPrevent uninitialized client operation due to missing credentials\n## Applicable Signals\n\n- Client initialization is in progress\n- Config object has been instantiated\n- API key presence must be verified before any API calls\n\n## Contraindications\n\n- API key is optional or deferred in the current execution context\n- Client is operating in offline or mock mode\n- Credential validation is handled by a parent system or wrapper\n\n## Intervention Moves\n\n- Catch BrokenProcessPool exception at executor operation boundary\n- Log exception with context (which operation, which futures affected)\n- Trigger executor cleanup (context manager exit or explicit shutdown)\n- Escalate failure state to caller for recovery or retry decision\n\n## Workflow Steps\n\n- Identify ProcessPoolExecutor operation boundary (submit, map, or future result access)\n- Wrap operation in try-except block targeting BrokenProcessPool\n- In except block: log exception with operation context and affected futures\n- Initiate executor cleanup (context manager exit or shutdown)\n- Re-raise exception or notify caller of pool failure state\n\n## Constraints\n\n- Must be applied at ProcessPoolExecutor operation boundary (submit, map, or future result access)\n- Exception must not be silently suppressed; escalation is mandatory\n- Executor cleanup must complete before returning control to caller\n\n## Cautions\n\n- BrokenProcessPool indicates worker process failure; recovery may require pool restart or fallback to sequential execution\n- Futures submitted before the crash may be lost; caller must handle incomplete results\n- Do not attempt to reuse the same executor instance after BrokenProcessPool; create a new one\n\n## Output Contract\n\n- On success: API key is confirmed non-empty in self.config.api_key; execution proceeds to next initialization step. On failure: NoApiKeyException is raised and initialization halts.",
+    "asset_type": "safety_rule",
+    "granularity": "session",
+    "asset_node_id": "safety_rule_node",
+    "asset_path": "family_root/safety_module/safety_rule_node",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "leaf",
+    "objective": "Prevent uninitialized client operation due to missing credentials",
+    "domain": "default",
+    "task_family": "credential_validation",
+    "method_family": "mandatory_field_check_with_exception",
+    "stage": "initialization",
+    "applicable_signals": [
+      "Client initialization is in progress",
+      "Config object has been instantiated",
+      "API key presence must be verified before any API calls"
+    ],
+    "contraindications": [
+      "API key is optional or deferred in the current execution context",
+      "Client is operating in offline or mock mode",
+      "Credential validation is handled by a parent system or wrapper"
+    ],
+    "intervention_moves": [
+      "Catch BrokenProcessPool exception at executor operation boundary",
+      "Log exception with context (which operation, which futures affected)",
+      "Trigger executor cleanup (context manager exit or explicit shutdown)",
+      "Escalate failure state to caller for recovery or retry decision"
+    ],
+    "triggers": [
+      "Client initialization is in progress; config object has been instantiated; API key presence must be verified before any API calls"
+    ],
+    "workflow_steps": [
+      "Identify ProcessPoolExecutor operation boundary (submit, map, or future result access)",
+      "Wrap operation in try-except block targeting BrokenProcessPool",
+      "In except block: log exception with operation context and affected futures",
+      "Initiate executor cleanup (context manager exit or shutdown)",
+      "Re-raise exception or notify caller of pool failure state"
+    ],
+    "constraints": [
+      "Must be applied at ProcessPoolExecutor operation boundary (submit, map, or future result access)",
+      "Exception must not be silently suppressed; escalation is mandatory",
+      "Executor cleanup must complete before returning control to caller"
+    ],
+    "cautions": [
+      "BrokenProcessPool indicates worker process failure; recovery may require pool restart or fallback to sequential execution",
+      "Futures submitted before the crash may be lost; caller must handle incomplete results",
+      "Do not attempt to reuse the same executor instance after BrokenProcessPool; create a new one"
+    ],
+    "output_contract": [
+      "On success: API key is confirmed non-empty in self.config.api_key; execution proceeds to next initialization step. On failure: NoApiKeyException is raised and initialization halts."
+    ],
+    "examples": [],
+    "tags": [
+      "initialization",
+      "credential_validation",
+      "safety_guard",
+      "exception_escalation"
+    ],
+    "support_ids": [
+      "54b5adbc-fdfc-5106-b050-821142ab5ed4"
+    ],
+    "metadata": {
+      "risk_class": "high",
+      "source_draft_ids": [
+        "9ae5e2a8-9d8c-57d7-a439-3fb11329197b"
+      ],
+      "support_summary": {
+        "support": 0,
+        "constraint": 1,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||safety_rule|session|safety_rule_node|prevent uninitialized client operation due to missing credentials|default|credential_validation|mandatory_field_check_with_exception|initialization|api key validation and noapikeyexception escalation",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

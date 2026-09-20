@@ -1,0 +1,189 @@
+{
+  "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+  "title": "agentops-docs.txt",
+  "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+  "window_id": "0d2720b1-59d9-525c-8245-6c58f6e4d7f5",
+  "section_heading": "Debugging Roadmap",
+  "strategy": "strict",
+  "supports": [
+    {
+      "support_id": "63d03ec7-2cd1-586d-b607-faf91a8494da",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 26615,
+        "end": 27192
+      },
+      "excerpt": "4. **Example Implementation Structure**:\n   ```python\n   def handle_response(self, response, kwargs, init_timestamp, session=None):\n       llm_event = LLMEvent(init_timestamp=init_timestamp, params=kwargs)\n       try:\n           # Process response\n           llm_event.returns = response.model_dump()\n           llm_event.prompt = kwargs[\"messages\"]\n           # ... additional processing\n           self._safe_record(session, llm_event)\n       except Exception as e:\n           self._safe_record(session, ErrorEvent(trigger_event=llm_event, exception=e))\n   ```\n\n## Code Style",
+      "relation_type": "support",
+      "confidence": 0.75,
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "LLM Event Capture and Error Handling",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "capture_and_record_llm_interactions",
+        "task_family": "event_instrumentation",
+        "method_family": "structured_logging",
+        "stage": "runtime_monitoring",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "0d2720b1-59d9-525c-8245-6c58f6e4d7f5",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "session"
+        ],
+        "paragraph_start": 0,
+        "paragraph_end": 1,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      },
+      "created_at": "2026-09-14T22:50:27+00:00"
+    }
+  ],
+  "skill_drafts": [
+    {
+      "draft_id": "c9177ffa-6429-5dbb-b3d1-aad93879b6a9",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "name": "LLM Event Capture and Error Handling",
+      "description": "Captures LLM request/response lifecycle events (parameters, outputs, timestamps) and wraps exceptions in error events for safe recording. Use when instrumenting LLM API calls to build an audit trail of interactions and failures.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "capture_and_record_llm_interactions",
+      "domain": "default",
+      "task_family": "event_instrumentation",
+      "method_family": "structured_logging",
+      "stage": "runtime_monitoring",
+      "applicable_signals": [
+        "LLM API call completion",
+        "Response object available",
+        "Exception raised during response processing"
+      ],
+      "contraindications": [
+        "Recording is disabled or not configured",
+        "Session is None and no fallback handler exists",
+        "Response object does not support model_dump() method"
+      ],
+      "intervention_moves": [
+        "Create LLMEvent with init_timestamp and request parameters",
+        "Extract and assign response data via model_dump()",
+        "Extract and assign prompt from kwargs[\"messages\"]",
+        "Catch exceptions and wrap in ErrorEvent with trigger_event reference",
+        "Call _safe_record(session, event) to persist event"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Initialize LLMEvent with init_timestamp and kwargs (request parameters)'}",
+        "{'step': 2, 'action': 'Extract response data via response.model_dump() and assign to llm_event.returns'}",
+        "{'step': 3, 'action': 'Extract prompt from kwargs[\"messages\"] and assign to llm_event.prompt'}",
+        "{'step': 4, 'action': 'Perform any additional processing on llm_event'}",
+        "{'step': 5, 'action': 'Call _safe_record(session, llm_event) to persist the event'}",
+        "{'step': 6, 'action': 'On exception: create ErrorEvent with trigger_event=llm_event and exception details'}",
+        "{'step': 7, 'action': 'Call _safe_record(session, error_event) to persist the error'}"
+      ],
+      "triggers": [
+        "LLM API call completes and needs to be recorded; exception occurs during response processing"
+      ],
+      "constraints": [
+        "init_timestamp must be set before LLMEvent creation",
+        "kwargs must contain \"messages\" key for prompt extraction",
+        "session parameter may be None; _safe_record must handle gracefully",
+        "Exception handling must not suppress critical errors needed for escalation"
+      ],
+      "cautions": [
+        "Ensure _safe_record is implemented to handle None session safely",
+        "Do not lose exception context when wrapping in ErrorEvent",
+        "Verify response.model_dump() does not expose sensitive data before recording"
+      ],
+      "output_contract": [
+        "LLMEvent or ErrorEvent successfully persisted via _safe_record(); response data, prompt, and exception details (if applicable) captured and recorded for audit trail."
+      ],
+      "examples": [],
+      "risk_class": "low",
+      "confidence": 0.75,
+      "support_ids": [
+        "63d03ec7-2cd1-586d-b607-faf91a8494da"
+      ],
+      "metadata": {
+        "prompt": "When an LLM API call completes or an exception occurs during response processing, create an LLMEvent with init_timestamp and request parameters (kwargs). Extract response data via model_dump() and prompt from kwargs[\"messages\"]. If an exception occurs, wrap it in an ErrorEvent with the trigger_event reference. Call _safe_record(session, event) to persist the event safely.",
+        "tags": [
+          "llm_instrumentation",
+          "event_capture",
+          "error_handling",
+          "audit_trail",
+          "structured_logging"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "Debugging Roadmap"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 1,
+        "window_id": "0d2720b1-59d9-525c-8245-6c58f6e4d7f5",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "session"
+        ],
+        "paragraph_start": 0,
+        "paragraph_end": 1,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    }
+  ],
+  "failed": false,
+  "complete": true,
+  "error": {}
+}

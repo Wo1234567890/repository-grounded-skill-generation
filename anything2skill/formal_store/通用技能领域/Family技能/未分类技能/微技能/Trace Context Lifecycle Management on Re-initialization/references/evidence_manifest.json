@@ -1,0 +1,66 @@
+{
+  "schema": "autoskill.document.evidence_manifest.v1",
+  "generated_at": "2026-09-14T23:36:53+00:00",
+  "family_name": "未分类技能",
+  "skill_id": "81c0b3ee-2927-545f-83ea-7faba8b3dc1d",
+  "skill_name": "Trace Context Lifecycle Management on Re-initialization",
+  "support_count": 1,
+  "supports": [
+    {
+      "support_id": "aa580809-588f-5047-b098-f91b7f58b1da",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "document_title": "agentops-docs.txt",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 50324,
+        "end": 53091
+      },
+      "relation_type": "support",
+      "confidence": 0.7,
+      "quote": "api: ApiClient\n\ndef __new__(cls, *args: Any, **kwargs: Any) -> \"Client\":\n        if cls.__instance is None:\n            cls.__instance = super(Client, cls).__new__(cls)\n            # Initialize instance variables that should only be set once per instance\n            cls.__instance._init_trace_context = None\n            cls.__instance._legacy_session_for_init_trace = None\n        return cls.__instance\n\ndef __init__(self):\n        # Initialization of attributes like config, _initialized should happen here if they are instance-specific\n        # and not shared via __new__ for a true singleton that can be re-configured.\n        # However, the current pattern re-initializes config in init().\n        if (\n            not hasattr(self, \"_initialized\") or not self._initialized\n        ):  # Ensure init logic runs only once per actual initialization intent\n            self.config = Config()  # Initialize config here for the instance\n            self._initialized = False\n            # self._init_trace_context = None # Already done in __new__\n            # self._legacy_session_for_init_trace = None # Already done in __new__\n\n# Only treat as re-initialization if a different non-None API key is explicitly provided\n        provided_api_key = kwargs.get(\"api_key\")\n        if self.initialized and provided_api_key is not None and provided_api_key != self.config.api_key:\n            logger.warning(\"AgentOps Client being re-initialized with a different API key. This is unusual.\")\n            # Reset initialization status to allow re-init with new key/config\n            self._initialized = False\n            if self._init_trace_context and self._init_trace_context.span.is_recording():\n                logger.warning(\"Ending previously auto-started trace due to re-initialization.\")\n                tracer.end_trace(self._init_trace_context, \"Reinitialized\")\n            self._init_trace_context = None\n            self._legacy_session_for_init_trace = None\n\nif self.initialized:\n            logger.debug(\"AgentOps Client already initialized.\")\n            # If auto_start_session was true, return the existing legacy session wrapper\n            if self.config.auto_start_session:\n                return self._legacy_session_for_init_trace\n            return None  # If not auto-starting, and already initialized, return None\n\nif not self.config.api_key:\n            raise NoApiKeyException",
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Trace Context Lifecycle Management on Re-initialization",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Clean up active trace spans before re-initialization to avoid trace corruption",
+        "task_family": "trace_lifecycle_management",
+        "method_family": "conditional_span_termination",
+        "stage": "re_initialization",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 3,
+        "window_id": "42e21879-cd4b-5cf6-9337-bed40b31d433",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "session"
+        ],
+        "paragraph_start": 17,
+        "paragraph_end": 23,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    }
+  ]
+}

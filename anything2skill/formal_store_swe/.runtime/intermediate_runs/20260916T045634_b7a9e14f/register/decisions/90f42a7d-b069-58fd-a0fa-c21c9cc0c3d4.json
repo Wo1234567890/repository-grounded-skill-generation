@@ -1,0 +1,121 @@
+{
+  "skill_id": "90f42a7d-b069-58fd-a0fa-c21c9cc0c3d4",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct session_skill for concurrent HTTP request execution with per-request timeout handling and error isolation. It differs semantically from peer candidates (ThreadPoolExecutor configuration, ProcessPoolExecutor setup) which focus on executor initialization and CPU-bound tasks. Candidate is I/O-bound, uses urllib.request.urlopen, and emphasizes failure isolation per URL. Existing skills are unrelated (Maven repository configuration, community onboarding). No merge, split, or revision relationship detected.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "90f42a7d-b069-58fd-a0fa-c21c9cc0c3d4",
+    "name": "Parallel URL Fetch with ThreadPoolExecutor",
+    "description": "Fetch multiple URLs concurrently using ThreadPoolExecutor with per-request timeout handling. Load and return response content for each URL, isolating failures per request to enable robust batch HTTP operations.",
+    "skill_body": "Use ThreadPoolExecutor to submit concurrent HTTP fetch tasks. Each task calls load_url(url, timeout) which opens the URL with urllib.request.urlopen and returns the response body. Collect results and exceptions per URL using as_completed() or map(). Return a dictionary mapping each URL to its response content (bytes) on success or exception details on failure.\n\n## Objective\n\nExecute concurrent HTTP requests with per-request timeout and error isolation\n## Applicable Signals\n\n- Caller has a list of URLs to fetch\n- Caller expects concurrent execution to reduce total wall-clock time\n- Caller needs per-URL error handling\n\n## Contraindications\n\n- Single URL fetch (no parallelism benefit)\n- CPU-bound processing of responses (use ProcessPoolExecutor instead)\n- Requests requiring strict ordering or shared session state\n- Interactive interpreter context (use ThreadPoolExecutor, not ProcessPoolExecutor)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Initialize ThreadPoolExecutor with appropriate max_workers', 'detail': 'Use default max_workers=min(32, os.cpu_count() + 4) as of Python 3.8+. Executor will reuse idle threads before creating new ones up to max_workers limit.'}\n- {'step': 2, 'action': 'Define load_url(url, timeout) function', 'detail': 'Use urllib.request.urlopen(url, timeout=timeout) within a context manager; return conn.read() to get response body as bytes.'}\n- {'step': 3, 'action': 'Submit each URL as a separate task to executor.submit(load_url, url, timeout)', 'detail': 'Returns a Future object for each submission; do not block on submission. All tasks are queued immediately.'}\n- {'step': 4, 'action': 'Collect futures and retrieve results using as_completed() or map()', 'detail': 'Handle exceptions per future; map each URL to its result or exception object.'}\n- {'step': 5, 'action': 'Return aggregated results as dictionary or list', 'detail': 'Ensure caller can distinguish success from failure per URL. All URLs processed; no partial results lost due to single failure.'}\n\n## Constraints\n\n- ThreadPoolExecutor default max_workers is min(32, os.cpu_count() + 4) as of Python 3.8+\n- Each request must have an independent timeout value\n- urllib.request.urlopen must be called within the worker task\n- Idle worker threads are reused before spawning new ones\n\n## Cautions\n\n- Network timeouts may raise urllib.error.URLError; caller must handle or propagate\n- Large response bodies consume memory; consider streaming for very large payloads\n- DNS resolution is blocking; consider connection pooling for many requests to same host\n\n## Output Contract\n\n- Dictionary or list mapping each URL to its response content (bytes) on success, or to exception details on failure. All URLs processed; no partial results lost due to single failure.\n\n## Example Executions\n\n### Example 1\n\n- Input: urls=['http://example.com/', 'http://example.org/'], timeout=5\n- Output: {'http://example.com/': b'<html>...', 'http://example.org/': b'<html>...'}\n- Notes: Both requests complete concurrently; total time ≈ max(individual timeouts), not sum\n\n### Example 2\n\n- Input: urls=['http://example.com/', 'http://nonexistent.invalid/'], timeout=5\n- Output: {'http://example.com/': b'<html>...', 'http://nonexistent.invalid/': URLError(...)}\n- Notes: Failed URL captured with exception; successful URL still returned",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Execute concurrent HTTP requests with per-request timeout and error isolation",
+    "domain": "default",
+    "task_family": "parallel_task_execution",
+    "method_family": "concurrent_http_request",
+    "stage": "execution",
+    "applicable_signals": [
+      "Caller has a list of URLs to fetch",
+      "Caller expects concurrent execution to reduce total wall-clock time",
+      "Caller needs per-URL error handling"
+    ],
+    "contraindications": [
+      "Single URL fetch (no parallelism benefit)",
+      "CPU-bound processing of responses (use ProcessPoolExecutor instead)",
+      "Requests requiring strict ordering or shared session state",
+      "Interactive interpreter context (use ThreadPoolExecutor, not ProcessPoolExecutor)"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Multiple remote resources (URLs) need to be fetched",
+      "Network latency dominates execution time",
+      "Requests are independent and can be parallelized",
+      "Timeout protection is required per request"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Initialize ThreadPoolExecutor with appropriate max_workers', 'detail': 'Use default max_workers=min(32, os.cpu_count() + 4) as of Python 3.8+. Executor will reuse idle threads before creating new ones up to max_workers limit.'}",
+      "{'step': 2, 'action': 'Define load_url(url, timeout) function', 'detail': 'Use urllib.request.urlopen(url, timeout=timeout) within a context manager; return conn.read() to get response body as bytes.'}",
+      "{'step': 3, 'action': 'Submit each URL as a separate task to executor.submit(load_url, url, timeout)', 'detail': 'Returns a Future object for each submission; do not block on submission. All tasks are queued immediately.'}",
+      "{'step': 4, 'action': 'Collect futures and retrieve results using as_completed() or map()', 'detail': 'Handle exceptions per future; map each URL to its result or exception object.'}",
+      "{'step': 5, 'action': 'Return aggregated results as dictionary or list', 'detail': 'Ensure caller can distinguish success from failure per URL. All URLs processed; no partial results lost due to single failure.'}"
+    ],
+    "constraints": [
+      "ThreadPoolExecutor default max_workers is min(32, os.cpu_count() + 4) as of Python 3.8+",
+      "Each request must have an independent timeout value",
+      "urllib.request.urlopen must be called within the worker task",
+      "Idle worker threads are reused before spawning new ones"
+    ],
+    "cautions": [
+      "Network timeouts may raise urllib.error.URLError; caller must handle or propagate",
+      "Large response bodies consume memory; consider streaming for very large payloads",
+      "DNS resolution is blocking; consider connection pooling for many requests to same host"
+    ],
+    "output_contract": [
+      "Dictionary or list mapping each URL to its response content (bytes) on success, or to exception details on failure. All URLs processed; no partial results lost due to single failure."
+    ],
+    "examples": [
+      {
+        "input": "urls=['http://example.com/', 'http://example.org/'], timeout=5",
+        "output": "{'http://example.com/': b'<html>...', 'http://example.org/': b'<html>...'}",
+        "notes": "Both requests complete concurrently; total time ≈ max(individual timeouts), not sum"
+      },
+      {
+        "input": "urls=['http://example.com/', 'http://nonexistent.invalid/'], timeout=5",
+        "output": "{'http://example.com/': b'<html>...', 'http://nonexistent.invalid/': URLError(...)}",
+        "notes": "Failed URL captured with exception; successful URL still returned"
+      }
+    ],
+    "tags": [
+      "concurrent.futures",
+      "ThreadPoolExecutor",
+      "urllib",
+      "parallel_http",
+      "I/O_bound",
+      "timeout_handling"
+    ],
+    "support_ids": [
+      "0c7944af-560d-51b1-a88e-94ac157a4c8e"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "58b93582-7562-58dd-aeb4-2c28ef21954b"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.79,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|execute concurrent http requests with per-request timeout and error isolation|default|parallel_task_execution|concurrent_http_request|execution|parallel url fetch with threadpoolexecutor"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

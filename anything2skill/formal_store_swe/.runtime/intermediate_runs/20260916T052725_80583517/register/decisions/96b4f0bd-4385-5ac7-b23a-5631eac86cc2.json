@@ -1,0 +1,121 @@
+{
+  "skill_id": "96b4f0bd-4385-5ac7-b23a-5631eac86cc2",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro-skill for training hyperparameter adaptation (num_processes, per_device_train_batch_size) in pre_training_setup stage. It does not semantically overlap with existing skills (Mooncake checkpoint distribution, completion batch generation) which operate at different stages and task families. Peer candidates address model selection, comparative evaluation, and issue reporting—none of which conflict with or subsume this training config adjustment capability. The skill has clear support evidence from SimPO documentation and represents a standalone, actionable workflow.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "96b4f0bd-4385-5ac7-b23a-5631eac86cc2",
+    "name": "Training Configuration Resource Adjustment",
+    "description": "Modify `num_processes` and `per_device_train_batch_size` parameters in training config files to match available GPU memory and cluster topology. This micro-skill adapts training hyperparameters to local compute environment without changing model or algorithm.",
+    "skill_body": "1. Identify your available GPU count and total GPU memory.\n2. Locate the training config file (e.g., training_configs/mistral-7b-base-simpo.yaml).\n3. Calculate new `num_processes` based on your GPU count (default baseline: 4xH100).\n4. Adjust `per_device_train_batch_size` downward if out-of-memory errors occur; increase if throughput is suboptimal and memory permits.\n5. Verify the config file is updated and saved.\n6. Launch training with the adjusted config and confirm no OOM errors in the first few steps.\n\n## Objective\n\nAdapt training hyperparameters to local compute environment without changing model or algorithm\n## Applicable Signals\n\n- GPU count differs from 4xH100 baseline\n- Out-of-memory errors occur during training initialization\n- Training throughput is suboptimal relative to expected performance\n\n## Contraindications\n\n- Do not use when reproducing exact paper results; use baseline 4xH100 config instead\n- Do not use for changing learning rate or loss weighting; use separate hyperparameter tuning asset\n- Do not use if the training script itself is broken or misconfigured\n\n## Intervention Moves\n\n- Reduce per_device_train_batch_size if OOM errors persist\n- Increase per_device_train_batch_size if memory headroom exists and throughput is low\n- Adjust num_processes to match actual GPU count\n\n## Workflow Steps\n\n- Identify available GPU count and total GPU memory\n- Locate the training config file in training_configs/ directory\n- Calculate new num_processes based on GPU count\n- Adjust per_device_train_batch_size based on memory constraints and throughput\n- Update and save the config file\n- Launch training and verify no OOM errors in initial steps\n\n## Constraints\n\n- num_processes must not exceed available GPU count\n- per_device_train_batch_size must be a positive integer\n- Config file must be valid YAML and located in training_configs/ directory\n\n## Cautions\n\n- Changing batch size may affect convergence behavior and final model quality\n- Reducing batch size increases training time; increasing it may cause OOM on smaller clusters\n\n## Output Contract\n\n- Config file updated with new num_processes and per_device_train_batch_size values; training launches without out-of-memory errors in initial steps.\n\n## Example Executions\n\n### Example 1\n\n- Input: Available: 2xH100 GPUs; baseline config has num_processes=4, per_device_train_batch_size=4\n- Output: Updated config: num_processes=2, per_device_train_batch_size=2; training launches successfully\n- Notes: Reduced both parameters proportionally to available resources\n\n### Example 2\n\n- Input: Available: 8xA100 GPUs; baseline config has num_processes=4, per_device_train_batch_size=4; OOM error on first epoch\n- Output: Updated config: num_processes=8, per_device_train_batch_size=2; training proceeds without OOM\n- Notes: Increased num_processes to match GPU count; reduced batch size to stay within A100 memory limits",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "leaf",
+    "objective": "Adapt training hyperparameters to local compute environment without changing model or algorithm",
+    "domain": "default",
+    "task_family": "model_training",
+    "method_family": "hyperparameter_adaptation",
+    "stage": "pre_training_setup",
+    "applicable_signals": [
+      "GPU count differs from 4xH100 baseline",
+      "Out-of-memory errors occur during training initialization",
+      "Training throughput is suboptimal relative to expected performance"
+    ],
+    "contraindications": [
+      "Do not use when reproducing exact paper results; use baseline 4xH100 config instead",
+      "Do not use for changing learning rate or loss weighting; use separate hyperparameter tuning asset",
+      "Do not use if the training script itself is broken or misconfigured"
+    ],
+    "intervention_moves": [
+      "Reduce per_device_train_batch_size if OOM errors persist",
+      "Increase per_device_train_batch_size if memory headroom exists and throughput is low",
+      "Adjust num_processes to match actual GPU count"
+    ],
+    "triggers": [
+      "GPU count differs from 4xH100 baseline",
+      "Out-of-memory errors occur during training initialization",
+      "Training throughput is suboptimal relative to expected performance"
+    ],
+    "workflow_steps": [
+      "Identify available GPU count and total GPU memory",
+      "Locate the training config file in training_configs/ directory",
+      "Calculate new num_processes based on GPU count",
+      "Adjust per_device_train_batch_size based on memory constraints and throughput",
+      "Update and save the config file",
+      "Launch training and verify no OOM errors in initial steps"
+    ],
+    "constraints": [
+      "num_processes must not exceed available GPU count",
+      "per_device_train_batch_size must be a positive integer",
+      "Config file must be valid YAML and located in training_configs/ directory"
+    ],
+    "cautions": [
+      "Changing batch size may affect convergence behavior and final model quality",
+      "Reducing batch size increases training time; increasing it may cause OOM on smaller clusters"
+    ],
+    "output_contract": [
+      "Config file updated with new num_processes and per_device_train_batch_size values; training launches without out-of-memory errors in initial steps."
+    ],
+    "examples": [
+      {
+        "input": "Available: 2xH100 GPUs; baseline config has num_processes=4, per_device_train_batch_size=4",
+        "output": "Updated config: num_processes=2, per_device_train_batch_size=2; training launches successfully",
+        "notes": "Reduced both parameters proportionally to available resources"
+      },
+      {
+        "input": "Available: 8xA100 GPUs; baseline config has num_processes=4, per_device_train_batch_size=4; OOM error on first epoch",
+        "output": "Updated config: num_processes=8, per_device_train_batch_size=2; training proceeds without OOM",
+        "notes": "Increased num_processes to match GPU count; reduced batch size to stay within A100 memory limits"
+      }
+    ],
+    "tags": [
+      "training_setup",
+      "hyperparameter_adaptation",
+      "resource_management",
+      "gpu_optimization"
+    ],
+    "support_ids": [
+      "2e802ce8-4866-5b9b-8ada-3e0b0824d7c1"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "b8bc4b0d-5ddd-5235-8b08-26305d6069c0"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|adapt training hyperparameters to local compute environment without changing model or algorithm|default|model_training|hyperparameter_adaptation|pre_training_setup|training configuration resource adjustment",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

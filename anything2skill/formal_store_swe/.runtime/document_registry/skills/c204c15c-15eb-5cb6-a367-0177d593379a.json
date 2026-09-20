@@ -1,0 +1,118 @@
+{
+  "skill_id": "c204c15c-15eb-5cb6-a367-0177d593379a",
+  "name": "Trace Context Cleanup on Re-initialization",
+  "description": "Ends any active trace recording and clears trace context when Client is re-initialized with a different API key, preventing orphaned or misattributed traces.",
+  "skill_body": "When the Client detects re-initialization with a different API key and an active trace context exists, end the trace with reason 'Reinitialized' and clear both _init_trace_context and _legacy_session_for_init_trace to None.\n\n## Objective\n\nClean up active trace state during Client re-initialization\n## Applicable Signals\n\n- provided_api_key differs from self.config.api_key\n- self.initialized is True\n- Active trace span in recording state\n\n## Contraindications\n\n- Trace context is None\n- Trace span is not recording\n- Client is not being re-initialized\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if _init_trace_context is not None and span is recording', 'condition': 'self._init_trace_context and self._init_trace_context.span.is_recording()'}\n- {'step': 2, 'action': 'Log warning about ending previously auto-started trace', 'condition': 'Always log before cleanup'}\n- {'step': 3, 'action': \"Call tracer.end_trace() with context and 'Reinitialized' reason\", 'condition': 'Trace is active'}\n- {'step': 4, 'action': 'Set _init_trace_context to None', 'condition': 'After trace end'}\n- {'step': 5, 'action': 'Set _legacy_session_for_init_trace to None', 'condition': 'After trace end'}\n\n## Constraints\n\n- Only execute when re-initialization with a different API key is confirmed\n- Verify trace context exists and is actively recording before calling tracer.end_trace()\n\n## Cautions\n\n- Ending a trace prematurely may lose recorded events; ensure re-initialization intent is genuine\n- Log warning before cleanup to alert operators of trace interruption\n\n## Output Contract\n\n- Active trace is ended with 'Reinitialized' reason\n- _init_trace_context is set to None\n- _legacy_session_for_init_trace is set to None\n- No further trace recording occurs under the old context",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "cf2aafba-8a0b-5349-96e3-578d8595f10b",
+  "parent_candidate_ids": [
+    "cf2aafba-8a0b-5349-96e3-578d8595f10b",
+    "2fefe2f0-790d-5e47-99c5-c441046648cf"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.55,
+  "hierarchy_status": "linked",
+  "visible_role": "leaf",
+  "objective": "Clean up active trace state during Client re-initialization",
+  "domain": "default",
+  "task_family": "trace_management",
+  "method_family": "state_cleanup",
+  "stage": "teardown",
+  "applicable_signals": [
+    "provided_api_key differs from self.config.api_key",
+    "self.initialized is True",
+    "Active trace span in recording state"
+  ],
+  "contraindications": [
+    "Trace context is None",
+    "Trace span is not recording",
+    "Client is not being re-initialized"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Client re-initialization detected with a different API key",
+    "_init_trace_context is not None",
+    "_init_trace_context.span.is_recording() returns True"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Check if _init_trace_context is not None and span is recording', 'condition': 'self._init_trace_context and self._init_trace_context.span.is_recording()'}",
+    "{'step': 2, 'action': 'Log warning about ending previously auto-started trace', 'condition': 'Always log before cleanup'}",
+    "{'step': 3, 'action': \"Call tracer.end_trace() with context and 'Reinitialized' reason\", 'condition': 'Trace is active'}",
+    "{'step': 4, 'action': 'Set _init_trace_context to None', 'condition': 'After trace end'}",
+    "{'step': 5, 'action': 'Set _legacy_session_for_init_trace to None', 'condition': 'After trace end'}"
+  ],
+  "constraints": [
+    "Only execute when re-initialization with a different API key is confirmed",
+    "Verify trace context exists and is actively recording before calling tracer.end_trace()"
+  ],
+  "cautions": [
+    "Ending a trace prematurely may lose recorded events; ensure re-initialization intent is genuine",
+    "Log warning before cleanup to alert operators of trace interruption"
+  ],
+  "output_contract": [
+    "Active trace is ended with 'Reinitialized' reason",
+    "_init_trace_context is set to None",
+    "_legacy_session_for_init_trace is set to None",
+    "No further trace recording occurs under the old context"
+  ],
+  "examples": [],
+  "tags": [
+    "trace_cleanup",
+    "re-initialization",
+    "state_management",
+    "api_key_rotation"
+  ],
+  "support_ids": [
+    "d238f079-b555-59a3-8472-b233cdc077a3"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "297e2aeb-a335-57ef-b3f9-014556396433"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.8,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|clean up active trace state during client re-initialization|default|trace_management|state_cleanup|teardown|trace context cleanup on re-initialization",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct micro_skill addressing trace context cleanup during Client re-initialization—a specific teardown operation triggered by API key change. It does not semantically match any existing skill: it is narrower and more specialized than 'End Trace and Finalize' (which is general-purpose trace termination), orthogonal to 'Start Trace Session' and 'Update Trace Metadata' (which are setup/execution stage), and unrelated to dataset filtering or async result retrieval. The peer candidates represent the broader trace_management task_family but none capture the re-initialization-specific cleanup logic, constraints, or cautions. No conflict evidence exists. This warrants a new distinct capability.",
+    "parent_skill_id": "cf2aafba-8a0b-5349-96e3-578d8595f10b",
+    "parent_candidate_ids": [
+      "cf2aafba-8a0b-5349-96e3-578d8595f10b",
+      "2fefe2f0-790d-5e47-99c5-c441046648cf"
+    ],
+    "hierarchy_confidence": 0.55,
+    "hierarchy_status": "linked",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

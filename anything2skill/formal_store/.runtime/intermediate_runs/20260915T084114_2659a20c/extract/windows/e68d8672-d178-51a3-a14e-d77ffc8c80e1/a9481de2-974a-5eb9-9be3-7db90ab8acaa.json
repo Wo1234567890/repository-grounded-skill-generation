@@ -1,0 +1,178 @@
+{
+  "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+  "title": "agentops-docs.txt",
+  "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+  "window_id": "a9481de2-974a-5eb9-9be3-7db90ab8acaa",
+  "section_heading": "Debugging Roadmap",
+  "strategy": "strict",
+  "supports": [
+    {
+      "support_id": "650fd0e2-609b-5ee9-aab3-6f794d63381e",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 30736,
+        "end": 31044
+      },
+      "excerpt": "def get_client() -> Client:\n    \"\"\"Get the singleton client instance in a thread-safe manner\"\"\"\n    global _client\n\n# Double-checked locking pattern for thread safety\n    if _client is None:\n        with _client_lock:\n            if _client is None:\n                _client = Client()\n\nreturn _client",
+      "relation_type": "support",
+      "confidence": 0.85,
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Thread-Safe Singleton Client Initialization",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Ensure thread-safe lazy initialization of a shared client resource",
+        "task_family": "resource_initialization",
+        "method_family": "concurrency_pattern",
+        "stage": "setup",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "a9481de2-974a-5eb9-9be3-7db90ab8acaa",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 29,
+        "paragraph_end": 31,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      },
+      "created_at": "2026-09-14T22:51:55+00:00"
+    }
+  ],
+  "skill_drafts": [
+    {
+      "draft_id": "72dcf009-0bac-59ef-a156-6b70eef1773e",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "name": "Thread-Safe Singleton Client Initialization",
+      "description": "Implements double-checked locking pattern to safely instantiate and return a singleton Client instance across multiple threads without race conditions.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Ensure thread-safe lazy initialization of a shared client resource",
+      "domain": "default",
+      "task_family": "resource_initialization",
+      "method_family": "concurrency_pattern",
+      "stage": "setup",
+      "applicable_signals": [
+        "Multi-threaded or async application architecture",
+        "Need for singleton pattern with thread safety",
+        "Resource creation is expensive and should happen once"
+      ],
+      "contraindications": [
+        "Client instances must be isolated per thread",
+        "Thread safety is not a requirement",
+        "Eager initialization is mandated by design"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check if singleton instance is None (first check without lock)', 'rationale': 'Avoid lock acquisition on every call after initialization'}",
+        "{'step': 2, 'action': 'Acquire lock if instance is None', 'rationale': 'Serialize access during initialization'}",
+        "{'step': 3, 'action': 'Check again if instance is None inside lock (second check)', 'rationale': 'Prevent race condition where multiple threads passed first check before lock was acquired'}",
+        "{'step': 4, 'action': 'Create Client instance if still None', 'rationale': 'Initialize exactly once'}",
+        "{'step': 5, 'action': 'Return the singleton instance', 'rationale': 'Provide caller with consistent reference'}"
+      ],
+      "triggers": [
+        "Application requires a single shared Client instance",
+        "Multiple concurrent threads or async contexts need access to the same client",
+        "Lazy initialization is preferred (create on first use)"
+      ],
+      "constraints": [
+        "A module-level lock object must be available (e.g., _client_lock)",
+        "A module-level variable must hold the singleton reference (e.g., _client)",
+        "The Client class must be instantiable without required arguments or with defaults"
+      ],
+      "cautions": [
+        "Ensure the lock object is created before any thread accesses get_client()",
+        "Do not modify the global _client reference outside this function",
+        "If Client initialization has side effects, they will occur on first call only"
+      ],
+      "output_contract": [
+        "Returns a single Client instance that is guaranteed to be the same across all callers; no duplicate instances are created; no race conditions occur during initialization"
+      ],
+      "examples": [],
+      "risk_class": "low",
+      "confidence": 0.85,
+      "support_ids": [
+        "650fd0e2-609b-5ee9-aab3-6f794d63381e"
+      ],
+      "metadata": {
+        "prompt": "Use this pattern when you need to initialize a shared resource (Client instance) that must be created exactly once and safely accessed from multiple concurrent threads. The pattern checks if the instance exists (first check without lock), acquires a lock only if needed, then checks again inside the lock (second check) before creating the instance. This minimizes lock contention while guaranteeing thread safety.",
+        "tags": [
+          "concurrency",
+          "singleton",
+          "thread-safety",
+          "double-checked-locking",
+          "initialization"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "Debugging Roadmap"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 1,
+        "window_id": "a9481de2-974a-5eb9-9be3-7db90ab8acaa",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 29,
+        "paragraph_end": 31,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    }
+  ],
+  "failed": false,
+  "complete": true,
+  "error": {}
+}

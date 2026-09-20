@@ -1,0 +1,56 @@
+# Locale-Specific Time Formatter Creation Evidence
+
+- family: 未分类技能
+- skill_id: 6e5e7931-8031-512e-b31f-5a092a7c8933
+- support_count: 2
+
+## Evidence 1
+
+- support_id: 0cefd5f8-d98c-5f49-9bfc-185d6316449b
+- relation_type: support
+- document: d3-docs.md
+- doc_id: 6cdc3f25-9cd8-59fc-987c-27814dbcdcb1
+- source_file: /Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/d3-docs.md
+- section: API index ​
+- span: 62664:63357
+- confidence: 0.72
+- quote: Parse and format times, inspired by strptime and strftime.
+
+- d3.timeFormat - alias for locale.format on the default locale.
+- d3.timeParse - alias for locale.parse on the default locale.
+- d3.utcFormat - alias for locale.utcFormat on the default locale.
+- d3.utcParse - alias for locale.utcParse on the default locale.
+- d3.isoFormat - an ISO 8601 UTC formatter.
+- d3.isoParse - an ISO 8601 UTC parser.
+- locale.format - create a time formatter.
+- locale.parse - create a time parser.
+- locale.utcFormat - create a UTC formatter.
+- locale.utcParse - create a UTC parser.
+- d3.timeFormatLocale - define a custom locale.
+- d3.timeFormatDefaultLocale - define the default locale.
+
+## d3-timer ​
+
+## Evidence 2
+
+- support_id: 17152a70-0354-52ff-b2ce-b9008dd2dcec
+- relation_type: support
+- document: agentops-docs.txt
+- doc_id: e68d8672-d178-51a3-a14e-d77ffc8c80e1
+- source_file: /Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt
+- section: Debugging Roadmap
+- span: 148556:149171
+- confidence: 0.80
+- quote: When adding new examples:
+
+1. Create a new subdirectory for the framework/provider
+2. Include comprehensive Jupyter notebooks with explanations
+3. Add a README.md if the integration is complex
+4. Ensure examples are self-contained and runnable
+5. Follow the existing naming conventions
+6. Use the `generate_documentation.py` script to create documentation files
+7. Add the example notebook to the main `README.md` for visibility
+8. Add the generated documentation to the `docs/v2/examples/` directory for website visibility
+9. Submit a pull request with a clear description of your changes
+
+##  Additional Resources

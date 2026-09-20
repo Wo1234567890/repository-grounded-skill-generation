@@ -1,0 +1,116 @@
+{
+  "skill_id": "77fc95a6-e6a9-5991-a8d3-a5185ebc7a2b",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct session_skill focused on web font loading optimization using font-display strategies, metric overrides, and preloading—a narrower, more specific capability than the existing Next.js-specific font loader skill. It addresses generic font rendering control across any web context, not framework-specific optimization. The peer candidates (dynamic content loading, DevTools CLS diagnosis) are complementary but address different workflow stages (content insertion, diagnosis) and do not overlap semantically. No existing skill covers the generic font-display + metric-override + preload coordination pattern at this granularity.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "77fc95a6-e6a9-5991-a8d3-a5185ebc7a2b",
+    "name": "Web Font Loading Optimization",
+    "description": "Minimize cumulative layout shift (CLS) caused by web font rendering by coordinating font-display strategies, fallback font selection, metric overrides, and preloading techniques to ensure fonts load without triggering text reflow.",
+    "skill_body": "Apply the following coordinated tactics to reduce font-induced layout shift:\n1. Set `font-display: optional` to avoid re-layout if the web font is not available by initial layout time.\n2. Specify a fallback font in `font-family` (e.g., `font-family: \"Google Sans\", sans-serif;`) to ensure the browser uses a matching fallback while the web font loads, rather than defaulting to a mismatched serif font.\n3. Use `size-adjust`, `ascent-override`, `descent-override`, and `line-gap-override` CSS APIs to minimize metric differences between fallback and web fonts.\n4. Consider the Font Loading API to reduce the time required to obtain necessary fonts.\n5. Preload critical web fonts early using `<link rel=preload>` to increase the chance they meet first paint, eliminating layout shifting.\n\n## Objective\n\nreduce_font_induced_layout_shift\n## Applicable Signals\n\n- Web page includes custom web fonts\n- CLS metrics show font-related shifts or text reflow during load\n- Page load optimization review in progress\n\n## Contraindications\n\n- Page uses only system fonts (no custom web fonts)\n- Font loading is not a measured contributor to CLS\n- Fallback font selection is not feasible due to design constraints\n\n## Intervention Moves\n\n- Set font-display: optional on @font-face rules\n- Add fallback font family to font-family declarations\n- Apply size-adjust, ascent-override, descent-override, line-gap-override to @font-face\n- Preload critical fonts with <link rel=preload>\n- Optionally use Font Loading API to manage font load timing\n\n## Workflow Steps\n\n- Identify custom web fonts in use on the page\n- Measure current CLS contribution from font loading\n- Select appropriate system or generic fallback fonts\n- Apply font-display: optional to @font-face rules\n- Configure metric overrides (size-adjust, ascent-override, descent-override, line-gap-override) to match fallback and web font metrics\n- Preload critical fonts using <link rel=preload>\n\n## Constraints\n\n- Fallback font must be available on the system or specified as a generic family\n- Metric overrides (size-adjust, ascent-override, etc.) require careful tuning to avoid visual mismatch\n- Preload should be limited to critical fonts only to avoid blocking other resources\n\n## Cautions\n\n- font-display: optional may result in text not rendering if the web font is slow to load; verify acceptable fallback appearance\n- Metric overrides can introduce subtle visual inconsistencies if not calibrated correctly\n- Preloading too many fonts can increase initial load time; prioritize only essential fonts\n\n## Output Contract\n\n- Web fonts load without triggering text reflow\n- Fallback font metrics match web font metrics within acceptable tolerance\n- CLS score improves or remains stable after font load\n- No layout shift observed during font swap",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "parent",
+    "objective": "reduce_font_induced_layout_shift",
+    "domain": "default",
+    "task_family": "performance_optimization",
+    "method_family": "font_rendering_control",
+    "stage": "implementation",
+    "applicable_signals": [
+      "Web page includes custom web fonts",
+      "CLS metrics show font-related shifts or text reflow during load",
+      "Page load optimization review in progress"
+    ],
+    "contraindications": [
+      "Page uses only system fonts (no custom web fonts)",
+      "Font loading is not a measured contributor to CLS",
+      "Fallback font selection is not feasible due to design constraints"
+    ],
+    "intervention_moves": [
+      "Set font-display: optional on @font-face rules",
+      "Add fallback font family to font-family declarations",
+      "Apply size-adjust, ascent-override, descent-override, line-gap-override to @font-face",
+      "Preload critical fonts with <link rel=preload>",
+      "Optionally use Font Loading API to manage font load timing"
+    ],
+    "triggers": [
+      "Web page includes custom web fonts and CLS metrics show font-related shifts",
+      "During page load optimization review"
+    ],
+    "workflow_steps": [
+      "Identify custom web fonts in use on the page",
+      "Measure current CLS contribution from font loading",
+      "Select appropriate system or generic fallback fonts",
+      "Apply font-display: optional to @font-face rules",
+      "Configure metric overrides (size-adjust, ascent-override, descent-override, line-gap-override) to match fallback and web font metrics",
+      "Preload critical fonts using <link rel=preload>"
+    ],
+    "constraints": [
+      "Fallback font must be available on the system or specified as a generic family",
+      "Metric overrides (size-adjust, ascent-override, etc.) require careful tuning to avoid visual mismatch",
+      "Preload should be limited to critical fonts only to avoid blocking other resources"
+    ],
+    "cautions": [
+      "font-display: optional may result in text not rendering if the web font is slow to load; verify acceptable fallback appearance",
+      "Metric overrides can introduce subtle visual inconsistencies if not calibrated correctly",
+      "Preloading too many fonts can increase initial load time; prioritize only essential fonts"
+    ],
+    "output_contract": [
+      "Web fonts load without triggering text reflow",
+      "Fallback font metrics match web font metrics within acceptable tolerance",
+      "CLS score improves or remains stable after font load",
+      "No layout shift observed during font swap"
+    ],
+    "examples": [],
+    "tags": [
+      "web_performance",
+      "cumulative_layout_shift",
+      "font_loading",
+      "css",
+      "core_web_vitals"
+    ],
+    "support_ids": [
+      "1c6e39e6-8c17-5257-9fb8-6da7ef775977"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "a51b7c96-1866-5cbb-b32a-608f2ab41819"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|reduce_font_induced_layout_shift|default|performance_optimization|font_rendering_control|implementation|web font loading optimization",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

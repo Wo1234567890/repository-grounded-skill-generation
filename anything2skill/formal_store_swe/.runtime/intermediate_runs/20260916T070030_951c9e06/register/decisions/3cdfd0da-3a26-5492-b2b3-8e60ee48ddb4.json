@@ -1,0 +1,123 @@
+{
+  "skill_id": "3cdfd0da-3a26-5492-b2b3-8e60ee48ddb4",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct read-only inspection micro-skill for querying D3 transition metadata and state (d3.active(), transition.selection/nodes/node/size/empty). It does not overlap with existing skills: 'Disable Controls During Content Transition' (interaction safety, state management) and 'Future State Transition Control' (concurrent task mutation). Peer candidates address custom tweens, array sorting, and extremum lookup—all orthogonal domains. The candidate has clear semantic identity, supported evidence, and no conflicts.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "3cdfd0da-3a26-5492-b2b3-8e60ee48ddb4",
+    "name": "Query and Inspect Active Transitions",
+    "description": "Retrieve metadata and state information about active or completed transitions, including selection references, element counts, and active transition handles. This is a read-only inspection skill that does not modify transition behavior.",
+    "skill_body": "Use this skill to inspect the current state of a transition without side effects. Call d3.active() to get the active transition for a node, transition.selection() to retrieve the underlying selection, transition.nodes() to get all affected elements, transition.node() for the first element, transition.size() for element count, or transition.empty() to check if the transition has no elements.\n\n## Objective\n\nInspect or retrieve transition state and associated DOM elements\n## Applicable Signals\n\n- Transition object is available\n- DOM node reference is available\n- State query is required before modification\n\n## Contraindications\n\n- Do not use when modifying transition behavior (use transition scheduling or tweening skills instead)\n- Do not use when scheduling new transitions (use transition.transition() or selection.transition() instead)\n- Do not use if no inspection is needed\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Obtain transition reference or DOM node', 'detail': 'Have either an active transition object or a DOM node to query'}\n- {'step': 2, 'action': 'Select appropriate inspection method', 'detail': 'Choose d3.active() for node-based lookup, or transition.selection/nodes/node/size/empty() for transition-based inspection'}\n- {'step': 3, 'action': 'Execute query', 'detail': 'Call the selected method with appropriate arguments'}\n- {'step': 4, 'action': 'Consume metadata', 'detail': 'Use returned selection, node array, count, or boolean state for downstream logic'}\n\n## Constraints\n\n- All operations are read-only and produce no side effects\n- d3.active() requires a valid DOM node reference\n- transition.selection(), transition.nodes(), transition.node(), transition.size(), and transition.empty() require a valid transition object\n\n## Cautions\n\n- transition.node() returns the first non-null element; may return null if no elements are selected\n- transition.empty() returns true only if the transition has zero elements; does not indicate completion status\n\n## Output Contract\n\n- Returns one of: (1) a transition object (d3.active), (2) a selection object (transition.selection), (3) an array of DOM elements (transition.nodes), (4) a single DOM element or null (transition.node), (5) an integer count (transition.size), or (6) a boolean (transition.empty). All outputs are read-only snapshots with no side effects.\n\n## Example Executions\n\n### Example 1\n\n- Input: node = document.querySelector('#my-element'); activeTransition = d3.active(node)\n- Output: activeTransition is a transition object if one is active on the node, or undefined if none\n- Notes: Use to check if a specific element has an active transition before scheduling a new one\n\n### Example 2\n\n- Input: transition.selection()\n- Output: Returns the selection object that was used to create this transition\n- Notes: Useful for chaining inspection with further selection operations\n\n### Example 3\n\n- Input: transition.size()\n- Output: Returns an integer representing the number of elements in the transition\n- Notes: Use to verify that the transition affects the expected number of elements",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Inspect or retrieve transition state and associated DOM elements",
+    "domain": "default",
+    "task_family": "animation_control",
+    "method_family": "state_inspection",
+    "stage": "inspection",
+    "applicable_signals": [
+      "Transition object is available",
+      "DOM node reference is available",
+      "State query is required before modification"
+    ],
+    "contraindications": [
+      "Do not use when modifying transition behavior (use transition scheduling or tweening skills instead)",
+      "Do not use when scheduling new transitions (use transition.transition() or selection.transition() instead)",
+      "Do not use if no inspection is needed"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Need to check if a transition is currently active on a node",
+      "Need to retrieve the selection associated with a transition",
+      "Need to count the number of elements affected by a transition",
+      "Need to access the first element in a transition",
+      "Need to verify if a transition is empty"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Obtain transition reference or DOM node', 'detail': 'Have either an active transition object or a DOM node to query'}",
+      "{'step': 2, 'action': 'Select appropriate inspection method', 'detail': 'Choose d3.active() for node-based lookup, or transition.selection/nodes/node/size/empty() for transition-based inspection'}",
+      "{'step': 3, 'action': 'Execute query', 'detail': 'Call the selected method with appropriate arguments'}",
+      "{'step': 4, 'action': 'Consume metadata', 'detail': 'Use returned selection, node array, count, or boolean state for downstream logic'}"
+    ],
+    "constraints": [
+      "All operations are read-only and produce no side effects",
+      "d3.active() requires a valid DOM node reference",
+      "transition.selection(), transition.nodes(), transition.node(), transition.size(), and transition.empty() require a valid transition object"
+    ],
+    "cautions": [
+      "transition.node() returns the first non-null element; may return null if no elements are selected",
+      "transition.empty() returns true only if the transition has zero elements; does not indicate completion status"
+    ],
+    "output_contract": [
+      "Returns one of: (1) a transition object (d3.active), (2) a selection object (transition.selection), (3) an array of DOM elements (transition.nodes), (4) a single DOM element or null (transition.node), (5) an integer count (transition.size), or (6) a boolean (transition.empty). All outputs are read-only snapshots with no side effects."
+    ],
+    "examples": [
+      {
+        "input": "node = document.querySelector('#my-element'); activeTransition = d3.active(node)",
+        "output": "activeTransition is a transition object if one is active on the node, or undefined if none",
+        "notes": "Use to check if a specific element has an active transition before scheduling a new one"
+      },
+      {
+        "input": "transition.selection()",
+        "output": "Returns the selection object that was used to create this transition",
+        "notes": "Useful for chaining inspection with further selection operations"
+      },
+      {
+        "input": "transition.size()",
+        "output": "Returns an integer representing the number of elements in the transition",
+        "notes": "Use to verify that the transition affects the expected number of elements"
+      }
+    ],
+    "tags": [
+      "d3",
+      "transition",
+      "inspection",
+      "state_query",
+      "read_only",
+      "animation"
+    ],
+    "support_ids": [
+      "02b0f1a9-59e4-5a32-86eb-3253c98c2282"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "c8e9c3d3-861f-54ce-a34c-3de7f5ab7a52"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.78,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|inspect or retrieve transition state and associated dom elements|default|animation_control|state_inspection|inspection|query and inspect active transitions"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

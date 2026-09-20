@@ -1,0 +1,157 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "stream_transformation",
+  "run_id": "20260915T073312_c67882d4",
+  "skills": [
+    {
+      "skill_id": "2c74694c-d6e4-56da-8163-d8e8be22b489",
+      "name": "Iterate Pattern for Feedback Loops",
+      "description": "Implement feedback loops in DataStream processing by using the iterate() method to conditionally feed a subset of records back into the iteration for repeated processing until a termination condition is met.",
+      "skill_body": "Use iterate() on a DataStream to create a feedback loop. Inside the iteration block, apply transformations (map, filter, etc.) to the incoming records. Split the output into two branches: one for records that should continue iterating (feedback), and one for records that have reached the termination condition (output). The iterate() method returns a DataStream where the feedback branch is automatically looped back.\n\n## Objective\n\nimplement_iterative_stream_processing\n## Applicable Signals\n\n- iterative refinement or repeated filtering is needed\n- records must be conditionally looped back based on intermediate results\n- multi-pass processing with state-dependent termination\n\n## Contraindications\n\n- Do not use if infinite loops are possible without proper termination logic\n- Do not use if feedback condition is not well-defined or deterministic\n- Avoid when the number of iterations is unbounded and termination is uncertain\n\n## Intervention Moves\n\n- Define the iteration block with clear input and output branches\n- Apply transformations (map, filter) to refine records in each iteration\n- Split output into feedback (continue iterating) and terminal (exit loop) branches\n- Ensure termination condition is well-defined to prevent infinite loops\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Call iterate() on the source DataStream, passing a function that receives the iteration stream'}\n- {'step': 2, 'action': 'Inside the iteration block, apply transformations (e.g., map to decrement values, filter to check conditions)'}\n- {'step': 3, 'action': 'Split the transformed stream into two branches using filter or other selection logic'}\n- {'step': 4, 'action': 'Return a tuple of (feedback_stream, output_stream) from the iteration block'}\n- {'step': 5, 'action': 'The feedback_stream is automatically looped back; the output_stream is the final result'}\n\n## Constraints\n\n- Feedback branch must eventually reach a state where all records satisfy the termination condition\n- Transformations within the iteration block must be deterministic\n- The split output must cleanly separate feedback and terminal records\n\n## Cautions\n\n- Ensure termination logic is sound; poorly designed feedback conditions can cause performance degradation or job failure\n- Monitor iteration depth and record throughput to detect unexpected looping behavior\n\n## Output Contract\n\n- iterate() returns a DataStream with the feedback loop established. The output contains all records that satisfied the termination condition. Records in the feedback branch are automatically re-injected into the iteration until they reach the termination condition.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Stream of integers: [5, 3, 8, 1]\n- Therapist/Output: After iterate with decrement-and-filter: records that reach <= 0 are output; records > 0 loop back for another decrement\n- Notes: Each record iterates independently until it satisfies the termination condition (value <= 0)",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "implement_iterative_stream_processing",
+      "domain": "default",
+      "task_family": "stream_transformation",
+      "method_family": "feedback_loop_pattern",
+      "stage": "stream_definition",
+      "applicable_signals": [
+        "iterative refinement or repeated filtering is needed",
+        "records must be conditionally looped back based on intermediate results",
+        "multi-pass processing with state-dependent termination"
+      ],
+      "contraindications": [
+        "Do not use if infinite loops are possible without proper termination logic",
+        "Do not use if feedback condition is not well-defined or deterministic",
+        "Avoid when the number of iterations is unbounded and termination is uncertain"
+      ],
+      "intervention_moves": [
+        "Define the iteration block with clear input and output branches",
+        "Apply transformations (map, filter) to refine records in each iteration",
+        "Split output into feedback (continue iterating) and terminal (exit loop) branches",
+        "Ensure termination condition is well-defined to prevent infinite loops"
+      ],
+      "triggers": [
+        "iterative refinement or repeated filtering is needed",
+        "records must be conditionally looped back based on intermediate results"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Call iterate() on the source DataStream, passing a function that receives the iteration stream'}",
+        "{'step': 2, 'action': 'Inside the iteration block, apply transformations (e.g., map to decrement values, filter to check conditions)'}",
+        "{'step': 3, 'action': 'Split the transformed stream into two branches using filter or other selection logic'}",
+        "{'step': 4, 'action': 'Return a tuple of (feedback_stream, output_stream) from the iteration block'}",
+        "{'step': 5, 'action': 'The feedback_stream is automatically looped back; the output_stream is the final result'}"
+      ],
+      "constraints": [
+        "Feedback branch must eventually reach a state where all records satisfy the termination condition",
+        "Transformations within the iteration block must be deterministic",
+        "The split output must cleanly separate feedback and terminal records"
+      ],
+      "cautions": [
+        "Ensure termination logic is sound; poorly designed feedback conditions can cause performance degradation or job failure",
+        "Monitor iteration depth and record throughput to detect unexpected looping behavior"
+      ],
+      "output_contract": [
+        "iterate() returns a DataStream with the feedback loop established. The output contains all records that satisfied the termination condition. Records in the feedback branch are automatically re-injected into the iteration until they reach the termination condition."
+      ],
+      "examples": [
+        {
+          "input": "Stream of integers: [5, 3, 8, 1]",
+          "output": "After iterate with decrement-and-filter: records that reach <= 0 are output; records > 0 loop back for another decrement",
+          "notes": "Each record iterates independently until it satisfies the termination condition (value <= 0)"
+        }
+      ],
+      "tags": [
+        "datastream",
+        "iteration",
+        "feedback_loop",
+        "conditional_processing",
+        "scala"
+      ],
+      "support_ids": [
+        "8d99cc20-399a-5c3c-9d07-697357d3dc08"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "cb108bdb-5546-5d8d-8e3c-bf8911fce65f"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.82,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|implement_iterative_stream_processing|default|stream_transformation|feedback_loop_pattern|stream_definition|iterate pattern for feedback loops",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct Flink DataStream iterate() pattern for feedback loops in stream processing. It differs semantically and operationally from existing skills: not related to Python concurrent.futures (Executor/wait patterns) or Flink environment/source setup. The iterate() method implements a specific feedback-loop control flow unique to Flink's DataStream API. No existing skill covers this capability, and peer candidates are complementary setup/initialization skills, not overlapping feedback-loop implementations.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "parent"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "7f840b8d-1efe-438e-b968-39c1426bd8b0",
+      "entity_type": "skill",
+      "entity_id": "2c74694c-d6e4-56da-8163-d8e8be22b489",
+      "action": "create",
+      "changed_at": "2026-09-14T21:32:29+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct Flink DataStream iterate() pattern for feedback loops in stream processing. It differs semantically and operationally from existing skills: not related to Python concurrent.futures (Executor/wait patterns) or Flink environment/source setup. The iterate() method implements a specific feedback-loop control flow unique to Flink's DataStream API. No existing skill covers this capability, and peer candidates are complementary setup/initialization skills, not overlapping feedback-loop implementations.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "2c74694c-d6e4-56da-8163-d8e8be22b489",
+        "doc_ids": [
+          "8a36b10a-4e32-5b2b-bc38-0c56680e2cda"
+        ],
+        "support_added": [
+          "8d99cc20-399a-5c3c-9d07-697357d3dc08"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

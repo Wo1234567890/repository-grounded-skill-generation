@@ -1,0 +1,126 @@
+{
+  "skill_id": "40060062-3dbc-5b0d-b4dc-a198affc3fb8",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "40060062-3dbc-5b0d-b4dc-a198affc3fb8",
+    "name": "Future Cancellation and State Inspection",
+    "description": "Query and manage the lifecycle state of an asynchronous task by inspecting whether it is running, done, or cancelled, and attempt cancellation of pending tasks to coordinate dependent operations without blocking.",
+    "skill_body": "Use Future methods to inspect task state and attempt cancellation:\n1. Call cancel() to attempt cancellation of a pending task; returns True if cancelled, False if already running or finished.\n2. Call cancelled() to check if the task was successfully cancelled; returns True only if cancel() succeeded.\n3. Call running() to check if the task is currently executing; returns True if running (cannot be cancelled).\n4. Call done() to check if the task has finished (either completed, raised exception, or was cancelled); returns True if finished.\nNever call these methods expecting to retrieve the result; use result() or exception() for that. These methods are non-blocking state queries only.\n\n## Objective\n\nInspect and control individual Future object state without blocking or retrieving results.\n## Applicable Signals\n\n- Task submission via Executor.submit() completed\n- Timeout or external signal received to cancel pending work\n- Dependency check needed before proceeding with downstream operations\n- Monitoring loop or polling scenario for task state\n\n## Contraindications\n\n- Task is already finished and result is needed immediately (use result() or exception() instead)\n- Task must not be cancelled under any condition (do not call cancel())\n- Attempting to retrieve result via these methods (they return boolean state only, not the result)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Obtain Future object from Executor.submit() or Executor.map()', 'note': 'Future must be created by executor; do not instantiate directly'}\n- {'step': 2, 'action': 'Call cancel() if task should be stopped before execution', 'note': 'Returns True if cancellation succeeded, False if task already running or finished'}\n- {'step': 3, 'action': 'Call cancelled() to confirm cancellation status', 'note': 'Returns True only if cancel() succeeded; use to verify cancellation before cleanup'}\n- {'step': 4, 'action': 'Call running() to check if task is currently executing', 'note': 'Returns True if task is in progress; False if not yet started or already finished'}\n- {'step': 5, 'action': 'Call done() to check if task has reached terminal state', 'note': 'Returns True if task completed, raised exception, or was cancelled; False if still pending or running'}\n\n## Constraints\n\n- cancel() returns False if task is already running or finished; caller must handle this gracefully\n- cancelled() returns True only if cancel() was called and succeeded; does not indicate task never ran\n- running() returns True only during active execution; False before start or after completion\n- done() returns True for any terminal state: success, exception, or cancellation\n\n## Cautions\n\n- Calling cancel() on a running task has no effect; check running() first if timing is critical\n- Multiple threads/processes calling cancel() on the same Future may race; synchronize if needed\n- State queries are snapshots; state may change immediately after query returns\n\n## Output Contract\n\n- Boolean state value (True or False) returned by cancel(), cancelled(), running(), or done() indicating the queried state. No exception raised on valid state query. Caller receives definitive state snapshot at time of call.\n\n## Example Executions\n\n### Example 1\n\n- Input: future = executor.submit(is_prime, 112272535095293); future.cancel()\n- Output: True (if task was pending and successfully cancelled) or False (if task already running or finished)\n- Notes: Attempt to cancel a submitted task before it starts execution\n\n### Example 2\n\n- Input: future.running()\n- Output: True (if task is currently executing) or False (if not yet started or already finished)\n- Notes: Check if task is in progress before attempting cancellation\n\n### Example 3\n\n- Input: future.done()\n- Output: True (if task has finished in any state) or False (if still pending or running)\n- Notes: Verify task has reached terminal state before proceeding with dependent operations",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Inspect and control individual Future object state without blocking or retrieving results.",
+    "domain": "default",
+    "task_family": "async_coordination",
+    "method_family": "future_state_query",
+    "stage": "monitoring",
+    "applicable_signals": [
+      "Task submission via Executor.submit() completed",
+      "Timeout or external signal received to cancel pending work",
+      "Dependency check needed before proceeding with downstream operations",
+      "Monitoring loop or polling scenario for task state"
+    ],
+    "contraindications": [
+      "Task is already finished and result is needed immediately (use result() or exception() instead)",
+      "Task must not be cancelled under any condition (do not call cancel())",
+      "Attempting to retrieve result via these methods (they return boolean state only, not the result)"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Need to conditionally cancel a pending task before it starts execution",
+      "Must check if a task is still running before attempting to access its result",
+      "Implementing timeout-based or event-driven cancellation logic",
+      "Coordinating multiple dependent futures and need to know their execution state"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Obtain Future object from Executor.submit() or Executor.map()', 'note': 'Future must be created by executor; do not instantiate directly'}",
+      "{'step': 2, 'action': 'Call cancel() if task should be stopped before execution', 'note': 'Returns True if cancellation succeeded, False if task already running or finished'}",
+      "{'step': 3, 'action': 'Call cancelled() to confirm cancellation status', 'note': 'Returns True only if cancel() succeeded; use to verify cancellation before cleanup'}",
+      "{'step': 4, 'action': 'Call running() to check if task is currently executing', 'note': 'Returns True if task is in progress; False if not yet started or already finished'}",
+      "{'step': 5, 'action': 'Call done() to check if task has reached terminal state', 'note': 'Returns True if task completed, raised exception, or was cancelled; False if still pending or running'}"
+    ],
+    "constraints": [
+      "cancel() returns False if task is already running or finished; caller must handle this gracefully",
+      "cancelled() returns True only if cancel() was called and succeeded; does not indicate task never ran",
+      "running() returns True only during active execution; False before start or after completion",
+      "done() returns True for any terminal state: success, exception, or cancellation"
+    ],
+    "cautions": [
+      "Calling cancel() on a running task has no effect; check running() first if timing is critical",
+      "Multiple threads/processes calling cancel() on the same Future may race; synchronize if needed",
+      "State queries are snapshots; state may change immediately after query returns"
+    ],
+    "output_contract": [
+      "Boolean state value (True or False) returned by cancel(), cancelled(), running(), or done() indicating the queried state. No exception raised on valid state query. Caller receives definitive state snapshot at time of call."
+    ],
+    "examples": [
+      {
+        "input": "future = executor.submit(is_prime, 112272535095293); future.cancel()",
+        "output": "True (if task was pending and successfully cancelled) or False (if task already running or finished)",
+        "notes": "Attempt to cancel a submitted task before it starts execution"
+      },
+      {
+        "input": "future.running()",
+        "output": "True (if task is currently executing) or False (if not yet started or already finished)",
+        "notes": "Check if task is in progress before attempting cancellation"
+      },
+      {
+        "input": "future.done()",
+        "output": "True (if task has finished in any state) or False (if still pending or running)",
+        "notes": "Verify task has reached terminal state before proceeding with dependent operations"
+      }
+    ],
+    "tags": [
+      "concurrent.futures",
+      "Future",
+      "async_coordination",
+      "non_blocking",
+      "state_inspection",
+      "cancellation"
+    ],
+    "support_ids": [
+      "3632124d-1bc2-5083-abf7-1d820a6bcc9c"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "c688f1c1-dc66-5a9e-b42d-273f01fa613e"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.88,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|inspect and control individual future object state without blocking or retrieving results.|default|async_coordination|future_state_query|monitoring|future cancellation and state inspection"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

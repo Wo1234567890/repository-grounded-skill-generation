@@ -1,0 +1,146 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "credential_validation",
+  "run_id": "20260916T092343_b46be805",
+  "skills": [
+    {
+      "skill_id": "0dac1628-ec7a-5e9f-808d-1a0a8b514899",
+      "name": "API Key Presence Validation",
+      "description": "Validates that an API key is present and non-empty in the Client configuration during initialization. Raises NoApiKeyException if the API key is missing, preventing Client initialization from completing without valid credentials.",
+      "skill_body": "Check if self.config.api_key is set and non-empty. If the API key is missing, None, or an empty string, raise NoApiKeyException immediately with a clear, actionable error message. Do not expose the actual API key value in any error logs or messages. This validation must execute after Client configuration is loaded but before any API operations proceed.\n\n## Objective\n\nEnforce API key presence before Client initialization completes\n## Applicable Signals\n\n- Client.__init__() execution reaches configuration validation phase\n- config object is instantiated and ready for inspection\n\n## Contraindications\n\n- Do not apply if API key is already confirmed present in prior validation step\n- Do not apply in offline or mock testing modes where credentials are not required\n- Do not apply if caller explicitly opts out of credential validation\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Inspect self.config.api_key', 'condition': 'Configuration object exists'}\n- {'step': 2, 'action': 'Check if api_key is None or empty string', 'condition': 'No precondition'}\n- {'step': 3, 'action': 'Raise NoApiKeyException if check fails', 'condition': 'api_key is falsy'}\n- {'step': 4, 'action': 'Allow execution to proceed', 'condition': 'api_key is present and non-empty'}\n\n## Constraints\n\n- Must execute synchronously before returning from initialization\n- Must not suppress or log-only the exception; must raise it to caller\n- API key check must validate non-empty string, not just non-None\n- Must execute after Client configuration object is instantiated\n\n## Cautions\n\n- Ensure exception message is clear and actionable for developers\n- Do not expose actual API key values in error logs or messages\n- This is a hard blocker; no fallback or retry logic should bypass it\n\n## Output Contract\n\n- If api_key is present and non-empty: execution proceeds to next initialization step. If api_key is missing or empty: NoApiKeyException is raised with clear error message; Client initialization halts.",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Enforce API key presence before Client initialization completes",
+      "domain": "default",
+      "task_family": "credential_validation",
+      "method_family": "precondition_check",
+      "stage": "setup",
+      "applicable_signals": [
+        "Client.__init__() execution reaches configuration validation phase",
+        "config object is instantiated and ready for inspection"
+      ],
+      "contraindications": [
+        "Do not apply if API key is already confirmed present in prior validation step",
+        "Do not apply in offline or mock testing modes where credentials are not required",
+        "Do not apply if caller explicitly opts out of credential validation"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "After Client configuration is loaded",
+        "Before any API operations are attempted",
+        "During Client initialization flow"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Inspect self.config.api_key', 'condition': 'Configuration object exists'}",
+        "{'step': 2, 'action': 'Check if api_key is None or empty string', 'condition': 'No precondition'}",
+        "{'step': 3, 'action': 'Raise NoApiKeyException if check fails', 'condition': 'api_key is falsy'}",
+        "{'step': 4, 'action': 'Allow execution to proceed', 'condition': 'api_key is present and non-empty'}"
+      ],
+      "constraints": [
+        "Must execute synchronously before returning from initialization",
+        "Must not suppress or log-only the exception; must raise it to caller",
+        "API key check must validate non-empty string, not just non-None",
+        "Must execute after Client configuration object is instantiated"
+      ],
+      "cautions": [
+        "Ensure exception message is clear and actionable for developers",
+        "Do not expose actual API key values in error logs or messages",
+        "This is a hard blocker; no fallback or retry logic should bypass it"
+      ],
+      "output_contract": [
+        "If api_key is present and non-empty: execution proceeds to next initialization step. If api_key is missing or empty: NoApiKeyException is raised with clear error message; Client initialization halts."
+      ],
+      "examples": [],
+      "tags": [
+        "credential_validation",
+        "precondition_check",
+        "initialization_guard",
+        "api_security"
+      ],
+      "support_ids": [
+        "7eec9a5b-df2f-5041-a571-dce34aef15a1"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "1df9a2de-e0c5-5992-9272-ab0dc7530247"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.9,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|enforce api key presence before client initialization completes|default|credential_validation|precondition_check|setup|api key presence validation",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct safety_rule at session granularity focused on API key presence validation during Client initialization. It does not semantically overlap with existing skills (Executor/ProcessPool failure detection, Virtual WAN routing) or peer candidates (SDK state recovery, legacy session cleanup, agent failure detection). The candidate enforces a hard precondition check with exception-raising semantics, whereas peer candidates handle recovery, state migration, or monitoring. No merge, split, or revision relationship exists.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "81abbf7b-4029-43a2-a0c0-d0e92fe994b4",
+      "entity_type": "skill",
+      "entity_id": "0dac1628-ec7a-5e9f-808d-1a0a8b514899",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct safety_rule at session granularity focused on API key presence validation during Client initialization. It does not semantically overlap with existing skills (Executor/ProcessPool failure detection, Virtual WAN routing) or peer candidates (SDK state recovery, legacy session cleanup, agent failure detection). The candidate enforces a hard precondition check with exception-raising semantics, whereas peer candidates handle recovery, state migration, or monitoring. No merge, split, or revision relationship exists.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "0dac1628-ec7a-5e9f-808d-1a0a8b514899",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "7eec9a5b-df2f-5041-a571-dce34aef15a1"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

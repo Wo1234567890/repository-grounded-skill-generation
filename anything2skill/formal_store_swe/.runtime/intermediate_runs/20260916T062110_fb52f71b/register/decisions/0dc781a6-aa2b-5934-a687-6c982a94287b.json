@@ -1,0 +1,107 @@
+{
+  "skill_id": "0dc781a6-aa2b-5934-a687-6c982a94287b",
+  "action": "merge",
+  "matched_skill_ids": [
+    "42a24866-f9b3-5c9c-bee0-568131b255b8"
+  ],
+  "reason": "Candidate skill 0dc781a6-aa2b-5934-a687-6c982a94287b describes a complete TF-IDF workflow (tokenization → TF calculation → IDF retrieval → multiplication). This is semantically equivalent to merging the narrower peer skills: 4f0ed3c1 (single-term TF-IDF multiplication) and 30d72c77 (IDF lookup). The candidate is a composite workflow that orchestrates both peers. The peer skill 42a09e34 (Weighted Zone Scoring) is distinct (different method_family: zone_based_scoring vs statistical_scoring) and should not be merged. The existing_skills are unrelated (DataStream collection and text tokenization are different domains). Recommend consolidating the candidate with the two peer TF-IDF skills into one authoritative micro_skill at asset_level 3, eliminating redundancy.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "0dc781a6-aa2b-5934-a687-6c982a94287b",
+    "name": "TF-IDF Term Weighting Calculation",
+    "description": "Compute term frequency-inverse document frequency scores to weight terms in documents for relevance ranking. Assigns numeric weights to each term based on its frequency within a document and its rarity across the document collection.",
+    "skill_body": "For each term in a document, calculate TF-IDF as the product of term frequency (TF) and inverse document frequency (IDF). TF measures how often the term appears in the document; IDF measures how rare the term is across all documents in the collection. Output a numeric weight vector where each term receives a TF-IDF score reflecting both local frequency and global rarity.\n\n## Objective\n\nweight terms by frequency and rarity\n## Applicable Signals\n\n- index construction phase initiated\n- query-document similarity scoring required\n- term weighting step in retrieval pipeline\n\n## Contraindications\n\n- documents are unstructured narrative text without clear term boundaries\n- real-time streaming context where IDF values are not pre-computed\n- single-document scenarios where inverse document frequency is undefined\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Extract and tokenize terms from the target document', 'input': 'raw document text', 'output': 'list of terms with positions'}\n- {'step': 2, 'action': 'Calculate term frequency (TF) for each unique term', 'input': 'tokenized term list', 'output': 'TF scores (e.g., raw count or normalized frequency)'}\n- {'step': 3, 'action': 'Retrieve or compute inverse document frequency (IDF) for each term', 'input': 'term, document collection statistics', 'output': 'IDF scores (e.g., log(total_docs / docs_containing_term))'}\n- {'step': 4, 'action': 'Multiply TF and IDF for each term to produce final weight', 'input': 'TF scores, IDF scores', 'output': 'TF-IDF weight vector'}\n\n## Constraints\n\n- IDF values must be computed or available from the document collection before TF-IDF calculation\n- term boundaries must be well-defined (tokenization must be complete)\n- document collection must be stable or IDF values must be updated when collection changes\n\n## Cautions\n\n- TF-IDF assumes term independence; does not capture term relationships or semantic similarity\n- rare terms receive high weights; ensure stopword filtering is applied upstream if needed\n- IDF computation requires access to full document collection; not suitable for single-pass streaming\n\n## Output Contract\n\n- Numeric weight vector per document, with each term assigned a TF-IDF score. Output is a sparse or dense vector suitable for downstream similarity computation, ranking, or vector space operations.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "weight terms by frequency and rarity",
+    "domain": "default",
+    "task_family": "term_weighting",
+    "method_family": "statistical_scoring",
+    "stage": "indexing",
+    "applicable_signals": [
+      "index construction phase initiated",
+      "query-document similarity scoring required",
+      "term weighting step in retrieval pipeline"
+    ],
+    "contraindications": [
+      "documents are unstructured narrative text without clear term boundaries",
+      "real-time streaming context where IDF values are not pre-computed",
+      "single-document scenarios where inverse document frequency is undefined"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "building or updating a search index",
+      "scoring document relevance to a query",
+      "preparing documents for vector space retrieval"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Extract and tokenize terms from the target document', 'input': 'raw document text', 'output': 'list of terms with positions'}",
+      "{'step': 2, 'action': 'Calculate term frequency (TF) for each unique term', 'input': 'tokenized term list', 'output': 'TF scores (e.g., raw count or normalized frequency)'}",
+      "{'step': 3, 'action': 'Retrieve or compute inverse document frequency (IDF) for each term', 'input': 'term, document collection statistics', 'output': 'IDF scores (e.g., log(total_docs / docs_containing_term))'}",
+      "{'step': 4, 'action': 'Multiply TF and IDF for each term to produce final weight', 'input': 'TF scores, IDF scores', 'output': 'TF-IDF weight vector'}"
+    ],
+    "constraints": [
+      "IDF values must be computed or available from the document collection before TF-IDF calculation",
+      "term boundaries must be well-defined (tokenization must be complete)",
+      "document collection must be stable or IDF values must be updated when collection changes"
+    ],
+    "cautions": [
+      "TF-IDF assumes term independence; does not capture term relationships or semantic similarity",
+      "rare terms receive high weights; ensure stopword filtering is applied upstream if needed",
+      "IDF computation requires access to full document collection; not suitable for single-pass streaming"
+    ],
+    "output_contract": [
+      "Numeric weight vector per document, with each term assigned a TF-IDF score. Output is a sparse or dense vector suitable for downstream similarity computation, ranking, or vector space operations."
+    ],
+    "examples": [],
+    "tags": [
+      "term_weighting",
+      "statistical_scoring",
+      "information_retrieval",
+      "indexing",
+      "vector_space_model"
+    ],
+    "support_ids": [
+      "991462ee-2aca-5b71-ad46-6a159b7dbf77"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "e434705f-c2e7-59ac-97c7-befdca4dc773"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|weight terms by frequency and rarity|default|term_weighting|statistical_scoring|indexing|tf-idf term weighting calculation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

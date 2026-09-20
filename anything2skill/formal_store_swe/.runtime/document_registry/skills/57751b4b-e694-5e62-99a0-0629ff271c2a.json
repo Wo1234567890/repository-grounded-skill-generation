@@ -1,0 +1,141 @@
+{
+  "skill_id": "57751b4b-e694-5e62-99a0-0629ff271c2a",
+  "name": "Minimize Web Font Layout Shift",
+  "description": "Apply CSS and font-loading techniques to prevent Cumulative Layout Shift (CLS) caused by web font rendering delays. Coordinates font-display strategy, fallback font matching, metric overrides, and preloading to ensure text stability during page load.",
+  "skill_body": "To minimize layout shift from web fonts:\n1. Set `font-display: optional` to avoid re-layout if the web font is not available by initial layout time.\n2. Specify a fallback font in `font-family` (e.g., `font-family: \"Google Sans\", sans-serif;`) to ensure the browser uses a matching fallback while the web font loads. Do not use `font-family: \"Google Sans\"` alone, as it defaults to a serif font (e.g., Times) which may cause larger shifts.\n3. Minimize metric differences between fallback and web font using `size-adjust`, `ascent-override`, `descent-override`, and `line-gap-override` CSS APIs.\n4. Use the Font Loading API to reduce font acquisition time.\n5. Preload critical web fonts early with `<link rel=preload>` to increase the chance they load before first paint, eliminating layout shift.\n\n## Objective\n\nReduce CLS impact from web font substitution and loading delays\n## Applicable Signals\n\n- Observed layout shift during web font load\n- Fallback font differs significantly in metrics from web font\n- CLS score increases during font-swap phase\n\n## Contraindications\n\n- All fonts are system fonts with no async loading\n- Font loading is synchronous and blocking\n- CLS is caused by layout changes unrelated to typography\n\n## Intervention Moves\n\n- Apply font-display: optional to prevent re-layout if web font unavailable by initial layout time\n- Specify explicit fallback font in font-family declaration matching font category\n- Apply metric overrides (size-adjust, ascent-override, descent-override, line-gap-override) to align fallback and web font dimensions\n- Preload critical fonts with <link rel=preload> in document head\n- Invoke Font Loading API to reduce font acquisition time\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Define font-family with explicit fallback', 'detail': 'Use `font-family: \"Web Font Name\", fallback-category;` (e.g., sans-serif, serif) to ensure browser selects a matching fallback while web font loads.'}\n- {'step': 2, 'action': 'Apply font-display strategy', 'detail': 'Set `font-display: optional` in @font-face to prevent re-layout if web font is not available by initial layout time.'}\n- {'step': 3, 'action': 'Measure and apply metric overrides', 'detail': 'Use `size-adjust`, `ascent-override`, `descent-override`, and `line-gap-override` in @font-face to align fallback font metrics with web font metrics.'}\n- {'step': 4, 'action': 'Preload critical fonts', 'detail': 'Add `<link rel=preload as=font href=font-file.woff2 type=font/woff2 crossorigin>` in document head for fonts needed before first paint.'}\n- {'step': 5, 'action': 'Optionally use Font Loading API', 'detail': 'Call Font Loading API to reduce time to font availability and coordinate font swap timing.'}\n\n## Constraints\n\n- Fallback font must be specified in font-family declaration\n- Metric override APIs must be applied to @font-face rule\n- Preload link must reference the correct font file format and weight\n\n## Cautions\n\n- font-display: optional may cause text to not render if font is unavailable; use only for non-critical fonts\n- Metric overrides require precise measurement of fallback and web font dimensions to be effective\n- Preloading too many fonts can delay other critical resources\n\n## Output Contract\n\n- Web font loads without triggering layout shift\n- Fallback font metrics match web font closely\n- CLS score remains stable during font-swap phase\n- Text remains readable throughout load sequence\n\n## Example Executions\n\n### Example 1\n\n- Input: Page uses Google Sans web font loaded asynchronously; fallback is Times (serif); CLS detected during font swap.\n- Output: Apply `font-family: \"Google Sans\", sans-serif;` with `font-display: optional;` and metric overrides to match sans-serif fallback; preload font with `<link rel=preload>`. Result: CLS eliminated, text stable during load.\n- Notes: Serif fallback (Times) was worse match than sans-serif; explicit fallback selection resolved the issue.\n\n### Example 2\n\n- Input: Critical heading font not preloaded; visible text reflow occurs 200ms after page load.\n- Output: Add `<link rel=preload as=font href=heading-font.woff2 type=font/woff2 crossorigin>` to head. Font loads before first paint, no layout shift.\n- Notes: Preload increases font priority; ensures font is available by initial layout time.",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "5b89c0b3-be95-5d38-bd12-c76c956f8ce5",
+  "parent_candidate_ids": [
+    "5b89c0b3-be95-5d38-bd12-c76c956f8ce5"
+  ],
+  "child_skill_ids": [
+    "fd2eee4d-69a2-5ac8-8bd0-ef56916c556d"
+  ],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "parent",
+  "visible_role": "parent",
+  "objective": "Reduce CLS impact from web font substitution and loading delays",
+  "domain": "default",
+  "task_family": "web_performance_optimization",
+  "method_family": "font_rendering_control",
+  "stage": "page_load_optimization",
+  "applicable_signals": [
+    "Observed layout shift during web font load",
+    "Fallback font differs significantly in metrics from web font",
+    "CLS score increases during font-swap phase"
+  ],
+  "contraindications": [
+    "All fonts are system fonts with no async loading",
+    "Font loading is synchronous and blocking",
+    "CLS is caused by layout changes unrelated to typography"
+  ],
+  "intervention_moves": [
+    "Apply font-display: optional to prevent re-layout if web font unavailable by initial layout time",
+    "Specify explicit fallback font in font-family declaration matching font category",
+    "Apply metric overrides (size-adjust, ascent-override, descent-override, line-gap-override) to align fallback and web font dimensions",
+    "Preload critical fonts with <link rel=preload> in document head",
+    "Invoke Font Loading API to reduce font acquisition time"
+  ],
+  "triggers": [
+    "Web fonts are loaded asynchronously and cause visible text reflow",
+    "Font-family fallback mismatches are detected during page load",
+    "CLS metrics show font-related shifts or font-swap events"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Define font-family with explicit fallback', 'detail': 'Use `font-family: \"Web Font Name\", fallback-category;` (e.g., sans-serif, serif) to ensure browser selects a matching fallback while web font loads.'}",
+    "{'step': 2, 'action': 'Apply font-display strategy', 'detail': 'Set `font-display: optional` in @font-face to prevent re-layout if web font is not available by initial layout time.'}",
+    "{'step': 3, 'action': 'Measure and apply metric overrides', 'detail': 'Use `size-adjust`, `ascent-override`, `descent-override`, and `line-gap-override` in @font-face to align fallback font metrics with web font metrics.'}",
+    "{'step': 4, 'action': 'Preload critical fonts', 'detail': 'Add `<link rel=preload as=font href=font-file.woff2 type=font/woff2 crossorigin>` in document head for fonts needed before first paint.'}",
+    "{'step': 5, 'action': 'Optionally use Font Loading API', 'detail': 'Call Font Loading API to reduce time to font availability and coordinate font swap timing.'}"
+  ],
+  "constraints": [
+    "Fallback font must be specified in font-family declaration",
+    "Metric override APIs must be applied to @font-face rule",
+    "Preload link must reference the correct font file format and weight"
+  ],
+  "cautions": [
+    "font-display: optional may cause text to not render if font is unavailable; use only for non-critical fonts",
+    "Metric overrides require precise measurement of fallback and web font dimensions to be effective",
+    "Preloading too many fonts can delay other critical resources"
+  ],
+  "output_contract": [
+    "Web font loads without triggering layout shift",
+    "Fallback font metrics match web font closely",
+    "CLS score remains stable during font-swap phase",
+    "Text remains readable throughout load sequence"
+  ],
+  "examples": [
+    {
+      "input": "Page uses Google Sans web font loaded asynchronously; fallback is Times (serif); CLS detected during font swap.",
+      "output": "Apply `font-family: \"Google Sans\", sans-serif;` with `font-display: optional;` and metric overrides to match sans-serif fallback; preload font with `<link rel=preload>`. Result: CLS eliminated, text stable during load.",
+      "notes": "Serif fallback (Times) was worse match than sans-serif; explicit fallback selection resolved the issue."
+    },
+    {
+      "input": "Critical heading font not preloaded; visible text reflow occurs 200ms after page load.",
+      "output": "Add `<link rel=preload as=font href=heading-font.woff2 type=font/woff2 crossorigin>` to head. Font loads before first paint, no layout shift.",
+      "notes": "Preload increases font priority; ensures font is available by initial layout time."
+    }
+  ],
+  "tags": [
+    "web_performance",
+    "CLS",
+    "font_loading",
+    "layout_stability",
+    "page_load_optimization"
+  ],
+  "support_ids": [
+    "c3875f93-e932-5518-9bc9-02733235e29e"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "da1daae5-a021-5e1f-9f0c-9e48d0c150a9"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.85,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|reduce cls impact from web font substitution and loading delays|default|web_performance_optimization|font_rendering_control|page_load_optimization|minimize web font layout shift",
+    "change_action": "create",
+    "llm_reason": "create",
+    "parent_skill_id": "5b89c0b3-be95-5d38-bd12-c76c956f8ce5",
+    "parent_candidate_ids": [
+      "5b89c0b3-be95-5d38-bd12-c76c956f8ce5"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "parent",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "fd2eee4d-69a2-5ac8-8bd0-ef56916c556d"
+    ]
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

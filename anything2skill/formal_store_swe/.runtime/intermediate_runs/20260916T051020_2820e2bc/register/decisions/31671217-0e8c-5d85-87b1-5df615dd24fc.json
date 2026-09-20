@@ -1,0 +1,122 @@
+{
+  "skill_id": "31671217-0e8c-5d85-87b1-5df615dd24fc",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for Flink text stream tokenization and mapping. It does not semantically match any existing skill (which cover codec generation, Python ProcessPoolExecutor configuration, and JAR installation). Peer candidates (test data injection, file reading, environment initialization) are complementary upstream/testing skills, not overlapping. The candidate has clear support evidence from DataStream API documentation and represents a novel, focused capability for text preprocessing in streaming contexts.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "31671217-0e8c-5d85-87b1-5df615dd24fc",
+    "name": "Flink Text Stream Tokenization and Mapping",
+    "description": "Apply flatMap to split incoming text by word boundaries (non-word characters), filter empty tokens, normalize to lowercase, and map each word to a (word, count) tuple. Use this micro-operation to normalize and structure raw text input for downstream aggregation in streaming pipelines.",
+    "skill_body": "Split each incoming text line by non-word character boundaries (\\W+), filter out empty strings, convert to lowercase, and emit (word, 1) tuples. This prepares raw text for keying and windowed aggregation.\n\n## Objective\n\nTransform raw text stream into structured (key, value) tuples suitable for keying and windowing\n## Applicable Signals\n\n- Receive unstructured text from socket or file source\n- Need to extract individual words or tokens from raw text\n- Must prepare data for key-based grouping and windowing\n- Input is line-delimited text requiring word-level decomposition\n\n## Contraindications\n\n- Input is already tokenized or structured as tuples\n- Require custom tokenization logic beyond word-boundary splitting\n- Need to preserve whitespace, punctuation, or case sensitivity\n- Processing binary or non-text data streams\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Apply flatMap to incoming text stream', 'detail': 'For each line, split by non-word character boundary (\\\\W+)'}\n- {'step': 2, 'action': 'Filter empty tokens', 'detail': 'Remove zero-length strings resulting from consecutive delimiters'}\n- {'step': 3, 'action': 'Normalize case', 'detail': 'Convert each token to lowercase for consistent grouping'}\n- {'step': 4, 'action': 'Map to tuple', 'detail': 'Emit (word, 1) tuple for each token'}\n\n## Constraints\n\n- Input must be text-based (String or line-delimited format)\n- Output tuple structure is fixed as (String, Integer)\n- Tokenization uses standard regex word boundary; custom delimiters require separate skill\n- Operates on individual lines; does not preserve cross-line context\n\n## Cautions\n\n- Large vocabularies may cause memory pressure in downstream keying; consider vocabulary pruning for high-cardinality streams\n- Case normalization is applied; preserve original case if needed by using a separate variant\n- Empty input lines produce no output tuples; verify source does not rely on line-count preservation\n\n## Output Contract\n\n- DataStream<Tuple2<String, Integer>> where each tuple is (word, 1), ready for keyBy and windowed aggregation operations\n\n## Example Executions\n\n### Example 1\n\n- Input: \"hello world\"\n- Output: [(\"hello\", 1), (\"world\", 1)]\n- Notes: Single line split into two word tuples\n\n### Example 2\n\n- Input: \"hello, world! hello.\"\n- Output: [(\"hello\", 1), (\"world\", 1), (\"hello\", 1)]\n- Notes: Punctuation removed by \\W+ boundary; duplicate words emit separate tuples\n\n### Example 3\n\n- Input: \"\"\n- Output: []\n- Notes: Empty line produces no output after filtering",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Transform raw text stream into structured (key, value) tuples suitable for keying and windowing",
+    "domain": "default",
+    "task_family": "text_preprocessing",
+    "method_family": "tokenization_and_mapping",
+    "stage": "data_transformation",
+    "applicable_signals": [
+      "Receive unstructured text from socket or file source",
+      "Need to extract individual words or tokens from raw text",
+      "Must prepare data for key-based grouping and windowing",
+      "Input is line-delimited text requiring word-level decomposition"
+    ],
+    "contraindications": [
+      "Input is already tokenized or structured as tuples",
+      "Require custom tokenization logic beyond word-boundary splitting",
+      "Need to preserve whitespace, punctuation, or case sensitivity",
+      "Processing binary or non-text data streams"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Receive unstructured text from a socket or file source; need to extract individual words or tokens; must prepare data for key-based grouping"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Apply flatMap to incoming text stream', 'detail': 'For each line, split by non-word character boundary (\\\\W+)'}",
+      "{'step': 2, 'action': 'Filter empty tokens', 'detail': 'Remove zero-length strings resulting from consecutive delimiters'}",
+      "{'step': 3, 'action': 'Normalize case', 'detail': 'Convert each token to lowercase for consistent grouping'}",
+      "{'step': 4, 'action': 'Map to tuple', 'detail': 'Emit (word, 1) tuple for each token'}"
+    ],
+    "constraints": [
+      "Input must be text-based (String or line-delimited format)",
+      "Output tuple structure is fixed as (String, Integer)",
+      "Tokenization uses standard regex word boundary; custom delimiters require separate skill",
+      "Operates on individual lines; does not preserve cross-line context"
+    ],
+    "cautions": [
+      "Large vocabularies may cause memory pressure in downstream keying; consider vocabulary pruning for high-cardinality streams",
+      "Case normalization is applied; preserve original case if needed by using a separate variant",
+      "Empty input lines produce no output tuples; verify source does not rely on line-count preservation"
+    ],
+    "output_contract": [
+      "DataStream<Tuple2<String, Integer>> where each tuple is (word, 1), ready for keyBy and windowed aggregation operations"
+    ],
+    "examples": [
+      {
+        "input": "\"hello world\"",
+        "output": "[(\"hello\", 1), (\"world\", 1)]",
+        "notes": "Single line split into two word tuples"
+      },
+      {
+        "input": "\"hello, world! hello.\"",
+        "output": "[(\"hello\", 1), (\"world\", 1), (\"hello\", 1)]",
+        "notes": "Punctuation removed by \\W+ boundary; duplicate words emit separate tuples"
+      },
+      {
+        "input": "\"\"",
+        "output": "[]",
+        "notes": "Empty line produces no output after filtering"
+      }
+    ],
+    "tags": [
+      "text_processing",
+      "tokenization",
+      "flatmap",
+      "stream_transformation",
+      "data_normalization"
+    ],
+    "support_ids": [
+      "e58ee62a-edcf-5e1a-bab1-a6f4d2471b6d"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "949e988b-8ef3-560b-bfd7-f2604b29be18"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|transform raw text stream into structured (key, value) tuples suitable for keying and windowing|default|text_preprocessing|tokenization_and_mapping|data_transformation|flink text stream tokenization and mapping"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

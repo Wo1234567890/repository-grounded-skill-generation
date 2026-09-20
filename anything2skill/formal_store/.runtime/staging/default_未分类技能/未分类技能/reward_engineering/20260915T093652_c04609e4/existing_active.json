@@ -1,0 +1,145 @@
+{
+  "schema": "autoskill.document.staging.existing_active.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "reward_engineering",
+  "run_id": "20260915T093652_c04609e4",
+  "skills": [
+    {
+      "skill_id": "a600fbef-41ac-5267-a405-97b2503d08a6",
+      "name": "Custom Reward Function Design",
+      "description": "Define a callable reward function that scores model completions based on specified criteria (e.g., length, format, quality metrics). Use this skill when you need to optimize model behavior toward custom objectives during GRPO training preparation.",
+      "skill_body": "Create a reward function that accepts a list of completions and returns a list of scalar reward values. The function signature should be: def reward_func(completions, **kwargs) -> list[float]. Each completion receives a single scalar score reflecting how well it meets your optimization criteria. Common patterns: reward based on length (e.g., -abs(target_len - actual_len)), format compliance, or domain-specific quality signals.\n\n## Objective\n\nCreate a callable reward function that maps completions to scalar reward scores for GRPO training optimization\n## Applicable Signals\n\n- Need to optimize for domain-specific completion quality\n- Have clear, measurable reward criteria (length, format, correctness)\n- Want to steer model behavior toward specific objectives during GRPO training\n\n## Contraindications\n\n- Using pre-built reward models or external reward APIs\n- Reward criteria are vague or unmeasurable\n- No clear completion quality signal available\n- Reward function is non-differentiable or computationally expensive\n\n## Intervention Moves\n\n- Define the reward criterion (e.g., target length, format pattern, quality metric)\n- Implement the scoring logic as a Python function\n- Ensure the function returns one scalar per completion\n- Test the function with sample completions to verify output range and behavior\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify the completion quality criterion (e.g., length, format, semantic correctness)', 'input': 'Domain requirements and optimization goals'}\n- {'step': 2, 'action': 'Implement the scoring logic as a Python function', 'input': 'Criterion definition and scoring formula'}\n- {'step': 3, 'action': 'Ensure function signature matches reward_func(completions, **kwargs) -> list[float]', 'input': 'Function implementation'}\n- {'step': 4, 'action': 'Test with sample completions to verify output shape and value range', 'input': 'Sample completion strings'}\n- {'step': 5, 'action': 'Return the callable function for use in GRPOTrainer initialization', 'input': 'Validated reward function'}\n\n## Constraints\n\n- Function must accept completions as a list and return a list of floats\n- Reward values must be scalar (single number per completion)\n- Function must be deterministic or have controlled randomness\n- Execution time should be reasonable for batch processing during training\n\n## Cautions\n\n- Poorly designed reward functions can lead to reward hacking or unintended model behavior\n- Ensure reward signal is aligned with actual desired outcomes, not just measurable proxies\n- Test reward function on diverse completion samples before full training run\n\n## Output Contract\n\n- A callable Python function with signature reward_func(completions: list[str], **kwargs) -> list[float] that produces one scalar reward value per completion, ready to pass to GRPOTrainer via reward_funcs parameter\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Optimize for completions close to 20 characters\n- Therapist/Output: def reward_len(completions, **kwargs):\n    return [-abs(20 - len(completion)) for completion in completions]\n- Notes: Simple length-based reward; higher scores for completions near target length\n\n### Example 2\n\n- Client/Input: Optimize for completions containing specific format (e.g., numbered steps)\n- Therapist/Output: def reward_format(completions, **kwargs):\n    return [1.0 if '1.' in c and '2.' in c else -1.0 for c in completions]\n- Notes: Binary reward based on format detection; can be extended with graduated scoring",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "7bfb3e92-d1fa-551f-b5de-0cb4c8a2a54a",
+        "07ee569c-0bbd-51f7-af08-1fc359001c7e"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Create a callable reward function that maps completions to scalar reward scores for GRPO training optimization",
+      "domain": "default",
+      "task_family": "reward_engineering",
+      "method_family": "scoring_function",
+      "stage": "training_preparation",
+      "applicable_signals": [
+        "Need to optimize for domain-specific completion quality",
+        "Have clear, measurable reward criteria (length, format, correctness)",
+        "Want to steer model behavior toward specific objectives during GRPO training"
+      ],
+      "contraindications": [
+        "Using pre-built reward models or external reward APIs",
+        "Reward criteria are vague or unmeasurable",
+        "No clear completion quality signal available",
+        "Reward function is non-differentiable or computationally expensive"
+      ],
+      "intervention_moves": [
+        "Define the reward criterion (e.g., target length, format pattern, quality metric)",
+        "Implement the scoring logic as a Python function",
+        "Ensure the function returns one scalar per completion",
+        "Test the function with sample completions to verify output range and behavior"
+      ],
+      "triggers": [
+        "Need to optimize for domain-specific completion quality",
+        "Have clear reward criteria (e.g., length, format, correctness)",
+        "Want to steer model behavior during GRPO training"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Identify the completion quality criterion (e.g., length, format, semantic correctness)', 'input': 'Domain requirements and optimization goals'}",
+        "{'step': 2, 'action': 'Implement the scoring logic as a Python function', 'input': 'Criterion definition and scoring formula'}",
+        "{'step': 3, 'action': 'Ensure function signature matches reward_func(completions, **kwargs) -> list[float]', 'input': 'Function implementation'}",
+        "{'step': 4, 'action': 'Test with sample completions to verify output shape and value range', 'input': 'Sample completion strings'}",
+        "{'step': 5, 'action': 'Return the callable function for use in GRPOTrainer initialization', 'input': 'Validated reward function'}"
+      ],
+      "constraints": [
+        "Function must accept completions as a list and return a list of floats",
+        "Reward values must be scalar (single number per completion)",
+        "Function must be deterministic or have controlled randomness",
+        "Execution time should be reasonable for batch processing during training"
+      ],
+      "cautions": [
+        "Poorly designed reward functions can lead to reward hacking or unintended model behavior",
+        "Ensure reward signal is aligned with actual desired outcomes, not just measurable proxies",
+        "Test reward function on diverse completion samples before full training run"
+      ],
+      "output_contract": [
+        "A callable Python function with signature reward_func(completions: list[str], **kwargs) -> list[float] that produces one scalar reward value per completion, ready to pass to GRPOTrainer via reward_funcs parameter"
+      ],
+      "examples": [
+        {
+          "input": "Optimize for completions close to 20 characters",
+          "output": "def reward_len(completions, **kwargs):\n    return [-abs(20 - len(completion)) for completion in completions]",
+          "notes": "Simple length-based reward; higher scores for completions near target length"
+        },
+        {
+          "input": "Optimize for completions containing specific format (e.g., numbered steps)",
+          "output": "def reward_format(completions, **kwargs):\n    return [1.0 if '1.' in c and '2.' in c else -1.0 for c in completions]",
+          "notes": "Binary reward based on format detection; can be extended with graduated scoring"
+        }
+      ],
+      "tags": [
+        "reward_engineering",
+        "training_preparation",
+        "grpo",
+        "model_optimization",
+        "scoring_function"
+      ],
+      "support_ids": [
+        "75a1663e-b07e-58d8-bebd-3c70a8e7beb3"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "f7602e3e-e59e-5c45-814b-01e463966beb"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|create a callable reward function that maps completions to scalar reward scores for grpo training optimization|default|reward_engineering|scoring_function|training_preparation|custom reward function design",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "7bfb3e92-d1fa-551f-b5de-0cb4c8a2a54a",
+          "07ee569c-0bbd-51f7-af08-1fc359001c7e"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ]
+}

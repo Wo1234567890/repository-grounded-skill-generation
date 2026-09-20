@@ -1,0 +1,539 @@
+{
+  "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+  "title": "tictoc-paper.txt",
+  "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/tictoc-paper.txt",
+  "window_id": "f1bd658e-adc7-591d-8575-03df49cf455e",
+  "section_heading": "6.4                                  TicToc Optimizations                                                              caused by these locks.",
+  "strategy": "strict",
+  "supports": [
+    {
+      "support_id": "ffd63a76-4870-593d-9a25-5dc4edec844f",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/tictoc-paper.txt",
+      "section": "6.4                                  TicToc Optimizations                                                              caused by these locks.",
+      "span": {
+        "start": 105475,
+        "end": 113795
+      },
+      "excerpt": "Commit Timestamp\n                                       TS_ALLOC\n                          8000                                                                      SI        –            0.23           –            –       0.90\n                                       High                                                         RR      0.010          0.23          0.35        0.80      1.04\n                          6000         Medium\n                                                                                                                    (a) Throughput (Million txn/s)\n                          4000\n                                                                                                         DL_DETECT       HEKATON       NO_WAIT       SILO     TICTOC\n                          2000                                                                      SR      74.0%         34.4%         69.9%        46.8%     44.3%\n                                                                                                    SI        –           30.9%           –            –       40.1%\n                             0\n                                 0   2000      4000    6000     8000         10000                  RR      74.3%         30.4%         71.3%        42.3%     39.7%\n                                        Number of Committed Txns                                                            (b) Abort Rate\nFigure 11: Logical Time Analysis – Comparison of the growth                                    Table 2: Isolation Levels (High Contention) – Performance mea-\nrate of the timestamps in TICTOC versus TS_ALLOC.                                              surements for the concurrency control schemes running YCSB un-\n                                                                                               der different isolation levels with 40 threads.\n                          DL_DETECT         HEKATON    NO_WAIT        SILO     TICTOC\n  SR                         0.43             1.55       0.63         2.32       2.57          compare the DBMS’s performance when transactions execute un-\n  SI                           –              1.78         –            –        2.69\n  RR                         0.72             1.88       1.89         2.45       2.69          der snapshot isolation (SI) and repeatable read isolation (RR) lev-\n                                                                                               els versus the default serializable isolation (SR). All five algorithms\n                                     (a) Throughput (Million txn/s)                            support the RR level. For SI, we are only able to test the TICTOC\n                                                                                               and HEKATON algorithms. This is because supporting SI requires\n                          DL_DETECT         HEKATON    NO_WAIT        SILO      TICTOC\n  SR                         0.35%           11.6%      63.2%         6.47%      1.76%\n                                                                                               the DBMS to maintain multiple versions for each tuple, and thus\n  SI                            –            1.96%         –             –       1.54%         this requires significant changes to the other algorithms. We use the\n  RR                         0.10%           1.94%       9.9%         0.71%      0.72%         medium- and high-contention YCSB workloads from Section 6.3.\n                                              (b) Abort Rate                                      The medium-contention YCSB results are shown in Table 1. For\n                                                                                               this setting, the workload has enough parallelism and thus all the\nTable 1: Isolation Levels (Medium Contention) – Performance                                    optimistic T/O-based algorithms only see small improvements when\nmeasurements for the concurrency control schemes running YCSB                                  running at a lower isolation level (4.7% for TICTOC and 5.6% for\nunder different isolation levels with 40 threads.                                              SILO), whereas for the pessimistic 2PL algorithms the improve-\n                                                                                               ment is more pronounced (67.4% for DL_DETECT and 200.0% for\ncan commit in parallel using its own version. Although in theory                               NO_WAIT). HEKATON only has a 21.3% improvement from SR to\ntimestamp history can enable more concurrency, in practice there                               RR. The abort rate measurements in Table 1b show that the lower\nis no clear performance benefit for the workloads we evaluated.                                isolation levels achieve lower abort rates because there are fewer\n                                                                                               conflicts between transactions. As expected, all the algorithms have\n6.5                      Logical Time Analysis                                                 the fewest number of aborted transactions under RR since it is the\n   We analyze how TicToc’s commit timestamps grow over time                                    most relaxed isolation level.\nunder different levels of contention. Ideally, we would like times-                               The high-contention YCSB results are shown in Table 2. Lower\ntamps to grow slowly over time relative to the total number of com-                            isolation levels have better performance than serializable isolation.\nmitted transactions, indicating that synchronization among transac-                            Again, the throughput of the RR isolation level is slightly better\ntions is relatively infrequent. For this experiment, we execute the                            than SI’s. In general, for this workload setting we found that differ-\nmedium and high contention YCSB workloads from Section 6.3                                     ent isolation levels do not cause large reductions in abort rates due\nand track the values of the transactions’ commit timestamps over                               to the significant amount of contention on hotspot tuples.\ntime. We also include TS_ALLOC as a baseline where each trans-\naction is assigned a unique timestamp using an atomic add instruc-                             7.    CONCLUSION\ntion. This is representative of the timestamp growth rate in other                                In this paper we have presented TicToc, a new OCC-based con-\nT/O-based algorithms, such as HEKATON.                                                         currency control algorithm that eliminates the need for centralized\n   Fig. 11 shows the relationship between logical timestamps and                               timestamp allocation. TicToc instead uses a novel data-driven times-\nthe number of committed transactions for the three configurations.                             tamp management approach that decouples logical timestamps and\nWith the TS_ALLOC protocol, the number of committed transac-                                   physical time by deriving transaction commit timestamps from data\ntions and logical timestamps increase at the same rate. In TicToc,                             items. This enables an OLTP DBMS to exploit more parallelism\nhowever, logical timestamps increase at a slower rate: 64× and                                 than other OCC-based algorithms. We have also presented several\n10× slower for low and high contention levels in YCSB, respec-                                 optimizations that leverage this timestamp management policy to\ntively. What is interesting about these measurements is that the rate                          further improve TicToc’s performance. Our evaluation results show\nof growth of logical timestamps indicates the inherent level of par-                           that, compared to another state-of-the-art OCC algorithm, TicToc\nallelism in a workload that can be exploited by TicToc. In the high                            achieves up to 92% higher throughput while reducing transaction",
+      "relation_type": "support",
+      "confidence": 0.85,
+      "metadata": {
+        "document_title": "tictoc-paper.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Isolation Level Performance Comparison",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "Measure isolation level impact on DBMS concurrency control performance",
+        "task_family": "performance_evaluation",
+        "method_family": "comparative_benchmarking",
+        "stage": "evaluation",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "f1bd658e-adc7-591d-8575-03df49cf455e",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 2,
+        "paragraph_end": 2,
+        "heading_path": [
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "3.2     Protocol Specification",
+          "4.1     Proof Idea",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "We now evaluate the optimizations we presented in Section 5 to                                                          A key finding is that the timestamp history optimization doe"
+      },
+      "created_at": "2026-09-15T20:13:05+00:00"
+    },
+    {
+      "support_id": "9e356594-1bdf-555c-9417-82e47f3619c7",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/tictoc-paper.txt",
+      "section": "6.4                                  TicToc Optimizations                                                              caused by these locks.",
+      "span": {
+        "start": 105475,
+        "end": 113795
+      },
+      "excerpt": "Commit Timestamp\n                                       TS_ALLOC\n                          8000                                                                      SI        –            0.23           –            –       0.90\n                                       High                                                         RR      0.010          0.23          0.35        0.80      1.04\n                          6000         Medium\n                                                                                                                    (a) Throughput (Million txn/s)\n                          4000\n                                                                                                         DL_DETECT       HEKATON       NO_WAIT       SILO     TICTOC\n                          2000                                                                      SR      74.0%         34.4%         69.9%        46.8%     44.3%\n                                                                                                    SI        –           30.9%           –            –       40.1%\n                             0\n                                 0   2000      4000    6000     8000         10000                  RR      74.3%         30.4%         71.3%        42.3%     39.7%\n                                        Number of Committed Txns                                                            (b) Abort Rate\nFigure 11: Logical Time Analysis – Comparison of the growth                                    Table 2: Isolation Levels (High Contention) – Performance mea-\nrate of the timestamps in TICTOC versus TS_ALLOC.                                              surements for the concurrency control schemes running YCSB un-\n                                                                                               der different isolation levels with 40 threads.\n                          DL_DETECT         HEKATON    NO_WAIT        SILO     TICTOC\n  SR                         0.43             1.55       0.63         2.32       2.57          compare the DBMS’s performance when transactions execute un-\n  SI                           –              1.78         –            –        2.69\n  RR                         0.72             1.88       1.89         2.45       2.69          der snapshot isolation (SI) and repeatable read isolation (RR) lev-\n                                                                                               els versus the default serializable isolation (SR). All five algorithms\n                                     (a) Throughput (Million txn/s)                            support the RR level. For SI, we are only able to test the TICTOC\n                                                                                               and HEKATON algorithms. This is because supporting SI requires\n                          DL_DETECT         HEKATON    NO_WAIT        SILO      TICTOC\n  SR                         0.35%           11.6%      63.2%         6.47%      1.76%\n                                                                                               the DBMS to maintain multiple versions for each tuple, and thus\n  SI                            –            1.96%         –             –       1.54%         this requires significant changes to the other algorithms. We use the\n  RR                         0.10%           1.94%       9.9%         0.71%      0.72%         medium- and high-contention YCSB workloads from Section 6.3.\n                                              (b) Abort Rate                                      The medium-contention YCSB results are shown in Table 1. For\n                                                                                               this setting, the workload has enough parallelism and thus all the\nTable 1: Isolation Levels (Medium Contention) – Performance                                    optimistic T/O-based algorithms only see small improvements when\nmeasurements for the concurrency control schemes running YCSB                                  running at a lower isolation level (4.7% for TICTOC and 5.6% for\nunder different isolation levels with 40 threads.                                              SILO), whereas for the pessimistic 2PL algorithms the improve-\n                                                                                               ment is more pronounced (67.4% for DL_DETECT and 200.0% for\ncan commit in parallel using its own version. Although in theory                               NO_WAIT). HEKATON only has a 21.3% improvement from SR to\ntimestamp history can enable more concurrency, in practice there                               RR. The abort rate measurements in Table 1b show that the lower\nis no clear performance benefit for the workloads we evaluated.                                isolation levels achieve lower abort rates because there are fewer\n                                                                                               conflicts between transactions. As expected, all the algorithms have\n6.5                      Logical Time Analysis                                                 the fewest number of aborted transactions under RR since it is the\n   We analyze how TicToc’s commit timestamps grow over time                                    most relaxed isolation level.\nunder different levels of contention. Ideally, we would like times-                               The high-contention YCSB results are shown in Table 2. Lower\ntamps to grow slowly over time relative to the total number of com-                            isolation levels have better performance than serializable isolation.\nmitted transactions, indicating that synchronization among transac-                            Again, the throughput of the RR isolation level is slightly better\ntions is relatively infrequent. For this experiment, we execute the                            than SI’s. In general, for this workload setting we found that differ-\nmedium and high contention YCSB workloads from Section 6.3                                     ent isolation levels do not cause large reductions in abort rates due\nand track the values of the transactions’ commit timestamps over                               to the significant amount of contention on hotspot tuples.\ntime. We also include TS_ALLOC as a baseline where each trans-\naction is assigned a unique timestamp using an atomic add instruc-                             7.    CONCLUSION\ntion. This is representative of the timestamp growth rate in other                                In this paper we have presented TicToc, a new OCC-based con-\nT/O-based algorithms, such as HEKATON.                                                         currency control algorithm that eliminates the need for centralized\n   Fig. 11 shows the relationship between logical timestamps and                               timestamp allocation. TicToc instead uses a novel data-driven times-\nthe number of committed transactions for the three configurations.                             tamp management approach that decouples logical timestamps and\nWith the TS_ALLOC protocol, the number of committed transac-                                   physical time by deriving transaction commit timestamps from data\ntions and logical timestamps increase at the same rate. In TicToc,                             items. This enables an OLTP DBMS to exploit more parallelism\nhowever, logical timestamps increase at a slower rate: 64× and                                 than other OCC-based algorithms. We have also presented several\n10× slower for low and high contention levels in YCSB, respec-                                 optimizations that leverage this timestamp management policy to\ntively. What is interesting about these measurements is that the rate                          further improve TicToc’s performance. Our evaluation results show\nof growth of logical timestamps indicates the inherent level of par-                           that, compared to another state-of-the-art OCC algorithm, TicToc\nallelism in a workload that can be exploited by TicToc. In the high                            achieves up to 92% higher throughput while reducing transaction",
+      "relation_type": "support",
+      "confidence": 0.82,
+      "metadata": {
+        "document_title": "tictoc-paper.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Logical Timestamp Growth Analysis",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "Quantify timestamp allocation efficiency and inherent workload parallelism by measuring how logical timestamps scale relative to committed transaction count.",
+        "task_family": "performance_analysis",
+        "method_family": "time_series_measurement",
+        "stage": "evaluation",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "f1bd658e-adc7-591d-8575-03df49cf455e",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 2,
+        "paragraph_end": 2,
+        "heading_path": [
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "3.2     Protocol Specification",
+          "4.1     Proof Idea",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "We now evaluate the optimizations we presented in Section 5 to                                                          A key finding is that the timestamp history optimization doe"
+      },
+      "created_at": "2026-09-15T20:13:05+00:00"
+    },
+    {
+      "support_id": "60391557-14d5-5224-8e7b-d7b038b4369d",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/tictoc-paper.txt",
+      "section": "6.4                                  TicToc Optimizations                                                              caused by these locks.",
+      "span": {
+        "start": 105475,
+        "end": 113795
+      },
+      "excerpt": "Commit Timestamp\n                                       TS_ALLOC\n                          8000                                                                      SI        –            0.23           –            –       0.90\n                                       High                                                         RR      0.010          0.23          0.35        0.80      1.04\n                          6000         Medium\n                                                                                                                    (a) Throughput (Million txn/s)\n                          4000\n                                                                                                         DL_DETECT       HEKATON       NO_WAIT       SILO     TICTOC\n                          2000                                                                      SR      74.0%         34.4%         69.9%        46.8%     44.3%\n                                                                                                    SI        –           30.9%           –            –       40.1%\n                             0\n                                 0   2000      4000    6000     8000         10000                  RR      74.3%         30.4%         71.3%        42.3%     39.7%\n                                        Number of Committed Txns                                                            (b) Abort Rate\nFigure 11: Logical Time Analysis – Comparison of the growth                                    Table 2: Isolation Levels (High Contention) – Performance mea-\nrate of the timestamps in TICTOC versus TS_ALLOC.                                              surements for the concurrency control schemes running YCSB un-\n                                                                                               der different isolation levels with 40 threads.\n                          DL_DETECT         HEKATON    NO_WAIT        SILO     TICTOC\n  SR                         0.43             1.55       0.63         2.32       2.57          compare the DBMS’s performance when transactions execute un-\n  SI                           –              1.78         –            –        2.69\n  RR                         0.72             1.88       1.89         2.45       2.69          der snapshot isolation (SI) and repeatable read isolation (RR) lev-\n                                                                                               els versus the default serializable isolation (SR). All five algorithms\n                                     (a) Throughput (Million txn/s)                            support the RR level. For SI, we are only able to test the TICTOC\n                                                                                               and HEKATON algorithms. This is because supporting SI requires\n                          DL_DETECT         HEKATON    NO_WAIT        SILO      TICTOC\n  SR                         0.35%           11.6%      63.2%         6.47%      1.76%\n                                                                                               the DBMS to maintain multiple versions for each tuple, and thus\n  SI                            –            1.96%         –             –       1.54%         this requires significant changes to the other algorithms. We use the\n  RR                         0.10%           1.94%       9.9%         0.71%      0.72%         medium- and high-contention YCSB workloads from Section 6.3.\n                                              (b) Abort Rate                                      The medium-contention YCSB results are shown in Table 1. For\n                                                                                               this setting, the workload has enough parallelism and thus all the\nTable 1: Isolation Levels (Medium Contention) – Performance                                    optimistic T/O-based algorithms only see small improvements when\nmeasurements for the concurrency control schemes running YCSB                                  running at a lower isolation level (4.7% for TICTOC and 5.6% for\nunder different isolation levels with 40 threads.                                              SILO), whereas for the pessimistic 2PL algorithms the improve-\n                                                                                               ment is more pronounced (67.4% for DL_DETECT and 200.0% for\ncan commit in parallel using its own version. Although in theory                               NO_WAIT). HEKATON only has a 21.3% improvement from SR to\ntimestamp history can enable more concurrency, in practice there                               RR. The abort rate measurements in Table 1b show that the lower\nis no clear performance benefit for the workloads we evaluated.                                isolation levels achieve lower abort rates because there are fewer\n                                                                                               conflicts between transactions. As expected, all the algorithms have\n6.5                      Logical Time Analysis                                                 the fewest number of aborted transactions under RR since it is the\n   We analyze how TicToc’s commit timestamps grow over time                                    most relaxed isolation level.\nunder different levels of contention. Ideally, we would like times-                               The high-contention YCSB results are shown in Table 2. Lower\ntamps to grow slowly over time relative to the total number of com-                            isolation levels have better performance than serializable isolation.\nmitted transactions, indicating that synchronization among transac-                            Again, the throughput of the RR isolation level is slightly better\ntions is relatively infrequent. For this experiment, we execute the                            than SI’s. In general, for this workload setting we found that differ-\nmedium and high contention YCSB workloads from Section 6.3                                     ent isolation levels do not cause large reductions in abort rates due\nand track the values of the transactions’ commit timestamps over                               to the significant amount of contention on hotspot tuples.\ntime. We also include TS_ALLOC as a baseline where each trans-\naction is assigned a unique timestamp using an atomic add instruc-                             7.    CONCLUSION\ntion. This is representative of the timestamp growth rate in other                                In this paper we have presented TicToc, a new OCC-based con-\nT/O-based algorithms, such as HEKATON.                                                         currency control algorithm that eliminates the need for centralized\n   Fig. 11 shows the relationship between logical timestamps and                               timestamp allocation. TicToc instead uses a novel data-driven times-\nthe number of committed transactions for the three configurations.                             tamp management approach that decouples logical timestamps and\nWith the TS_ALLOC protocol, the number of committed transac-                                   physical time by deriving transaction commit timestamps from data\ntions and logical timestamps increase at the same rate. In TicToc,                             items. This enables an OLTP DBMS to exploit more parallelism\nhowever, logical timestamps increase at a slower rate: 64× and                                 than other OCC-based algorithms. We have also presented several\n10× slower for low and high contention levels in YCSB, respec-                                 optimizations that leverage this timestamp management policy to\ntively. What is interesting about these measurements is that the rate                          further improve TicToc’s performance. Our evaluation results show\nof growth of logical timestamps indicates the inherent level of par-                           that, compared to another state-of-the-art OCC algorithm, TicToc\nallelism in a workload that can be exploited by TicToc. In the high                            achieves up to 92% higher throughput while reducing transaction",
+      "relation_type": "support",
+      "confidence": 0.8,
+      "metadata": {
+        "document_title": "tictoc-paper.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Contention-Level Workload Evaluation",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "Characterize algorithm performance across contention spectrum to expose robustness and optimization effectiveness under varying conflict rates.",
+        "task_family": "workload_testing",
+        "method_family": "parametric_benchmarking",
+        "stage": "evaluation",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 3,
+        "window_id": "f1bd658e-adc7-591d-8575-03df49cf455e",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 2,
+        "paragraph_end": 2,
+        "heading_path": [
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "3.2     Protocol Specification",
+          "4.1     Proof Idea",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "We now evaluate the optimizations we presented in Section 5 to                                                          A key finding is that the timestamp history optimization doe"
+      },
+      "created_at": "2026-09-15T20:13:05+00:00"
+    }
+  ],
+  "skill_drafts": [
+    {
+      "draft_id": "e18d56c3-a1df-5262-bec4-9058762ec504",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "name": "Isolation Level Performance Comparison",
+      "description": "Evaluate and compare throughput and abort rates of concurrency control algorithms across different isolation levels (SR, SI, RR) under varying contention workloads. This workflow isolates the performance impact of isolation level choice from other optimization variables.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Measure isolation level impact on DBMS concurrency control performance",
+      "domain": "default",
+      "task_family": "performance_evaluation",
+      "method_family": "comparative_benchmarking",
+      "stage": "evaluation",
+      "applicable_signals": [
+        "Multiple algorithms available for testing",
+        "Workload supports variable isolation levels",
+        "Baseline performance metrics needed for decision-making"
+      ],
+      "contraindications": [
+        "Single-algorithm tuning or optimization (use algorithm-specific tuning instead)",
+        "Workloads with no isolation level variation support",
+        "Systems that do not support multiple isolation levels",
+        "Scenarios where isolation level is fixed by requirement"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Prepare test environment', 'detail': 'Configure DBMS with all target concurrency control algorithms (e.g., DL_DETECT, HEKATON, NO_WAIT, SILO, TICTOC). Set thread count to 40 and prepare medium and high contention YCSB workloads.'}",
+        "{'step': 2, 'action': 'Execute baseline run', 'detail': 'Run each algorithm under Serializable (SR) isolation level with medium contention workload. Record throughput and abort rate.'}",
+        "{'step': 3, 'action': 'Test lower isolation levels', 'detail': 'For each algorithm that supports Repeatable Read (RR) and Snapshot Isolation (SI), execute runs under those isolation levels. Record throughput and abort rate for each combination.'}",
+        "{'step': 4, 'action': 'Repeat with high contention', 'detail': 'Execute the same isolation level tests using high contention YCSB workload. Record all metrics.'}",
+        "{'step': 5, 'action': 'Compile results', 'detail': 'Organize results into comparative tables showing throughput (Million txn/s) and abort rate (%) for each algorithm-isolation level combination, separated by contention level.'}",
+        "{'step': 6, 'action': 'Analyze patterns', 'detail': 'Identify which algorithms benefit most from lower isolation levels, note abort rate reductions, and document any algorithms that do not support certain isolation levels.'}"
+      ],
+      "triggers": [
+        "Need to assess how isolation level choice affects throughput and abort rates",
+        "Comparing multiple concurrency control algorithms under identical workload conditions",
+        "Evaluating trade-offs between isolation strength and performance"
+      ],
+      "constraints": [
+        "All algorithms must be tested under identical workload conditions",
+        "Thread count and contention level must remain constant across runs",
+        "Only test isolation levels supported by each algorithm (e.g., SI may not be available for all schemes)",
+        "Use consistent YCSB workload configurations (medium and high contention)"
+      ],
+      "cautions": [
+        "Lower isolation levels may not be supported by all algorithms; document which algorithms support which levels",
+        "Abort rate improvements at lower isolation levels may be due to fewer conflicts rather than algorithm efficiency",
+        "High contention workloads may show minimal abort rate differences across isolation levels"
+      ],
+      "output_contract": [
+        "Comparative performance table(s) with rows for each algorithm (DL_DETECT, HEKATON, NO_WAIT, SILO, TICTOC, etc.) and columns for each isolation level (SR, SI, RR), showing throughput in Million txn/s and abort rate in percentage. Results must be separated by contention level (medium and high). All tested algorithm-isolation combinations must be documented; unsupported combinations must be explicitly marked."
+      ],
+      "examples": [
+        {
+          "input": "TICTOC algorithm, Serializable isolation, medium contention YCSB workload, 40 threads",
+          "output": "Throughput: 2.57 Million txn/s, Abort Rate: 1.76%",
+          "notes": "Baseline serializable result for TICTOC under medium contention"
+        },
+        {
+          "input": "TICTOC algorithm, Repeatable Read isolation, medium contention YCSB workload, 40 threads",
+          "output": "Throughput: 2.69 Million txn/s, Abort Rate: 0.72%",
+          "notes": "RR isolation shows 4.7% throughput improvement and lower abort rate due to fewer conflicts"
+        },
+        {
+          "input": "DL_DETECT algorithm, Repeatable Read isolation, medium contention YCSB workload, 40 threads",
+          "output": "Throughput: 0.72 Million txn/s, Abort Rate: 0.10%",
+          "notes": "Pessimistic 2PL algorithm shows 67.4% improvement from SR to RR under medium contention"
+        }
+      ],
+      "risk_class": "low",
+      "confidence": 0.85,
+      "support_ids": [
+        "ffd63a76-4870-593d-9a25-5dc4edec844f"
+      ],
+      "metadata": {
+        "prompt": "Execute a controlled performance evaluation comparing multiple concurrency control algorithms under the same workload but with different isolation levels (Serializable, Snapshot Isolation, Repeatable Read). For each algorithm-isolation level combination, measure throughput in Million txn/s and abort rate in percentage. Use medium and high contention YCSB workloads with consistent thread count (e.g., 40 threads). Record results in a comparative table format.",
+        "tags": [
+          "concurrency_control",
+          "isolation_levels",
+          "performance_evaluation",
+          "benchmarking",
+          "YCSB",
+          "throughput"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "candidate_slot": 1,
+        "window_id": "f1bd658e-adc7-591d-8575-03df49cf455e",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 2,
+        "paragraph_end": 2,
+        "heading_path": [
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "3.2     Protocol Specification",
+          "4.1     Proof Idea",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "We now evaluate the optimizations we presented in Section 5 to                                                          A key finding is that the timestamp history optimization doe"
+      }
+    },
+    {
+      "draft_id": "d221b18f-72b7-5f5b-a480-d1b42e56f292",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "name": "Logical Timestamp Growth Analysis",
+      "description": "Track and analyze the growth rate of commit timestamps relative to the number of committed transactions to assess synchronization overhead and parallelism exploitation in timestamp-based concurrency control systems.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Quantify timestamp allocation efficiency and inherent workload parallelism by measuring how logical timestamps scale relative to committed transaction count.",
+      "domain": "default",
+      "task_family": "performance_analysis",
+      "method_family": "time_series_measurement",
+      "stage": "evaluation",
+      "applicable_signals": [
+        "Timestamp-based OCC (Optimistic Concurrency Control) system in use",
+        "Need to assess synchronization overhead",
+        "Workload contention level varies (low, medium, high)"
+      ],
+      "contraindications": [
+        "Non-timestamp-based concurrency control mechanisms",
+        "Systems without logical time tracking or commit timestamp recording",
+        "Single-threaded or fully serialized execution (no parallelism to measure)"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Initialize measurement infrastructure', 'detail': 'Set up logging or instrumentation to capture commit timestamp and transaction count at regular intervals.'}",
+        "{'step': 2, 'action': 'Execute workload under target contention level', 'detail': 'Run YCSB or equivalent workload (medium or high contention) with 40+ threads; record timestamp and committed transaction count periodically.'}",
+        "{'step': 3, 'action': 'Collect baseline data', 'detail': 'Run the same workload with a centralized timestamp allocation baseline (e.g., atomic increment) to establish a reference growth rate.'}",
+        "{'step': 4, 'action': 'Compute growth rate ratio', 'detail': 'Calculate the ratio of baseline timestamp growth to target algorithm timestamp growth. Express as a multiplier (e.g., 64× slower).'}",
+        "{'step': 5, 'action': 'Analyze results across contention levels', 'detail': 'Repeat steps 2–4 for low, medium, and high contention to show how parallelism exploitation varies with workload characteristics.'}"
+      ],
+      "triggers": [
+        "Evaluating timestamp-based concurrency control algorithms",
+        "Comparing centralized vs. decentralized timestamp allocation schemes",
+        "Analyzing parallelism potential in workloads under different contention levels"
+      ],
+      "constraints": [
+        "Requires access to transaction commit timestamps during execution",
+        "Workload must run long enough to collect statistically meaningful samples",
+        "Contention level must be controlled or measurable during the experiment"
+      ],
+      "cautions": [
+        "Ensure timestamp values are captured at the same logical point in the transaction lifecycle (e.g., commit time) across all runs.",
+        "Contention level must be consistent between baseline and target algorithm runs to ensure fair comparison.",
+        "Long-running experiments may be needed to smooth out transient effects; use sufficient sample size."
+      ],
+      "output_contract": [
+        "Deliver a growth rate ratio (numeric multiplier, e.g., 64× or 10×) showing how logical timestamps scale relative to committed transaction count. Include separate ratios for each contention level tested. The ratio indicates the inherent parallelism that the timestamp allocation scheme can exploit: higher ratios mean fewer synchronization points and better parallelism."
+      ],
+      "examples": [
+        {
+          "input": "Timestamp-based OCC algorithm (TicToc) running YCSB medium-contention workload with 40 threads; baseline is atomic increment timestamp allocation.",
+          "output": "Growth rate ratio of 64× (logical timestamps increase 64 times slower than baseline), indicating TicToc exploits significant parallelism at medium contention.",
+          "notes": "Lower ratio at high contention (e.g., 10×) reflects increased synchronization due to hotspot conflicts."
+        },
+        {
+          "input": "High-contention YCSB workload comparing TicToc vs. TS_ALLOC baseline.",
+          "output": "TicToc achieves 10× slower timestamp growth; TS_ALLOC shows 1:1 growth (baseline).",
+          "notes": "The 10× ratio at high contention is lower than the 64× at medium contention, showing reduced parallelism under heavy conflicts."
+        }
+      ],
+      "risk_class": "low",
+      "confidence": 0.82,
+      "support_ids": [
+        "9e356594-1bdf-555c-9417-82e47f3619c7"
+      ],
+      "metadata": {
+        "prompt": "Execute a time-series measurement of logical timestamps across transaction commits under controlled contention levels. Record timestamp values at regular intervals (e.g., every N committed transactions) and compute the ratio of timestamp growth to transaction count growth. Compare against a baseline (e.g., atomic increment allocation) to quantify efficiency gains. Report the growth rate ratio (e.g., 64× slower) as evidence of parallelism exploitation.",
+        "tags": [
+          "timestamp_allocation",
+          "concurrency_control",
+          "performance_measurement",
+          "parallelism_analysis",
+          "OCC",
+          "logical_time"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "candidate_slot": 2,
+        "window_id": "f1bd658e-adc7-591d-8575-03df49cf455e",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 2,
+        "paragraph_end": 2,
+        "heading_path": [
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "3.2     Protocol Specification",
+          "4.1     Proof Idea",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "We now evaluate the optimizations we presented in Section 5 to                                                          A key finding is that the timestamp history optimization doe"
+      }
+    },
+    {
+      "draft_id": "acb68f73-1eb3-5f06-9ad9-bf51cfb19274",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "name": "Contention-Level Workload Evaluation",
+      "description": "Execute and measure concurrency control algorithm performance under medium and high contention YCSB workloads to assess behavior across different conflict intensities and isolation levels.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Characterize algorithm performance across contention spectrum to expose robustness and optimization effectiveness under varying conflict rates.",
+      "domain": "default",
+      "task_family": "workload_testing",
+      "method_family": "parametric_benchmarking",
+      "stage": "evaluation",
+      "applicable_signals": [
+        "Comparing multiple concurrency control algorithms",
+        "Testing algorithm robustness under varying conflict rates",
+        "Validating optimization effectiveness across workload conditions",
+        "Assessing isolation level performance trade-offs"
+      ],
+      "contraindications": [
+        "Single fixed-contention workload only",
+        "Non-transactional systems",
+        "Workloads without tunable conflict parameters",
+        "Systems unable to support multiple isolation levels"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Configure YCSB benchmark', 'detail': 'Set up medium-contention workload (sufficient parallelism for optimistic algorithms to show small improvements)'}",
+        "{'step': 2, 'action': 'Execute medium-contention test', 'detail': 'Run all target algorithms under SR, RR, and SI isolation levels (where supported) with 40 threads; record throughput and abort rate'}",
+        "{'step': 3, 'action': 'Configure high-contention workload', 'detail': 'Increase contention to expose algorithm behavior under significant hotspot conflicts'}",
+        "{'step': 4, 'action': 'Execute high-contention test', 'detail': 'Run all target algorithms under SR, RR, and SI isolation levels (where supported) with 40 threads; record throughput and abort rate'}",
+        "{'step': 5, 'action': 'Analyze timestamp growth', 'detail': 'Track commit timestamp values over time; compare growth rate relative to number of committed transactions'}",
+        "{'step': 6, 'action': 'Compute performance deltas', 'detail': 'Calculate throughput and abort rate improvements/degradation from SR to RR and SI for each algorithm and contention level'}"
+      ],
+      "triggers": [
+        "Comparing concurrency control algorithms; testing robustness under varying conflict rates; validating optimization effectiveness across workload conditions."
+      ],
+      "constraints": [
+        "Use YCSB benchmark with configurable contention parameters",
+        "Run with consistent thread count (40 threads recommended)",
+        "Test at minimum two contention levels: medium and high",
+        "Measure both throughput and abort rate for each configuration",
+        "Support isolation levels appropriate to each algorithm (SR mandatory; RR and SI where applicable)"
+      ],
+      "cautions": [
+        "Lower isolation levels (RR, SI) may not be supported by all algorithms; document unsupported combinations",
+        "High contention workloads may show reduced abort rate improvements due to saturation on hotspot tuples",
+        "Timestamp growth rates vary significantly by contention level; track separately for analysis"
+      ],
+      "output_contract": [
+        "Structured performance report containing: (a) throughput (Million txn/s) and abort rate (%) tables for medium and high contention levels, organized by algorithm and isolation level; (b) relative performance improvements (%) from SR baseline to RR and SI; (c) timestamp growth rate analysis showing logical time growth relative to committed transaction count; (d) summary of algorithm robustness across contention spectrum."
+      ],
+      "examples": [
+        {
+          "input": "Target algorithms: DL_DETECT, HEKATON, NO_WAIT, SILO, TICTOC; medium-contention YCSB; 40 threads",
+          "output": "Medium contention: TICTOC SR throughput 2.57M txn/s (1.76% abort), RR throughput 2.69M txn/s (0.72% abort); DL_DETECT SR throughput 0.43M txn/s (0.35% abort), RR throughput 0.72M txn/s (0.10% abort)",
+          "notes": "Optimistic algorithms show 4.7% improvement SR→RR; pessimistic algorithms show 67.4% improvement"
+        },
+        {
+          "input": "Target algorithms: DL_DETECT, HEKATON, NO_WAIT, SILO, TICTOC; high-contention YCSB; 40 threads",
+          "output": "High contention: TICTOC SR throughput 1.04M txn/s (1.76% abort), RR throughput 1.04M txn/s (0.72% abort); NO_WAIT SR throughput 0.35M txn/s (63.2% abort), RR throughput 1.89M txn/s (9.9% abort)",
+          "notes": "High contention reduces isolation level benefits; RR slightly better than SI; abort rates remain high due to hotspot saturation"
+        }
+      ],
+      "risk_class": "low",
+      "confidence": 0.8,
+      "support_ids": [
+        "60391557-14d5-5224-8e7b-d7b038b4369d"
+      ],
+      "metadata": {
+        "prompt": "Run YCSB benchmark with 40 threads at medium and high contention levels. For each contention level, measure throughput (Million txn/s) and abort rate (%) across all target algorithms. Test under serializable (SR), repeatable read (RR), and snapshot isolation (SI) isolation levels where supported. Record commit timestamp growth rates and relative performance deltas between contention levels.",
+        "tags": [
+          "benchmarking",
+          "concurrency_control",
+          "performance_evaluation",
+          "isolation_levels",
+          "YCSB",
+          "contention_analysis"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "candidate_slot": 3,
+        "window_id": "f1bd658e-adc7-591d-8575-03df49cf455e",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 2,
+        "paragraph_end": 2,
+        "heading_path": [
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "3.2     Protocol Specification",
+          "4.1     Proof Idea",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "We now evaluate the optimizations we presented in Section 5 to                                                          A key finding is that the timestamp history optimization doe"
+      }
+    }
+  ],
+  "failed": false,
+  "complete": true,
+  "error": {}
+}

@@ -1,0 +1,112 @@
+{
+  "skill_id": "d97f436d-f824-5fdd-9c54-f621ebc4296d",
+  "action": "merge",
+  "matched_skill_ids": [
+    "cf65d840-f5f8-50ea-bea0-ae2bbb90ab28"
+  ],
+  "reason": "Candidate is a specialized variant of DataStream sink output focusing on custom FileOutputFormat serialization. It represents a narrower, method-specific implementation within the broader sink_binding task family. The three peer candidates already cover the general sink operation pattern; this candidate should merge into the most semantically aligned peer (53c2d99e-669f-543e-951a-f62195b88c0f 'DataStream Sink Output') which explicitly mentions 'writeUsingOutputFormat()' and custom conversion logic. The candidate adds no new capability layer—it is a concrete instantiation of step 2 (select sink method) and step 3 (configure output format) in the peer skill.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "d97f436d-f824-5fdd-9c54-f621ebc4296d",
+    "name": "Custom File Output with Object Serialization",
+    "description": "Implements custom file output using FileOutputFormat base class with pluggable object-to-bytes conversion logic. Enables writing DataStream elements to files when standard serialization formats are insufficient or non-standard encoding is required.",
+    "skill_body": "Extend FileOutputFormat and override the write method to implement custom object-to-bytes conversion. Register the custom format via writeUsingOutputFormat() on the DataStream. Ensure the serialization logic handles the target data type and file encoding requirements.\n\n## Objective\n\nWrite DataStream elements to files with custom serialization\n## Applicable Signals\n\n- DataStream contains objects with non-standard serialization requirements\n- File output target requires custom encoding\n- Built-in sink formats do not support the data structure\n\n## Contraindications\n\n- Standard Parquet, Avro, or JSON serialization is adequate\n- FileSink with built-in formats is sufficient for the use case\n- Exactly-once delivery semantics required without custom checkpointing support\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Create a class extending FileOutputFormat<T>', 'detail': 'Define the generic type T matching the DataStream element type'}\n- {'step': 2, 'action': 'Implement the write(T record) method', 'detail': 'Convert the record object to bytes using custom logic and write to the output stream'}\n- {'step': 3, 'action': 'Register the custom format on the DataStream', 'detail': 'Call dataStream.writeUsingOutputFormat(new CustomFileOutputFormat())'}\n- {'step': 4, 'action': 'Verify file output and serialization correctness', 'detail': 'Test with sample data to ensure bytes are written as expected'}\n\n## Constraints\n\n- FileOutputFormat subclass must implement custom write logic\n- Object-to-bytes conversion must be deterministic and thread-safe\n- File system must be accessible and writable from all task managers\n\n## Cautions\n\n- Custom serialization logic is responsible for data integrity; test thoroughly with edge cases\n- For exactly-once delivery guarantees, ensure the custom implementation participates in Flink checkpointing\n\n## Output Contract\n\n- FileOutputFormat subclass implemented with custom write logic; elements serialized and persisted to file system; caller receives confirmation of successful file write or exception on failure\n\n## Example Executions\n\n### Example 1\n\n- Input: DataStream<CustomObject> stream with non-standard fields\n- Output: File containing serialized CustomObject instances in custom binary format\n- Notes: Custom write() method converts each CustomObject to bytes before file persistence",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Write DataStream elements to files with custom serialization",
+    "domain": "default",
+    "task_family": "data_output",
+    "method_family": "custom_serialization",
+    "stage": "execution",
+    "applicable_signals": [
+      "DataStream contains objects with non-standard serialization requirements",
+      "File output target requires custom encoding",
+      "Built-in sink formats do not support the data structure"
+    ],
+    "contraindications": [
+      "Standard Parquet, Avro, or JSON serialization is adequate",
+      "FileSink with built-in formats is sufficient for the use case",
+      "Exactly-once delivery semantics required without custom checkpointing support"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Standard serialization formats (Parquet, Avro, JSON) insufficient for target data type",
+      "Non-standard encoding or binary format required",
+      "Custom object-to-bytes conversion logic needed for file persistence"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Create a class extending FileOutputFormat<T>', 'detail': 'Define the generic type T matching the DataStream element type'}",
+      "{'step': 2, 'action': 'Implement the write(T record) method', 'detail': 'Convert the record object to bytes using custom logic and write to the output stream'}",
+      "{'step': 3, 'action': 'Register the custom format on the DataStream', 'detail': 'Call dataStream.writeUsingOutputFormat(new CustomFileOutputFormat())'}",
+      "{'step': 4, 'action': 'Verify file output and serialization correctness', 'detail': 'Test with sample data to ensure bytes are written as expected'}"
+    ],
+    "constraints": [
+      "FileOutputFormat subclass must implement custom write logic",
+      "Object-to-bytes conversion must be deterministic and thread-safe",
+      "File system must be accessible and writable from all task managers"
+    ],
+    "cautions": [
+      "Custom serialization logic is responsible for data integrity; test thoroughly with edge cases",
+      "For exactly-once delivery guarantees, ensure the custom implementation participates in Flink checkpointing"
+    ],
+    "output_contract": [
+      "FileOutputFormat subclass implemented with custom write logic; elements serialized and persisted to file system; caller receives confirmation of successful file write or exception on failure"
+    ],
+    "examples": [
+      {
+        "input": "DataStream<CustomObject> stream with non-standard fields",
+        "output": "File containing serialized CustomObject instances in custom binary format",
+        "notes": "Custom write() method converts each CustomObject to bytes before file persistence"
+      }
+    ],
+    "tags": [
+      "flink",
+      "datastream",
+      "file_output",
+      "serialization",
+      "custom_format"
+    ],
+    "support_ids": [
+      "cc405824-ca1d-5706-be7a-430912dbff93"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "cc16ada6-df37-5c51-bc66-7ce4e72bc30f"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.78,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|write datastream elements to files with custom serialization|default|data_output|custom_serialization|execution|custom file output with object serialization"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

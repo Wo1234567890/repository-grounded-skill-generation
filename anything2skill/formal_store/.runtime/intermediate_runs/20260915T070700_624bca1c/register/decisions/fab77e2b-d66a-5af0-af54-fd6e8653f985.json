@@ -1,0 +1,106 @@
+{
+  "skill_id": "fab77e2b-d66a-5af0-af54-fd6e8653f985",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill in parallel_execution/executor_pattern domain addressing resource cleanup stage. Peer candidates cover task submission, context manager setup, and worker configuration—none overlap with shutdown/cleanup semantics. Existing skills are unrelated (UI prefetching, GRPO loss). No merge, split, or revision applies. Candidate has clear support evidence and no conflicts.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "fab77e2b-d66a-5af0-af54-fd6e8653f985",
+    "name": "Executor Shutdown and Resource Cleanup",
+    "description": "Signal an Executor to free resources after pending futures complete, with optional cancellation of unstarted futures. Use when you are done submitting tasks and want to ensure clean resource release.",
+    "skill_body": "Call executor.shutdown(wait=True, cancel_futures=False) to cleanly terminate the executor. Set wait=True to block until all pending futures complete. Set cancel_futures=True to cancel any futures that have not yet started execution. After shutdown, any calls to submit() or map() will raise RuntimeError.\n\n## Objective\n\nCleanly terminate an Executor and release its resources\n## Applicable Signals\n\n- Completion of task submission loop\n- End of executor usage scope\n- Need to free thread or process pool resources\n\n## Contraindications\n\n- Do not call if you still need to submit new tasks\n- Do not call if you want to keep the executor alive for future use\n- Do not rely on shutdown to interrupt already-running futures\n\n## Intervention Moves\n\n- Call shutdown(wait=True) to block until pending futures complete\n- Call shutdown(wait=True, cancel_futures=True) to cancel unstarted futures and free resources immediately\n- Use within a context manager (with statement) to ensure automatic cleanup\n\n## Constraints\n\n- After shutdown is called, submit() and map() will raise RuntimeError\n- Completed or running futures will not be cancelled regardless of cancel_futures value\n- If wait=False, shutdown returns immediately but resources may not be freed until pending futures complete\n\n## Cautions\n\n- Setting cancel_futures=True only cancels futures that have not started; running futures continue to completion\n- Blocking on wait=True may cause the caller to wait indefinitely if a future hangs\n\n## Output Contract\n\n- Executor resources are freed\n- All pending futures complete or are cancelled\n- Subsequent submit() or map() calls raise RuntimeError",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "leaf",
+    "objective": "Cleanly terminate an Executor and release its resources",
+    "domain": "default",
+    "task_family": "parallel_execution",
+    "method_family": "executor_pattern",
+    "stage": "resource_cleanup",
+    "applicable_signals": [
+      "Completion of task submission loop",
+      "End of executor usage scope",
+      "Need to free thread or process pool resources"
+    ],
+    "contraindications": [
+      "Do not call if you still need to submit new tasks",
+      "Do not call if you want to keep the executor alive for future use",
+      "Do not rely on shutdown to interrupt already-running futures"
+    ],
+    "intervention_moves": [
+      "Call shutdown(wait=True) to block until pending futures complete",
+      "Call shutdown(wait=True, cancel_futures=True) to cancel unstarted futures and free resources immediately",
+      "Use within a context manager (with statement) to ensure automatic cleanup"
+    ],
+    "triggers": [
+      "All tasks have been submitted to the executor",
+      "No further task submission is planned",
+      "Resource cleanup is required"
+    ],
+    "workflow_steps": [],
+    "constraints": [
+      "After shutdown is called, submit() and map() will raise RuntimeError",
+      "Completed or running futures will not be cancelled regardless of cancel_futures value",
+      "If wait=False, shutdown returns immediately but resources may not be freed until pending futures complete"
+    ],
+    "cautions": [
+      "Setting cancel_futures=True only cancels futures that have not started; running futures continue to completion",
+      "Blocking on wait=True may cause the caller to wait indefinitely if a future hangs"
+    ],
+    "output_contract": [
+      "Executor resources are freed",
+      "All pending futures complete or are cancelled",
+      "Subsequent submit() or map() calls raise RuntimeError"
+    ],
+    "examples": [],
+    "tags": [
+      "executor",
+      "resource_management",
+      "cleanup",
+      "concurrent.futures",
+      "lifecycle"
+    ],
+    "support_ids": [
+      "f6a1cd1a-422c-5b25-bcb4-53c3326d23b3"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "7c3162a2-a9e8-5181-90bc-7cb51595d2f4"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.9,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|cleanly terminate an executor and release its resources|default|parallel_execution|executor_pattern|resource_cleanup|executor shutdown and resource cleanup",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

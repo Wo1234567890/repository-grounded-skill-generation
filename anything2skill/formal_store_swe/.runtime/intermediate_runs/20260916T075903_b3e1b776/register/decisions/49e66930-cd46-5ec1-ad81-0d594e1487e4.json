@@ -1,0 +1,105 @@
+{
+  "skill_id": "49e66930-cd46-5ec1-ad81-0d594e1487e4",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate skill 49e66930-cd46-5ec1-ad81-0d594e1487e4 (Check Package Availability and Version Compatibility) does not match any existing skill by semantic capability identity. The three peer_candidates (e63667bd, f47f8f37, 0c0081a4) address instrumentation eligibility, module origin classification, and instrumentation filtering—none of which are version compatibility checking. The two existing_skills (d83d810d, 316d1204) are unrelated (Spring Boot migration and document length normalization). The candidate addresses a distinct capability (semantic version validation for package readiness) that is not represented in the registry. However, without explicit evidence that this capability is required or supported by the codebase, and given that peer_candidates suggest a different instrumentation workflow pattern, creating a new skill risks fragmenting the instrumentation layer. Recommend discarding pending explicit requirement or integration with the peer instrumentation workflow.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "49e66930-cd46-5ec1-ad81-0d594e1487e4",
+    "name": "Check Package Availability and Version Compatibility",
+    "description": "Verify whether a required package is installed and meets minimum version constraints before attempting to load or instrument it. Handles special cases like stdlib modules, derives provider names, and performs semantic version comparison. Returns a boolean indicating readiness for activation without raising exceptions.",
+    "skill_body": "Evaluate package availability and version compatibility by: (1) handling special cases (e.g., stdlib modules like concurrent.futures mapped to 'python'); (2) resolving the provider name from explicit package_name or derived from module_name; (3) retrieving the installed version using get_library_version; (4) comparing against min_version using semantic versioning; (5) returning False on any exception without raising.\n\n## Objective\n\nvalidate_package_readiness\n## Applicable Signals\n\n- Before instrumenting a module or loading a package-dependent feature\n- When deciding whether to activate an instrumentation handler\n- Pre-flight check before module import or feature enablement\n\n## Contraindications\n\n- After a module is already loaded and active\n- When version constraints are not defined or unavailable\n- For runtime feature detection after initialization is complete\n\n## Workflow Steps\n\n- {'step': 1, 'action': \"Check if package_name is 'python' (stdlib special case)\", 'detail': 'If true, extract sys.version_info and format as major.minor.micro'}\n- {'step': 2, 'action': 'Resolve provider_name', 'detail': \"Use explicit package_name if provided; otherwise derive from module_name (last segment after split on '.')\"}\n- {'step': 3, 'action': 'Retrieve installed version', 'detail': 'Call get_library_version(provider_name) to obtain version string'}\n- {'step': 4, 'action': 'Compare versions', 'detail': 'Parse both installed version and min_version using Version class; return True if installed >= min_version'}\n- {'step': 5, 'action': 'Handle exceptions', 'detail': 'Catch all exceptions and return False without re-raising'}\n\n## Constraints\n\n- Must handle stdlib modules (e.g., 'python' package_name) by checking sys.version_info\n- Must gracefully return False on any exception without propagating\n- Must use semantic versioning comparison (Version class)\n\n## Cautions\n\n- Version comparison is semantic; ensure min_version is in valid format (e.g., '1.2.3')\n- get_library_version may return 'unknown' for uninstalled packages; treat as version mismatch\n- Stdlib modules require special handling; do not attempt to query version for 'python' package_name via get_library_version\n\n## Output Contract\n\n- Boolean result: True if package exists and version >= min_version; False otherwise\n- No exceptions raised to caller; all errors caught and converted to False return",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "validate_package_readiness",
+    "domain": "default",
+    "task_family": "dependency_validation",
+    "method_family": "version_check",
+    "stage": "pre_activation",
+    "applicable_signals": [
+      "Before instrumenting a module or loading a package-dependent feature",
+      "When deciding whether to activate an instrumentation handler",
+      "Pre-flight check before module import or feature enablement"
+    ],
+    "contraindications": [
+      "After a module is already loaded and active",
+      "When version constraints are not defined or unavailable",
+      "For runtime feature detection after initialization is complete"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Before instrumenting a module or loading a package-dependent feature; when deciding whether to activate an instrumentation handler"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': \"Check if package_name is 'python' (stdlib special case)\", 'detail': 'If true, extract sys.version_info and format as major.minor.micro'}",
+      "{'step': 2, 'action': 'Resolve provider_name', 'detail': \"Use explicit package_name if provided; otherwise derive from module_name (last segment after split on '.')\"}",
+      "{'step': 3, 'action': 'Retrieve installed version', 'detail': 'Call get_library_version(provider_name) to obtain version string'}",
+      "{'step': 4, 'action': 'Compare versions', 'detail': 'Parse both installed version and min_version using Version class; return True if installed >= min_version'}",
+      "{'step': 5, 'action': 'Handle exceptions', 'detail': 'Catch all exceptions and return False without re-raising'}"
+    ],
+    "constraints": [
+      "Must handle stdlib modules (e.g., 'python' package_name) by checking sys.version_info",
+      "Must gracefully return False on any exception without propagating",
+      "Must use semantic versioning comparison (Version class)"
+    ],
+    "cautions": [
+      "Version comparison is semantic; ensure min_version is in valid format (e.g., '1.2.3')",
+      "get_library_version may return 'unknown' for uninstalled packages; treat as version mismatch",
+      "Stdlib modules require special handling; do not attempt to query version for 'python' package_name via get_library_version"
+    ],
+    "output_contract": [
+      "Boolean result: True if package exists and version >= min_version; False otherwise",
+      "No exceptions raised to caller; all errors caught and converted to False return"
+    ],
+    "examples": [],
+    "tags": [
+      "package_validation",
+      "version_check",
+      "instrumentation",
+      "pre_activation",
+      "dependency_validation"
+    ],
+    "support_ids": [
+      "a75190a5-5b46-530f-bcad-ba1ff72d6e51"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "4b5c4550-fb20-570d-a5a9-362f68eacf4d"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|micro_skill_node|validate_package_readiness|default|dependency_validation|version_check|pre_activation|check package availability and version compatibility"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

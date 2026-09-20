@@ -1,0 +1,1217 @@
+{
+  "documents": [
+    {
+      "doc_id": "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4",
+      "source_type": "document",
+      "title": "mooncake-docs.md",
+      "authors": [],
+      "year": null,
+      "domain": "",
+      "raw_text": "# Welcome to Mooncake\n\n:::{figure} ./image/mooncake-icon.png\n:align: center\n:alt: Mooncake\n:class: no-scaled-link\n:width: 60%\n:::\n\n:::{raw} html\n<p style=\"text-align:center\">\n<strong>A KVCache-centric Disaggregated Architecture for LLM Serving.\n</strong>\n</p>\n\n<p style=\"text-align:center\">\n<script async defer src=\"https://buttons.github.io/buttons.js\"></script>\n<a class=\"github-button\" href=\"https://github.com/kvcache-ai/Mooncake\" data-show-count=\"true\" data-size=\"large\" aria-label=\"Star\">Star</a>\n<a class=\"github-button\" href=\"https://github.com/kvcache-ai/Mooncake/subscription\" data-icon=\"octicon-eye\" data-size=\"large\" aria-label=\"Watch\">Watch</a>\n<a class=\"github-button\" href=\"https://github.com/kvcache-ai/Mooncake/fork\" data-icon=\"octicon-repo-forked\" data-size=\"large\" aria-label=\"Fork\">Fork</a>\n</p>\n:::\n\nMooncake is the serving platform for <a href=\"https://kimi.ai/\">Kimi</a>, a leading LLM service provided by <a href=\"https://www.moonshot.cn/\">Moonshot AI</a>.\nNow both the Transfer Engine and Mooncake Store are open-sourced!\nThis repository also hosts its technical report and the open-sourced traces.\n\n<h2 id=\"overview\">🎉 Overview</h2>\n\nMooncake features a KVCache-centric disaggregated architecture that separates prefill and decode clusters. It also leverages underutilized CPU, DRAM, and SSD resources in GPU clusters to build a disaggregated KVCache pool.\n\n:::{figure} ./image/architecture.png\n:align: center\n:alt: Mooncake architecture\n:width: 88%\n:::\n\nAt the center of Mooncake is a KVCache-centric scheduler that balances effective throughput with latency-related Service Level Objectives (SLOs). In highly overloaded scenarios, Mooncake uses prediction-based early rejection to avoid wasting computation on requests that cannot meet their SLOs. Experiments show that Mooncake is especially effective for long-context workloads, achieving up to a 525% throughput increase in simulated scenarios while meeting SLOs. Under real workloads, Mooncake's architecture enables <a href=\"https://kimi.ai/\">Kimi</a> to handle 75% more requests.\n\n<h2 id=\"updates\">🔄 Updates</h2>\n\n- **Aug 20, 2026**: Mooncake is integrated into [Miles](https://github.com/radixark/miles) as a rollout data-transfer backend for the fragmented, heterogeneous data moving between rollout and training in disaggregated RL. Blogs: [KVCache.AI](https://kvcache.ai/blog/mooncake-rl-rollout-data-transfer/), [lmsys](https://www.lmsys.org/blog/2026-08-20-miles-mooncake-rollout-data-transfer).\n- **Aug 17, 2026**: Mooncake is integrated into [Speculators](https://github.com/vllm-project/speculators) as a distributed backend for multi-node online training, efficiently moves hidden-state between vLLM inference workers and Speculators trainers through RDMA, eliminating the need for massive hidden-state storage in offline training. [Benchmark on GB300 NVL72](https://x.com/mgoin_/status/2072785822231728363).\n- **May 7, 2026**: 🚀 [vLLM officially features Mooncake Store](https://vllm.ai/blog/mooncake-store) — a deep dive into how Mooncake's distributed KVCache engine supercharges vLLM inference with high-throughput, memory-efficient, cross-instance KV cache sharing!\n- **Apr 29, 2026**: SGLang introduces [RDMA-based P2P weight transfer for large-scale distributed RL](https://lmsys.org/blog/2026-04-29-p2p-update/) using Mooncake TransferEngine, achieving 7x faster weight updates for the 1T-parameter Kimi-K2 model (53s → 7.2s) with zero-copy RDMA transfer across thousands of GPUs.\n- **Mar 19, 2026**: [TorchSpec: Speculative Decoding Training at Scale](https://pytorch.org/blog/torchspec-speculative-decoding-training-at-scale) is [open sourced](https://github.com/torchspec-project/TorchSpec), using Mooncake to decouple inference and training via efficient hidden states management.\n\n:::{dropdown} More\n:animate: fade-in\n\n- **Mar 5, 2026**: [LightX2V](https://github.com/ModelTC/LightX2V/pull/893) now supports disaggregated deployment based on Mooncake, enabling encoder/transformer service decoupling with Mooncake Transfer Engine for high-performance cross-device and cross-machine data transfer. Details in [blog](https://light-ai.top/LightX2V-BLOG/posts/Disaggregation/).\n- **Feb 25, 2026**: [SGLang](https://github.com/sgl-project/sglang) merged [Encoder Global Cache Manager](https://github.com/sgl-project/sglang/pull/16137), introducing a Mooncake-powered global multimodal embedding cache that enables cross-instance sharing of ViT embeddings to avoid redundant GPU computation.\n- **Feb 24, 2026**: [vLLM-Omni](https://docs.vllm.ai/projects/vllm-omni/en/latest/design/feature/disaggregated_inference/) introduces disaggregated inference connectors with support for both `MooncakeStoreConnector` and `MooncakeTransferEngineConnector` for multi-node omni-modality pipelines.\n- **Feb 12, 2026**: [Mooncake Joins PyTorch Ecosystem](https://pytorch.org/blog/mooncake-joins-pytorch-ecosystem/) We are thrilled to announce that Mooncake has officially joined the PyTorch Ecosystem!\n- **Jan 28, 2026**: [FlexKV](https://github.com/taco-project/FlexKV), a distributed KV store and cache system from Tencent and NVIDIA in collaboration with the community, now supports [distributed KVCache reuse](https://github.com/taco-project/FlexKV/blob/main/docs/dist_reuse/README_en.md) with the Mooncake Transfer Engine.\n- **Dec 27, 2025**: Collaboration with [ROLL](https://github.com/alibaba/ROLL)! Check out the paper [here](https://arxiv.org/abs/2512.22560).\n- **Dec 23, 2025**: SGLang introduces [Encode-Prefill-Decode (EPD) Disaggregation](https://lmsys.org/blog/2026-01-12-epd/) with Mooncake as a transfer backend. This integration allows decoupling compute-intensive multimodal encoders (e.g., Vision Transformers) from language model nodes, utilizing Mooncake's RDMA engine for zero-copy transfer of large multimodal embeddings.\n- **Dec 19, 2025**: Mooncake Transfer Engine has been [integrated into TensorRT LLM](https://github.com/NVIDIA/TensorRT-LLM/tree/main/cpp/tensorrt_llm/executor/cache_transmission/mooncake_utils) for KVCache transfer in PD-disaggregated inference.\n- **Dec 19, 2025**: Mooncake Transfer Engine has been directly integrated into vLLM v1 as a [KV Connector](https://docs.vllm.ai/en/latest/features/mooncake_connector_usage/) in PD-disaggregated setups.\n- **Nov 07, 2025**: [RBG + SGLang HiCache + Mooncake](https://github.com/sgl-project/rbg/blob/main/keps/74-mooncake-integration/README.md), a role-based out-of-the-box solution for cloud native deployment, which is elastic, scalable, and high-performance.\n- **Sept 18, 2025**: Mooncake Store empowers vLLM Ascend by serving as [the distributed KV cache pool backend](https://docs.vllm.ai/projects/ascend/zh-cn/main/user_guide/feature_guide/kv_pool.html).\n- **Sept 10, 2025**: SGLang officially supports Mooncake Store as a [hierarchical KV caching storage backend](https://lmsys.org/blog/2025-09-10-sglang-hicache/). The integration extends RadixAttention with multi-tier KV cache storage across device, host, and remote storage layers.\n- **Sept 10, 2025**: The official & high-performance version of Mooncake P2P Store is open-sourced as [checkpoint-engine](https://github.com/MoonshotAI/checkpoint-engine/). It has been successfully applied in K1.5 and K2 production training, updating Kimi-K2 model (1T parameters) across thousands of GPUs in ~20s.\n- **Aug 23, 2025**: [xLLM](https://github.com/jd-opensource/xllm) high-performance inference engine builds hybrid KV cache management based on Mooncake, supporting global KV cache management with intelligent offloading and prefetching.\n- **Aug 18, 2025**: vLLM-Ascend [integrates Mooncake Transfer Engine](https://docs.vllm.ai/projects/ascend/en/latest/developer_guide/feature_guide/disaggregated_prefill.html) for KV cache register and disaggregate prefill, enabling efficient distributed inference on Ascend NPUs.\n- **Jul 20, 2025**: Mooncake powers [the deployment of Kimi K2](https://lmsys.org/blog/2025-07-20-k2-large-scale-ep/) on 128 H200 GPUs with PD disaggregation and large-scale expert parallelism, achieving 224k tokens/sec prefill throughput and 288k tokens/sec decode throughput.\n- **Jun 20, 2025**: Mooncake becomes a PD disaggregation [backend](deployment/integrations/lmdeploy) for LMDeploy.\n- **May 9, 2025**: NIXL officially supports Mooncake Transfer Engine as [a backend plugin](https://github.com/ai-dynamo/nixl/blob/main/src/plugins/mooncake/README.md).\n- **May 8, 2025**: [Mooncake x LMCache](deployment/integrations/lmcache/index) unite to pioneer KVCache-centric LLM serving system.\n- **May 5, 2025**: Supported by Mooncake Team, SGLang release <a href=\"https://lmsys.org/blog/2025-05-05-large-scale-ep/\" target=\"_blank\">guidance</a> to deploy DeepSeek with PD Disaggregation on 96 H100 GPUs.\n- **Apr 22, 2025**: LMCache officially supports Mooncake Store as a <a href=\"https://blog.lmcache.ai/2025-04-22-tencent/\" target=\"_blank\">remote connector</a>.\n- **Apr 10, 2025**: SGLang officially supports Mooncake Transfer Engine for disaggregated prefilling and KV cache transfer.\n- **Mar 7, 2025**: We open-sourced the Mooncake Store, a distributed KVCache based on Transfer Engine. vLLM's xPyD disaggregated prefilling & decoding based on Mooncake Store will be released soon.\n- **Feb 25, 2025**: Mooncake receives the **Best Paper Award** at **FAST 2025**!\n- **Feb 21, 2025**: The updated <a href=\"https://github.com/kvcache-ai/Mooncake/tree/main/FAST25-release/traces\" target=\"_blank\">traces</a> used in our FAST'25 paper have been released.\n- **Dec 16, 2024**: vLLM officially supports Mooncake Transfer Engine for disaggregated prefilling and KV cache transfer.\n- **Nov 28, 2024**: We open-sourced the Transfer Engine, the central component of Mooncake. We also provide two demonstrations of Transfer Engine: a P2P Store and vLLM integration.\n- **July 9, 2024**: We open-sourced the trace as a <a href=\"https://github.com/kvcache-ai/Mooncake/blob/main/FAST25-release/arxiv-trace/mooncake_trace.jsonl\" target=\"_blank\">JSONL file</a>.\n- **June 27, 2024**: We present a series of Chinese blogs with more discussions on <a href=\"https://zhuanlan.zhihu.com/p/705754254\">zhihu 1</a>, <a href=\"https://zhuanlan.zhihu.com/p/705910725\">2</a>, <a href=\"https://zhuanlan.zhihu.com/p/706204757\">3</a>, <a href=\"https://zhuanlan.zhihu.com/p/707997501\">4</a>, <a href=\"https://zhuanlan.zhihu.com/p/9461861451\">5</a>, <a href=\"https://zhuanlan.zhihu.com/p/1939988652114580803\">6</a>, <a href=\"https://zhuanlan.zhihu.com/p/1959366095443064318\">7</a>.\n- **June 26, 2024**: Initial technical report release.\n\n:::\n\n## Documentation\n\n% How to start using Mooncake?\n\n:::{toctree}\n:caption: Getting Started\n:maxdepth: 1\n\ngetting_started/build\ngetting_started/quick-start\n\n:::\n\n% Deployment docs\n\n:::{toctree}\n:caption: Deployment\n:maxdepth: 1\n\ndeployment/mooncake-store-deployment-guide\ndeployment/kubernetes-deployment-guide/index\ndeployment/integrations/sglang/index\ndeployment/integrations/vllm/index\nMooncake x LMCache Integration<deployment/integrations/lmcache/index>\nMooncake x LMDeploy Integration<deployment/integrations/lmdeploy>\n:::\n\n\n% Making the most out of Mooncake\n\n:::{toctree}\n:caption: Performance\n:maxdepth: 1\nperformance/mooncake/index\nperformance/sglang/index\nperformance/vllm/index\n:::\n\n% Explanation of Mooncake internals\n\n:::{toctree}\n:caption: Design Documents\n:maxdepth: 1\n\ndesign/architecture\ndesign/transfer-engine/index\ndesign/reshard-manifest\ndesign/model-weight-reshard-planner\ndesign/model-weight-store-upload-planning\ndesign/tent/overview\ndesign/store/mooncake-store\ndesign/kv-event/publisher-design\ndesign/kv-event/subscriber-guide\ndesign/nvme-kv-backend\ndesign/mooncake-backend-pg\ndesign/mooncake-ep\ndesign/p2p-store\ndesign/conductor/conductor-architecture-design\ndesign/hicache-design\n:::\n\n% API Documentation\n\n:::{toctree}\n:caption: API Reference\n:maxdepth: 1\n\napi-reference/python/index\napi-reference/cpp/index\napi-reference/http/index\napi-reference/rust/index\n:::\n\n% Q&A for Mooncake\n\n:::{toctree}\n:caption: Troubleshooting\n:maxdepth: 1\n\ntroubleshooting/error-code\ntroubleshooting/troubleshooting\ntroubleshooting/pg-ep-troubleshooting\n:::\n\n\n% Community\n\n:::{toctree}\n:caption: Community\n:maxdepth: 1\n\ncommunity/governance\n:::\n\n% Archived content\n\n### Archived\n\n- [Guide: vLLM MooncakeStoreConnector](deployment/integrations/vllm/vllm-mooncakestoreconnector)\n- [vLLM V0 Disaggregated Serving Demo](deployment/integrations/vllm/vllm-integration-v0.2)\n- [vLLM V0 Disaggregated Serving with MooncakeStore](deployment/integrations/vllm/vllm-integration-v0.3)\n- [vLLM v1 backend Disaggregated Serving with MooncakeConnector](deployment/integrations/vllm/vllm-integration-v1.0)",
+      "sections": [
+        {
+          "heading": "Welcome to Mooncake",
+          "text": ":::{figure} ./image/mooncake-icon.png\n:align: center\n:alt: Mooncake\n:class: no-scaled-link\n:width: 60%\n:::\n\n:::{raw} html\n<p style=\"text-align:center\">\n<strong>A KVCache-centric Disaggregated Architecture for LLM Serving.\n</strong>\n</p>\n\n<p style=\"text-align:center\">\n<script async defer src=\"https://buttons.github.io/buttons.js\"></script>\n<a class=\"github-button\" href=\"https://github.com/kvcache-ai/Mooncake\" data-show-count=\"true\" data-size=\"large\" aria-label=\"Star\">Star</a>\n<a class=\"github-button\" href=\"https://github.com/kvcache-ai/Mooncake/subscription\" data-icon=\"octicon-eye\" data-size=\"large\" aria-label=\"Watch\">Watch</a>\n<a class=\"github-button\" href=\"https://github.com/kvcache-ai/Mooncake/fork\" data-icon=\"octicon-repo-forked\" data-size=\"large\" aria-label=\"Fork\">Fork</a>\n</p>\n:::\n\nMooncake is the serving platform for <a href=\"https://kimi.ai/\">Kimi</a>, a leading LLM service provided by <a href=\"https://www.moonshot.cn/\">Moonshot AI</a>.\nNow both the Transfer Engine and Mooncake Store are open-sourced!\nThis repository also hosts its technical report and the open-sourced traces.\n\n<h2 id=\"overview\">🎉 Overview</h2>\n\nMooncake features a KVCache-centric disaggregated architecture that separates prefill and decode clusters. It also leverages underutilized CPU, DRAM, and SSD resources in GPU clusters to build a disaggregated KVCache pool.\n\n:::{figure} ./image/architecture.png\n:align: center\n:alt: Mooncake architecture\n:width: 88%\n:::\n\nAt the center of Mooncake is a KVCache-centric scheduler that balances effective throughput with latency-related Service Level Objectives (SLOs). In highly overloaded scenarios, Mooncake uses prediction-based early rejection to avoid wasting computation on requests that cannot meet their SLOs. Experiments show that Mooncake is especially effective for long-context workloads, achieving up to a 525% throughput increase in simulated scenarios while meeting SLOs. Under real workloads, Mooncake's architecture enables <a href=\"https://kimi.ai/\">Kimi</a> to handle 75% more requests.\n\n<h2 id=\"updates\">🔄 Updates</h2>\n\n- **Aug 20, 2026**: Mooncake is integrated into [Miles](https://github.com/radixark/miles) as a rollout data-transfer backend for the fragmented, heterogeneous data moving between rollout and training in disaggregated RL. Blogs: [KVCache.AI](https://kvcache.ai/blog/mooncake-rl-rollout-data-transfer/), [lmsys](https://www.lmsys.org/blog/2026-08-20-miles-mooncake-rollout-data-transfer).\n- **Aug 17, 2026**: Mooncake is integrated into [Speculators](https://github.com/vllm-project/speculators) as a distributed backend for multi-node online training, efficiently moves hidden-state between vLLM inference workers and Speculators trainers through RDMA, eliminating the need for massive hidden-state storage in offline training. [Benchmark on GB300 NVL72](https://x.com/mgoin_/status/2072785822231728363).\n- **May 7, 2026**: 🚀 [vLLM officially features Mooncake Store](https://vllm.ai/blog/mooncake-store) — a deep dive into how Mooncake's distributed KVCache engine supercharges vLLM inference with high-throughput, memory-efficient, cross-instance KV cache sharing!\n- **Apr 29, 2026**: SGLang introduces [RDMA-based P2P weight transfer for large-scale distributed RL](https://lmsys.org/blog/2026-04-29-p2p-update/) using Mooncake TransferEngine, achieving 7x faster weight updates for the 1T-parameter Kimi-K2 model (53s → 7.2s) with zero-copy RDMA transfer across thousands of GPUs.\n- **Mar 19, 2026**: [TorchSpec: Speculative Decoding Training at Scale](https://pytorch.org/blog/torchspec-speculative-decoding-training-at-scale) is [open sourced](https://github.com/torchspec-project/TorchSpec), using Mooncake to decouple inference and training via efficient hidden states management.\n\n:::{dropdown} More\n:animate: fade-in\n\n- **Mar 5, 2026**: [LightX2V](https://github.com/ModelTC/LightX2V/pull/893) now supports disaggregated deployment based on Mooncake, enabling encoder/transformer service decoupling with Mooncake Transfer Engine for high-performance cross-device and cross-machine data transfer. Details in [blog](https://light-ai.top/LightX2V-BLOG/posts/Disaggregation/).\n- **Feb 25, 2026**: [SGLang](https://github.com/sgl-project/sglang) merged [Encoder Global Cache Manager](https://github.com/sgl-project/sglang/pull/16137), introducing a Mooncake-powered global multimodal embedding cache that enables cross-instance sharing of ViT embeddings to avoid redundant GPU computation.\n- **Feb 24, 2026**: [vLLM-Omni](https://docs.vllm.ai/projects/vllm-omni/en/latest/design/feature/disaggregated_inference/) introduces disaggregated inference connectors with support for both `MooncakeStoreConnector` and `MooncakeTransferEngineConnector` for multi-node omni-modality pipelines.\n- **Feb 12, 2026**: [Mooncake Joins PyTorch Ecosystem](https://pytorch.org/blog/mooncake-joins-pytorch-ecosystem/) We are thrilled to announce that Mooncake has officially joined the PyTorch Ecosystem!\n- **Jan 28, 2026**: [FlexKV](https://github.com/taco-project/FlexKV), a distributed KV store and cache system from Tencent and NVIDIA in collaboration with the community, now supports [distributed KVCache reuse](https://github.com/taco-project/FlexKV/blob/main/docs/dist_reuse/README_en.md) with the Mooncake Transfer Engine.\n- **Dec 27, 2025**: Collaboration with [ROLL](https://github.com/alibaba/ROLL)! Check out the paper [here](https://arxiv.org/abs/2512.22560).\n- **Dec 23, 2025**: SGLang introduces [Encode-Prefill-Decode (EPD) Disaggregation](https://lmsys.org/blog/2026-01-12-epd/) with Mooncake as a transfer backend. This integration allows decoupling compute-intensive multimodal encoders (e.g., Vision Transformers) from language model nodes, utilizing Mooncake's RDMA engine for zero-copy transfer of large multimodal embeddings.\n- **Dec 19, 2025**: Mooncake Transfer Engine has been [integrated into TensorRT LLM](https://github.com/NVIDIA/TensorRT-LLM/tree/main/cpp/tensorrt_llm/executor/cache_transmission/mooncake_utils) for KVCache transfer in PD-disaggregated inference.\n- **Dec 19, 2025**: Mooncake Transfer Engine has been directly integrated into vLLM v1 as a [KV Connector](https://docs.vllm.ai/en/latest/features/mooncake_connector_usage/) in PD-disaggregated setups.\n- **Nov 07, 2025**: [RBG + SGLang HiCache + Mooncake](https://github.com/sgl-project/rbg/blob/main/keps/74-mooncake-integration/README.md), a role-based out-of-the-box solution for cloud native deployment, which is elastic, scalable, and high-performance.\n- **Sept 18, 2025**: Mooncake Store empowers vLLM Ascend by serving as [the distributed KV cache pool backend](https://docs.vllm.ai/projects/ascend/zh-cn/main/user_guide/feature_guide/kv_pool.html).\n- **Sept 10, 2025**: SGLang officially supports Mooncake Store as a [hierarchical KV caching storage backend](https://lmsys.org/blog/2025-09-10-sglang-hicache/). The integration extends RadixAttention with multi-tier KV cache storage across device, host, and remote storage layers.\n- **Sept 10, 2025**: The official & high-performance version of Mooncake P2P Store is open-sourced as [checkpoint-engine](https://github.com/MoonshotAI/checkpoint-engine/). It has been successfully applied in K1.5 and K2 production training, updating Kimi-K2 model (1T parameters) across thousands of GPUs in ~20s.\n- **Aug 23, 2025**: [xLLM](https://github.com/jd-opensource/xllm) high-performance inference engine builds hybrid KV cache management based on Mooncake, supporting global KV cache management with intelligent offloading and prefetching.\n- **Aug 18, 2025**: vLLM-Ascend [integrates Mooncake Transfer Engine](https://docs.vllm.ai/projects/ascend/en/latest/developer_guide/feature_guide/disaggregated_prefill.html) for KV cache register and disaggregate prefill, enabling efficient distributed inference on Ascend NPUs.\n- **Jul 20, 2025**: Mooncake powers [the deployment of Kimi K2](https://lmsys.org/blog/2025-07-20-k2-large-scale-ep/) on 128 H200 GPUs with PD disaggregation and large-scale expert parallelism, achieving 224k tokens/sec prefill throughput and 288k tokens/sec decode throughput.\n- **Jun 20, 2025**: Mooncake becomes a PD disaggregation [backend](deployment/integrations/lmdeploy) for LMDeploy.\n- **May 9, 2025**: NIXL officially supports Mooncake Transfer Engine as [a backend plugin](https://github.com/ai-dynamo/nixl/blob/main/src/plugins/mooncake/README.md).\n- **May 8, 2025**: [Mooncake x LMCache](deployment/integrations/lmcache/index) unite to pioneer KVCache-centric LLM serving system.\n- **May 5, 2025**: Supported by Mooncake Team, SGLang release <a href=\"https://lmsys.org/blog/2025-05-05-large-scale-ep/\" target=\"_blank\">guidance</a> to deploy DeepSeek with PD Disaggregation on 96 H100 GPUs.\n- **Apr 22, 2025**: LMCache officially supports Mooncake Store as a <a href=\"https://blog.lmcache.ai/2025-04-22-tencent/\" target=\"_blank\">remote connector</a>.\n- **Apr 10, 2025**: SGLang officially supports Mooncake Transfer Engine for disaggregated prefilling and KV cache transfer.\n- **Mar 7, 2025**: We open-sourced the Mooncake Store, a distributed KVCache based on Transfer Engine. vLLM's xPyD disaggregated prefilling & decoding based on Mooncake Store will be released soon.\n- **Feb 25, 2025**: Mooncake receives the **Best Paper Award** at **FAST 2025**!\n- **Feb 21, 2025**: The updated <a href=\"https://github.com/kvcache-ai/Mooncake/tree/main/FAST25-release/traces\" target=\"_blank\">traces</a> used in our FAST'25 paper have been released.\n- **Dec 16, 2024**: vLLM officially supports Mooncake Transfer Engine for disaggregated prefilling and KV cache transfer.\n- **Nov 28, 2024**: We open-sourced the Transfer Engine, the central component of Mooncake. We also provide two demonstrations of Transfer Engine: a P2P Store and vLLM integration.\n- **July 9, 2024**: We open-sourced the trace as a <a href=\"https://github.com/kvcache-ai/Mooncake/blob/main/FAST25-release/arxiv-trace/mooncake_trace.jsonl\" target=\"_blank\">JSONL file</a>.\n- **June 27, 2024**: We present a series of Chinese blogs with more discussions on <a href=\"https://zhuanlan.zhihu.com/p/705754254\">zhihu 1</a>, <a href=\"https://zhuanlan.zhihu.com/p/705910725\">2</a>, <a href=\"https://zhuanlan.zhihu.com/p/706204757\">3</a>, <a href=\"https://zhuanlan.zhihu.com/p/707997501\">4</a>, <a href=\"https://zhuanlan.zhihu.com/p/9461861451\">5</a>, <a href=\"https://zhuanlan.zhihu.com/p/1939988652114580803\">6</a>, <a href=\"https://zhuanlan.zhihu.com/p/1959366095443064318\">7</a>.\n- **June 26, 2024**: Initial technical report release.\n\n:::",
+          "level": 1,
+          "span": {
+            "start": 22,
+            "end": 10558
+          },
+          "metadata": {
+            "heading_path": [
+              "Welcome to Mooncake"
+            ],
+            "parent_heading": "",
+            "heading_number": "",
+            "heading_kind": "markdown",
+            "section_summary": ":::{figure} ./image/mooncake-icon.png"
+          }
+        },
+        {
+          "heading": "Documentation",
+          "text": "% How to start using Mooncake?\n\n:::{toctree}\n:caption: Getting Started\n:maxdepth: 1\n\ngetting_started/build\ngetting_started/quick-start\n\n:::\n\n% Deployment docs\n\n:::{toctree}\n:caption: Deployment\n:maxdepth: 1\n\ndeployment/mooncake-store-deployment-guide\ndeployment/kubernetes-deployment-guide/index\ndeployment/integrations/sglang/index\ndeployment/integrations/vllm/index\nMooncake x LMCache Integration<deployment/integrations/lmcache/index>\nMooncake x LMDeploy Integration<deployment/integrations/lmdeploy>\n:::\n\n\n% Making the most out of Mooncake\n\n:::{toctree}\n:caption: Performance\n:maxdepth: 1\nperformance/mooncake/index\nperformance/sglang/index\nperformance/vllm/index\n:::\n\n% Explanation of Mooncake internals\n\n:::{toctree}\n:caption: Design Documents\n:maxdepth: 1\n\ndesign/architecture\ndesign/transfer-engine/index\ndesign/reshard-manifest\ndesign/model-weight-reshard-planner\ndesign/model-weight-store-upload-planning\ndesign/tent/overview\ndesign/store/mooncake-store\ndesign/kv-event/publisher-design\ndesign/kv-event/subscriber-guide\ndesign/nvme-kv-backend\ndesign/mooncake-backend-pg\ndesign/mooncake-ep\ndesign/p2p-store\ndesign/conductor/conductor-architecture-design\ndesign/hicache-design\n:::\n\n% API Documentation\n\n:::{toctree}\n:caption: API Reference\n:maxdepth: 1\n\napi-reference/python/index\napi-reference/cpp/index\napi-reference/http/index\napi-reference/rust/index\n:::\n\n% Q&A for Mooncake\n\n:::{toctree}\n:caption: Troubleshooting\n:maxdepth: 1\n\ntroubleshooting/error-code\ntroubleshooting/troubleshooting\ntroubleshooting/pg-ep-troubleshooting\n:::\n\n\n% Community\n\n:::{toctree}\n:caption: Community\n:maxdepth: 1\n\ncommunity/governance\n:::\n\n% Archived content",
+          "level": 2,
+          "span": {
+            "start": 10575,
+            "end": 12226
+          },
+          "metadata": {
+            "heading_path": [
+              "Welcome to Mooncake",
+              "Documentation"
+            ],
+            "parent_heading": "Welcome to Mooncake",
+            "heading_number": "",
+            "heading_kind": "markdown",
+            "section_summary": "% How to start using Mooncake?"
+          }
+        },
+        {
+          "heading": "Archived",
+          "text": "- [Guide: vLLM MooncakeStoreConnector](deployment/integrations/vllm/vllm-mooncakestoreconnector)\n- [vLLM V0 Disaggregated Serving Demo](deployment/integrations/vllm/vllm-integration-v0.2)\n- [vLLM V0 Disaggregated Serving with MooncakeStore](deployment/integrations/vllm/vllm-integration-v0.3)\n- [vLLM v1 backend Disaggregated Serving with MooncakeConnector](deployment/integrations/vllm/vllm-integration-v1.0)",
+          "level": 3,
+          "span": {
+            "start": 12239,
+            "end": 12649
+          },
+          "metadata": {
+            "heading_path": [
+              "Welcome to Mooncake",
+              "Documentation",
+              "Archived"
+            ],
+            "parent_heading": "Documentation",
+            "heading_number": "",
+            "heading_kind": "markdown",
+            "section_summary": "- [Guide: vLLM MooncakeStoreConnector](deployment/integrations/vllm/vllm-mooncakestoreconnector)"
+          }
+        }
+      ],
+      "metadata": {
+        "channel": "offline_extract_from_doc",
+        "source_type": "document",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "resume_key": "37c1e00f687838b8a2fba75d56e8fd01674f8a99adcf982ec3a64e2e1ce612da",
+        "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/mooncake-docs.md",
+        "family_name": "未分类技能",
+        "family_confidence": 0.5,
+        "family_source": "default",
+        "family_reason": "taxonomy has no constrained family candidates",
+        "profile_id": "default::未分类技能",
+        "taxonomy_id": "default",
+        "domain_type": "default"
+      },
+      "checksum": "be4aa37a2deba944253f4bad17ebc374a1d6b9e4",
+      "content_hash": "be4aa37a2deba944253f4bad17ebc374a1d6b9e4",
+      "imported_at": "2026-09-15T18:42:01+00:00"
+    }
+  ],
+  "support_records": [
+    {
+      "support_id": "850d58f1-0138-5781-a673-a4868bc5ad42",
+      "doc_id": "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4",
+      "skill_id": "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/mooncake-docs.md",
+      "section": "Welcome to Mooncake",
+      "span": {
+        "start": 3825,
+        "end": 9993
+      },
+      "excerpt": "- **Mar 5, 2026**: [LightX2V](https://github.com/ModelTC/LightX2V/pull/893) now supports disaggregated deployment based on Mooncake, enabling encoder/transformer service decoupling with Mooncake Transfer Engine for high-performance cross-device and cross-machine data transfer. Details in [blog](https://light-ai.top/LightX2V-BLOG/posts/Disaggregation/).\n- **Feb 25, 2026**: [SGLang](https://github.com/sgl-project/sglang) merged [Encoder Global Cache Manager](https://github.com/sgl-project/sglang/pull/16137), introducing a Mooncake-powered global multimodal embedding cache that enables cross-instance sharing of ViT embeddings to avoid redundant GPU computation.\n- **Feb 24, 2026**: [vLLM-Omni](https://docs.vllm.ai/projects/vllm-omni/en/latest/design/feature/disaggregated_inference/) introduces disaggregated inference connectors with support for both `MooncakeStoreConnector` and `MooncakeTransferEngineConnector` for multi-node omni-modality pipelines.\n- **Feb 12, 2026**: [Mooncake Joins PyTorch Ecosystem](https://pytorch.org/blog/mooncake-joins-pytorch-ecosystem/) We are thrilled to announce that Mooncake has officially joined the PyTorch Ecosystem!\n- **Jan 28, 2026**: [FlexKV](https://github.com/taco-project/FlexKV), a distributed KV store and cache system from Tencent and NVIDIA in collaboration with the community, now supports [distributed KVCache reuse](https://github.com/taco-project/FlexKV/blob/main/docs/dist_reuse/README_en.md) with the Mooncake Transfer Engine.\n- **Dec 27, 2025**: Collaboration with [ROLL](https://github.com/alibaba/ROLL)! Check out the paper [here](https://arxiv.org/abs/2512.22560).\n- **Dec 23, 2025**: SGLang introduces [Encode-Prefill-Decode (EPD) Disaggregation](https://lmsys.org/blog/2026-01-12-epd/) with Mooncake as a transfer backend. This integration allows decoupling compute-intensive multimodal encoders (e.g., Vision Transformers) from language model nodes, utilizing Mooncake's RDMA engine for zero-copy transfer of large multimodal embeddings.\n- **Dec 19, 2025**: Mooncake Transfer Engine has been [integrated into TensorRT LLM](https://github.com/NVIDIA/TensorRT-LLM/tree/main/cpp/tensorrt_llm/executor/cache_transmission/mooncake_utils) for KVCache transfer in PD-disaggregated inference.\n- **Dec 19, 2025**: Mooncake Transfer Engine has been directly integrated into vLLM v1 as a [KV Connector](https://docs.vllm.ai/en/latest/features/mooncake_connector_usage/) in PD-disaggregated setups.\n- **Nov 07, 2025**: [RBG + SGLang HiCache + Mooncake](https://github.com/sgl-project/rbg/blob/main/keps/74-mooncake-integration/README.md), a role-based out-of-the-box solution for cloud native deployment, which is elastic, scalable, and high-performance.\n- **Sept 18, 2025**: Mooncake Store empowers vLLM Ascend by serving as [the distributed KV cache pool backend](https://docs.vllm.ai/projects/ascend/zh-cn/main/user_guide/feature_guide/kv_pool.html).\n- **Sept 10, 2025**: SGLang officially supports Mooncake Store as a [hierarchical KV caching storage backend](https://lmsys.org/blog/2025-09-10-sglang-hicache/). The integration extends RadixAttention with multi-tier KV cache storage across device, host, and remote storage layers.\n- **Sept 10, 2025**: The official & high-performance version of Mooncake P2P Store is open-sourced as [checkpoint-engine](https://github.com/MoonshotAI/checkpoint-engine/). It has been successfully applied in K1.5 and K2 production training, updating Kimi-K2 model (1T parameters) across thousands of GPUs in ~20s.\n- **Aug 23, 2025**: [xLLM](https://github.com/jd-opensource/xllm) high-performance inference engine builds hybrid KV cache management based on Mooncake, supporting global KV cache management with intelligent offloading and prefetching.\n- **Aug 18, 2025**: vLLM-Ascend [integrates Mooncake Transfer Engine](https://docs.vllm.ai/projects/ascend/en/latest/developer_guide/feature_guide/disaggregated_prefill.html) for KV cache register and disaggregate prefill, enabling efficient distributed inference on Ascend NPUs.\n- **Jul 20, 2025**: Mooncake powers [the deployment of Kimi K2](https://lmsys.org/blog/2025-07-20-k2-large-scale-ep/) on 128 H200 GPUs with PD disaggregation and large-scale expert parallelism, achieving 224k tokens/sec prefill throughput and 288k tokens/sec decode throughput.\n- **Jun 20, 2025**: Mooncake becomes a PD disaggregation [backend](deployment/integrations/lmdeploy) for LMDeploy.\n- **May 9, 2025**: NIXL officially supports Mooncake Transfer Engine as [a backend plugin](https://github.com/ai-dynamo/nixl/blob/main/src/plugins/mooncake/README.md).\n- **May 8, 2025**: [Mooncake x LMCache](deployment/integrations/lmcache/index) unite to pioneer KVCache-centric LLM serving system.\n- **May 5, 2025**: Supported by Mooncake Team, SGLang release <a href=\"https://lmsys.org/blog/2025-05-05-large-scale-ep/\" target=\"_blank\">guidance</a> to deploy DeepSeek with PD Disaggregation on 96 H100 GPUs.\n- **Apr 22, 2025**: LMCache officially supports Mooncake Store as a <a href=\"https://blog.lmcache.ai/2025-04-22-tencent/\" target=\"_blank\">remote connector</a>.\n- **Apr 10, 2025**: SGLang officially supports Mooncake Transfer Engine for disaggregated prefilling and KV cache transfer.\n- **Mar 7, 2025**: We open-sourced the Mooncake Store, a distributed KVCache based on Transfer Engine. vLLM's xPyD disaggregated prefilling & decoding based on Mooncake Store will be released soon.\n- **Feb 25, 2025**: Mooncake receives the **Best Paper Award** at **FAST 2025**!\n- **Feb 21, 2025**: The updated <a href=\"https://github.com/kvcache-ai/Mooncake/tree/main/FAST25-release/traces\" target=\"_blank\">traces</a> used in our FAST'25 paper have been released.\n- **Dec 16, 2024**: vLLM officially supports Mooncake Transfer Engine for disaggregated prefilling and KV cache transfer.\n- **Nov 28, 2024**: We open-sourced the Transfer Engine, the central component of Mooncake. We also provide two demonstrations of Transfer Engine: a P2P Store and vLLM integration.\n- **July 9, 2024**: We open-sourced the trace as a <a href=\"https://github.com/kvcache-ai/Mooncake/blob/main/FAST25-release/arxiv-trace/mooncake_trace.jsonl\" target=\"_blank\">JSONL file</a>.",
+      "relation_type": "support",
+      "confidence": 0.75,
+      "metadata": {
+        "document_title": "mooncake-docs.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Mooncake Transfer Engine Integration",
+        "asset_type": "macro_protocol",
+        "granularity": "macro",
+        "asset_node_id": "macro_skill",
+        "asset_path": "family_root/macro_skill",
+        "asset_level": 1,
+        "visible_role": "parent",
+        "objective": "Enable high-performance cross-node data transfer in disaggregated LLM inference",
+        "task_family": "distributed_inference",
+        "method_family": "rdma_transfer_backend",
+        "stage": "deployment_integration",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "7820ebd2-0526-550b-bf5a-7c81c8a7fa19",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 11,
+        "paragraph_end": 11,
+        "heading_path": [
+          "Welcome to Mooncake"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [],
+        "subsection_headings": [
+          "Documentation",
+          "Archived"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "markdown",
+        "section_summary": ":::{figure} ./image/mooncake-icon.png"
+      },
+      "created_at": "2026-09-15T18:43:25+00:00"
+    },
+    {
+      "support_id": "428ba50e-e9c9-554c-8cb7-a0456ad23565",
+      "doc_id": "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4",
+      "skill_id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/mooncake-docs.md",
+      "section": "Welcome to Mooncake",
+      "span": {
+        "start": 3825,
+        "end": 9993
+      },
+      "excerpt": "- **Mar 5, 2026**: [LightX2V](https://github.com/ModelTC/LightX2V/pull/893) now supports disaggregated deployment based on Mooncake, enabling encoder/transformer service decoupling with Mooncake Transfer Engine for high-performance cross-device and cross-machine data transfer. Details in [blog](https://light-ai.top/LightX2V-BLOG/posts/Disaggregation/).\n- **Feb 25, 2026**: [SGLang](https://github.com/sgl-project/sglang) merged [Encoder Global Cache Manager](https://github.com/sgl-project/sglang/pull/16137), introducing a Mooncake-powered global multimodal embedding cache that enables cross-instance sharing of ViT embeddings to avoid redundant GPU computation.\n- **Feb 24, 2026**: [vLLM-Omni](https://docs.vllm.ai/projects/vllm-omni/en/latest/design/feature/disaggregated_inference/) introduces disaggregated inference connectors with support for both `MooncakeStoreConnector` and `MooncakeTransferEngineConnector` for multi-node omni-modality pipelines.\n- **Feb 12, 2026**: [Mooncake Joins PyTorch Ecosystem](https://pytorch.org/blog/mooncake-joins-pytorch-ecosystem/) We are thrilled to announce that Mooncake has officially joined the PyTorch Ecosystem!\n- **Jan 28, 2026**: [FlexKV](https://github.com/taco-project/FlexKV), a distributed KV store and cache system from Tencent and NVIDIA in collaboration with the community, now supports [distributed KVCache reuse](https://github.com/taco-project/FlexKV/blob/main/docs/dist_reuse/README_en.md) with the Mooncake Transfer Engine.\n- **Dec 27, 2025**: Collaboration with [ROLL](https://github.com/alibaba/ROLL)! Check out the paper [here](https://arxiv.org/abs/2512.22560).\n- **Dec 23, 2025**: SGLang introduces [Encode-Prefill-Decode (EPD) Disaggregation](https://lmsys.org/blog/2026-01-12-epd/) with Mooncake as a transfer backend. This integration allows decoupling compute-intensive multimodal encoders (e.g., Vision Transformers) from language model nodes, utilizing Mooncake's RDMA engine for zero-copy transfer of large multimodal embeddings.\n- **Dec 19, 2025**: Mooncake Transfer Engine has been [integrated into TensorRT LLM](https://github.com/NVIDIA/TensorRT-LLM/tree/main/cpp/tensorrt_llm/executor/cache_transmission/mooncake_utils) for KVCache transfer in PD-disaggregated inference.\n- **Dec 19, 2025**: Mooncake Transfer Engine has been directly integrated into vLLM v1 as a [KV Connector](https://docs.vllm.ai/en/latest/features/mooncake_connector_usage/) in PD-disaggregated setups.\n- **Nov 07, 2025**: [RBG + SGLang HiCache + Mooncake](https://github.com/sgl-project/rbg/blob/main/keps/74-mooncake-integration/README.md), a role-based out-of-the-box solution for cloud native deployment, which is elastic, scalable, and high-performance.\n- **Sept 18, 2025**: Mooncake Store empowers vLLM Ascend by serving as [the distributed KV cache pool backend](https://docs.vllm.ai/projects/ascend/zh-cn/main/user_guide/feature_guide/kv_pool.html).\n- **Sept 10, 2025**: SGLang officially supports Mooncake Store as a [hierarchical KV caching storage backend](https://lmsys.org/blog/2025-09-10-sglang-hicache/). The integration extends RadixAttention with multi-tier KV cache storage across device, host, and remote storage layers.\n- **Sept 10, 2025**: The official & high-performance version of Mooncake P2P Store is open-sourced as [checkpoint-engine](https://github.com/MoonshotAI/checkpoint-engine/). It has been successfully applied in K1.5 and K2 production training, updating Kimi-K2 model (1T parameters) across thousands of GPUs in ~20s.\n- **Aug 23, 2025**: [xLLM](https://github.com/jd-opensource/xllm) high-performance inference engine builds hybrid KV cache management based on Mooncake, supporting global KV cache management with intelligent offloading and prefetching.\n- **Aug 18, 2025**: vLLM-Ascend [integrates Mooncake Transfer Engine](https://docs.vllm.ai/projects/ascend/en/latest/developer_guide/feature_guide/disaggregated_prefill.html) for KV cache register and disaggregate prefill, enabling efficient distributed inference on Ascend NPUs.\n- **Jul 20, 2025**: Mooncake powers [the deployment of Kimi K2](https://lmsys.org/blog/2025-07-20-k2-large-scale-ep/) on 128 H200 GPUs with PD disaggregation and large-scale expert parallelism, achieving 224k tokens/sec prefill throughput and 288k tokens/sec decode throughput.\n- **Jun 20, 2025**: Mooncake becomes a PD disaggregation [backend](deployment/integrations/lmdeploy) for LMDeploy.\n- **May 9, 2025**: NIXL officially supports Mooncake Transfer Engine as [a backend plugin](https://github.com/ai-dynamo/nixl/blob/main/src/plugins/mooncake/README.md).\n- **May 8, 2025**: [Mooncake x LMCache](deployment/integrations/lmcache/index) unite to pioneer KVCache-centric LLM serving system.\n- **May 5, 2025**: Supported by Mooncake Team, SGLang release <a href=\"https://lmsys.org/blog/2025-05-05-large-scale-ep/\" target=\"_blank\">guidance</a> to deploy DeepSeek with PD Disaggregation on 96 H100 GPUs.\n- **Apr 22, 2025**: LMCache officially supports Mooncake Store as a <a href=\"https://blog.lmcache.ai/2025-04-22-tencent/\" target=\"_blank\">remote connector</a>.\n- **Apr 10, 2025**: SGLang officially supports Mooncake Transfer Engine for disaggregated prefilling and KV cache transfer.\n- **Mar 7, 2025**: We open-sourced the Mooncake Store, a distributed KVCache based on Transfer Engine. vLLM's xPyD disaggregated prefilling & decoding based on Mooncake Store will be released soon.\n- **Feb 25, 2025**: Mooncake receives the **Best Paper Award** at **FAST 2025**!\n- **Feb 21, 2025**: The updated <a href=\"https://github.com/kvcache-ai/Mooncake/tree/main/FAST25-release/traces\" target=\"_blank\">traces</a> used in our FAST'25 paper have been released.\n- **Dec 16, 2024**: vLLM officially supports Mooncake Transfer Engine for disaggregated prefilling and KV cache transfer.\n- **Nov 28, 2024**: We open-sourced the Transfer Engine, the central component of Mooncake. We also provide two demonstrations of Transfer Engine: a P2P Store and vLLM integration.\n- **July 9, 2024**: We open-sourced the trace as a <a href=\"https://github.com/kvcache-ai/Mooncake/blob/main/FAST25-release/arxiv-trace/mooncake_trace.jsonl\" target=\"_blank\">JSONL file</a>.",
+      "relation_type": "support",
+      "confidence": 0.78,
+      "metadata": {
+        "document_title": "mooncake-docs.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Deploy Mooncake Store Hierarchical KV Cache Backend",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "Manage distributed KV cache across heterogeneous storage tiers in multi-node LLM inference",
+        "task_family": "kv_cache_management",
+        "method_family": "hierarchical_storage_backend",
+        "stage": "inference_execution",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "7820ebd2-0526-550b-bf5a-7c81c8a7fa19",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 11,
+        "paragraph_end": 11,
+        "heading_path": [
+          "Welcome to Mooncake"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [],
+        "subsection_headings": [
+          "Documentation",
+          "Archived"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "markdown",
+        "section_summary": ":::{figure} ./image/mooncake-icon.png"
+      },
+      "created_at": "2026-09-15T18:43:25+00:00"
+    },
+    {
+      "support_id": "715f301a-c750-5a2d-a4c8-186472725b76",
+      "doc_id": "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4",
+      "skill_id": "fe993e71-1d14-566c-a5f1-fe1e6a039fd1",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/mooncake-docs.md",
+      "section": "Welcome to Mooncake",
+      "span": {
+        "start": 3825,
+        "end": 9993
+      },
+      "excerpt": "- **Mar 5, 2026**: [LightX2V](https://github.com/ModelTC/LightX2V/pull/893) now supports disaggregated deployment based on Mooncake, enabling encoder/transformer service decoupling with Mooncake Transfer Engine for high-performance cross-device and cross-machine data transfer. Details in [blog](https://light-ai.top/LightX2V-BLOG/posts/Disaggregation/).\n- **Feb 25, 2026**: [SGLang](https://github.com/sgl-project/sglang) merged [Encoder Global Cache Manager](https://github.com/sgl-project/sglang/pull/16137), introducing a Mooncake-powered global multimodal embedding cache that enables cross-instance sharing of ViT embeddings to avoid redundant GPU computation.\n- **Feb 24, 2026**: [vLLM-Omni](https://docs.vllm.ai/projects/vllm-omni/en/latest/design/feature/disaggregated_inference/) introduces disaggregated inference connectors with support for both `MooncakeStoreConnector` and `MooncakeTransferEngineConnector` for multi-node omni-modality pipelines.\n- **Feb 12, 2026**: [Mooncake Joins PyTorch Ecosystem](https://pytorch.org/blog/mooncake-joins-pytorch-ecosystem/) We are thrilled to announce that Mooncake has officially joined the PyTorch Ecosystem!\n- **Jan 28, 2026**: [FlexKV](https://github.com/taco-project/FlexKV), a distributed KV store and cache system from Tencent and NVIDIA in collaboration with the community, now supports [distributed KVCache reuse](https://github.com/taco-project/FlexKV/blob/main/docs/dist_reuse/README_en.md) with the Mooncake Transfer Engine.\n- **Dec 27, 2025**: Collaboration with [ROLL](https://github.com/alibaba/ROLL)! Check out the paper [here](https://arxiv.org/abs/2512.22560).\n- **Dec 23, 2025**: SGLang introduces [Encode-Prefill-Decode (EPD) Disaggregation](https://lmsys.org/blog/2026-01-12-epd/) with Mooncake as a transfer backend. This integration allows decoupling compute-intensive multimodal encoders (e.g., Vision Transformers) from language model nodes, utilizing Mooncake's RDMA engine for zero-copy transfer of large multimodal embeddings.\n- **Dec 19, 2025**: Mooncake Transfer Engine has been [integrated into TensorRT LLM](https://github.com/NVIDIA/TensorRT-LLM/tree/main/cpp/tensorrt_llm/executor/cache_transmission/mooncake_utils) for KVCache transfer in PD-disaggregated inference.\n- **Dec 19, 2025**: Mooncake Transfer Engine has been directly integrated into vLLM v1 as a [KV Connector](https://docs.vllm.ai/en/latest/features/mooncake_connector_usage/) in PD-disaggregated setups.\n- **Nov 07, 2025**: [RBG + SGLang HiCache + Mooncake](https://github.com/sgl-project/rbg/blob/main/keps/74-mooncake-integration/README.md), a role-based out-of-the-box solution for cloud native deployment, which is elastic, scalable, and high-performance.\n- **Sept 18, 2025**: Mooncake Store empowers vLLM Ascend by serving as [the distributed KV cache pool backend](https://docs.vllm.ai/projects/ascend/zh-cn/main/user_guide/feature_guide/kv_pool.html).\n- **Sept 10, 2025**: SGLang officially supports Mooncake Store as a [hierarchical KV caching storage backend](https://lmsys.org/blog/2025-09-10-sglang-hicache/). The integration extends RadixAttention with multi-tier KV cache storage across device, host, and remote storage layers.\n- **Sept 10, 2025**: The official & high-performance version of Mooncake P2P Store is open-sourced as [checkpoint-engine](https://github.com/MoonshotAI/checkpoint-engine/). It has been successfully applied in K1.5 and K2 production training, updating Kimi-K2 model (1T parameters) across thousands of GPUs in ~20s.\n- **Aug 23, 2025**: [xLLM](https://github.com/jd-opensource/xllm) high-performance inference engine builds hybrid KV cache management based on Mooncake, supporting global KV cache management with intelligent offloading and prefetching.\n- **Aug 18, 2025**: vLLM-Ascend [integrates Mooncake Transfer Engine](https://docs.vllm.ai/projects/ascend/en/latest/developer_guide/feature_guide/disaggregated_prefill.html) for KV cache register and disaggregate prefill, enabling efficient distributed inference on Ascend NPUs.\n- **Jul 20, 2025**: Mooncake powers [the deployment of Kimi K2](https://lmsys.org/blog/2025-07-20-k2-large-scale-ep/) on 128 H200 GPUs with PD disaggregation and large-scale expert parallelism, achieving 224k tokens/sec prefill throughput and 288k tokens/sec decode throughput.\n- **Jun 20, 2025**: Mooncake becomes a PD disaggregation [backend](deployment/integrations/lmdeploy) for LMDeploy.\n- **May 9, 2025**: NIXL officially supports Mooncake Transfer Engine as [a backend plugin](https://github.com/ai-dynamo/nixl/blob/main/src/plugins/mooncake/README.md).\n- **May 8, 2025**: [Mooncake x LMCache](deployment/integrations/lmcache/index) unite to pioneer KVCache-centric LLM serving system.\n- **May 5, 2025**: Supported by Mooncake Team, SGLang release <a href=\"https://lmsys.org/blog/2025-05-05-large-scale-ep/\" target=\"_blank\">guidance</a> to deploy DeepSeek with PD Disaggregation on 96 H100 GPUs.\n- **Apr 22, 2025**: LMCache officially supports Mooncake Store as a <a href=\"https://blog.lmcache.ai/2025-04-22-tencent/\" target=\"_blank\">remote connector</a>.\n- **Apr 10, 2025**: SGLang officially supports Mooncake Transfer Engine for disaggregated prefilling and KV cache transfer.\n- **Mar 7, 2025**: We open-sourced the Mooncake Store, a distributed KVCache based on Transfer Engine. vLLM's xPyD disaggregated prefilling & decoding based on Mooncake Store will be released soon.\n- **Feb 25, 2025**: Mooncake receives the **Best Paper Award** at **FAST 2025**!\n- **Feb 21, 2025**: The updated <a href=\"https://github.com/kvcache-ai/Mooncake/tree/main/FAST25-release/traces\" target=\"_blank\">traces</a> used in our FAST'25 paper have been released.\n- **Dec 16, 2024**: vLLM officially supports Mooncake Transfer Engine for disaggregated prefilling and KV cache transfer.\n- **Nov 28, 2024**: We open-sourced the Transfer Engine, the central component of Mooncake. We also provide two demonstrations of Transfer Engine: a P2P Store and vLLM integration.\n- **July 9, 2024**: We open-sourced the trace as a <a href=\"https://github.com/kvcache-ai/Mooncake/blob/main/FAST25-release/arxiv-trace/mooncake_trace.jsonl\" target=\"_blank\">JSONL file</a>.",
+      "relation_type": "support",
+      "confidence": 0.8,
+      "metadata": {
+        "document_title": "mooncake-docs.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Disaggregated Prefill-Decode Deployment Pattern",
+        "asset_type": "macro_protocol",
+        "granularity": "macro",
+        "asset_node_id": "macro_skill",
+        "asset_path": "family_root/macro_skill",
+        "asset_level": 1,
+        "visible_role": "parent",
+        "objective": "Maximize throughput and resource utilization by separating prefill and decode compute across specialized nodes",
+        "task_family": "distributed_inference_architecture",
+        "method_family": "disaggregated_pipeline",
+        "stage": "system_design_deployment",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 3,
+        "window_id": "7820ebd2-0526-550b-bf5a-7c81c8a7fa19",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 11,
+        "paragraph_end": 11,
+        "heading_path": [
+          "Welcome to Mooncake"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [],
+        "subsection_headings": [
+          "Documentation",
+          "Archived"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "markdown",
+        "section_summary": ":::{figure} ./image/mooncake-icon.png"
+      },
+      "created_at": "2026-09-15T18:43:25+00:00"
+    },
+    {
+      "support_id": "83bfc676-8808-50f8-a39a-7ca2d070b504",
+      "doc_id": "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4",
+      "skill_id": "78496037-2dd2-5178-a01a-438dbf1e4770",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/mooncake-docs.md",
+      "section": "Welcome to Mooncake",
+      "span": {
+        "start": 3825,
+        "end": 9993
+      },
+      "excerpt": "- **Mar 5, 2026**: [LightX2V](https://github.com/ModelTC/LightX2V/pull/893) now supports disaggregated deployment based on Mooncake, enabling encoder/transformer service decoupling with Mooncake Transfer Engine for high-performance cross-device and cross-machine data transfer. Details in [blog](https://light-ai.top/LightX2V-BLOG/posts/Disaggregation/).\n- **Feb 25, 2026**: [SGLang](https://github.com/sgl-project/sglang) merged [Encoder Global Cache Manager](https://github.com/sgl-project/sglang/pull/16137), introducing a Mooncake-powered global multimodal embedding cache that enables cross-instance sharing of ViT embeddings to avoid redundant GPU computation.\n- **Feb 24, 2026**: [vLLM-Omni](https://docs.vllm.ai/projects/vllm-omni/en/latest/design/feature/disaggregated_inference/) introduces disaggregated inference connectors with support for both `MooncakeStoreConnector` and `MooncakeTransferEngineConnector` for multi-node omni-modality pipelines.\n- **Feb 12, 2026**: [Mooncake Joins PyTorch Ecosystem](https://pytorch.org/blog/mooncake-joins-pytorch-ecosystem/) We are thrilled to announce that Mooncake has officially joined the PyTorch Ecosystem!\n- **Jan 28, 2026**: [FlexKV](https://github.com/taco-project/FlexKV), a distributed KV store and cache system from Tencent and NVIDIA in collaboration with the community, now supports [distributed KVCache reuse](https://github.com/taco-project/FlexKV/blob/main/docs/dist_reuse/README_en.md) with the Mooncake Transfer Engine.\n- **Dec 27, 2025**: Collaboration with [ROLL](https://github.com/alibaba/ROLL)! Check out the paper [here](https://arxiv.org/abs/2512.22560).\n- **Dec 23, 2025**: SGLang introduces [Encode-Prefill-Decode (EPD) Disaggregation](https://lmsys.org/blog/2026-01-12-epd/) with Mooncake as a transfer backend. This integration allows decoupling compute-intensive multimodal encoders (e.g., Vision Transformers) from language model nodes, utilizing Mooncake's RDMA engine for zero-copy transfer of large multimodal embeddings.\n- **Dec 19, 2025**: Mooncake Transfer Engine has been [integrated into TensorRT LLM](https://github.com/NVIDIA/TensorRT-LLM/tree/main/cpp/tensorrt_llm/executor/cache_transmission/mooncake_utils) for KVCache transfer in PD-disaggregated inference.\n- **Dec 19, 2025**: Mooncake Transfer Engine has been directly integrated into vLLM v1 as a [KV Connector](https://docs.vllm.ai/en/latest/features/mooncake_connector_usage/) in PD-disaggregated setups.\n- **Nov 07, 2025**: [RBG + SGLang HiCache + Mooncake](https://github.com/sgl-project/rbg/blob/main/keps/74-mooncake-integration/README.md), a role-based out-of-the-box solution for cloud native deployment, which is elastic, scalable, and high-performance.\n- **Sept 18, 2025**: Mooncake Store empowers vLLM Ascend by serving as [the distributed KV cache pool backend](https://docs.vllm.ai/projects/ascend/zh-cn/main/user_guide/feature_guide/kv_pool.html).\n- **Sept 10, 2025**: SGLang officially supports Mooncake Store as a [hierarchical KV caching storage backend](https://lmsys.org/blog/2025-09-10-sglang-hicache/). The integration extends RadixAttention with multi-tier KV cache storage across device, host, and remote storage layers.\n- **Sept 10, 2025**: The official & high-performance version of Mooncake P2P Store is open-sourced as [checkpoint-engine](https://github.com/MoonshotAI/checkpoint-engine/). It has been successfully applied in K1.5 and K2 production training, updating Kimi-K2 model (1T parameters) across thousands of GPUs in ~20s.\n- **Aug 23, 2025**: [xLLM](https://github.com/jd-opensource/xllm) high-performance inference engine builds hybrid KV cache management based on Mooncake, supporting global KV cache management with intelligent offloading and prefetching.\n- **Aug 18, 2025**: vLLM-Ascend [integrates Mooncake Transfer Engine](https://docs.vllm.ai/projects/ascend/en/latest/developer_guide/feature_guide/disaggregated_prefill.html) for KV cache register and disaggregate prefill, enabling efficient distributed inference on Ascend NPUs.\n- **Jul 20, 2025**: Mooncake powers [the deployment of Kimi K2](https://lmsys.org/blog/2025-07-20-k2-large-scale-ep/) on 128 H200 GPUs with PD disaggregation and large-scale expert parallelism, achieving 224k tokens/sec prefill throughput and 288k tokens/sec decode throughput.\n- **Jun 20, 2025**: Mooncake becomes a PD disaggregation [backend](deployment/integrations/lmdeploy) for LMDeploy.\n- **May 9, 2025**: NIXL officially supports Mooncake Transfer Engine as [a backend plugin](https://github.com/ai-dynamo/nixl/blob/main/src/plugins/mooncake/README.md).\n- **May 8, 2025**: [Mooncake x LMCache](deployment/integrations/lmcache/index) unite to pioneer KVCache-centric LLM serving system.\n- **May 5, 2025**: Supported by Mooncake Team, SGLang release <a href=\"https://lmsys.org/blog/2025-05-05-large-scale-ep/\" target=\"_blank\">guidance</a> to deploy DeepSeek with PD Disaggregation on 96 H100 GPUs.\n- **Apr 22, 2025**: LMCache officially supports Mooncake Store as a <a href=\"https://blog.lmcache.ai/2025-04-22-tencent/\" target=\"_blank\">remote connector</a>.\n- **Apr 10, 2025**: SGLang officially supports Mooncake Transfer Engine for disaggregated prefilling and KV cache transfer.\n- **Mar 7, 2025**: We open-sourced the Mooncake Store, a distributed KVCache based on Transfer Engine. vLLM's xPyD disaggregated prefilling & decoding based on Mooncake Store will be released soon.\n- **Feb 25, 2025**: Mooncake receives the **Best Paper Award** at **FAST 2025**!\n- **Feb 21, 2025**: The updated <a href=\"https://github.com/kvcache-ai/Mooncake/tree/main/FAST25-release/traces\" target=\"_blank\">traces</a> used in our FAST'25 paper have been released.\n- **Dec 16, 2024**: vLLM officially supports Mooncake Transfer Engine for disaggregated prefilling and KV cache transfer.\n- **Nov 28, 2024**: We open-sourced the Transfer Engine, the central component of Mooncake. We also provide two demonstrations of Transfer Engine: a P2P Store and vLLM integration.\n- **July 9, 2024**: We open-sourced the trace as a <a href=\"https://github.com/kvcache-ai/Mooncake/blob/main/FAST25-release/arxiv-trace/mooncake_trace.jsonl\" target=\"_blank\">JSONL file</a>.",
+      "relation_type": "support",
+      "confidence": 0.72,
+      "metadata": {
+        "document_title": "mooncake-docs.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Mooncake P2P Checkpoint Distribution",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Distribute model checkpoints to large GPU clusters with minimal update latency",
+        "task_family": "model_distribution",
+        "method_family": "p2p_checkpoint_transfer",
+        "stage": "training_checkpoint_sync",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 4,
+        "window_id": "7820ebd2-0526-550b-bf5a-7c81c8a7fa19",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 11,
+        "paragraph_end": 11,
+        "heading_path": [
+          "Welcome to Mooncake"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [],
+        "subsection_headings": [
+          "Documentation",
+          "Archived"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "markdown",
+        "section_summary": ":::{figure} ./image/mooncake-icon.png"
+      },
+      "created_at": "2026-09-15T18:43:25+00:00"
+    }
+  ],
+  "skill_specs": [
+    {
+      "skill_id": "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa",
+      "name": "Mooncake Transfer Engine Integration for Disaggregated Inference",
+      "description": "Protocol for integrating Mooncake Transfer Engine as a backend connector in distributed inference and KV cache systems. Enables zero-copy RDMA-based data transfer across compute nodes for disaggregated prefill-decode pipelines.",
+      "skill_body": "To integrate Mooncake Transfer Engine: (1) Identify target inference framework (vLLM, SGLang, TensorRT LLM, or equivalent). (2) Register MooncakeTransferEngineConnector or MooncakeStoreConnector as the KV cache transfer backend. (3) Configure RDMA network paths between prefill and decode nodes. (4) Verify zero-copy transfer by monitoring cross-node data movement without GPU memory staging. (5) Validate throughput and latency against baseline non-disaggregated pipeline.\n\n## Objective\n\nEnable high-performance cross-node data transfer in disaggregated LLM inference\n## Applicable Signals\n\n- Deploying multi-node LLM serving with prefill-decode separation\n- Implementing KV cache transfer between compute and cache nodes\n- Integrating disaggregated inference connectors in vLLM, SGLang, TensorRT LLM, or similar frameworks\n- Requiring zero-copy cross-device or cross-machine data movement\n\n## Contraindications\n\n- Single-node inference without disaggregation\n- Non-disaggregated pipelines where encoder and decoder run on same node\n- Systems without RDMA hardware support or high-speed interconnect\n- Environments where GPU memory staging is acceptable and latency is not critical\n\n## Intervention Moves\n\n- Register Mooncake connector (MooncakeTransferEngineConnector or MooncakeStoreConnector) in target framework\n- Configure RDMA network paths and device mappings\n- Enable hierarchical KV cache storage across device, host, and remote layers\n- Validate zero-copy transfer and measure cross-node throughput\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify target inference framework and version', 'detail': 'Confirm framework supports Mooncake integration (vLLM v1+, SGLang with HiCache, TensorRT LLM, vLLM-Omni, vLLM-Ascend, or LMDeploy)'}\n- {'step': 2, 'action': 'Register Mooncake connector as KV cache backend', 'detail': \"Instantiate MooncakeTransferEngineConnector or MooncakeStoreConnector and bind to framework's cache transfer interface\"}\n- {'step': 3, 'action': 'Configure RDMA network and node topology', 'detail': 'Set up RDMA paths between prefill nodes, decode nodes, and cache nodes; verify network connectivity'}\n- {'step': 4, 'action': 'Enable disaggregated prefill-decode pipeline', 'detail': 'Activate encoder/transformer service decoupling; route multimodal embeddings or KV cache through Mooncake Transfer Engine'}\n- {'step': 5, 'action': 'Verify zero-copy transfer and measure performance', 'detail': 'Monitor cross-node data movement; confirm no GPU memory staging; measure throughput (tokens/sec) and latency'}\n\n## Constraints\n\n- RDMA hardware and high-speed interconnect required\n- Target framework must have Mooncake connector support or plugin interface\n- Disaggregated inference topology must be explicitly configured\n- Network latency and bandwidth must be suitable for cross-node KV cache transfer\n\n## Cautions\n\n- Verify RDMA driver and firmware compatibility before deployment\n- Monitor network saturation during high-throughput inference; adjust batch sizes if needed\n- Ensure encoder and decoder node placement minimizes cross-node hops\n- Test failover and recovery paths in production-like environments\n\n## Output Contract\n\n- Mooncake Transfer Engine connector successfully registered and operational in target inference framework; zero-copy transfer verified; cross-node KV cache or embedding transfer achieves expected throughput and latency without GPU memory staging\n\n## Example Executions\n\n### Example 1\n\n- Input: vLLM v1 deployment with prefill-decode disaggregation on 2 H100 nodes\n- Output: MooncakeTransferEngineConnector registered as KV cache backend; prefill node encodes multimodal input, transfers embeddings via RDMA to decode node; decode node generates tokens at 288k tokens/sec throughput\n- Notes: Based on Kimi K2 deployment pattern on 128 H200 GPUs\n\n### Example 2\n\n- Input: SGLang with Encode-Prefill-Decode (EPD) disaggregation across 3 nodes\n- Output: Vision Transformer encoder on node 1 produces embeddings; Mooncake Transfer Engine transfers embeddings to prefill node 2; decode node 3 receives KV cache via same backend; zero-copy verified\n- Notes: EPD disaggregation pattern with multimodal encoder decoupling",
+      "asset_type": "macro_protocol",
+      "granularity": "macro",
+      "asset_node_id": "macro_skill",
+      "asset_path": "family_root/macro_skill",
+      "asset_level": 1,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [
+        "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881"
+      ],
+      "hierarchy_confidence": 1.0,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Enable high-performance cross-node data transfer in disaggregated LLM inference",
+      "domain": "default",
+      "task_family": "distributed_inference",
+      "method_family": "rdma_transfer_backend",
+      "stage": "deployment_integration",
+      "applicable_signals": [
+        "Deploying multi-node LLM serving with prefill-decode separation",
+        "Implementing KV cache transfer between compute and cache nodes",
+        "Integrating disaggregated inference connectors in vLLM, SGLang, TensorRT LLM, or similar frameworks",
+        "Requiring zero-copy cross-device or cross-machine data movement"
+      ],
+      "contraindications": [
+        "Single-node inference without disaggregation",
+        "Non-disaggregated pipelines where encoder and decoder run on same node",
+        "Systems without RDMA hardware support or high-speed interconnect",
+        "Environments where GPU memory staging is acceptable and latency is not critical"
+      ],
+      "intervention_moves": [
+        "Register Mooncake connector (MooncakeTransferEngineConnector or MooncakeStoreConnector) in target framework",
+        "Configure RDMA network paths and device mappings",
+        "Enable hierarchical KV cache storage across device, host, and remote layers",
+        "Validate zero-copy transfer and measure cross-node throughput"
+      ],
+      "triggers": [
+        "Integrating disaggregated prefill-decode inference",
+        "Deploying multi-node LLM serving",
+        "Implementing KV cache transfer between compute and cache nodes"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Identify target inference framework and version', 'detail': 'Confirm framework supports Mooncake integration (vLLM v1+, SGLang with HiCache, TensorRT LLM, vLLM-Omni, vLLM-Ascend, or LMDeploy)'}",
+        "{'step': 2, 'action': 'Register Mooncake connector as KV cache backend', 'detail': \"Instantiate MooncakeTransferEngineConnector or MooncakeStoreConnector and bind to framework's cache transfer interface\"}",
+        "{'step': 3, 'action': 'Configure RDMA network and node topology', 'detail': 'Set up RDMA paths between prefill nodes, decode nodes, and cache nodes; verify network connectivity'}",
+        "{'step': 4, 'action': 'Enable disaggregated prefill-decode pipeline', 'detail': 'Activate encoder/transformer service decoupling; route multimodal embeddings or KV cache through Mooncake Transfer Engine'}",
+        "{'step': 5, 'action': 'Verify zero-copy transfer and measure performance', 'detail': 'Monitor cross-node data movement; confirm no GPU memory staging; measure throughput (tokens/sec) and latency'}"
+      ],
+      "constraints": [
+        "RDMA hardware and high-speed interconnect required",
+        "Target framework must have Mooncake connector support or plugin interface",
+        "Disaggregated inference topology must be explicitly configured",
+        "Network latency and bandwidth must be suitable for cross-node KV cache transfer"
+      ],
+      "cautions": [
+        "Verify RDMA driver and firmware compatibility before deployment",
+        "Monitor network saturation during high-throughput inference; adjust batch sizes if needed",
+        "Ensure encoder and decoder node placement minimizes cross-node hops",
+        "Test failover and recovery paths in production-like environments"
+      ],
+      "output_contract": [
+        "Mooncake Transfer Engine connector successfully registered and operational in target inference framework; zero-copy transfer verified; cross-node KV cache or embedding transfer achieves expected throughput and latency without GPU memory staging"
+      ],
+      "examples": [
+        {
+          "input": "vLLM v1 deployment with prefill-decode disaggregation on 2 H100 nodes",
+          "output": "MooncakeTransferEngineConnector registered as KV cache backend; prefill node encodes multimodal input, transfers embeddings via RDMA to decode node; decode node generates tokens at 288k tokens/sec throughput",
+          "notes": "Based on Kimi K2 deployment pattern on 128 H200 GPUs"
+        },
+        {
+          "input": "SGLang with Encode-Prefill-Decode (EPD) disaggregation across 3 nodes",
+          "output": "Vision Transformer encoder on node 1 produces embeddings; Mooncake Transfer Engine transfers embeddings to prefill node 2; decode node 3 receives KV cache via same backend; zero-copy verified",
+          "notes": "EPD disaggregation pattern with multimodal encoder decoupling"
+        }
+      ],
+      "tags": [
+        "disaggregated_inference",
+        "kv_cache_transfer",
+        "rdma",
+        "multi_node",
+        "llm_serving"
+      ],
+      "support_ids": [
+        "850d58f1-0138-5781-a673-a4868bc5ad42"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "6a18adf9-bf8b-5608-847b-24e8e2a8d04c"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||macro_protocol|macro|macro_skill|enable high-performance cross-node data transfer in disaggregated llm inference|default|distributed_inference|rdma_transfer_backend|deployment_integration|mooncake transfer engine integration for disaggregated inference",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct macro-level protocol focused on Mooncake Transfer Engine integration as a backend connector for disaggregated inference. While peer candidates address related concerns (disaggregated architecture, KV cache management, checkpoint distribution), this skill fills a specific integration gap: how to register and configure Mooncake Transfer Engine within inference frameworks to enable zero-copy RDMA-based cross-node data transfer. The workflow steps, constraints, and cautions are concrete and actionable for deployment. No conflicts detected in support evidence. Peer overlap is architectural/operational context, not redundancy.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 1.0,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "child_skill_ids": [
+          "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881"
+        ]
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+      "name": "Deploy Mooncake Store Hierarchical KV Cache Backend",
+      "description": "Session-level workflow for deploying Mooncake Store as a distributed KV cache pool backend with multi-tier storage (device, host, remote). Orchestrates intelligent offloading and prefetching across storage layers to manage KV cache in multi-node LLM inference systems.",
+      "skill_body": "Set up Mooncake Store as the KV cache backend for your inference framework (vLLM, SGLang, or xLLM). Configure hierarchical storage tiers: GPU device memory for hot cache, host memory for warm cache, and remote storage for cold cache. Enable intelligent offloading to move cache entries between tiers based on access patterns and memory pressure. Verify cache distribution and monitor hit rates across tiers.\n\n## Objective\n\nManage distributed KV cache across heterogeneous storage tiers in multi-node LLM inference\n## Applicable Signals\n\n- Multi-node inference cluster setup\n- KV cache size exceeds available GPU memory\n- Requirement for cross-instance cache sharing\n- Performance optimization for prefill-decode disaggregation\n\n## Contraindications\n\n- Single-node inference with sufficient GPU memory\n- Systems not requiring remote KV cache offloading\n- Latency-critical workloads where remote access overhead is unacceptable\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Verify Mooncake Store integration', 'detail': 'Confirm Mooncake Store is available as a backend connector in your inference framework (vLLM KV Connector, SGLang HiCache, or xLLM hybrid KV cache)'}\n- {'step': 2, 'action': 'Configure storage tier hierarchy', 'detail': 'Define capacity and access policy for each tier: device (GPU), host (CPU memory), remote (distributed storage). Set thresholds for promotion/demotion between tiers.'}\n- {'step': 3, 'action': 'Enable intelligent offloading', 'detail': 'Activate prefetching and offloading logic to move cache entries based on predicted access patterns and current memory pressure'}\n- {'step': 4, 'action': 'Initialize Mooncake Store backend', 'detail': 'Start Mooncake Store service and register it as the KV cache pool backend for your inference nodes'}\n- {'step': 5, 'action': 'Validate cache distribution', 'detail': 'Run inference workload and verify that KV cache is correctly distributed across tiers; confirm no data loss or coherency violations'}\n- {'step': 6, 'action': 'Monitor and tune performance', 'detail': 'Track cache hit rates, latency per tier, and offloading frequency; adjust tier thresholds and prefetch strategy based on observed patterns'}\n\n## Constraints\n\n- Mooncake Transfer Engine must be available and integrated with target inference framework\n- Network bandwidth between nodes must support remote cache access patterns\n- Storage tiers must be configured before inference session starts\n\n## Cautions\n\n- Remote cache access introduces network latency; monitor and tune tier thresholds\n- Cache coherency must be maintained across distributed tiers\n- Offloading strategy should align with workload access patterns to avoid thrashing\n\n## Output Contract\n\n- Mooncake Store backend operational and serving as distributed KV cache pool\n- KV cache successfully distributed across device/host/remote tiers\n- Cache hit rates and latency metrics within target bounds\n- Inference throughput and memory utilization meet deployment requirements\n\n## Example Executions\n\n### Example 1\n\n- Input: vLLM deployment on 8 H100 GPUs with 80GB memory each; total KV cache demand 2TB across 128 concurrent requests\n- Output: Mooncake Store configured with device tier (80GB per GPU), host tier (500GB per node), remote tier (1TB shared storage). Prefetch logic moves frequently accessed cache to device, cold cache to remote. Achieves 95% cache hit rate on device tier.\n- Notes: Based on Sept 18, 2025 vLLM Ascend KV pool backend integration\n\n### Example 2\n\n- Input: SGLang with multimodal encoders (ViT) generating large embeddings; cross-instance cache sharing required\n- Output: Mooncake Store enables hierarchical KV caching with RadixAttention multi-tier support. ViT embeddings cached in host/remote tiers, reused across instances. Reduces redundant GPU computation.\n- Notes: Based on Sept 10, 2025 SGLang HiCache integration",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa",
+      "parent_candidate_ids": [
+        "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "parent",
+      "objective": "Manage distributed KV cache across heterogeneous storage tiers in multi-node LLM inference",
+      "domain": "default",
+      "task_family": "kv_cache_management",
+      "method_family": "hierarchical_storage_backend",
+      "stage": "inference_execution",
+      "applicable_signals": [
+        "Multi-node inference cluster setup",
+        "KV cache size exceeds available GPU memory",
+        "Requirement for cross-instance cache sharing",
+        "Performance optimization for prefill-decode disaggregation"
+      ],
+      "contraindications": [
+        "Single-node inference with sufficient GPU memory",
+        "Systems not requiring remote KV cache offloading",
+        "Latency-critical workloads where remote access overhead is unacceptable"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Deploying vLLM, SGLang, or xLLM with multi-tier KV cache requirements",
+        "Scaling inference across multiple nodes with memory constraints",
+        "Need to reduce GPU memory footprint while maintaining cache locality"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Verify Mooncake Store integration', 'detail': 'Confirm Mooncake Store is available as a backend connector in your inference framework (vLLM KV Connector, SGLang HiCache, or xLLM hybrid KV cache)'}",
+        "{'step': 2, 'action': 'Configure storage tier hierarchy', 'detail': 'Define capacity and access policy for each tier: device (GPU), host (CPU memory), remote (distributed storage). Set thresholds for promotion/demotion between tiers.'}",
+        "{'step': 3, 'action': 'Enable intelligent offloading', 'detail': 'Activate prefetching and offloading logic to move cache entries based on predicted access patterns and current memory pressure'}",
+        "{'step': 4, 'action': 'Initialize Mooncake Store backend', 'detail': 'Start Mooncake Store service and register it as the KV cache pool backend for your inference nodes'}",
+        "{'step': 5, 'action': 'Validate cache distribution', 'detail': 'Run inference workload and verify that KV cache is correctly distributed across tiers; confirm no data loss or coherency violations'}",
+        "{'step': 6, 'action': 'Monitor and tune performance', 'detail': 'Track cache hit rates, latency per tier, and offloading frequency; adjust tier thresholds and prefetch strategy based on observed patterns'}"
+      ],
+      "constraints": [
+        "Mooncake Transfer Engine must be available and integrated with target inference framework",
+        "Network bandwidth between nodes must support remote cache access patterns",
+        "Storage tiers must be configured before inference session starts"
+      ],
+      "cautions": [
+        "Remote cache access introduces network latency; monitor and tune tier thresholds",
+        "Cache coherency must be maintained across distributed tiers",
+        "Offloading strategy should align with workload access patterns to avoid thrashing"
+      ],
+      "output_contract": [
+        "Mooncake Store backend operational and serving as distributed KV cache pool",
+        "KV cache successfully distributed across device/host/remote tiers",
+        "Cache hit rates and latency metrics within target bounds",
+        "Inference throughput and memory utilization meet deployment requirements"
+      ],
+      "examples": [
+        {
+          "input": "vLLM deployment on 8 H100 GPUs with 80GB memory each; total KV cache demand 2TB across 128 concurrent requests",
+          "output": "Mooncake Store configured with device tier (80GB per GPU), host tier (500GB per node), remote tier (1TB shared storage). Prefetch logic moves frequently accessed cache to device, cold cache to remote. Achieves 95% cache hit rate on device tier.",
+          "notes": "Based on Sept 18, 2025 vLLM Ascend KV pool backend integration"
+        },
+        {
+          "input": "SGLang with multimodal encoders (ViT) generating large embeddings; cross-instance cache sharing required",
+          "output": "Mooncake Store enables hierarchical KV caching with RadixAttention multi-tier support. ViT embeddings cached in host/remote tiers, reused across instances. Reduces redundant GPU computation.",
+          "notes": "Based on Sept 10, 2025 SGLang HiCache integration"
+        }
+      ],
+      "tags": [
+        "kv_cache",
+        "distributed_inference",
+        "hierarchical_storage",
+        "mooncake",
+        "vllm",
+        "sglang"
+      ],
+      "support_ids": [
+        "428ba50e-e9c9-554c-8cb7-a0456ad23565"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "341d83ea-dfa7-5e91-9aaa-4999598e03bc"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.78,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|manage distributed kv cache across heterogeneous storage tiers in multi-node llm inference|default|kv_cache_management|hierarchical_storage_backend|inference_execution|deploy mooncake store hierarchical kv cache backend",
+        "change_action": "create",
+        "llm_reason": "Candidate is a session_skill for deploying Mooncake Store as a hierarchical KV cache backend in multi-node LLM inference. It is semantically distinct from peer macro_protocols (which cover integration patterns and disaggregated architecture) and the micro_skill (checkpoint distribution). The candidate operates at session granularity with concrete workflow steps for KV cache tier management, offloading, and prefetching—a capability not present in existing_skills (which cover static asset serving and Maven builds, unrelated domains). The support evidence confirms Mooncake Store's role in disaggregated inference. No merge, split, or revision applies because there is no overlapping existing session_skill with the same asset_node_id and task_family.",
+        "parent_skill_id": "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa",
+        "parent_candidate_ids": [
+          "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "parent"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "fe993e71-1d14-566c-a5f1-fe1e6a039fd1",
+      "name": "Disaggregated Prefill-Decode Deployment Pattern",
+      "description": "Macro protocol for decoupling compute-intensive encoder/prefill stages from decode stages across multiple nodes using a transfer engine as the data backbone. Enables encoder service isolation, multimodal embedding caching, and cross-instance cache sharing to maximize throughput and resource utilization in large-scale distributed inference.",
+      "skill_body": "Deploy a disaggregated prefill-decode pipeline by: (1) isolating encoder and prefill compute on dedicated nodes; (2) routing multimodal embeddings through a transfer engine with zero-copy RDMA support; (3) establishing a hierarchical KV cache layer shared across prefill and decode instances; (4) validating end-to-end throughput and latency against baseline single-node inference. Use this pattern when prefill and decode have asymmetric compute requirements or when encoder stages are bottlenecks.\n\n## Objective\n\nMaximize throughput and resource utilization by separating prefill and decode compute across specialized nodes\n## Applicable Signals\n\n- Prefill latency dominates end-to-end inference time\n- Encoder compute is a bottleneck in multimodal pipelines\n- Multiple inference requests can share cached embeddings\n- Network bandwidth supports high-throughput embedding transfer\n\n## Contraindications\n\n- Latency-critical single-request inference where disaggregation overhead exceeds benefit\n- Homogeneous single-node setups without multi-node infrastructure\n- Systems with insufficient network bandwidth for embedding transfer\n- Workloads where prefill and decode compute are balanced and co-location is optimal\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Partition inference pipeline into encoder/prefill and decode stages', 'detail': 'Identify compute-intensive encoder or prefill operations; allocate dedicated nodes for each stage'}\n- {'step': 2, 'action': 'Configure transfer engine as data backbone', 'detail': 'Set up RDMA or high-performance network transport; enable zero-copy embedding transfer between prefill and decode nodes'}\n- {'step': 3, 'action': 'Establish hierarchical KV cache storage', 'detail': 'Implement multi-tier cache (device, host, remote storage) with prefill node as primary cache writer and decode nodes as readers'}\n- {'step': 4, 'action': 'Enable cross-instance embedding sharing', 'detail': 'Configure cache manager to detect duplicate encoder inputs and reuse cached embeddings across concurrent requests'}\n- {'step': 5, 'action': 'Validate end-to-end metrics', 'detail': 'Measure prefill throughput, decode latency, embedding cache hit rate, and network utilization; compare against baseline'}\n\n## Constraints\n\n- Transfer engine must support zero-copy RDMA or equivalent high-performance data movement\n- Prefill and decode nodes must have synchronized clock and compatible tensor formats\n- KV cache coherency must be maintained across distributed instances\n- Network latency between prefill and decode nodes must be acceptable for embedding transfer\n\n## Cautions\n\n- Disaggregation introduces network round-trip latency; validate that throughput gains outweigh latency overhead\n- Embedding cache invalidation and consistency require careful coordination\n- Scaling to many decode instances may saturate prefill node bandwidth\n\n## Output Contract\n\n- Disaggregated pipeline operational with encoder/prefill and decode stages running on separate nodes; multimodal embeddings cached and shared across instances; end-to-end throughput and latency metrics validated and documented; cache coherency verified under concurrent load.\n\n## Example Executions\n\n### Example 1\n\n- Input: Multimodal LLM inference on 128 H100 GPUs with Vision Transformer encoder and language model decoder; 10k concurrent requests with shared image inputs\n- Output: Prefill nodes (32 GPUs) handle encoder and prefill; decode nodes (96 GPUs) handle token generation; embeddings cached in transfer engine; 224k tokens/sec prefill throughput, 288k tokens/sec decode throughput achieved\n- Notes: Large-scale deployment with expert parallelism; disaggregation enables efficient resource allocation\n\n### Example 2\n\n- Input: SGLang Encode-Prefill-Decode (EPD) disaggregation setup with multimodal encoders decoupled from language model nodes\n- Output: Encoder outputs transferred via RDMA to decode nodes; zero-copy embedding transfer; reduced GPU memory pressure on decode nodes\n- Notes: Typical multimodal serving scenario; transfer engine handles large embedding tensors efficiently",
+      "asset_type": "macro_protocol",
+      "granularity": "macro",
+      "asset_node_id": "macro_skill",
+      "asset_path": "family_root/macro_skill",
+      "asset_level": 1,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 1.0,
+      "hierarchy_status": "root",
+      "visible_role": "parent",
+      "objective": "Maximize throughput and resource utilization by separating prefill and decode compute across specialized nodes",
+      "domain": "default",
+      "task_family": "distributed_inference_architecture",
+      "method_family": "disaggregated_pipeline",
+      "stage": "system_design_deployment",
+      "applicable_signals": [
+        "Prefill latency dominates end-to-end inference time",
+        "Encoder compute is a bottleneck in multimodal pipelines",
+        "Multiple inference requests can share cached embeddings",
+        "Network bandwidth supports high-throughput embedding transfer"
+      ],
+      "contraindications": [
+        "Latency-critical single-request inference where disaggregation overhead exceeds benefit",
+        "Homogeneous single-node setups without multi-node infrastructure",
+        "Systems with insufficient network bandwidth for embedding transfer",
+        "Workloads where prefill and decode compute are balanced and co-location is optimal"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Deploying large-scale LLM inference with high prefill throughput requirements",
+        "Multimodal models with expensive encoder stages (e.g., Vision Transformers)",
+        "Heterogeneous hardware clusters with specialized prefill and decode nodes",
+        "Need to share embeddings or KV cache across multiple inference instances"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Partition inference pipeline into encoder/prefill and decode stages', 'detail': 'Identify compute-intensive encoder or prefill operations; allocate dedicated nodes for each stage'}",
+        "{'step': 2, 'action': 'Configure transfer engine as data backbone', 'detail': 'Set up RDMA or high-performance network transport; enable zero-copy embedding transfer between prefill and decode nodes'}",
+        "{'step': 3, 'action': 'Establish hierarchical KV cache storage', 'detail': 'Implement multi-tier cache (device, host, remote storage) with prefill node as primary cache writer and decode nodes as readers'}",
+        "{'step': 4, 'action': 'Enable cross-instance embedding sharing', 'detail': 'Configure cache manager to detect duplicate encoder inputs and reuse cached embeddings across concurrent requests'}",
+        "{'step': 5, 'action': 'Validate end-to-end metrics', 'detail': 'Measure prefill throughput, decode latency, embedding cache hit rate, and network utilization; compare against baseline'}"
+      ],
+      "constraints": [
+        "Transfer engine must support zero-copy RDMA or equivalent high-performance data movement",
+        "Prefill and decode nodes must have synchronized clock and compatible tensor formats",
+        "KV cache coherency must be maintained across distributed instances",
+        "Network latency between prefill and decode nodes must be acceptable for embedding transfer"
+      ],
+      "cautions": [
+        "Disaggregation introduces network round-trip latency; validate that throughput gains outweigh latency overhead",
+        "Embedding cache invalidation and consistency require careful coordination",
+        "Scaling to many decode instances may saturate prefill node bandwidth"
+      ],
+      "output_contract": [
+        "Disaggregated pipeline operational with encoder/prefill and decode stages running on separate nodes; multimodal embeddings cached and shared across instances; end-to-end throughput and latency metrics validated and documented; cache coherency verified under concurrent load."
+      ],
+      "examples": [
+        {
+          "input": "Multimodal LLM inference on 128 H100 GPUs with Vision Transformer encoder and language model decoder; 10k concurrent requests with shared image inputs",
+          "output": "Prefill nodes (32 GPUs) handle encoder and prefill; decode nodes (96 GPUs) handle token generation; embeddings cached in transfer engine; 224k tokens/sec prefill throughput, 288k tokens/sec decode throughput achieved",
+          "notes": "Large-scale deployment with expert parallelism; disaggregation enables efficient resource allocation"
+        },
+        {
+          "input": "SGLang Encode-Prefill-Decode (EPD) disaggregation setup with multimodal encoders decoupled from language model nodes",
+          "output": "Encoder outputs transferred via RDMA to decode nodes; zero-copy embedding transfer; reduced GPU memory pressure on decode nodes",
+          "notes": "Typical multimodal serving scenario; transfer engine handles large embedding tensors efficiently"
+        }
+      ],
+      "tags": [
+        "distributed_inference",
+        "disaggregation",
+        "prefill_decode",
+        "multimodal",
+        "kv_cache",
+        "transfer_engine"
+      ],
+      "support_ids": [
+        "715f301a-c750-5a2d-a4c8-186472725b76"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "4a0cd1f3-3f9f-5a37-a77d-01bde8c86a98"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||macro_protocol|macro|macro_skill|maximize throughput and resource utilization by separating prefill and decode compute across specialized nodes|default|distributed_inference_architecture|disaggregated_pipeline|system_design_deployment|disaggregated prefill-decode deployment pattern",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct macro-level protocol for disaggregated prefill-decode deployment architecture. While peer candidates address specific implementation details (Mooncake Transfer Engine integration, hierarchical KV cache backend, checkpoint distribution), this skill captures the overarching system design pattern that orchestrates those components. It has unique workflow logic for pipeline partitioning, cache hierarchy establishment, and cross-instance embedding sharing. No redundancy detected with peers; supported by LightX2V evidence.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 1.0,
+        "hierarchy_status": "root",
+        "visible_role": "parent"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "78496037-2dd2-5178-a01a-438dbf1e4770",
+      "name": "Mooncake P2P Checkpoint Distribution",
+      "description": "Micro-skill for distributing large model checkpoints across thousands of GPUs using Mooncake P2P Store and checkpoint-engine. Optimized for rapid model state synchronization during production training with sub-30-second latency for 1T+ parameter models.",
+      "skill_body": "Use this skill to distribute model checkpoints to large GPU clusters during training. Invoke when you need to synchronize model weights across thousands of GPUs with minimal latency. The skill leverages Mooncake's P2P checkpoint engine (checkpoint-engine) for zero-copy, high-performance distribution. Ensure all target GPUs are registered and reachable before initiating distribution. Monitor completion status across all nodes.\n\n## Objective\n\nDistribute model checkpoints to large GPU clusters with minimal update latency\n## Applicable Signals\n\n- Model weight update required during training\n- Checkpoint synchronization across multi-GPU cluster\n- Production training pipeline checkpoint save event\n- Large model state (1T+ parameters) ready for distribution\n\n## Contraindications\n\n- Single-node training environments\n- Inference-only deployments without training loop\n- Checkpoint sizes under 100GB (overhead not justified)\n- Nodes without RDMA or high-speed interconnect capability\n\n## Intervention Moves\n\n- Prepare checkpoint artifact on source node\n- Register all target GPU nodes in P2P network\n- Initiate checkpoint-engine distribution protocol\n- Monitor transfer progress and node acknowledgments\n- Verify state synchronization across all targets\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Prepare checkpoint', 'detail': 'Serialize model state and stage on source node'}\n- {'step': 2, 'action': 'Register targets', 'detail': 'Confirm all destination GPUs are reachable and registered in P2P network'}\n- {'step': 3, 'action': 'Initiate distribution', 'detail': 'Invoke checkpoint-engine with source checkpoint path and target GPU list'}\n- {'step': 4, 'action': 'Monitor transfer', 'detail': 'Track progress and collect acknowledgments from all target nodes'}\n- {'step': 5, 'action': 'Verify synchronization', 'detail': 'Confirm all nodes report successful state load and are ready to resume training'}\n\n## Constraints\n\n- All target GPUs must be pre-registered in the P2P network\n- Network connectivity and bandwidth must support concurrent multi-node transfer\n- Checkpoint must be serialized and ready before distribution initiation\n- No concurrent checkpoint distributions on overlapping GPU sets\n\n## Cautions\n\n- Verify checkpoint integrity before distribution to avoid propagating corrupted state\n- Monitor network saturation during large-scale distribution\n- Ensure sufficient storage on target nodes for checkpoint staging\n- Plan distribution windows to avoid interference with active compute\n\n## Output Contract\n\n- Checkpoint successfully distributed to all target GPUs\n- Distribution latency under 30 seconds for 1T parameter models\n- All nodes report successful state synchronization and are ready to resume training from the new checkpoint\n\n## Example Executions\n\n### Example 1\n\n- Input: Checkpoint file (1TB) from training node; target list of 1000 GPUs across 128 nodes\n- Output: Checkpoint distributed to all 1000 GPUs in ~20 seconds; all nodes synchronized and ready to resume training\n- Notes: Based on K1.5 and K2 production training application; 1T parameter model update across thousands of GPUs",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Distribute model checkpoints to large GPU clusters with minimal update latency",
+      "domain": "default",
+      "task_family": "model_distribution",
+      "method_family": "p2p_checkpoint_transfer",
+      "stage": "training_checkpoint_sync",
+      "applicable_signals": [
+        "Model weight update required during training",
+        "Checkpoint synchronization across multi-GPU cluster",
+        "Production training pipeline checkpoint save event",
+        "Large model state (1T+ parameters) ready for distribution"
+      ],
+      "contraindications": [
+        "Single-node training environments",
+        "Inference-only deployments without training loop",
+        "Checkpoint sizes under 100GB (overhead not justified)",
+        "Nodes without RDMA or high-speed interconnect capability"
+      ],
+      "intervention_moves": [
+        "Prepare checkpoint artifact on source node",
+        "Register all target GPU nodes in P2P network",
+        "Initiate checkpoint-engine distribution protocol",
+        "Monitor transfer progress and node acknowledgments",
+        "Verify state synchronization across all targets"
+      ],
+      "triggers": [
+        "Updating model weights across thousands of GPUs during training",
+        "Distributing checkpoints in production training pipelines",
+        "Synchronizing large model states (1T+ parameters)"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Prepare checkpoint', 'detail': 'Serialize model state and stage on source node'}",
+        "{'step': 2, 'action': 'Register targets', 'detail': 'Confirm all destination GPUs are reachable and registered in P2P network'}",
+        "{'step': 3, 'action': 'Initiate distribution', 'detail': 'Invoke checkpoint-engine with source checkpoint path and target GPU list'}",
+        "{'step': 4, 'action': 'Monitor transfer', 'detail': 'Track progress and collect acknowledgments from all target nodes'}",
+        "{'step': 5, 'action': 'Verify synchronization', 'detail': 'Confirm all nodes report successful state load and are ready to resume training'}"
+      ],
+      "constraints": [
+        "All target GPUs must be pre-registered in the P2P network",
+        "Network connectivity and bandwidth must support concurrent multi-node transfer",
+        "Checkpoint must be serialized and ready before distribution initiation",
+        "No concurrent checkpoint distributions on overlapping GPU sets"
+      ],
+      "cautions": [
+        "Verify checkpoint integrity before distribution to avoid propagating corrupted state",
+        "Monitor network saturation during large-scale distribution",
+        "Ensure sufficient storage on target nodes for checkpoint staging",
+        "Plan distribution windows to avoid interference with active compute"
+      ],
+      "output_contract": [
+        "Checkpoint successfully distributed to all target GPUs",
+        "Distribution latency under 30 seconds for 1T parameter models",
+        "All nodes report successful state synchronization and are ready to resume training from the new checkpoint"
+      ],
+      "examples": [
+        {
+          "input": "Checkpoint file (1TB) from training node; target list of 1000 GPUs across 128 nodes",
+          "output": "Checkpoint distributed to all 1000 GPUs in ~20 seconds; all nodes synchronized and ready to resume training",
+          "notes": "Based on K1.5 and K2 production training application; 1T parameter model update across thousands of GPUs"
+        }
+      ],
+      "tags": [
+        "checkpoint_distribution",
+        "p2p_transfer",
+        "training_synchronization",
+        "large_scale_gpu",
+        "mooncake_engine",
+        "checkpoint-engine"
+      ],
+      "support_ids": [
+        "83bfc676-8808-50f8-a39a-7ca2d070b504"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "0d594419-78e8-50e0-9967-23217821c454"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.72,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|distribute model checkpoints to large gpu clusters with minimal update latency|default|model_distribution|p2p_checkpoint_transfer|training_checkpoint_sync|mooncake p2p checkpoint distribution",
+        "change_action": "create",
+        "llm_reason": "Candidate is a micro_skill for training checkpoint distribution via Mooncake P2P, semantically distinct from existing skills (Script Loading Control and Image Component Optimization are UI/web optimization micro_skills in different domains). Peer candidates are macro_protocol and session_skill assets in distributed inference/KV cache, operating at different asset_levels and stages. No semantic overlap or split relationship detected. Candidate has valid support evidence and no conflicts. Should be persisted as new capability.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "hierarchy_updates": [],
+  "lifecycles": [
+    {
+      "lifecycle_id": "bcfbf2ae-7cfe-4b8b-9861-148c3eef4a5c",
+      "skill_id": "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa",
+      "from_state": null,
+      "to_state": "active",
+      "reason": "create",
+      "metadata": {
+        "doc_ids": [
+          "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4"
+        ],
+        "llm_reason": "Candidate is a distinct macro-level protocol focused on Mooncake Transfer Engine integration as a backend connector for disaggregated inference. While peer candidates address related concerns (disaggregated architecture, KV cache management, checkpoint distribution), this skill fills a specific integration gap: how to register and configure Mooncake Transfer Engine within inference frameworks to enable zero-copy RDMA-based cross-node data transfer. The workflow steps, constraints, and cautions are concrete and actionable for deployment. No conflicts detected in support evidence. Peer overlap is architectural/operational context, not redundancy."
+      },
+      "changed_at": "2026-09-15T18:44:48+00:00"
+    },
+    {
+      "lifecycle_id": "7944c1c1-2bdd-476d-8981-76745f72016c",
+      "skill_id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+      "from_state": null,
+      "to_state": "active",
+      "reason": "create",
+      "metadata": {
+        "doc_ids": [
+          "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4"
+        ],
+        "llm_reason": "Candidate is a session_skill for deploying Mooncake Store as a hierarchical KV cache backend in multi-node LLM inference. It is semantically distinct from peer macro_protocols (which cover integration patterns and disaggregated architecture) and the micro_skill (checkpoint distribution). The candidate operates at session granularity with concrete workflow steps for KV cache tier management, offloading, and prefetching—a capability not present in existing_skills (which cover static asset serving and Maven builds, unrelated domains). The support evidence confirms Mooncake Store's role in disaggregated inference. No merge, split, or revision applies because there is no overlapping existing session_skill with the same asset_node_id and task_family."
+      },
+      "changed_at": "2026-09-15T18:44:48+00:00"
+    },
+    {
+      "lifecycle_id": "ba102884-dc58-4722-b484-c47f78f153bc",
+      "skill_id": "fe993e71-1d14-566c-a5f1-fe1e6a039fd1",
+      "from_state": null,
+      "to_state": "active",
+      "reason": "create",
+      "metadata": {
+        "doc_ids": [
+          "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4"
+        ],
+        "llm_reason": "Candidate is a distinct macro-level protocol for disaggregated prefill-decode deployment architecture. While peer candidates address specific implementation details (Mooncake Transfer Engine integration, hierarchical KV cache backend, checkpoint distribution), this skill captures the overarching system design pattern that orchestrates those components. It has unique workflow logic for pipeline partitioning, cache hierarchy establishment, and cross-instance embedding sharing. No redundancy detected with peers; supported by LightX2V evidence."
+      },
+      "changed_at": "2026-09-15T18:44:48+00:00"
+    },
+    {
+      "lifecycle_id": "9fdecd52-6ae5-4751-a2af-3eb1f81cdd70",
+      "skill_id": "78496037-2dd2-5178-a01a-438dbf1e4770",
+      "from_state": null,
+      "to_state": "active",
+      "reason": "create",
+      "metadata": {
+        "doc_ids": [
+          "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4"
+        ],
+        "llm_reason": "Candidate is a micro_skill for training checkpoint distribution via Mooncake P2P, semantically distinct from existing skills (Script Loading Control and Image Component Optimization are UI/web optimization micro_skills in different domains). Peer candidates are macro_protocol and session_skill assets in distributed inference/KV cache, operating at different asset_levels and stages. No semantic overlap or split relationship detected. Candidate has valid support evidence and no conflicts. Should be persisted as new capability."
+      },
+      "changed_at": "2026-09-15T18:44:48+00:00"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "94af0cce-377f-4e47-96a4-d4dd33769c27",
+      "entity_type": "skill",
+      "entity_id": "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa",
+      "action": "create",
+      "changed_at": "2026-09-15T18:44:48+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct macro-level protocol focused on Mooncake Transfer Engine integration as a backend connector for disaggregated inference. While peer candidates address related concerns (disaggregated architecture, KV cache management, checkpoint distribution), this skill fills a specific integration gap: how to register and configure Mooncake Transfer Engine within inference frameworks to enable zero-copy RDMA-based cross-node data transfer. The workflow steps, constraints, and cautions are concrete and actionable for deployment. No conflicts detected in support evidence. Peer overlap is architectural/operational context, not redundancy.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa",
+        "doc_ids": [
+          "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4"
+        ],
+        "support_added": [
+          "850d58f1-0138-5781-a673-a4868bc5ad42"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "b75af1bb-f5a8-42d1-be99-04ed037dad2a",
+      "entity_type": "skill",
+      "entity_id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+      "action": "create",
+      "changed_at": "2026-09-15T18:44:48+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a session_skill for deploying Mooncake Store as a hierarchical KV cache backend in multi-node LLM inference. It is semantically distinct from peer macro_protocols (which cover integration patterns and disaggregated architecture) and the micro_skill (checkpoint distribution). The candidate operates at session granularity with concrete workflow steps for KV cache tier management, offloading, and prefetching—a capability not present in existing_skills (which cover static asset serving and Maven builds, unrelated domains). The support evidence confirms Mooncake Store's role in disaggregated inference. No merge, split, or revision applies because there is no overlapping existing session_skill with the same asset_node_id and task_family.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+        "doc_ids": [
+          "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4"
+        ],
+        "support_added": [
+          "428ba50e-e9c9-554c-8cb7-a0456ad23565"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "d040e7b2-e9ec-48d2-a0e8-2bd907ed2f32",
+      "entity_type": "skill",
+      "entity_id": "fe993e71-1d14-566c-a5f1-fe1e6a039fd1",
+      "action": "create",
+      "changed_at": "2026-09-15T18:44:48+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct macro-level protocol for disaggregated prefill-decode deployment architecture. While peer candidates address specific implementation details (Mooncake Transfer Engine integration, hierarchical KV cache backend, checkpoint distribution), this skill captures the overarching system design pattern that orchestrates those components. It has unique workflow logic for pipeline partitioning, cache hierarchy establishment, and cross-instance embedding sharing. No redundancy detected with peers; supported by LightX2V evidence.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "fe993e71-1d14-566c-a5f1-fe1e6a039fd1",
+        "doc_ids": [
+          "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4"
+        ],
+        "support_added": [
+          "715f301a-c750-5a2d-a4c8-186472725b76"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "fa185955-c877-401a-b51e-3e4b37c23c94",
+      "entity_type": "skill",
+      "entity_id": "78496037-2dd2-5178-a01a-438dbf1e4770",
+      "action": "create",
+      "changed_at": "2026-09-15T18:44:48+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a micro_skill for training checkpoint distribution via Mooncake P2P, semantically distinct from existing skills (Script Loading Control and Image Component Optimization are UI/web optimization micro_skills in different domains). Peer candidates are macro_protocol and session_skill assets in distributed inference/KV cache, operating at different asset_levels and stages. No semantic overlap or split relationship detected. Candidate has valid support evidence and no conflicts. Should be persisted as new capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "78496037-2dd2-5178-a01a-438dbf1e4770",
+        "doc_ids": [
+          "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4"
+        ],
+        "support_added": [
+          "83bfc676-8808-50f8-a39a-7ca2d070b504"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ],
+  "version_history": [
+    {
+      "entity_type": "skill",
+      "entity_id": "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa",
+      "version": "0.1.0",
+      "action": "create",
+      "changed_at": "2026-09-15T18:44:48+00:00",
+      "status": "active",
+      "related_entity_ids": []
+    },
+    {
+      "entity_type": "skill",
+      "entity_id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+      "version": "0.1.0",
+      "action": "create",
+      "changed_at": "2026-09-15T18:44:48+00:00",
+      "status": "active",
+      "related_entity_ids": []
+    },
+    {
+      "entity_type": "skill",
+      "entity_id": "fe993e71-1d14-566c-a5f1-fe1e6a039fd1",
+      "version": "0.1.0",
+      "action": "create",
+      "changed_at": "2026-09-15T18:44:48+00:00",
+      "status": "active",
+      "related_entity_ids": []
+    },
+    {
+      "entity_type": "skill",
+      "entity_id": "78496037-2dd2-5178-a01a-438dbf1e4770",
+      "version": "0.1.0",
+      "action": "create",
+      "changed_at": "2026-09-15T18:44:48+00:00",
+      "status": "active",
+      "related_entity_ids": []
+    }
+  ],
+  "provenance_links": [
+    {
+      "entity_type": "skill",
+      "entity_id": "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa",
+      "doc_ids": [
+        "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4"
+      ],
+      "support_added": [
+        "850d58f1-0138-5781-a673-a4868bc5ad42"
+      ],
+      "support_conflicts": [],
+      "related_entity_ids": []
+    },
+    {
+      "entity_type": "skill",
+      "entity_id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+      "doc_ids": [
+        "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4"
+      ],
+      "support_added": [
+        "428ba50e-e9c9-554c-8cb7-a0456ad23565"
+      ],
+      "support_conflicts": [],
+      "related_entity_ids": []
+    },
+    {
+      "entity_type": "skill",
+      "entity_id": "fe993e71-1d14-566c-a5f1-fe1e6a039fd1",
+      "doc_ids": [
+        "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4"
+      ],
+      "support_added": [
+        "715f301a-c750-5a2d-a4c8-186472725b76"
+      ],
+      "support_conflicts": [],
+      "related_entity_ids": []
+    },
+    {
+      "entity_type": "skill",
+      "entity_id": "78496037-2dd2-5178-a01a-438dbf1e4770",
+      "doc_ids": [
+        "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4"
+      ],
+      "support_added": [
+        "83bfc676-8808-50f8-a39a-7ca2d070b504"
+      ],
+      "support_conflicts": [],
+      "related_entity_ids": []
+    }
+  ],
+  "upserted_store_skills": [
+    {
+      "id": "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa",
+      "name": "Mooncake Transfer Engine Integration for Disaggregated Inference",
+      "description": "Protocol for integrating Mooncake Transfer Engine as a backend connector in distributed inference and KV cache systems. Enables zero-copy RDMA-based data transfer across compute nodes for disaggregated prefill-decode pipelines.",
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+      "name": "Deploy Mooncake Store Hierarchical KV Cache Backend",
+      "description": "Session-level workflow for deploying Mooncake Store as a distributed KV cache pool backend with multi-tier storage (device, host, remote). Orchestrates intelligent offloading and prefetching across storage layers to manage KV cache in multi-node LLM inference systems.",
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "id": "fe993e71-1d14-566c-a5f1-fe1e6a039fd1",
+      "name": "Disaggregated Prefill-Decode Deployment Pattern",
+      "description": "Macro protocol for decoupling compute-intensive encoder/prefill stages from decode stages across multiple nodes using a transfer engine as the data backbone. Enables encoder service isolation, multimodal embedding caching, and cross-instance cache sharing to maximize throughput and resource utilization in large-scale distributed inference.",
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "id": "78496037-2dd2-5178-a01a-438dbf1e4770",
+      "name": "Mooncake P2P Checkpoint Distribution",
+      "description": "Micro-skill for distributing large model checkpoints across thousands of GPUs using Mooncake P2P Store and checkpoint-engine. Optimized for rapid model state synchronization during production training with sub-30-second latency for 1T+ parameter models.",
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "staging_runs": [
+    {
+      "profile_id": "default::未分类技能",
+      "family_id": "未分类技能",
+      "child_type": "distributed_inference",
+      "run_id": "20260916T044452_856c8366",
+      "run_dir": "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference/20260916T044452_856c8366",
+      "files": [
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference/20260916T044452_856c8366/bucket.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference/20260916T044452_856c8366/raw_candidates.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference/20260916T044452_856c8366/existing_active.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference/20260916T044452_856c8366/shortlists.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference/20260916T044452_856c8366/merge_decisions.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference/20260916T044452_856c8366/clusters.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference/20260916T044452_856c8366/canonical_results.json"
+      ]
+    },
+    {
+      "profile_id": "default::未分类技能",
+      "family_id": "未分类技能",
+      "child_type": "kv_cache_management",
+      "run_id": "20260916T044452_1ef9f483",
+      "run_dir": "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/kv_cache_management/20260916T044452_1ef9f483",
+      "files": [
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/kv_cache_management/20260916T044452_1ef9f483/bucket.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/kv_cache_management/20260916T044452_1ef9f483/raw_candidates.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/kv_cache_management/20260916T044452_1ef9f483/existing_active.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/kv_cache_management/20260916T044452_1ef9f483/shortlists.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/kv_cache_management/20260916T044452_1ef9f483/merge_decisions.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/kv_cache_management/20260916T044452_1ef9f483/clusters.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/kv_cache_management/20260916T044452_1ef9f483/canonical_results.json"
+      ]
+    },
+    {
+      "profile_id": "default::未分类技能",
+      "family_id": "未分类技能",
+      "child_type": "distributed_inference_architecture",
+      "run_id": "20260916T044452_2507f285",
+      "run_dir": "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference_architecture/20260916T044452_2507f285",
+      "files": [
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference_architecture/20260916T044452_2507f285/bucket.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference_architecture/20260916T044452_2507f285/raw_candidates.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference_architecture/20260916T044452_2507f285/existing_active.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference_architecture/20260916T044452_2507f285/shortlists.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference_architecture/20260916T044452_2507f285/merge_decisions.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference_architecture/20260916T044452_2507f285/clusters.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/distributed_inference_architecture/20260916T044452_2507f285/canonical_results.json"
+      ]
+    },
+    {
+      "profile_id": "default::未分类技能",
+      "family_id": "未分类技能",
+      "child_type": "model_distribution",
+      "run_id": "20260916T044452_d73bd4b1",
+      "run_dir": "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/model_distribution/20260916T044452_d73bd4b1",
+      "files": [
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/model_distribution/20260916T044452_d73bd4b1/bucket.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/model_distribution/20260916T044452_d73bd4b1/raw_candidates.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/model_distribution/20260916T044452_d73bd4b1/existing_active.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/model_distribution/20260916T044452_d73bd4b1/shortlists.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/model_distribution/20260916T044452_d73bd4b1/merge_decisions.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/model_distribution/20260916T044452_d73bd4b1/clusters.json",
+        "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/staging/default_未分类技能/未分类技能/model_distribution/20260916T044452_d73bd4b1/canonical_results.json"
+      ]
+    }
+  ],
+  "visible_tree": {
+    "store_root": "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe",
+    "library_manifest_path": "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/.runtime/library_manifest.json",
+    "readme_path": "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/README.md",
+    "affected_families": [
+      "未分类技能"
+    ],
+    "parent_paths": [
+      "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/通用技能领域/Family技能/未分类技能/总技能/SKILL.md"
+    ],
+    "child_paths": [
+      "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/通用技能领域/Family技能/未分类技能/一级技能/Disaggregated Prefill-Decode Deployment Pattern/SKILL.md",
+      "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/通用技能领域/Family技能/未分类技能/一级技能/Mooncake Transfer Engine Integration for Disaggregated Inference/SKILL.md",
+      "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/通用技能领域/Family技能/未分类技能/二级技能/Deploy Mooncake Store Hierarchical KV Cache Backend/SKILL.md",
+      "/Users/ttal0464/Desktop/skill-generation/anything2skill/formal_store_swe/通用技能领域/Family技能/未分类技能/微技能/Mooncake P2P Checkpoint Distribution/SKILL.md"
+    ]
+  },
+  "errors": [
+    {
+      "stage": "hierarchy_parent_link",
+      "skill_id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+      "candidate_count": 1,
+      "allowed_parent_nodes": [
+        "macro_skill"
+      ],
+      "error": "failed to parse JSON from LLM output",
+      "retry_attempts": 0,
+      "fallback_decision": "attach"
+    }
+  ],
+  "dry_run": false
+}

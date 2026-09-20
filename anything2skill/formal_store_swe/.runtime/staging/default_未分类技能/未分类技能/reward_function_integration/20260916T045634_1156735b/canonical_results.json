@@ -1,0 +1,168 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "reward_function_integration",
+  "run_id": "20260916T045634_1156735b",
+  "skills": [
+    {
+      "skill_id": "0aa5626c-5ed7-50e1-87ed-4d879e19901d",
+      "name": "Custom Reward Function Signature Compliance",
+      "description": "Validate and adapt a custom reward function to accept prompts, completions, and all dataset column names as keyword arguments for GRPO trainer integration.",
+      "skill_body": "When implementing a custom reward function for GRPO trainer, ensure the function signature complies with the required interface. The function must accept: (1) `prompts` keyword argument containing the prompts, (2) `completions` keyword argument containing generated completions, (3) all column names from the dataset (except `prompt`) as keyword arguments. Use `**kwargs` in the function signature to capture dataset-specific metadata columns. Verify the function can be called without signature mismatch errors when the trainer invokes it with these arguments.\n\n## Objective\n\nvalidate and adapt reward function interface for GRPO trainer compatibility\n## Applicable Signals\n\n- custom reward function being defined\n- dataset schema includes additional columns\n- GRPO trainer reward_function parameter being configured\n\n## Contraindications\n\n- using built-in reward functions\n- reward function already accepts **kwargs\n- dataset contains only prompt and completion columns\n- reward function is a pre-compiled or external library function\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Inspect the dataset schema to identify all column names', 'detail': 'Extract column names from the dataset, excluding the `prompt` column'}\n- {'step': 2, 'action': 'Define or modify the reward function signature', 'detail': 'Ensure the function accepts `prompts`, `completions`, and `**kwargs` parameters'}\n- {'step': 3, 'action': 'Validate the function can be called with expected arguments', 'detail': 'Test invocation with sample prompts, completions, and dataset column values'}\n- {'step': 4, 'action': 'Pass the validated function to GRPO trainer', 'detail': \"Assign the function to the trainer's reward_function parameter\"}\n\n## Constraints\n\n- function must accept `prompts` as keyword argument\n- function must accept `completions` as keyword argument\n- function must accept all dataset column names (except `prompt`) as keyword arguments\n- function signature must not raise TypeError on invocation by GRPO trainer\n\n## Cautions\n\n- Ensure **kwargs is used to handle variable dataset columns; do not hardcode column names\n- Test the function signature with sample dataset columns before passing to trainer\n- Verify column name conflicts do not occur between dataset columns and reserved parameter names\n\n## Output Contract\n\n- A callable reward function with a signature that accepts `prompts`, `completions`, and all dataset column names as keyword arguments\n- Function can be invoked by GRPO trainer without TypeError or signature mismatch errors\n- Returns reward scores for each completion\n\n## Example Executions\n\n### Example 1\n\n- Input: Dataset with columns: [prompt, completion, ground_truth, length]. Custom reward function needs to use ground_truth for scoring.\n- Output: Function signature: `def reward_fn(prompts, completions, ground_truth, **kwargs): ...` or `def reward_fn(prompts, completions, **kwargs): score = compute(completions, kwargs.get('ground_truth')); return score`\n- Notes: Using **kwargs allows the function to accept ground_truth and any other dataset columns without explicit parameter declaration.\n\n### Example 2\n\n- Input: Reward function defined as `def reward_fn(prompts, completions): ...` but dataset has custom column `metadata`.\n- Output: Modify to `def reward_fn(prompts, completions, **kwargs): metadata = kwargs.get('metadata'); ...` to accept the metadata column.\n- Notes: Without **kwargs, the trainer will raise TypeError when passing the metadata column.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "09ce233c-5aa4-597c-9eef-504f22c29721",
+        "07935192-6a9c-5de5-a763-07352cabd2fb"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "validate and adapt reward function interface for GRPO trainer compatibility",
+      "domain": "default",
+      "task_family": "reward_function_integration",
+      "method_family": "function_signature_compliance",
+      "stage": "reward_setup",
+      "applicable_signals": [
+        "custom reward function being defined",
+        "dataset schema includes additional columns",
+        "GRPO trainer reward_function parameter being configured"
+      ],
+      "contraindications": [
+        "using built-in reward functions",
+        "reward function already accepts **kwargs",
+        "dataset contains only prompt and completion columns",
+        "reward function is a pre-compiled or external library function"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "implementing a custom reward function for GRPO trainer",
+        "need to pass dataset-specific metadata to reward computation",
+        "dataset contains columns beyond prompt and completion"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Inspect the dataset schema to identify all column names', 'detail': 'Extract column names from the dataset, excluding the `prompt` column'}",
+        "{'step': 2, 'action': 'Define or modify the reward function signature', 'detail': 'Ensure the function accepts `prompts`, `completions`, and `**kwargs` parameters'}",
+        "{'step': 3, 'action': 'Validate the function can be called with expected arguments', 'detail': 'Test invocation with sample prompts, completions, and dataset column values'}",
+        "{'step': 4, 'action': 'Pass the validated function to GRPO trainer', 'detail': \"Assign the function to the trainer's reward_function parameter\"}"
+      ],
+      "constraints": [
+        "function must accept `prompts` as keyword argument",
+        "function must accept `completions` as keyword argument",
+        "function must accept all dataset column names (except `prompt`) as keyword arguments",
+        "function signature must not raise TypeError on invocation by GRPO trainer"
+      ],
+      "cautions": [
+        "Ensure **kwargs is used to handle variable dataset columns; do not hardcode column names",
+        "Test the function signature with sample dataset columns before passing to trainer",
+        "Verify column name conflicts do not occur between dataset columns and reserved parameter names"
+      ],
+      "output_contract": [
+        "A callable reward function with a signature that accepts `prompts`, `completions`, and all dataset column names as keyword arguments",
+        "Function can be invoked by GRPO trainer without TypeError or signature mismatch errors",
+        "Returns reward scores for each completion"
+      ],
+      "examples": [
+        {
+          "input": "Dataset with columns: [prompt, completion, ground_truth, length]. Custom reward function needs to use ground_truth for scoring.",
+          "output": "Function signature: `def reward_fn(prompts, completions, ground_truth, **kwargs): ...` or `def reward_fn(prompts, completions, **kwargs): score = compute(completions, kwargs.get('ground_truth')); return score`",
+          "notes": "Using **kwargs allows the function to accept ground_truth and any other dataset columns without explicit parameter declaration."
+        },
+        {
+          "input": "Reward function defined as `def reward_fn(prompts, completions): ...` but dataset has custom column `metadata`.",
+          "output": "Modify to `def reward_fn(prompts, completions, **kwargs): metadata = kwargs.get('metadata'); ...` to accept the metadata column.",
+          "notes": "Without **kwargs, the trainer will raise TypeError when passing the metadata column."
+        }
+      ],
+      "tags": [
+        "reward_function",
+        "GRPO",
+        "function_signature",
+        "interface_compliance",
+        "dataset_integration"
+      ],
+      "support_ids": [
+        "dbcfa06e-3c41-5e17-9eec-16c82d420ae7"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "bdefda58-4308-519b-8f4d-c26c7de1a557"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|validate and adapt reward function interface for grpo trainer compatibility|default|reward_function_integration|function_signature_compliance|reward_setup|custom reward function signature compliance",
+        "llm_reason": "Candidate is a distinct micro_skill addressing reward function signature validation for GRPO trainer compatibility. It is semantically different from peer candidates: it focuses on interface compliance and parameter binding (prompts, completions, **kwargs) rather than reward computation logic (peer 412d91ef) or input format handling (peer 6f7e5bc6). Existing skills in registry are unrelated (Codec Derivation, Script Loading Control). No merge, split, or revision relationship detected. Supported by GRPO Trainer evidence. Safe to create as new capability.",
+        "change_action": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "09ce233c-5aa4-597c-9eef-504f22c29721",
+          "07935192-6a9c-5de5-a763-07352cabd2fb"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "9f887928-08d9-4a89-9957-64297a6e5da5",
+      "entity_type": "skill",
+      "entity_id": "0aa5626c-5ed7-50e1-87ed-4d879e19901d",
+      "action": "create",
+      "changed_at": "2026-09-15T18:56:22+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill addressing reward function signature validation for GRPO trainer compatibility. It is semantically different from peer candidates: it focuses on interface compliance and parameter binding (prompts, completions, **kwargs) rather than reward computation logic (peer 412d91ef) or input format handling (peer 6f7e5bc6). Existing skills in registry are unrelated (Codec Derivation, Script Loading Control). No merge, split, or revision relationship detected. Supported by GRPO Trainer evidence. Safe to create as new capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "0aa5626c-5ed7-50e1-87ed-4d879e19901d",
+        "doc_ids": [
+          "1b1cfe5e-1be5-5bc1-9b07-6e37f39e1ae1"
+        ],
+        "support_added": [
+          "dbcfa06e-3c41-5e17-9eec-16c82d420ae7"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

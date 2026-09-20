@@ -1,0 +1,462 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "layout_stability",
+  "run_id": "20260916T070029_c05480e2",
+  "skills": [
+    {
+      "skill_id": "88e2cd8b-cded-5050-9820-9ed10a2b232a",
+      "name": "Reserve space for images using dimensions or aspect ratio",
+      "description": "Prevent Cumulative Layout Shift by declaring image dimensions via width/height attributes or CSS aspect-ratio before the image loads, ensuring the browser allocates correct layout space upfront.",
+      "skill_body": "When adding images or video elements to a page, always include width and height size attributes on the element, or reserve the required space with CSS aspect-ratio or similar. This ensures the browser can allocate the correct amount of space in the document while the image is loading, preventing text and other content from shifting when the image arrives.\n\nFor traditional fixed-size images, use width and height attributes without units (pixel dimensions). For responsive images, use CSS aspect-ratio to maintain proportions while allowing flexible width. If you know the aspect ratio (e.g., 16:9 or 4:3), you can calculate one dimension from the other.\n\n## Objective\n\nallocate_layout_space_before_image_load\n## Applicable Signals\n\n- Image element without width/height attributes detected\n- CSS-only image sizing without aspect-ratio fallback\n- CLS metric spike correlated with image load timing\n\n## Contraindications\n\n- Image dimensions are truly unknown at build time and cannot be inferred\n- Dynamic content with no aspect ratio information available\n- Image is decorative and layout space is intentionally flexible\n\n## Intervention Moves\n\n- Add width and height attributes to img or video elements\n- Apply CSS aspect-ratio rule to image selectors\n- Convert responsive images to use aspect-ratio with flexible width\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Determine image dimensions or aspect ratio', 'detail': 'Identify the true width and height of the image, or calculate the aspect ratio (width:height ratio, e.g., 16:9)'}\n- {'step': 2, 'action': 'Choose declaration method', 'detail': 'For fixed-size images, use width and height attributes. For responsive images, use CSS aspect-ratio or width/height attributes with responsive CSS.'}\n- {'step': 3, 'action': 'Apply dimensions to image element', 'detail': 'Add width and height attributes to <img> or <video> tag, or add CSS aspect-ratio rule to the image class/selector'}\n- {'step': 4, 'action': 'Verify layout space allocation', 'detail': 'Confirm that the browser reserves the correct space before the image loads; test with slow network to observe no text reflow'}\n\n## Constraints\n\n- Width and height attributes must be specified before the image fetch begins\n- Aspect ratio must be accurate to prevent over- or under-allocation of space\n- CSS aspect-ratio property requires browser support (modern browsers only)\n\n## Cautions\n\n- Incorrect aspect ratio will cause the image to stretch or compress, degrading visual quality\n- Omitting dimensions entirely will cause layout shift when the image loads\n\n## Output Contract\n\n- Image element includes width and height attributes (or CSS aspect-ratio rule)\n- Browser reserves layout space before image fetch\n- No visible text reflow or layout shift when image loads\n- CLS contribution from this image is zero or negligible\n\n## Example Executions\n\n### Example 1\n\n- Input: Fixed-size image with known dimensions 640×360\n- Output: <img src=\"puppy.jpg\" width=\"640\" height=\"360\" alt=\"Puppy with balloons\">\n- Notes: Browser reserves 640×360 pixel area before fetch; image stretches to fit space\n\n### Example 2\n\n- Input: Responsive image with 16:9 aspect ratio\n- Output: img { width: 100%; aspect-ratio: 16 / 9; }\n- Notes: CSS aspect-ratio maintains proportions; height is calculated from width\n\n### Example 3\n\n- Input: Image with known aspect ratio but flexible width\n- Output: <img src=\"image.jpg\" width=\"640\" height=\"360\" style=\"width: 100%; height: auto;\" alt=\"...\">\n- Notes: Attributes provide aspect ratio hint; CSS allows responsive sizing without layout shift",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "allocate_layout_space_before_image_load",
+      "domain": "default",
+      "task_family": "layout_stability",
+      "method_family": "dimension_declaration",
+      "stage": "page_construction",
+      "applicable_signals": [
+        "Image element without width/height attributes detected",
+        "CSS-only image sizing without aspect-ratio fallback",
+        "CLS metric spike correlated with image load timing"
+      ],
+      "contraindications": [
+        "Image dimensions are truly unknown at build time and cannot be inferred",
+        "Dynamic content with no aspect ratio information available",
+        "Image is decorative and layout space is intentionally flexible"
+      ],
+      "intervention_moves": [
+        "Add width and height attributes to img or video elements",
+        "Apply CSS aspect-ratio rule to image selectors",
+        "Convert responsive images to use aspect-ratio with flexible width"
+      ],
+      "triggers": [
+        "Adding images or video elements to a page",
+        "Implementing responsive design with flexible sizing",
+        "Lighthouse or CLS audit flags image-related layout shifts"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Determine image dimensions or aspect ratio', 'detail': 'Identify the true width and height of the image, or calculate the aspect ratio (width:height ratio, e.g., 16:9)'}",
+        "{'step': 2, 'action': 'Choose declaration method', 'detail': 'For fixed-size images, use width and height attributes. For responsive images, use CSS aspect-ratio or width/height attributes with responsive CSS.'}",
+        "{'step': 3, 'action': 'Apply dimensions to image element', 'detail': 'Add width and height attributes to <img> or <video> tag, or add CSS aspect-ratio rule to the image class/selector'}",
+        "{'step': 4, 'action': 'Verify layout space allocation', 'detail': 'Confirm that the browser reserves the correct space before the image loads; test with slow network to observe no text reflow'}"
+      ],
+      "constraints": [
+        "Width and height attributes must be specified before the image fetch begins",
+        "Aspect ratio must be accurate to prevent over- or under-allocation of space",
+        "CSS aspect-ratio property requires browser support (modern browsers only)"
+      ],
+      "cautions": [
+        "Incorrect aspect ratio will cause the image to stretch or compress, degrading visual quality",
+        "Omitting dimensions entirely will cause layout shift when the image loads"
+      ],
+      "output_contract": [
+        "Image element includes width and height attributes (or CSS aspect-ratio rule)",
+        "Browser reserves layout space before image fetch",
+        "No visible text reflow or layout shift when image loads",
+        "CLS contribution from this image is zero or negligible"
+      ],
+      "examples": [
+        {
+          "input": "Fixed-size image with known dimensions 640×360",
+          "output": "<img src=\"puppy.jpg\" width=\"640\" height=\"360\" alt=\"Puppy with balloons\">",
+          "notes": "Browser reserves 640×360 pixel area before fetch; image stretches to fit space"
+        },
+        {
+          "input": "Responsive image with 16:9 aspect ratio",
+          "output": "img { width: 100%; aspect-ratio: 16 / 9; }",
+          "notes": "CSS aspect-ratio maintains proportions; height is calculated from width"
+        },
+        {
+          "input": "Image with known aspect ratio but flexible width",
+          "output": "<img src=\"image.jpg\" width=\"640\" height=\"360\" style=\"width: 100%; height: auto;\" alt=\"...\">",
+          "notes": "Attributes provide aspect ratio hint; CSS allows responsive sizing without layout shift"
+        }
+      ],
+      "tags": [
+        "layout_shift",
+        "cls_mitigation",
+        "image_optimization",
+        "responsive_design",
+        "web_performance"
+      ],
+      "support_ids": [
+        "6326a0d2-cfbe-5f15-b491-b259940a9180"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "751ecdb0-3a44-52f0-8fa0-44b8475544c0"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.95,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|allocate_layout_space_before_image_load|default|layout_stability|dimension_declaration|page_construction|reserve space for images using dimensions or aspect ratio",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "a68ef8fc-ec1c-541a-a723-4a28825dcc8f",
+      "name": "Identify and audit images lacking dimension metadata",
+      "description": "Scan page markup and CSS to detect images without width/height attributes or aspect-ratio declarations, flagging them as CLS risk factors. This diagnostic micro-skill precedes remediation and helps prioritize layout stability fixes.",
+      "skill_body": "Inspect all <img> and <video> elements in the document. Check for presence of width and height attributes (with or without units) or CSS aspect-ratio declarations. Flag any image or video element that lacks both explicit dimensions and aspect-ratio reservation. Categorize findings by viewport position (above-fold vs. below-fold) to assess user-facing impact.\n\n## Objective\n\ndetect_missing_dimensions\n## Applicable Signals\n\n- CLS metric elevated or flagged\n- Visual regression reports mentioning image loading\n- Responsive design audit in progress\n\n## Contraindications\n\n- Images are dynamically generated with no static markup\n- Audit scope is limited to non-image content\n- Page uses only vector or inline SVG without raster images\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Enumerate all img and video elements in the document', 'detail': 'Parse DOM or static markup to collect all media elements'}\n- {'step': 2, 'action': 'Check for width and height attributes', 'detail': 'Verify presence of width and height on each element (with or without units)'}\n- {'step': 3, 'action': 'Check for CSS aspect-ratio or equivalent dimension rules', 'detail': 'Inspect computed styles for aspect-ratio, width, height, max-width, or similar constraints'}\n- {'step': 4, 'action': 'Classify missing dimensions', 'detail': 'Flag elements lacking both attributes and CSS dimension rules'}\n- {'step': 5, 'action': 'Rank by viewport position', 'detail': 'Categorize findings as above-fold (high priority) or below-fold (lower priority)'}\n\n## Constraints\n\n- Requires access to page source markup and computed CSS styles\n- Must inspect both HTML attributes and CSS rules (width, height, aspect-ratio, max-width, etc.)\n- Should distinguish between responsive images (srcset) and single-source images\n\n## Cautions\n\n- CSS-only dimension rules may be overridden by inline styles; check computed styles\n- Aspect-ratio alone does not guarantee space reservation in older browsers; verify fallback dimensions\n- Above-fold images have higher user-impact priority than below-fold\n\n## Output Contract\n\n- Structured list or report of image/video elements missing width, height, or aspect-ratio declarations. Each entry includes element selector, current attributes, viewport position, and severity level. Report enables downstream remediation skill to prioritize fixes.\n\n## Example Executions\n\n### Example 1\n\n- Input: HTML: <img src=\"puppy.jpg\" alt=\"Puppy with balloons\">\n- Output: Missing: width, height, aspect-ratio. Viewport: above-fold. Severity: high.\n- Notes: No dimension metadata; will cause layout shift when image loads.\n\n### Example 2\n\n- Input: HTML: <img src=\"puppy.jpg\" width=\"640\" height=\"360\" alt=\"Puppy with balloons\">\n- Output: Present: width=640, height=360. Severity: none.\n- Notes: Dimensions specified; space pre-allocated.\n\n### Example 3\n\n- Input: CSS: img { width: 100%; height: auto; } HTML: <img src=\"puppy.jpg\" alt=\"Puppy\">\n- Output: Missing: height attribute, aspect-ratio. CSS width only. Severity: high.\n- Notes: Responsive width without aspect-ratio; height unknown until load.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "detect_missing_dimensions",
+      "domain": "default",
+      "task_family": "layout_stability",
+      "method_family": "audit_inspection",
+      "stage": "diagnosis",
+      "applicable_signals": [
+        "CLS metric elevated or flagged",
+        "Visual regression reports mentioning image loading",
+        "Responsive design audit in progress"
+      ],
+      "contraindications": [
+        "Images are dynamically generated with no static markup",
+        "Audit scope is limited to non-image content",
+        "Page uses only vector or inline SVG without raster images"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Running CLS audit or performance review",
+        "Lighthouse reports image-related layout shifts",
+        "Need to prioritize layout stability fixes",
+        "Performance baseline assessment"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Enumerate all img and video elements in the document', 'detail': 'Parse DOM or static markup to collect all media elements'}",
+        "{'step': 2, 'action': 'Check for width and height attributes', 'detail': 'Verify presence of width and height on each element (with or without units)'}",
+        "{'step': 3, 'action': 'Check for CSS aspect-ratio or equivalent dimension rules', 'detail': 'Inspect computed styles for aspect-ratio, width, height, max-width, or similar constraints'}",
+        "{'step': 4, 'action': 'Classify missing dimensions', 'detail': 'Flag elements lacking both attributes and CSS dimension rules'}",
+        "{'step': 5, 'action': 'Rank by viewport position', 'detail': 'Categorize findings as above-fold (high priority) or below-fold (lower priority)'}"
+      ],
+      "constraints": [
+        "Requires access to page source markup and computed CSS styles",
+        "Must inspect both HTML attributes and CSS rules (width, height, aspect-ratio, max-width, etc.)",
+        "Should distinguish between responsive images (srcset) and single-source images"
+      ],
+      "cautions": [
+        "CSS-only dimension rules may be overridden by inline styles; check computed styles",
+        "Aspect-ratio alone does not guarantee space reservation in older browsers; verify fallback dimensions",
+        "Above-fold images have higher user-impact priority than below-fold"
+      ],
+      "output_contract": [
+        "Structured list or report of image/video elements missing width, height, or aspect-ratio declarations. Each entry includes element selector, current attributes, viewport position, and severity level. Report enables downstream remediation skill to prioritize fixes."
+      ],
+      "examples": [
+        {
+          "input": "HTML: <img src=\"puppy.jpg\" alt=\"Puppy with balloons\">",
+          "output": "Missing: width, height, aspect-ratio. Viewport: above-fold. Severity: high.",
+          "notes": "No dimension metadata; will cause layout shift when image loads."
+        },
+        {
+          "input": "HTML: <img src=\"puppy.jpg\" width=\"640\" height=\"360\" alt=\"Puppy with balloons\">",
+          "output": "Present: width=640, height=360. Severity: none.",
+          "notes": "Dimensions specified; space pre-allocated."
+        },
+        {
+          "input": "CSS: img { width: 100%; height: auto; } HTML: <img src=\"puppy.jpg\" alt=\"Puppy\">",
+          "output": "Missing: height attribute, aspect-ratio. CSS width only. Severity: high.",
+          "notes": "Responsive width without aspect-ratio; height unknown until load."
+        }
+      ],
+      "tags": [
+        "CLS",
+        "layout_shift",
+        "performance",
+        "audit",
+        "image_optimization",
+        "responsive_design"
+      ],
+      "support_ids": [
+        "d3ad4fd4-1c55-52ea-bb02-bcca454d9b85"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "25edb7a9-6f84-560f-becc-fb34173fbe6e"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|detect_missing_dimensions|default|layout_stability|audit_inspection|diagnosis|identify and audit images lacking dimension metadata",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct diagnostic micro-skill for detecting missing image dimensions as CLS risk factors. It differs semantically and functionally from peer candidates: 'Record Layout Shifts via Performance Observer' (observes CLS events post-facto via JavaScript), 'Reserve space for images using dimensions or aspect ratio' (remediation/prevention), and 'Compute image width from aspect ratio and known height' (calculation utility). Existing skills (Image Component Optimization, Catastrophic Forgetting Mitigation) operate in different domains/task families. Candidate fills a gap in the audit/inspection stage for layout_stability task_family and should be persisted as a new capability.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "2b4b1a7a-f586-51b3-9394-8759f4b9cb94",
+      "name": "Avoid inserting content without user interaction",
+      "description": "Prevent unexpected layout shifts by gating dynamic content insertion behind explicit user actions. This safety rule ensures that ads, notifications, modals, and other late-loaded content only appear in response to user interaction, maintaining stable layout and predictable CLS.",
+      "skill_body": "When designing or reviewing content insertion patterns, enforce that all dynamic content (ads, embeds, notifications, modals) appears only after explicit user action such as click, scroll-to, or expand. Do not auto-inject content into the viewport during passive browsing or page load. Verify that any auto-play or auto-load behavior is either disabled or gated behind user interaction.\n\n## Objective\n\nEliminate layout shifts caused by unsolicited content insertion\n## Applicable Signals\n\n- Designing content insertion patterns for ads, notifications, or modals\n- Evaluating auto-play or auto-load behavior in page design\n- Reviewing dynamic content injection strategies\n- Assessing CLS impact of late-loaded content\n\n## Contraindications\n\n- Content is part of initial page load or critical to page function\n- User has explicitly requested content (e.g., clicked expand button)\n- Content must load immediately for accessibility or usability reasons\n\n## Intervention Moves\n\n- Gate ad insertion behind user click or expand action\n- Disable auto-play for embedded media unless user explicitly enables it\n- Require user interaction before showing modals, notifications, or overlays\n\n## Constraints\n\n- All dynamic insertions must be user-triggered\n- Auto-play and auto-load behaviors must be disabled or gated\n- Content insertion must not occur during passive browsing\n\n## Cautions\n\n- Distinguish between initial page load (exempt) and subsequent dynamic insertions (gated)\n- Ensure user interaction is explicit and intentional, not accidental hover or scroll\n- Test across form factors and interaction patterns to confirm no unsolicited content appears\n\n## Output Contract\n\n- No unsolicited content appears in viewport during passive browsing\n- All dynamic insertions are user-triggered\n- CLS remains stable and predictable\n- Layout does not shift due to unannounced content injection",
+      "asset_type": "safety_rule",
+      "granularity": "micro",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Eliminate layout shifts caused by unsolicited content insertion",
+      "domain": "default",
+      "task_family": "layout_stability",
+      "method_family": "interaction_gating",
+      "stage": "design",
+      "applicable_signals": [
+        "Designing content insertion patterns for ads, notifications, or modals",
+        "Evaluating auto-play or auto-load behavior in page design",
+        "Reviewing dynamic content injection strategies",
+        "Assessing CLS impact of late-loaded content"
+      ],
+      "contraindications": [
+        "Content is part of initial page load or critical to page function",
+        "User has explicitly requested content (e.g., clicked expand button)",
+        "Content must load immediately for accessibility or usability reasons"
+      ],
+      "intervention_moves": [
+        "Gate ad insertion behind user click or expand action",
+        "Disable auto-play for embedded media unless user explicitly enables it",
+        "Require user interaction before showing modals, notifications, or overlays"
+      ],
+      "triggers": [
+        "Designing content insertion patterns; evaluating ad placement, notification, or modal strategies; reviewing auto-play or auto-load behaviors"
+      ],
+      "workflow_steps": [],
+      "constraints": [
+        "All dynamic insertions must be user-triggered",
+        "Auto-play and auto-load behaviors must be disabled or gated",
+        "Content insertion must not occur during passive browsing"
+      ],
+      "cautions": [
+        "Distinguish between initial page load (exempt) and subsequent dynamic insertions (gated)",
+        "Ensure user interaction is explicit and intentional, not accidental hover or scroll",
+        "Test across form factors and interaction patterns to confirm no unsolicited content appears"
+      ],
+      "output_contract": [
+        "No unsolicited content appears in viewport during passive browsing",
+        "All dynamic insertions are user-triggered",
+        "CLS remains stable and predictable",
+        "Layout does not shift due to unannounced content injection"
+      ],
+      "examples": [],
+      "tags": [
+        "layout_shift",
+        "CLS",
+        "content_insertion",
+        "user_interaction",
+        "safety",
+        "web_performance"
+      ],
+      "support_ids": [
+        "f7c75ca9-c683-5406-a569-3f31e230d33b"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "5c37f90b-e704-5d49-8d19-9a6518be5332"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.88,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|micro|safety_rule_node|eliminate layout shifts caused by unsolicited content insertion|default|layout_stability|interaction_gating|design|avoid inserting content without user interaction",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "7e98f14f-04a1-46da-8c24-702a9d4c49e0",
+      "entity_type": "skill",
+      "entity_id": "88e2cd8b-cded-5050-9820-9ed10a2b232a",
+      "action": "create",
+      "changed_at": "2026-09-15T20:59:25+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "create",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "88e2cd8b-cded-5050-9820-9ed10a2b232a",
+        "doc_ids": [
+          "0551d67e-cae4-5d1f-804a-e4046e4b8739"
+        ],
+        "support_added": [
+          "6326a0d2-cfbe-5f15-b491-b259940a9180"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "0d1bce84-1fe4-4923-8173-0579710d7c4f",
+      "entity_type": "skill",
+      "entity_id": "a68ef8fc-ec1c-541a-a723-4a28825dcc8f",
+      "action": "create",
+      "changed_at": "2026-09-15T20:59:25+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct diagnostic micro-skill for detecting missing image dimensions as CLS risk factors. It differs semantically and functionally from peer candidates: 'Record Layout Shifts via Performance Observer' (observes CLS events post-facto via JavaScript), 'Reserve space for images using dimensions or aspect ratio' (remediation/prevention), and 'Compute image width from aspect ratio and known height' (calculation utility). Existing skills (Image Component Optimization, Catastrophic Forgetting Mitigation) operate in different domains/task families. Candidate fills a gap in the audit/inspection stage for layout_stability task_family and should be persisted as a new capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "a68ef8fc-ec1c-541a-a723-4a28825dcc8f",
+        "doc_ids": [
+          "0551d67e-cae4-5d1f-804a-e4046e4b8739"
+        ],
+        "support_added": [
+          "d3ad4fd4-1c55-52ea-bb02-bcca454d9b85"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "ba605b97-611f-4168-9897-552fdd68cedc",
+      "entity_type": "skill",
+      "entity_id": "2b4b1a7a-f586-51b3-9394-8759f4b9cb94",
+      "action": "create",
+      "changed_at": "2026-09-15T20:59:25+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "create",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "2b4b1a7a-f586-51b3-9394-8759f4b9cb94",
+        "doc_ids": [
+          "0551d67e-cae4-5d1f-804a-e4046e4b8739"
+        ],
+        "support_added": [
+          "f7c75ca9-c683-5406-a569-3f31e230d33b"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

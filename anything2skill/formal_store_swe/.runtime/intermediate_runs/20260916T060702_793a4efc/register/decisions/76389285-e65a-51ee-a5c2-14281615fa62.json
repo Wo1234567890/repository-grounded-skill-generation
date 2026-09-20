@@ -1,0 +1,108 @@
+{
+  "skill_id": "76389285-e65a-51ee-a5c2-14281615fa62",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate skill 'Timestamp-Based Conflict Detection' is a transaction validation micro-skill (session_skill, validation_phase) with strong domain relevance to concurrency control. However, it has minimal support evidence (1 support section with only throughput/abort rate chart data, no conflict evidence), and the existing skill registry contains no related transaction validation or timestamp-ordering skills. The peer_candidates represent orthogonal concerns (performance analysis, logging coordination, lock acquisition) rather than overlapping capabilities. Without an existing skill to relate to and with insufficient evidence depth to justify creation as a standalone persistent skill in this registry, the candidate should not be persisted at this time. Recommend re-evaluation once supporting documentation or related validation skills are added to the registry.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "76389285-e65a-51ee-a5c2-14281615fa62",
+    "name": "Timestamp-Based Conflict Detection",
+    "description": "Detect read-write and write-write conflicts during transaction validation by comparing transaction read/write timestamps against committed versions. Returns a commit or abort decision based on timestamp ordering constraints.",
+    "skill_body": "During transaction validation, compare the transaction's read timestamp (RTS) and write timestamp (WTS) against the read and write timestamps of all committed versions in the read and write sets. If any read timestamp is less than a committed write timestamp, or any write timestamp is less than a committed read or write timestamp, the transaction conflicts and must abort. Otherwise, the transaction may commit.\n\n## Objective\n\nValidate transaction serializability by checking timestamp ordering constraints\n## Applicable Signals\n\n- Transaction validation initiated\n- Read timestamp and write timestamp available\n- Committed version timestamps accessible\n\n## Contraindications\n\n- System uses pessimistic locking instead of optimistic concurrency control\n- No timestamp infrastructure available\n- Single-threaded execution (no concurrency)\n- Transactions using explicit locks\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Retrieve transaction read timestamp (RTS) and write timestamp (WTS)'}\n- {'step': 2, 'action': 'For each item in the read set, retrieve its committed write timestamp'}\n- {'step': 3, 'action': 'Check if RTS < committed write timestamp; if true, conflict detected'}\n- {'step': 4, 'action': 'For each item in the write set, retrieve its committed read and write timestamps'}\n- {'step': 5, 'action': 'Check if WTS < committed read timestamp or WTS < committed write timestamp; if true, conflict detected'}\n- {'step': 6, 'action': 'Return commit decision if no conflicts; return abort decision with conflict reason if conflicts found'}\n\n## Constraints\n\n- All timestamps must be monotonically increasing\n- Committed version timestamps must be stable during validation\n- Read and write sets must be fully enumerated before validation\n\n## Cautions\n\n- Timestamp overflow or wraparound may cause false conflicts\n- High contention workloads may increase abort rates\n- Clock synchronization issues can violate timestamp ordering invariants\n\n## Output Contract\n\n- Boolean decision (commit or abort) with conflict reason logged; timestamp ordering invariants verified; decision is final and binding for transaction outcome",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Validate transaction serializability by checking timestamp ordering constraints",
+    "domain": "default",
+    "task_family": "transaction_validation",
+    "method_family": "timestamp_ordering",
+    "stage": "validation_phase",
+    "applicable_signals": [
+      "Transaction validation initiated",
+      "Read timestamp and write timestamp available",
+      "Committed version timestamps accessible"
+    ],
+    "contraindications": [
+      "System uses pessimistic locking instead of optimistic concurrency control",
+      "No timestamp infrastructure available",
+      "Single-threaded execution (no concurrency)",
+      "Transactions using explicit locks"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Transaction reaches validation phase",
+      "Need to determine commit or abort eligibility",
+      "Read or write set must be checked against committed or in-flight transaction versions"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Retrieve transaction read timestamp (RTS) and write timestamp (WTS)'}",
+      "{'step': 2, 'action': 'For each item in the read set, retrieve its committed write timestamp'}",
+      "{'step': 3, 'action': 'Check if RTS < committed write timestamp; if true, conflict detected'}",
+      "{'step': 4, 'action': 'For each item in the write set, retrieve its committed read and write timestamps'}",
+      "{'step': 5, 'action': 'Check if WTS < committed read timestamp or WTS < committed write timestamp; if true, conflict detected'}",
+      "{'step': 6, 'action': 'Return commit decision if no conflicts; return abort decision with conflict reason if conflicts found'}"
+    ],
+    "constraints": [
+      "All timestamps must be monotonically increasing",
+      "Committed version timestamps must be stable during validation",
+      "Read and write sets must be fully enumerated before validation"
+    ],
+    "cautions": [
+      "Timestamp overflow or wraparound may cause false conflicts",
+      "High contention workloads may increase abort rates",
+      "Clock synchronization issues can violate timestamp ordering invariants"
+    ],
+    "output_contract": [
+      "Boolean decision (commit or abort) with conflict reason logged; timestamp ordering invariants verified; decision is final and binding for transaction outcome"
+    ],
+    "examples": [],
+    "tags": [
+      "concurrency_control",
+      "transaction_validation",
+      "timestamp_ordering",
+      "optimistic_locking",
+      "conflict_detection"
+    ],
+    "support_ids": [
+      "947db095-69d9-5eea-a972-15819e674ca2"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "31865909-ad6a-5d92-8266-0d09b7526554"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|validate transaction serializability by checking timestamp ordering constraints|default|transaction_validation|timestamp_ordering|validation_phase|timestamp-based conflict detection"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

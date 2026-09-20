@@ -1,0 +1,274 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "parallel_execution",
+  "run_id": "20260916T064416_a2085826",
+  "skills": [
+    {
+      "skill_id": "1aaea44c-47b6-537f-99b8-44c0de67c697",
+      "name": "ProcessPoolExecutor Setup and Execution",
+      "description": "Compute and compare document relevance scores using TF-IDF weighting in a vector space model. Converts queries and documents into weighted vectors, computes dot products, and produces ranked document scores for information retrieval tasks.",
+      "skill_body": "To score documents against a query using TF-IDF vectors:\n1. Represent each document and the query as vectors in term space, where each dimension corresponds to a term in the collection.\n2. Weight each term using a TF-IDF scheme (e.g., nnn.atc or ntc.atc notation: first three letters denote document weighting, last three denote query weighting).\n3. Compute the dot product between the query vector and each document vector.\n4. Rank documents by descending score.\n5. Verify that relative ordering is consistent across different query formulations (e.g., reversing query terms should reverse document ordering if vectors are correctly computed).\nWhen a query term does not occur in the collection, assign zero weight to that term in the query vector.\n\n## Objective\n\nScore and rank documents by query relevance using TF-IDF vectors\n## Applicable Signals\n\n- Query provided as natural language or term list\n- Document collection with term frequencies available\n- IDF values pre-computed for collection terms\n\n## Contraindications\n\n- Query contains terms that do not occur in the collection (handle by assigning zero weight)\n- Using non-vector-based ranking methods\n- Scoring single documents without comparative context\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Construct document vectors', 'detail': 'For each document, create a vector where each dimension is a term in the collection. Populate each dimension with the TF-IDF weight of that term in the document using the chosen scheme (e.g., nnn: raw term frequency, atc: augmented TF with IDF and cosine normalization).'}\n- {'step': 2, 'action': 'Construct query vector', 'detail': 'Represent the query as a vector in the same term space. Assign equal or principled weights to query terms using the query component of the weighting scheme (e.g., atc: augmented TF with IDF and cosine normalization). For terms not in the collection, assign zero weight.'}\n- {'step': 3, 'action': 'Compute dot products', 'detail': 'For each document vector, compute the dot product with the query vector. This yields a scalar relevance score.'}\n- {'step': 4, 'action': 'Rank documents', 'detail': 'Sort documents by descending relevance score. Ties may be broken arbitrarily or by secondary criteria.'}\n- {'step': 5, 'action': 'Validate consistency', 'detail': 'Optionally verify that relative ordering is preserved or inverted predictably when query formulation changes (e.g., swapping query terms should reverse ordering if vectors are symmetric).'}\n\n## Constraints\n\n- All documents and queries must be represented in the same term space\n- TF and IDF values must be computed consistently across all documents\n- Weighting scheme (e.g., nnn.atc) must be specified and applied uniformly\n\n## Cautions\n\n- Relative ordering of scores may reverse when query formulation changes (e.g., different term weights); verify consistency as a sanity check\n- Out-of-vocabulary query terms require explicit handling (assign zero weight)\n\n## Output Contract\n\n- Ordered list of documents with computed TF-IDF scores\n- Relative ranking preserved or predictably transformed across different query formulations\n- All documents ranked by descending relevance score\n\n## Example Executions\n\n### Example 1\n\n- Input: Query: 'affection'; Documents: D1, D2, D3 with pre-computed TF-IDF vectors\n- Output: Ranked list: [D1 (score=0.45), D2 (score=0.32), D3 (score=0.18)]\n- Notes: Relative ordering for query 'affection' is reverse of ordering for query 'jealous gossip' if vectors are correctly computed.\n\n### Example 2\n\n- Input: Query: 'best car insurance'; Weighting scheme: ntc.atc; TF and IDF values from Exercise 6.10\n- Output: Top 2 scoring documents with ntc.atc weights applied\n- Notes: ntc: no TF augmentation, term frequency, cosine normalization for documents; atc: augmented TF, IDF, cosine normalization for query.\n\n### Example 3\n\n- Input: Query: 'coyote insurance'; Term 'coyote' not in collection; Weighting scheme: ntc.atc\n- Output: Scores computed with 'coyote' dimension set to zero; only 'insurance' contributes to relevance\n- Notes: Out-of-vocabulary terms are handled by zero-weighting; ranking proceeds normally.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "45af28b7-7a99-5647-9e84-0b7916ae7ec2",
+        "fe993e71-1d14-566c-a5f1-fe1e6a039fd1"
+      ],
+      "child_skill_ids": [
+        "42a24866-f9b3-5c9c-bee0-568131b255b8"
+      ],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Execute multiple independent CPU-bound function calls across worker processes and aggregate results in order.",
+      "domain": "default",
+      "task_family": "parallel_execution",
+      "method_family": "process_pool",
+      "stage": "execution",
+      "applicable_signals": [
+        "Query provided as natural language or term list",
+        "Document collection with term frequencies available",
+        "IDF values pre-computed for collection terms"
+      ],
+      "contraindications": [
+        "Query contains terms that do not occur in the collection (handle by assigning zero weight)",
+        "Using non-vector-based ranking methods",
+        "Scoring single documents without comparative context"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Need to parallelize CPU-intensive operations across multiple cores",
+        "Tasks are independent and do not require shared mutable state",
+        "GIL contention is a performance bottleneck"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Construct document vectors', 'detail': 'For each document, create a vector where each dimension is a term in the collection. Populate each dimension with the TF-IDF weight of that term in the document using the chosen scheme (e.g., nnn: raw term frequency, atc: augmented TF with IDF and cosine normalization).'}",
+        "{'step': 2, 'action': 'Construct query vector', 'detail': 'Represent the query as a vector in the same term space. Assign equal or principled weights to query terms using the query component of the weighting scheme (e.g., atc: augmented TF with IDF and cosine normalization). For terms not in the collection, assign zero weight.'}",
+        "{'step': 3, 'action': 'Compute dot products', 'detail': 'For each document vector, compute the dot product with the query vector. This yields a scalar relevance score.'}",
+        "{'step': 4, 'action': 'Rank documents', 'detail': 'Sort documents by descending relevance score. Ties may be broken arbitrarily or by secondary criteria.'}",
+        "{'step': 5, 'action': 'Validate consistency', 'detail': 'Optionally verify that relative ordering is preserved or inverted predictably when query formulation changes (e.g., swapping query terms should reverse ordering if vectors are symmetric).'}"
+      ],
+      "constraints": [
+        "All documents and queries must be represented in the same term space",
+        "TF and IDF values must be computed consistently across all documents",
+        "Weighting scheme (e.g., nnn.atc) must be specified and applied uniformly"
+      ],
+      "cautions": [
+        "Relative ordering of scores may reverse when query formulation changes (e.g., different term weights); verify consistency as a sanity check",
+        "Out-of-vocabulary query terms require explicit handling (assign zero weight)"
+      ],
+      "output_contract": [
+        "Ordered list of documents with computed TF-IDF scores",
+        "Relative ranking preserved or predictably transformed across different query formulations",
+        "All documents ranked by descending relevance score"
+      ],
+      "examples": [
+        {
+          "input": "Query: 'affection'; Documents: D1, D2, D3 with pre-computed TF-IDF vectors",
+          "output": "Ranked list: [D1 (score=0.45), D2 (score=0.32), D3 (score=0.18)]",
+          "notes": "Relative ordering for query 'affection' is reverse of ordering for query 'jealous gossip' if vectors are correctly computed."
+        },
+        {
+          "input": "Query: 'best car insurance'; Weighting scheme: ntc.atc; TF and IDF values from Exercise 6.10",
+          "output": "Top 2 scoring documents with ntc.atc weights applied",
+          "notes": "ntc: no TF augmentation, term frequency, cosine normalization for documents; atc: augmented TF, IDF, cosine normalization for query."
+        },
+        {
+          "input": "Query: 'coyote insurance'; Term 'coyote' not in collection; Weighting scheme: ntc.atc",
+          "output": "Scores computed with 'coyote' dimension set to zero; only 'insurance' contributes to relevance",
+          "notes": "Out-of-vocabulary terms are handled by zero-weighting; ranking proceeds normally."
+        }
+      ],
+      "tags": [
+        "information_retrieval",
+        "vector_space_model",
+        "tf_idf",
+        "document_ranking",
+        "scoring",
+        "query_processing"
+      ],
+      "support_ids": [
+        "a3bf87df-924f-51cc-be2c-18d28f167040",
+        "2582a0bf-b2e7-5be5-b667-a4af4b3c9328"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "e0731660-0805-51f5-a7ab-28f35411c915"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.92,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|execute multiple independent cpu-bound function calls across worker processes and aggregate results in order.|default|parallel_execution|process_pool|execution|processpoolexecutor setup and execution",
+        "change_action": "merge",
+        "llm_reason": "Candidate 'TF-IDF Vector Scoring' is a semantic duplicate of peer skills 'Vector Space Scoring via Cosine Similarity' and 'Vector Space Score Computation'. All three describe the same core capability: computing document relevance scores in vector space using term weights and dot products, then ranking results. The candidate adds no materially distinct workflow, constraint, or caution beyond what the peers already cover. The peer skills together provide both the mathematical foundation (cosine similarity) and the efficient implementation strategy (term-at-a-time accumulation). Merging into the peer skills avoids redundant registry entries and consolidates guidance.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "45af28b7-7a99-5647-9e84-0b7916ae7ec2",
+          "fe993e71-1d14-566c-a5f1-fe1e6a039fd1"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "merged_from_skill_ids": [],
+        "child_skill_ids": [
+          "42a24866-f9b3-5c9c-bee0-568131b255b8"
+        ]
+      },
+      "version": "0.1.1",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "f380f262-341b-4e1e-b0b3-ff0929c94d56",
+      "entity_type": "skill",
+      "entity_id": "1aaea44c-47b6-537f-99b8-44c0de67c697",
+      "action": "merge",
+      "changed_at": "2026-09-15T20:42:48+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "Candidate 415a5490 represents the same semantic capability (vector space ranking via dot product) as three existing peer skills that cover overlapping aspects: cosine similarity (90f29523), term-at-a-time accumulation (515e3539), and query weighting strategy (fbfd9d73). The candidate is a generalized abstraction of these three narrower implementations. Rather than preserve the candidate as a duplicate, it should merge into the existing skills, which collectively provide more detailed, implementation-focused guidance. The peer candidates are more specific and actionable; the candidate is more abstract and redundant.",
+      "related_entity_ids": [
+        "1aaea44c-47b6-537f-99b8-44c0de67c697"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "1aaea44c-47b6-537f-99b8-44c0de67c697",
+        "doc_ids": [
+          "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+          "fc9056b5-59f5-5e1a-9452-59d955d52e19"
+        ],
+        "support_added": [
+          "ab7b3bcc-a8db-52c0-b270-7ab05b1f9b62"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "1aaea44c-47b6-537f-99b8-44c0de67c697"
+        ]
+      }
+    },
+    {
+      "change_id": "0f2b4eca-4908-453b-8c84-db44e99cf8ed",
+      "entity_type": "skill",
+      "entity_id": "1aaea44c-47b6-537f-99b8-44c0de67c697",
+      "action": "merge",
+      "changed_at": "2026-09-15T20:42:48+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "Candidate skill 90f29523-caa8-5956-a438-35d7fd7d9136 (Vector Space Scoring via Cosine Similarity) is semantically identical to three existing peer skills covering the same vector space model scoring capability. All four skills share the same asset_type (session_skill), granularity (session), domain (default), task_family (document_ranking), and method_family (vector_space_model). The candidate describes the mathematical foundation (cosine similarity via dot product normalization) that underlies the implementations in the three peers. Rather than create a duplicate, the candidate should be consolidated into the existing skill registry. The three target skills represent different implementation perspectives (term-at-a-time accumulation with top-K retrieval, TF-IDF weighting emphasis, and general vector similarity) that collectively cover the candidate's scope. No single target is a perfect match, but together they subsume the candidate's capability.",
+      "related_entity_ids": [
+        "1aaea44c-47b6-537f-99b8-44c0de67c697"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "1aaea44c-47b6-537f-99b8-44c0de67c697",
+        "doc_ids": [
+          "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+          "fc9056b5-59f5-5e1a-9452-59d955d52e19"
+        ],
+        "support_added": [
+          "3f4cda28-cca4-5136-8f63-0ec0947a66b1"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "1aaea44c-47b6-537f-99b8-44c0de67c697"
+        ]
+      }
+    },
+    {
+      "change_id": "f7c024b3-7ad0-4b28-8ba9-c74e0b6b40bc",
+      "entity_type": "skill",
+      "entity_id": "1aaea44c-47b6-537f-99b8-44c0de67c697",
+      "action": "merge",
+      "changed_at": "2026-09-15T20:42:48+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "Candidate 515e3539 describes a specific implementation strategy (term-at-a-time accumulation with priority queue extraction) for vector space document ranking. The three peer candidates (90f29523, 415a5490, 36fa7e1d) all address the same semantic capability: scoring and ranking documents by vector similarity in a term space. The candidate is a narrower algorithmic variant of the broader vector space ranking capability already covered by these peers. Rather than create a duplicate skill, the candidate's implementation details (term-at-a-time accumulation, priority queue optimization, postings structure constraints) should strengthen the existing skills' intervention_moves and cautions to reflect this efficient retrieval strategy. The candidate does not introduce new capability identity—it refines how existing vector space ranking is executed.",
+      "related_entity_ids": [
+        "1aaea44c-47b6-537f-99b8-44c0de67c697"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "1aaea44c-47b6-537f-99b8-44c0de67c697",
+        "doc_ids": [
+          "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+          "fc9056b5-59f5-5e1a-9452-59d955d52e19"
+        ],
+        "support_added": [
+          "04603d73-2b7f-591f-b7fa-b76c49f65fab"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "1aaea44c-47b6-537f-99b8-44c0de67c697"
+        ]
+      }
+    },
+    {
+      "change_id": "b871b477-93ed-4997-a43c-5c978a105c85",
+      "entity_type": "skill",
+      "entity_id": "1aaea44c-47b6-537f-99b8-44c0de67c697",
+      "action": "merge",
+      "changed_at": "2026-09-15T20:42:48+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "Candidate 'TF-IDF Vector Scoring' is a semantic duplicate of peer skills 'Vector Space Scoring via Cosine Similarity' and 'Vector Space Score Computation'. All three describe the same core capability: computing document relevance scores in vector space using term weights and dot products, then ranking results. The candidate adds no materially distinct workflow, constraint, or caution beyond what the peers already cover. The peer skills together provide both the mathematical foundation (cosine similarity) and the efficient implementation strategy (term-at-a-time accumulation). Merging into the peer skills avoids redundant registry entries and consolidates guidance.",
+      "related_entity_ids": [
+        "1aaea44c-47b6-537f-99b8-44c0de67c697"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "1aaea44c-47b6-537f-99b8-44c0de67c697",
+        "doc_ids": [
+          "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+          "fc9056b5-59f5-5e1a-9452-59d955d52e19"
+        ],
+        "support_added": [
+          "2582a0bf-b2e7-5be5-b667-a4af4b3c9328"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "1aaea44c-47b6-537f-99b8-44c0de67c697"
+        ]
+      }
+    }
+  ]
+}

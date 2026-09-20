@@ -1,0 +1,107 @@
+{
+  "skill_id": "f2930544-a6e7-58c2-beb2-0dcabd03a5d6",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill in concurrency_control_optimization domain (pre_validation stage, early_validation method) with no semantic overlap to existing skills. Existing skills are in unrelated domains (metrics_instrumentation, stream_execution_tuning). Peer candidates (Lock-Free Tuple Read, Read-Set Validation, Read Timestamp Extension) are complementary skills in the same validation workflow but operate at different stages/methods and do not subsume this preemptive abort decision logic. Support evidence from section 4.1 validates the capability.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "f2930544-a6e7-58c2-beb2-0dcabd03a5d6",
+    "name": "Preemptive Abort Decision",
+    "description": "Determines whether a transaction should abort before acquiring write-set locks by checking tuple timestamps (wts, rts) against the transaction's approximate commit timestamp. This reduces unnecessary lock acquisition and contention in validation phases.",
+    "skill_body": "Before locking tuples in the transaction's write set, atomically read each tuple's TS_word to extract wts and rts. Compare the transaction's approximate commit timestamp against these values. If validation will fail (e.g., tuple's local rts is less than commit timestamp and local wts does not match tuple's latest wts), abort immediately without acquiring locks. Sleep briefly (e.g., 1 µs) before retry to reduce restart overhead.\n\n## Objective\n\nReduce lock contention by detecting transaction abort eligibility before write-set locking\n## Applicable Signals\n\n- Read-set tuple's local rts is less than transaction commit timestamp\n- Read-set tuple's local wts does not match tuple's latest wts\n- Write-set tuple timestamps indicate potential conflict\n\n## Contraindications\n\n- Commit timestamp cannot be accurately approximated before write-set locking\n- Tuple timestamps are not reliably accessible or atomic\n- Abort rate is already low (optimization provides diminishing returns)\n- Transaction has no read set to validate early\n\n## Workflow Steps\n\n- {'step': 1, 'action': \"Atomically read TS_word from each tuple in transaction's read set\", 'output': 'Extract wts and rts for each read-set tuple'}\n- {'step': 2, 'action': 'Determine approximate commit timestamp for the transaction', 'output': 'Commit timestamp estimate (may be conservative)'}\n- {'step': 3, 'action': \"For each read-set tuple, check if validation will fail: rts < commit_timestamp AND wts ≠ tuple's latest wts\", 'output': 'Boolean abort decision'}\n- {'step': 4, 'action': 'If abort decision is true, release any held locks and abort transaction immediately', 'output': 'Transaction aborted; no write-set locks acquired'}\n- {'step': 5, 'action': 'If abort decision is false, proceed to write-set locking and full validation', 'output': 'Continue to next validation phase step'}\n- {'step': 6, 'action': 'On abort, sleep briefly (e.g., 1 µs) before retry', 'output': 'Reduced restart contention'}\n\n## Constraints\n\n- Tuple TS_word must support atomic reads of both wts and rts\n- Approximate commit timestamp must be conservative (not overly optimistic)\n- Abort decision must be made without holding any locks\n\n## Cautions\n\n- Early abort decision is based on approximate commit timestamp; false negatives are acceptable but false positives (aborting when validation would succeed) must be avoided\n- Sleep duration before retry should be tuned to workload; too short increases restart overhead, too long reduces parallelism\n\n## Output Contract\n\n- Transaction abort decision made before write-set lock acquisition. On abort: transaction released without holding locks, sleep period applied, and retry signaled. On continue: transaction proceeds to write-set locking with reduced abort probability. Observable success: reduced lock hold time and contention in validation phase.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Reduce lock contention by detecting transaction abort eligibility before write-set locking",
+    "domain": "default",
+    "task_family": "concurrency_control_optimization",
+    "method_family": "early_validation",
+    "stage": "pre_validation",
+    "applicable_signals": [
+      "Read-set tuple's local rts is less than transaction commit timestamp",
+      "Read-set tuple's local wts does not match tuple's latest wts",
+      "Write-set tuple timestamps indicate potential conflict"
+    ],
+    "contraindications": [
+      "Commit timestamp cannot be accurately approximated before write-set locking",
+      "Tuple timestamps are not reliably accessible or atomic",
+      "Abort rate is already low (optimization provides diminishing returns)",
+      "Transaction has no read set to validate early"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Transaction enters validation phase with read set and write set",
+      "Tuple timestamps (wts, rts) are atomically readable from TS_word",
+      "Transaction's approximate commit timestamp can be determined"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': \"Atomically read TS_word from each tuple in transaction's read set\", 'output': 'Extract wts and rts for each read-set tuple'}",
+      "{'step': 2, 'action': 'Determine approximate commit timestamp for the transaction', 'output': 'Commit timestamp estimate (may be conservative)'}",
+      "{'step': 3, 'action': \"For each read-set tuple, check if validation will fail: rts < commit_timestamp AND wts ≠ tuple's latest wts\", 'output': 'Boolean abort decision'}",
+      "{'step': 4, 'action': 'If abort decision is true, release any held locks and abort transaction immediately', 'output': 'Transaction aborted; no write-set locks acquired'}",
+      "{'step': 5, 'action': 'If abort decision is false, proceed to write-set locking and full validation', 'output': 'Continue to next validation phase step'}",
+      "{'step': 6, 'action': 'On abort, sleep briefly (e.g., 1 µs) before retry', 'output': 'Reduced restart contention'}"
+    ],
+    "constraints": [
+      "Tuple TS_word must support atomic reads of both wts and rts",
+      "Approximate commit timestamp must be conservative (not overly optimistic)",
+      "Abort decision must be made without holding any locks"
+    ],
+    "cautions": [
+      "Early abort decision is based on approximate commit timestamp; false negatives are acceptable but false positives (aborting when validation would succeed) must be avoided",
+      "Sleep duration before retry should be tuned to workload; too short increases restart overhead, too long reduces parallelism"
+    ],
+    "output_contract": [
+      "Transaction abort decision made before write-set lock acquisition. On abort: transaction released without holding locks, sleep period applied, and retry signaled. On continue: transaction proceeds to write-set locking with reduced abort probability. Observable success: reduced lock hold time and contention in validation phase."
+    ],
+    "examples": [],
+    "tags": [
+      "concurrency_control",
+      "transaction_validation",
+      "lock_contention_reduction",
+      "timestamp_based_validation",
+      "optimization"
+    ],
+    "support_ids": [
+      "5dd9d67b-72c9-5617-92c2-04ecaddcacce"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "b84fdd73-303d-5a34-ac04-c257738246e1"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.78,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|reduce lock contention by detecting transaction abort eligibility before write-set locking|default|concurrency_control_optimization|early_validation|pre_validation|preemptive abort decision"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

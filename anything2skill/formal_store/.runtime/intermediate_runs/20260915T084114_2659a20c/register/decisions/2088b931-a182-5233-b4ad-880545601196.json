@@ -1,0 +1,102 @@
+{
+  "skill_id": "2088b931-a182-5233-b4ad-880545601196",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct session_skill for trace lifecycle management (initialize, update metadata, finalize traces) in agent debugging workflows. It does not semantically match existing skills: the OpenTelemetry skill targets Flink LocalStreamEnvironment setup (different domain/asset), and the Parallel Task Completion skill targets DataStream transformations (different task_family). Peer candidates (Agent Performance Dashboard Navigation, AgentOps Session Lifecycle, Start Trace with Context) are related but operate at different granularities or cover different aspects (dashboard inspection, AgentOps monitoring, single trace initialization). This candidate covers the complete trace lifecycle with metadata enrichment—a capability not present in the registry. Support evidence from Debugging Roadmap validates the tracer API contract.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "2088b931-a182-5233-b4ad-880545601196",
+    "name": "Trace Lifecycle Management",
+    "description": "Initialize, finalize, and update metadata for execution traces in agent debugging workflows. Manages trace context, state transitions, and metadata enrichment across the complete trace lifecycle.",
+    "skill_body": "Use this skill to manage the full lifecycle of a trace session: (1) start a new trace with optional name and tags, (2) update metadata on the running trace as needed, (3) end the trace with a final state. Ensure trace_context is provided when available to target the correct session; if omitted, operations affect all active spans.\n\n## Objective\n\nEstablish and close bounded trace sessions with proper state and metadata tracking\n## Applicable Signals\n\n- session_start\n- metadata_enrichment_required\n- session_end\n\n## Contraindications\n\n- Trace context is already closed\n- No active session exists\n- Metadata update is not required for the current operation\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'start_trace', 'description': 'Initialize a new trace with optional trace_name and tags', 'input': 'trace_name (str, optional), tags (list, optional)', 'output': 'TraceContext object'}\n- {'step': 2, 'action': 'update_trace_metadata', 'description': 'Enrich the running trace with metadata key-value pairs', 'input': \"metadata (Dict[str, Any]), prefix (str, default='trace.metadata')\", 'output': 'bool (success indicator)'}\n- {'step': 3, 'action': 'end_trace', 'description': 'Finalize the trace and record its end state', 'input': 'trace_context (TraceContext, optional), end_state (TraceState|StatusCode|str, default=TraceState.SUCCESS)', 'output': 'None (trace finalized)'}\n\n## Constraints\n\n- trace_context must be valid or None (to target all active spans)\n- end_state must be a valid TraceState, StatusCode, or string\n- metadata dict must be serializable\n\n## Cautions\n\n- If trace_context is not provided to end_trace, all active spans will be terminated\n- Metadata updates must occur while the trace is active; updates after end_trace will fail\n\n## Output Contract\n\n- On start_trace: returns a TraceContext object for downstream reference. On update_trace_metadata: returns boolean indicating success. On end_trace: trace is finalized with the specified end_state recorded; if trace_context is None, all active session spans are ended.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Establish and close bounded trace sessions with proper state and metadata tracking",
+    "domain": "default",
+    "task_family": "agent_debugging",
+    "method_family": "trace_instrumentation",
+    "stage": "trace_setup_and_teardown",
+    "applicable_signals": [
+      "session_start",
+      "metadata_enrichment_required",
+      "session_end"
+    ],
+    "contraindications": [
+      "Trace context is already closed",
+      "No active session exists",
+      "Metadata update is not required for the current operation"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Agent execution begins and requires trace initialization",
+      "Metadata needs to be attached to a running trace",
+      "Trace state must be finalized at agent execution end"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'start_trace', 'description': 'Initialize a new trace with optional trace_name and tags', 'input': 'trace_name (str, optional), tags (list, optional)', 'output': 'TraceContext object'}",
+      "{'step': 2, 'action': 'update_trace_metadata', 'description': 'Enrich the running trace with metadata key-value pairs', 'input': \"metadata (Dict[str, Any]), prefix (str, default='trace.metadata')\", 'output': 'bool (success indicator)'}",
+      "{'step': 3, 'action': 'end_trace', 'description': 'Finalize the trace and record its end state', 'input': 'trace_context (TraceContext, optional), end_state (TraceState|StatusCode|str, default=TraceState.SUCCESS)', 'output': 'None (trace finalized)'}"
+    ],
+    "constraints": [
+      "trace_context must be valid or None (to target all active spans)",
+      "end_state must be a valid TraceState, StatusCode, or string",
+      "metadata dict must be serializable"
+    ],
+    "cautions": [
+      "If trace_context is not provided to end_trace, all active spans will be terminated",
+      "Metadata updates must occur while the trace is active; updates after end_trace will fail"
+    ],
+    "output_contract": [
+      "On start_trace: returns a TraceContext object for downstream reference. On update_trace_metadata: returns boolean indicating success. On end_trace: trace is finalized with the specified end_state recorded; if trace_context is None, all active session spans are ended."
+    ],
+    "examples": [],
+    "tags": [
+      "trace_management",
+      "agent_debugging",
+      "instrumentation",
+      "session_lifecycle"
+    ],
+    "support_ids": [
+      "c123027f-67f3-5ca8-8a19-cb9e9f74873b"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "2e355d5c-af82-58d8-8cc9-fc155ee978f3"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|establish and close bounded trace sessions with proper state and metadata tracking|default|agent_debugging|trace_instrumentation|trace_setup_and_teardown|trace lifecycle management"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

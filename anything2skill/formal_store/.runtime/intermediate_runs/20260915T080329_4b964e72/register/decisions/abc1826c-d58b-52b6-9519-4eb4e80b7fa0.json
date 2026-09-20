@@ -1,0 +1,120 @@
+{
+  "skill_id": "abc1826c-d58b-52b6-9519-4eb4e80b7fa0",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate skill 'Lock-Free Tuple Read with Timestamp Validation' belongs to a different semantic domain (optimistic concurrency control / database transaction processing) than the existing_skills registry (Spring Boot metrics instrumentation and Apache Flink stream processing). The peer_candidates are semantically related to the candidate (all address OCC tuple validation, timestamp management, and concurrency control), but the existing_skills contain no overlapping asset_type, task_family, method_family, or domain. There is no existing skill to target for merge, strengthen, revise, or split. Creating this skill would introduce an orphaned capability in a domain not represented in the current registry. Recommend establishing a separate OCC/database concurrency control skill registry or confirming domain scope before persisting.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "abc1826c-d58b-52b6-9519-4eb4e80b7fa0",
+    "name": "Lock-Free Tuple Read with Timestamp Validation",
+    "description": "Atomically load tuple data and read/write timestamps without locks by double-checking TS_word before and after data load to ensure consistency. Prevents lock contention in high-concurrency optimistic concurrency control systems.",
+    "skill_body": "Execute the following steps to safely read tuple data and timestamps concurrently:\n1. Load TS_word (v1) from tuple t before reading data.\n2. Read tuple data into r.data from t.data.\n3. Load TS_word (v2) from tuple t after reading data.\n4. Repeat steps 1–3 if v1 ≠ v2 or if v1.lock_bit == 1 (indicating concurrent modification or lock).\n5. Once consistent, extract wts and rts from v1: r.wts = v1.wts; r.rts = v1.wts + v1.delta.\n6. Return tuple data and timestamps to caller.\n\n## Objective\n\nSafely read tuple data and timestamps concurrently without blocking\n## Applicable Signals\n\n- Read operation initiated on tuple in OCC system\n- No exclusive lock held on target tuple\n- Concurrent transactions may be accessing same tuple\n\n## Contraindications\n\n- Tuple is already locked by another transaction (lock_bit == 1)\n- Serializable isolation with strict ordering is required\n- Lock bit is set in TS_word (v1.lock_bit == 1)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Load TS_word', 'detail': 'v1 = t.read_ts_word()'}\n- {'step': 2, 'action': 'Read tuple data', 'detail': 'read(r.data, t.data)'}\n- {'step': 3, 'action': 'Load TS_word again', 'detail': 'v2 = t.read_ts_word()'}\n- {'step': 4, 'action': 'Check consistency', 'detail': 'If v1 ≠ v2 or v1.lock_bit == 1, go to step 1; otherwise continue'}\n- {'step': 5, 'action': 'Extract timestamps', 'detail': 'r.wts = v1.wts; r.rts = v1.wts + v1.delta'}\n- {'step': 6, 'action': 'Return result', 'detail': 'Caller receives r with consistent data and timestamps'}\n\n## Constraints\n\n- TS_word must be loaded twice: before and after data read.\n- If v1 ≠ v2 or lock_bit is set, retry the entire sequence.\n- No writes to shared memory during the read operation.\n- If retry loop fails repeatedly, fall back to heavier-weight latching to avoid starvation.\n\n## Cautions\n\n- Spin-loop may cause starvation if lock_bit remains set; implement backoff or fallback to locking.\n- TS_word encoding: bit 63 is lock bit; bits 62:48 encode delta (rts − wts); bits 47:0 encode wts.\n- Assumes TS_word is 64-bit and atomic load/store are available.\n\n## Output Contract\n\n- Tuple data and consistent timestamps (wts, rts) returned; r.wts and r.rts populated; no lock acquired; data is guaranteed to match the timestamps at the moment of read.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Transaction T1 calls read on tuple y; y.TS_word = {lock_bit=0, delta=3, wts=100}; y.data = 'value_A'\n- Therapist/Output: r.data = 'value_A'; r.wts = 100; r.rts = 103 (100 + 3); no lock acquired\n- Notes: Consistent read on first attempt; v1 == v2 and lock_bit == 0\n\n### Example 2\n\n- Client/Input: Transaction T2 calls read on tuple x; concurrent write modifies x.TS_word between first and second load\n- Therapist/Output: Retry loop executes; eventually returns consistent data and updated timestamps\n- Notes: v1 ≠ v2 triggers retry; no blocking occurs",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Safely read tuple data and timestamps concurrently without blocking",
+    "domain": "default",
+    "task_family": "tuple_read",
+    "method_family": "lock_free_atomic_load",
+    "stage": "read_phase",
+    "applicable_signals": [
+      "Read operation initiated on tuple in OCC system",
+      "No exclusive lock held on target tuple",
+      "Concurrent transactions may be accessing same tuple"
+    ],
+    "contraindications": [
+      "Tuple is already locked by another transaction (lock_bit == 1)",
+      "Serializable isolation with strict ordering is required",
+      "Lock bit is set in TS_word (v1.lock_bit == 1)"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Transaction enters read phase and must load tuple data with associated timestamps",
+      "High-concurrency workload where lock overhead is unacceptable",
+      "Optimistic concurrency control protocol requires non-blocking reads"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Load TS_word', 'detail': 'v1 = t.read_ts_word()'}",
+      "{'step': 2, 'action': 'Read tuple data', 'detail': 'read(r.data, t.data)'}",
+      "{'step': 3, 'action': 'Load TS_word again', 'detail': 'v2 = t.read_ts_word()'}",
+      "{'step': 4, 'action': 'Check consistency', 'detail': 'If v1 ≠ v2 or v1.lock_bit == 1, go to step 1; otherwise continue'}",
+      "{'step': 5, 'action': 'Extract timestamps', 'detail': 'r.wts = v1.wts; r.rts = v1.wts + v1.delta'}",
+      "{'step': 6, 'action': 'Return result', 'detail': 'Caller receives r with consistent data and timestamps'}"
+    ],
+    "constraints": [
+      "TS_word must be loaded twice: before and after data read.",
+      "If v1 ≠ v2 or lock_bit is set, retry the entire sequence.",
+      "No writes to shared memory during the read operation.",
+      "If retry loop fails repeatedly, fall back to heavier-weight latching to avoid starvation."
+    ],
+    "cautions": [
+      "Spin-loop may cause starvation if lock_bit remains set; implement backoff or fallback to locking.",
+      "TS_word encoding: bit 63 is lock bit; bits 62:48 encode delta (rts − wts); bits 47:0 encode wts.",
+      "Assumes TS_word is 64-bit and atomic load/store are available."
+    ],
+    "output_contract": [
+      "Tuple data and consistent timestamps (wts, rts) returned; r.wts and r.rts populated; no lock acquired; data is guaranteed to match the timestamps at the moment of read."
+    ],
+    "examples": [
+      {
+        "input": "Transaction T1 calls read on tuple y; y.TS_word = {lock_bit=0, delta=3, wts=100}; y.data = 'value_A'",
+        "output": "r.data = 'value_A'; r.wts = 100; r.rts = 103 (100 + 3); no lock acquired",
+        "notes": "Consistent read on first attempt; v1 == v2 and lock_bit == 0"
+      },
+      {
+        "input": "Transaction T2 calls read on tuple x; concurrent write modifies x.TS_word between first and second load",
+        "output": "Retry loop executes; eventually returns consistent data and updated timestamps",
+        "notes": "v1 ≠ v2 triggers retry; no blocking occurs"
+      }
+    ],
+    "tags": [
+      "optimistic_concurrency_control",
+      "lock_free",
+      "timestamp_validation",
+      "tuple_read",
+      "atomic_load",
+      "high_concurrency"
+    ],
+    "support_ids": [
+      "de65d1d8-5967-54ad-b080-24f1fc5f9644"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "eb1caff4-b32f-51d1-b59d-f3a94d7814d6"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|safely read tuple data and timestamps concurrently without blocking|default|tuple_read|lock_free_atomic_load|read_phase|lock-free tuple read with timestamp validation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

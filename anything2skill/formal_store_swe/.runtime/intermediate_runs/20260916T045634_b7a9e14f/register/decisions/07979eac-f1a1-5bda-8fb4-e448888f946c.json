@@ -1,0 +1,111 @@
+{
+  "skill_id": "07979eac-f1a1-5bda-8fb4-e448888f946c",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "07979eac-f1a1-5bda-8fb4-e448888f946c",
+    "name": "Detect and Handle BrokenProcessPool Exception",
+    "description": "Catch BrokenProcessPool exceptions raised when a ProcessPoolExecutor worker terminates abnormally (killed externally, crash, or resource exhaustion). Implement recovery or escalation to restore task execution capability.",
+    "skill_body": "When a ProcessPoolExecutor worker terminates in a non-clean fashion, a BrokenProcessPool exception is raised. Catch this exception, log the failure with worker identity and termination cause, determine an appropriate recovery strategy (task resubmission, pool restart, or escalation), and execute the recovery action or escalate to the caller.\n\n## Objective\n\nSafely handle process pool worker termination failures and restore execution capability\n## Applicable Signals\n\n- BrokenProcessPool exception raised by concurrent.futures.process module\n- Worker process exit code indicates non-clean termination\n\n## Contraindications\n\n- Worker termination is intentional and should not trigger recovery\n- No escalation or recovery action is required by design\n- Caller explicitly handles pool lifecycle and does not expect automatic recovery\n\n## Intervention Moves\n\n- Catch BrokenProcessPool exception from ProcessPoolExecutor.submit() or result retrieval\n- Log exception details including worker identity, timestamp, affected task, and exception message\n- Validate pool state before attempting recovery\n- Execute recovery action: resubmit task to new pool, restart pool, or escalate upstream\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Catch BrokenProcessPool exception', 'detail': 'Use try-except block around ProcessPoolExecutor.submit() or result retrieval to intercept exception from concurrent.futures.process module'}\n- {'step': 2, 'action': 'Log exception details', 'detail': 'Record timestamp, affected task identity, worker information, and exception message for diagnostics and audit trail'}\n- {'step': 3, 'action': 'Determine recovery strategy', 'detail': 'Analyze failure pattern and choose between task resubmission, pool restart, or escalation based on context and failure frequency'}\n- {'step': 4, 'action': 'Execute recovery or escalate', 'detail': 'Resubmit task to new pool instance, restart pool, or raise exception upstream with context preserved'}\n\n## Constraints\n\n- Exception is derived from BrokenExecutor; catch at appropriate hierarchy level\n- Recovery action must be idempotent to avoid duplicate task execution\n- Pool state must be validated before resubmitting tasks\n- Do not silently ignore BrokenProcessPool; always log and escalate or recover\n\n## Cautions\n\n- Resubmitting tasks without pool restart may fail; validate pool health first\n- External process kills may indicate system-level issues; escalate if repeated\n- Ensure recovery logic does not mask underlying resource or configuration problems\n\n## Output Contract\n\n- Exception caught and logged with full context. Recovery action initiated (task resubmission, pool restart, or escalation to caller). Caller receives either successful task result after recovery or re-raised exception with diagnostic context preserved.",
+    "asset_type": "safety_rule",
+    "granularity": "session",
+    "asset_node_id": "safety_rule_node",
+    "asset_path": "family_root/safety_module/safety_rule_node",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Safely handle process pool worker termination failures and restore execution capability",
+    "domain": "default",
+    "task_family": "parallel_execution",
+    "method_family": "exception_handling",
+    "stage": "execution_monitoring",
+    "applicable_signals": [
+      "BrokenProcessPool exception raised by concurrent.futures.process module",
+      "Worker process exit code indicates non-clean termination"
+    ],
+    "contraindications": [
+      "Worker termination is intentional and should not trigger recovery",
+      "No escalation or recovery action is required by design",
+      "Caller explicitly handles pool lifecycle and does not expect automatic recovery"
+    ],
+    "intervention_moves": [
+      "Catch BrokenProcessPool exception from ProcessPoolExecutor.submit() or result retrieval",
+      "Log exception details including worker identity, timestamp, affected task, and exception message",
+      "Validate pool state before attempting recovery",
+      "Execute recovery action: resubmit task to new pool, restart pool, or escalate upstream"
+    ],
+    "triggers": [
+      "ProcessPoolExecutor worker terminates abnormally during task execution",
+      "External process kill or crash detected",
+      "Resource exhaustion causes worker termination"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Catch BrokenProcessPool exception', 'detail': 'Use try-except block around ProcessPoolExecutor.submit() or result retrieval to intercept exception from concurrent.futures.process module'}",
+      "{'step': 2, 'action': 'Log exception details', 'detail': 'Record timestamp, affected task identity, worker information, and exception message for diagnostics and audit trail'}",
+      "{'step': 3, 'action': 'Determine recovery strategy', 'detail': 'Analyze failure pattern and choose between task resubmission, pool restart, or escalation based on context and failure frequency'}",
+      "{'step': 4, 'action': 'Execute recovery or escalate', 'detail': 'Resubmit task to new pool instance, restart pool, or raise exception upstream with context preserved'}"
+    ],
+    "constraints": [
+      "Exception is derived from BrokenExecutor; catch at appropriate hierarchy level",
+      "Recovery action must be idempotent to avoid duplicate task execution",
+      "Pool state must be validated before resubmitting tasks",
+      "Do not silently ignore BrokenProcessPool; always log and escalate or recover"
+    ],
+    "cautions": [
+      "Resubmitting tasks without pool restart may fail; validate pool health first",
+      "External process kills may indicate system-level issues; escalate if repeated",
+      "Ensure recovery logic does not mask underlying resource or configuration problems"
+    ],
+    "output_contract": [
+      "Exception caught and logged with full context. Recovery action initiated (task resubmission, pool restart, or escalation to caller). Caller receives either successful task result after recovery or re-raised exception with diagnostic context preserved."
+    ],
+    "examples": [],
+    "tags": [
+      "concurrent.futures",
+      "ProcessPoolExecutor",
+      "exception_handling",
+      "worker_failure",
+      "recovery",
+      "escalation"
+    ],
+    "support_ids": [
+      "a869af6b-0931-5bdf-9363-fbca243e4de1"
+    ],
+    "metadata": {
+      "risk_class": "high",
+      "source_draft_ids": [
+        "badbb958-45a4-58f5-b0c6-63eaa2a4988a"
+      ],
+      "support_summary": {
+        "support": 0,
+        "constraint": 1,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||safety_rule|session|safety_rule_node|safely handle process pool worker termination failures and restore execution capability|default|parallel_execution|exception_handling|execution_monitoring|detect and handle brokenprocesspool exception"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 1,
+  "branch": "full"
+}

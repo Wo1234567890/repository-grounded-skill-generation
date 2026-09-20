@@ -1,0 +1,122 @@
+{
+  "skill_id": "03e5c804-cb85-5bec-acea-42783de9c0c8",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for buffer timeout configuration in Flink stream execution, addressing latency-throughput tradeoff optimization. It does not semantically match any existing skill (which cover async task futures, URL fetching, and other unrelated domains). Peer candidates are in different task families (watermark emission, file source, sink output) and do not subsume this capability. Support evidence is present but minimal; skill is executable and safe.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "03e5c804-cb85-5bec-acea-42783de9c0c8",
+    "name": "Buffer Timeout Configuration for Latency Control",
+    "description": "Configure buffer timeout on StreamExecutionEnvironment or individual operators to balance throughput and latency. Use setBufferTimeout() to control when data is flushed from buffers.",
+    "skill_body": "Call setBufferTimeout(timeoutMillis) on the StreamExecutionEnvironment or on individual operators. For maximum throughput, use -1 (buffers flush only when full). For minimum latency, use a small positive value (5–10 ms). Never use 0, as it causes severe performance degradation.\n\n## Objective\n\noptimize_latency_throughput_tradeoff\n## Applicable Signals\n\n- latency requirements are critical\n- throughput optimization is needed\n- operator-level tuning is preferred over global settings for fine-grained control\n\n## Contraindications\n\n- Do not set buffer timeout to 0 (causes severe performance degradation)\n- Do not apply uniformly without understanding downstream impact on latency and throughput\n\n## Intervention Moves\n\n- Call env.setBufferTimeout(timeoutMillis) on StreamExecutionEnvironment\n- Call .setBufferTimeout(timeoutMillis) on individual operators for targeted control\n- Set timeout to -1 for maximum throughput\n- Set timeout to 5–10 ms for minimum latency\n\n## Workflow Steps\n\n- Determine latency vs. throughput priority for the job\n- Choose timeout value: -1 for throughput, 5–10 ms for latency\n- Apply setBufferTimeout() to environment or target operators\n- Verify latency/throughput tradeoff is achieved as intended\n\n## Constraints\n\n- Buffer timeout value must be -1 or a positive integer (milliseconds)\n- Timeout of 0 is explicitly forbidden\n\n## Cautions\n\n- Setting timeout to 0 causes severe performance degradation; avoid entirely\n- Global environment-level timeout affects all operators; operator-level overrides provide finer control\n\n## Output Contract\n\n- Buffer timeout value is applied to environment or operator; latency and throughput behavior reflects the configured timeout setting.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Requirement: maximize throughput\n- Therapist/Output: env.setBufferTimeout(-1)\n- Notes: Buffers flush only when full; highest throughput, higher latency\n\n### Example 2\n\n- Client/Input: Requirement: minimize latency\n- Therapist/Output: env.setBufferTimeout(10)\n- Notes: Buffers flush every 10 ms; lower latency, reduced throughput\n\n### Example 3\n\n- Client/Input: Requirement: operator-level tuning for specific stage\n- Therapist/Output: env.generateSequence(1, 10).map(myMap).setBufferTimeout(5)\n- Notes: Fine-grained control on individual operator; does not affect other operators",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "leaf",
+    "objective": "optimize_latency_throughput_tradeoff",
+    "domain": "default",
+    "task_family": "stream_execution_tuning",
+    "method_family": "buffer_management",
+    "stage": "runtime_configuration",
+    "applicable_signals": [
+      "latency requirements are critical",
+      "throughput optimization is needed",
+      "operator-level tuning is preferred over global settings for fine-grained control"
+    ],
+    "contraindications": [
+      "Do not set buffer timeout to 0 (causes severe performance degradation)",
+      "Do not apply uniformly without understanding downstream impact on latency and throughput"
+    ],
+    "intervention_moves": [
+      "Call env.setBufferTimeout(timeoutMillis) on StreamExecutionEnvironment",
+      "Call .setBufferTimeout(timeoutMillis) on individual operators for targeted control",
+      "Set timeout to -1 for maximum throughput",
+      "Set timeout to 5–10 ms for minimum latency"
+    ],
+    "triggers": [
+      "latency requirements are critical or throughput optimization is needed; operator-level tuning is preferred over global settings for fine-grained control"
+    ],
+    "workflow_steps": [
+      "Determine latency vs. throughput priority for the job",
+      "Choose timeout value: -1 for throughput, 5–10 ms for latency",
+      "Apply setBufferTimeout() to environment or target operators",
+      "Verify latency/throughput tradeoff is achieved as intended"
+    ],
+    "constraints": [
+      "Buffer timeout value must be -1 or a positive integer (milliseconds)",
+      "Timeout of 0 is explicitly forbidden"
+    ],
+    "cautions": [
+      "Setting timeout to 0 causes severe performance degradation; avoid entirely",
+      "Global environment-level timeout affects all operators; operator-level overrides provide finer control"
+    ],
+    "output_contract": [
+      "Buffer timeout value is applied to environment or operator; latency and throughput behavior reflects the configured timeout setting."
+    ],
+    "examples": [
+      {
+        "input": "Requirement: maximize throughput",
+        "output": "env.setBufferTimeout(-1)",
+        "notes": "Buffers flush only when full; highest throughput, higher latency"
+      },
+      {
+        "input": "Requirement: minimize latency",
+        "output": "env.setBufferTimeout(10)",
+        "notes": "Buffers flush every 10 ms; lower latency, reduced throughput"
+      },
+      {
+        "input": "Requirement: operator-level tuning for specific stage",
+        "output": "env.generateSequence(1, 10).map(myMap).setBufferTimeout(5)",
+        "notes": "Fine-grained control on individual operator; does not affect other operators"
+      }
+    ],
+    "tags": [
+      "buffer_management",
+      "latency_control",
+      "throughput_optimization",
+      "stream_execution",
+      "runtime_tuning"
+    ],
+    "support_ids": [
+      "369b5706-b66b-5523-847f-be63ca542bcb"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "7c2bf9f1-b553-5df6-86f3-819553ad6aa2"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|optimize_latency_throughput_tradeoff|default|stream_execution_tuning|buffer_management|runtime_configuration|buffer timeout configuration for latency control",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,134 @@
+{
+  "skill_id": "e56ee0d7-63ec-5149-984d-21f8dc6c56ce",
+  "action": "split",
+  "matched_skill_ids": [
+    "1e0caf79-8eb6-512d-b93e-26ed981a4461"
+  ],
+  "reason": "Candidate is a broad session-level workflow that encompasses three distinct patterns (fixed-container, user-initiated, offscreen-preload). The peer candidate 'User-Initiated Content Load Pattern' (1e0caf79-8eb6-512d-b93e-26ed981a4461) already captures one of these patterns as a micro_skill. The candidate should be split: the user-initiated pattern should merge/strengthen the existing micro_skill, while fixed-container and offscreen-preload patterns should be created as separate micro_skills or the candidate should be repositioned as a parent macro_protocol that orchestrates these three child patterns. Given asset_level 2 (session) vs. the micro_skill at level 3, recommend split with the user-initiated pattern reinforcing the existing micro_skill and the candidate being deprecated in favor of three focused micro_skills.",
+  "split_parent_id": "1e0caf79-8eb6-512d-b93e-26ed981a4461",
+  "skill": {
+    "skill_id": "e56ee0d7-63ec-5149-984d-21f8dc6c56ce",
+    "name": "Dynamic Content Loading with Layout Stability",
+    "description": "Workflow for loading new content dynamically (e.g., product lists, live feeds) while preventing unexpected layout shifts. Provides three patterns: fixed-size containers with carousels, user-initiated loading triggers, and offscreen preloading with user notification.",
+    "skill_body": "When implementing dynamic content insertion, choose one of three approaches: (1) Replace old content with new content within a fixed-size container or carousel, disabling controls until transition completes; (2) Have the user initiate the load via a button (e.g., 'Load more', 'Refresh'), prefetching content beforehand so it appears immediately; or (3) Load content offscreen and overlay a notice (e.g., 'Scroll to top' button) to inform the user. All three patterns avoid unexpected layout shifts and preserve CLS performance.\n\n## Objective\n\nPrevent cumulative layout shift (CLS) during dynamic content insertion while maintaining responsive user experience\n## Applicable Signals\n\n- Product list pagination or 'Load more' interaction\n- Live feed content updates\n- Dynamic content insertion into existing page layout\n- User expects seamless content refresh without visual disruption\n\n## Contraindications\n\n- Content is static or pre-rendered at page load\n- User interaction is not feasible or desired\n- Layout shifts are intentional or user-initiated and expected\n- Performance constraints prevent prefetching\n\n## Intervention Moves\n\n- Use fixed-size container or carousel to constrain new content dimensions\n- Disable links and controls during content transition to prevent accidental interaction\n- Trigger content load via explicit user action (button click) rather than automatic insertion\n- Prefetch content before user interaction to ensure immediate display\n- Load new content offscreen and notify user of availability via overlay notice\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify dynamic content insertion point and choose pattern', 'detail': 'Determine whether fixed-container, user-initiated, or offscreen-load pattern best fits use case'}\n- {'step': 2, 'action': 'Implement chosen pattern', 'detail': \"Pattern A (fixed container): Define container dimensions, replace old content with new within container, disable controls during transition. Pattern B (user-initiated): Add 'Load more' or 'Refresh' button, prefetch content on page load or after previous interaction, trigger display on button click. Pattern C (offscreen): Load content offscreen, overlay user-facing notice (e.g., 'Scroll to top' button) to signal availability\"}\n- {'step': 3, 'action': 'Verify CLS impact', 'detail': 'Measure CLS score before and after implementation; confirm no unexpected layout shifts occur during content insertion'}\n- {'step': 4, 'action': 'Test user interaction responsiveness', 'detail': 'Ensure controls remain responsive and transitions complete without lag; verify no accidental clicks or taps occur during transition'}\n\n## Constraints\n\n- Layout shifts occurring within 500 milliseconds of user input are not counted toward CLS; ensure user interaction precedes content insertion by at least this margin\n- Fixed-size containers must have dimensions known before content load\n- Carousel transitions must complete before re-enabling user controls\n- Offscreen preloading requires sufficient memory and bandwidth\n\n## Cautions\n\n- Disabling controls during transition may feel unresponsive if transition is too long; keep duration brief\n- Prefetching increases bandwidth usage; monitor for performance impact on slower connections\n- Offscreen loading with overlay notice may be missed by users if notice is not prominent\n\n## Output Contract\n\n- New content loads without unexpected layout shifts\n- CLS score remains unaffected or improves\n- User interactions remain responsive during transition\n- Content appears immediately (for user-initiated and prefetch patterns) or is clearly signaled as available (for offscreen pattern)\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Live feed application needs to insert new posts without shifting existing content\n- Therapist/Output: Load new posts offscreen, overlay 'New posts available' notice; user clicks notice to scroll to top and view new content. CLS remains stable.\n- Notes: Offscreen pattern; user controls when to view new content\n\n### Example 2\n\n- Client/Input: E-commerce product list with pagination\n- Therapist/Output: User clicks 'Load more' button; content is prefetched and inserted into fixed-height container below current list. Controls disabled during 200ms transition. CLS unaffected.\n- Notes: User-initiated pattern with prefetch; transition time kept brief\n\n### Example 3\n\n- Client/Input: Image carousel with dynamic content replacement\n- Therapist/Output: Old carousel item replaced with new item within fixed-size container; navigation controls disabled until transition completes. CLS stable.\n- Notes: Fixed-container pattern; carousel ensures predictable dimensions",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Prevent cumulative layout shift (CLS) during dynamic content insertion while maintaining responsive user experience",
+    "domain": "default",
+    "task_family": "web_performance_optimization",
+    "method_family": "layout_stability_pattern",
+    "stage": "content_loading",
+    "applicable_signals": [
+      "Product list pagination or 'Load more' interaction",
+      "Live feed content updates",
+      "Dynamic content insertion into existing page layout",
+      "User expects seamless content refresh without visual disruption"
+    ],
+    "contraindications": [
+      "Content is static or pre-rendered at page load",
+      "User interaction is not feasible or desired",
+      "Layout shifts are intentional or user-initiated and expected",
+      "Performance constraints prevent prefetching"
+    ],
+    "intervention_moves": [
+      "Use fixed-size container or carousel to constrain new content dimensions",
+      "Disable links and controls during content transition to prevent accidental interaction",
+      "Trigger content load via explicit user action (button click) rather than automatic insertion",
+      "Prefetch content before user interaction to ensure immediate display",
+      "Load new content offscreen and notify user of availability via overlay notice"
+    ],
+    "triggers": [
+      "Implementing product list pagination, live feed updates, or any dynamic content insertion that could cause visual instability"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Identify dynamic content insertion point and choose pattern', 'detail': 'Determine whether fixed-container, user-initiated, or offscreen-load pattern best fits use case'}",
+      "{'step': 2, 'action': 'Implement chosen pattern', 'detail': \"Pattern A (fixed container): Define container dimensions, replace old content with new within container, disable controls during transition. Pattern B (user-initiated): Add 'Load more' or 'Refresh' button, prefetch content on page load or after previous interaction, trigger display on button click. Pattern C (offscreen): Load content offscreen, overlay user-facing notice (e.g., 'Scroll to top' button) to signal availability\"}",
+      "{'step': 3, 'action': 'Verify CLS impact', 'detail': 'Measure CLS score before and after implementation; confirm no unexpected layout shifts occur during content insertion'}",
+      "{'step': 4, 'action': 'Test user interaction responsiveness', 'detail': 'Ensure controls remain responsive and transitions complete without lag; verify no accidental clicks or taps occur during transition'}"
+    ],
+    "constraints": [
+      "Layout shifts occurring within 500 milliseconds of user input are not counted toward CLS; ensure user interaction precedes content insertion by at least this margin",
+      "Fixed-size containers must have dimensions known before content load",
+      "Carousel transitions must complete before re-enabling user controls",
+      "Offscreen preloading requires sufficient memory and bandwidth"
+    ],
+    "cautions": [
+      "Disabling controls during transition may feel unresponsive if transition is too long; keep duration brief",
+      "Prefetching increases bandwidth usage; monitor for performance impact on slower connections",
+      "Offscreen loading with overlay notice may be missed by users if notice is not prominent"
+    ],
+    "output_contract": [
+      "New content loads without unexpected layout shifts",
+      "CLS score remains unaffected or improves",
+      "User interactions remain responsive during transition",
+      "Content appears immediately (for user-initiated and prefetch patterns) or is clearly signaled as available (for offscreen pattern)"
+    ],
+    "examples": [
+      {
+        "input": "Live feed application needs to insert new posts without shifting existing content",
+        "output": "Load new posts offscreen, overlay 'New posts available' notice; user clicks notice to scroll to top and view new content. CLS remains stable.",
+        "notes": "Offscreen pattern; user controls when to view new content"
+      },
+      {
+        "input": "E-commerce product list with pagination",
+        "output": "User clicks 'Load more' button; content is prefetched and inserted into fixed-height container below current list. Controls disabled during 200ms transition. CLS unaffected.",
+        "notes": "User-initiated pattern with prefetch; transition time kept brief"
+      },
+      {
+        "input": "Image carousel with dynamic content replacement",
+        "output": "Old carousel item replaced with new item within fixed-size container; navigation controls disabled until transition completes. CLS stable.",
+        "notes": "Fixed-container pattern; carousel ensures predictable dimensions"
+      }
+    ],
+    "tags": [
+      "web_performance",
+      "layout_shift",
+      "CLS",
+      "dynamic_content",
+      "user_experience",
+      "pagination"
+    ],
+    "support_ids": [
+      "d400c6a6-ba61-5db5-b770-1936e6fa57ab"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "f3625272-a159-55ab-bbaa-a1f7c91c7cfd"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|prevent cumulative layout shift (cls) during dynamic content insertion while maintaining responsive user experience|default|web_performance_optimization|layout_stability_pattern|content_loading|dynamic content loading with layout stability"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,129 @@
+{
+  "skill_id": "2fefe2f0-790d-5e47-99c5-c441046648cf",
+  "name": "Start Managed Trace with Context",
+  "description": "Create a new root span (trace) with optional name and tags, returning a TraceContext object for concurrent user-managed tracing sessions. Includes precondition validation and automatic initialization fallback.",
+  "skill_body": "Call start_trace(trace_name, tags) to initiate a named trace session. If SDK is not initialized, the function attempts auto-initialization with environment defaults before creating the trace. Returns a TraceContext object on success, or None if initialization fails. Use this to establish independent, concurrent trace sessions with custom metadata.\n\n## Objective\n\nEstablish a named trace session with optional metadata and return its context for downstream span operations\n## Applicable Signals\n\n- User initiates a new task or session boundary\n- Caller needs to track a named workflow or user interaction\n- Multiple concurrent traces must be managed independently\n\n## Contraindications\n\n- Tracing is not enabled or SDK is not initialized\n- User does not need trace context or span management\n- Caller cannot handle None return value (initialization failure)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if tracer is initialized', 'condition': 'if not tracer.initialized'}\n- {'step': 2, 'action': 'Log warning and attempt auto-initialization', 'condition': 'SDK not initialized', 'detail': 'Call init() with environment variables and defaults'}\n- {'step': 3, 'action': 'Verify initialization success', 'condition': 'After init() call', 'detail': 'Check tracer.initialized; log error and return None if still False'}\n- {'step': 4, 'action': 'Catch and log initialization exceptions', 'condition': 'If init() raises exception', 'detail': 'Log error with exception details and return None'}\n- {'step': 5, 'action': 'Invoke tracer.start_trace()', 'condition': 'tracer.initialized is True', 'detail': 'Pass trace_name and tags; return TraceContext object'}\n\n## Constraints\n\n- SDK must be initialized before or during start_trace call\n- trace_name should be a non-empty string (default: 'session')\n- tags must be either a list of strings or a dict; other types are rejected\n\n## Cautions\n\n- If SDK auto-initialization fails, function returns None; caller must handle gracefully\n- Concurrent traces require caller to manage context tokens separately\n- Trace context is valid only if tracer.initialized is True after initialization attempt\n\n## Output Contract\n\n- Returns a TraceContext object containing the span and context token on success. Returns None if SDK initialization fails or is not available. Caller must check for None before using the returned context.",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "5b89c0b3-be95-5d38-bd12-c76c956f8ce5",
+  "parent_candidate_ids": [
+    "5b89c0b3-be95-5d38-bd12-c76c956f8ce5"
+  ],
+  "child_skill_ids": [
+    "2bc6e1f0-1a41-5924-96e3-a05d149f1f9e",
+    "52956153-19be-543e-882e-ea4d44eb1b9c",
+    "65c4f3e1-5962-5d47-9d5f-d9524126ed9a",
+    "92ed35c6-913a-5714-a07d-66723714d806",
+    "c9cf6cff-970b-5e93-8e61-f543e257085e"
+  ],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "parent",
+  "visible_role": "parent",
+  "objective": "Establish a named trace session with optional metadata and return its context for downstream span operations",
+  "domain": "default",
+  "task_family": "trace_management",
+  "method_family": "trace_lifecycle",
+  "stage": "trace_initiation",
+  "applicable_signals": [
+    "User initiates a new task or session boundary",
+    "Caller needs to track a named workflow or user interaction",
+    "Multiple concurrent traces must be managed independently"
+  ],
+  "contraindications": [
+    "Tracing is not enabled or SDK is not initialized",
+    "User does not need trace context or span management",
+    "Caller cannot handle None return value (initialization failure)"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Starting a new logical trace or session",
+    "Need to attach tags or custom trace names to a trace",
+    "Require concurrent independent traces managed by caller"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Check if tracer is initialized', 'condition': 'if not tracer.initialized'}",
+    "{'step': 2, 'action': 'Log warning and attempt auto-initialization', 'condition': 'SDK not initialized', 'detail': 'Call init() with environment variables and defaults'}",
+    "{'step': 3, 'action': 'Verify initialization success', 'condition': 'After init() call', 'detail': 'Check tracer.initialized; log error and return None if still False'}",
+    "{'step': 4, 'action': 'Catch and log initialization exceptions', 'condition': 'If init() raises exception', 'detail': 'Log error with exception details and return None'}",
+    "{'step': 5, 'action': 'Invoke tracer.start_trace()', 'condition': 'tracer.initialized is True', 'detail': 'Pass trace_name and tags; return TraceContext object'}"
+  ],
+  "constraints": [
+    "SDK must be initialized before or during start_trace call",
+    "trace_name should be a non-empty string (default: 'session')",
+    "tags must be either a list of strings or a dict; other types are rejected"
+  ],
+  "cautions": [
+    "If SDK auto-initialization fails, function returns None; caller must handle gracefully",
+    "Concurrent traces require caller to manage context tokens separately",
+    "Trace context is valid only if tracer.initialized is True after initialization attempt"
+  ],
+  "output_contract": [
+    "Returns a TraceContext object containing the span and context token on success. Returns None if SDK initialization fails or is not available. Caller must check for None before using the returned context."
+  ],
+  "examples": [],
+  "tags": [
+    "trace_management",
+    "session_lifecycle",
+    "span_creation",
+    "concurrent_tracing",
+    "context_management"
+  ],
+  "support_ids": [
+    "4b8ade7f-4aa7-5d20-b197-26ff4c427db8"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "0d50cf97-bdd3-5e71-9240-88f03d4d6d1c"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.88,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|establish a named trace session with optional metadata and return its context for downstream span operations|default|trace_management|trace_lifecycle|trace_initiation|start managed trace with context",
+    "change_action": "create",
+    "llm_reason": "create",
+    "parent_skill_id": "5b89c0b3-be95-5d38-bd12-c76c956f8ce5",
+    "parent_candidate_ids": [
+      "5b89c0b3-be95-5d38-bd12-c76c956f8ce5"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "parent",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "2bc6e1f0-1a41-5924-96e3-a05d149f1f9e",
+      "52956153-19be-543e-882e-ea4d44eb1b9c",
+      "65c4f3e1-5962-5d47-9d5f-d9524126ed9a",
+      "92ed35c6-913a-5714-a07d-66723714d806",
+      "c9cf6cff-970b-5e93-8e61-f543e257085e"
+    ]
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

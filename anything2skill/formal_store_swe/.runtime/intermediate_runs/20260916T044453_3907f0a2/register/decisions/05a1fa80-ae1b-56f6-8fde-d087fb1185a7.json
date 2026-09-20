@@ -1,0 +1,116 @@
+{
+  "skill_id": "05a1fa80-ae1b-56f6-8fde-d087fb1185a7",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct safety_rule for Virtual WAN branch connection routing consistency (Point-to-site, Site-to-site, ExpressRoute associations to Default route table). It does not semantically overlap with existing skills: the peer candidates address different routing concerns (spoke VNet firewall consistency, multiple next hop validation, hub router IP validation), and the existing skill is from an unrelated domain (Maven repository security). The candidate represents a new, well-scoped routing policy enforcement capability with clear constraints and validation steps.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "05a1fa80-ae1b-56f6-8fde-d087fb1185a7",
+    "name": "Enforce Virtual WAN Branch Connection Routing Consistency",
+    "description": "Validate and enforce that all branch connections (Point-to-site, Site-to-site, ExpressRoute) are associated to the Default route table and propagate routes consistently across all branches to prevent routing asymmetry and ensure all branches can reach each other.",
+    "skill_body": "When configuring or modifying branch connections in Virtual WAN, verify and enforce the following: (1) All branch connections must be associated to the Default route table so all branches learn the same prefixes. (2) All branch connections must propagate their routes to the same set of route tables for consistent reachability. (3) Configuration must be applied consistently across all branches. Failure to maintain this consistency results in routing asymmetry and branch isolation.\n\n## Objective\n\nEnforce consistent branch routing configuration to prevent routing inconsistencies and unreachability\n## Applicable Signals\n\n- Adding a new Point-to-site connection\n- Adding a new Site-to-site connection\n- Adding a new ExpressRoute connection\n- Modifying route table associations for existing branch connections\n- Reviewing branch routing configuration\n\n## Contraindications\n\n- Branches intentionally require different route tables for segmentation\n- Hub-to-hub routing is the primary concern and branch-to-branch routing is not required\n- Multi-tenant isolation requires branch connections to use separate route tables\n\n## Intervention Moves\n\n- Associate branch connection to Default route table\n- Configure route propagation to consistent set of route tables\n- Validate symmetric routing between all branches\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify all branch connections', 'detail': 'List all Point-to-site, Site-to-site, and ExpressRoute connections in the virtual hub'}\n- {'step': 2, 'action': 'Verify Default route table association', 'detail': 'Confirm each branch connection is associated to the Default route table'}\n- {'step': 3, 'action': 'Verify route propagation consistency', 'detail': 'Confirm all branch connections propagate routes to the same set of route tables'}\n- {'step': 4, 'action': 'Remediate inconsistencies', 'detail': 'Update any branch connection that does not meet the association or propagation requirements'}\n- {'step': 5, 'action': 'Validate reachability', 'detail': 'Test connectivity between branches to confirm routing is symmetric and functional'}\n\n## Constraints\n\n- All branch connections must use the Default route table for association\n- Route propagation must target the same set of route tables across all branches\n- Configuration must be applied consistently; partial or selective application is not permitted\n\n## Cautions\n\n- Changing route table associations on existing connections may cause temporary routing disruption\n- Inconsistent propagation settings across branches will result in asymmetric routing and unreachability\n- Do not use hub router IPs as next hop addresses when configuring static routes\n\n## Output Contract\n\n- All branch connections verified as associated to the Default route table\n- Route propagation confirmed consistent across all branches\n- Routing asymmetry and branch isolation risks eliminated\n- Symmetric reachability between all branches validated",
+    "asset_type": "safety_rule",
+    "granularity": "session",
+    "asset_node_id": "safety_rule_node",
+    "asset_path": "family_root/safety_module/safety_rule_node",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Enforce consistent branch routing configuration to prevent routing inconsistencies and unreachability",
+    "domain": "default",
+    "task_family": "virtual_wan_routing",
+    "method_family": "routing_policy_enforcement",
+    "stage": "configuration",
+    "applicable_signals": [
+      "Adding a new Point-to-site connection",
+      "Adding a new Site-to-site connection",
+      "Adding a new ExpressRoute connection",
+      "Modifying route table associations for existing branch connections",
+      "Reviewing branch routing configuration"
+    ],
+    "contraindications": [
+      "Branches intentionally require different route tables for segmentation",
+      "Hub-to-hub routing is the primary concern and branch-to-branch routing is not required",
+      "Multi-tenant isolation requires branch connections to use separate route tables"
+    ],
+    "intervention_moves": [
+      "Associate branch connection to Default route table",
+      "Configure route propagation to consistent set of route tables",
+      "Validate symmetric routing between all branches"
+    ],
+    "triggers": [
+      "Configuring branch connections in Virtual WAN",
+      "Adding or modifying Point-to-site, Site-to-site, or ExpressRoute connections",
+      "Reviewing existing branch routing configuration"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Identify all branch connections', 'detail': 'List all Point-to-site, Site-to-site, and ExpressRoute connections in the virtual hub'}",
+      "{'step': 2, 'action': 'Verify Default route table association', 'detail': 'Confirm each branch connection is associated to the Default route table'}",
+      "{'step': 3, 'action': 'Verify route propagation consistency', 'detail': 'Confirm all branch connections propagate routes to the same set of route tables'}",
+      "{'step': 4, 'action': 'Remediate inconsistencies', 'detail': 'Update any branch connection that does not meet the association or propagation requirements'}",
+      "{'step': 5, 'action': 'Validate reachability', 'detail': 'Test connectivity between branches to confirm routing is symmetric and functional'}"
+    ],
+    "constraints": [
+      "All branch connections must use the Default route table for association",
+      "Route propagation must target the same set of route tables across all branches",
+      "Configuration must be applied consistently; partial or selective application is not permitted"
+    ],
+    "cautions": [
+      "Changing route table associations on existing connections may cause temporary routing disruption",
+      "Inconsistent propagation settings across branches will result in asymmetric routing and unreachability",
+      "Do not use hub router IPs as next hop addresses when configuring static routes"
+    ],
+    "output_contract": [
+      "All branch connections verified as associated to the Default route table",
+      "Route propagation confirmed consistent across all branches",
+      "Routing asymmetry and branch isolation risks eliminated",
+      "Symmetric reachability between all branches validated"
+    ],
+    "examples": [],
+    "tags": [
+      "virtual_wan",
+      "branch_routing",
+      "route_table_association",
+      "routing_consistency",
+      "guardrail",
+      "configuration_validation"
+    ],
+    "support_ids": [
+      "e1bf6b85-178e-5954-9199-8d4448849f5f"
+    ],
+    "metadata": {
+      "risk_class": "high",
+      "source_draft_ids": [
+        "26d5a4aa-08c0-5bcf-84ce-997a78c35adf"
+      ],
+      "support_summary": {
+        "support": 0,
+        "constraint": 1,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.92,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||safety_rule|session|safety_rule_node|enforce consistent branch routing configuration to prevent routing inconsistencies and unreachability|default|virtual_wan_routing|routing_policy_enforcement|configuration|enforce virtual wan branch connection routing consistency"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 1,
+  "branch": "full"
+}

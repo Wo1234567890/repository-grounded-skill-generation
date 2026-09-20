@@ -1,0 +1,123 @@
+{
+  "skill_id": "1f82c10f-1cbc-5183-a9f1-de11fd8d9fbd",
+  "action": "merge",
+  "matched_skill_ids": [
+    "c8a58023-0cb3-5780-bf50-bf2990b5bb78"
+  ],
+  "reason": "Candidate skill 1f82c10f is semantically identical to peer 57751b4b in objective, domain, task_family, and core workflow (font-display strategy selection, metric alignment, CLS reduction). Both are session_skill layer addressing web font layout shift via the same method_family. Peer 57751b4b is more comprehensive (includes preload, Font Loading API, font-display: optional) and should absorb the candidate. Peer 9c6166af (bfcache) and 45d7de73 (DevTools inspection) are distinct capabilities at different stages and should remain separate.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "1f82c10f-1cbc-5183-a9f1-de11fd8d9fbd",
+    "name": "Mitigate web font layout shift",
+    "description": "Detect and mitigate Cumulative Layout Shift (CLS) caused by web font loading by selecting between FOUT (Flash of Unstyled Text) and FOIT (Flash of Invisible Text) strategies and aligning fallback and web font dimensions to minimize text reflow.",
+    "skill_body": "When web fonts load asynchronously, text rendering can shift layout in two ways: (1) FOUT—fallback font swaps to web font, causing visible reflow; (2) FOIT—text stays invisible until web font loads, then becomes visible and shifts. Both cause CLS because the fallback font dimensions differ from the web font. To mitigate: choose a font-display strategy (swap for FOUT, block for FOIT), measure fallback and web font metrics (width, height, line-height), and ensure dimensions match or pre-reserve space. Monitor CLS metrics during font load to confirm shift reduction.\n\n## Objective\n\nReduce CLS impact from web font rendering transitions\n## Applicable Signals\n\n- font-display property is set to swap or block\n- Fallback font and web font have different metrics\n- Layout Shift Inspector or CLS monitoring detects shifts during font load phase\n\n## Contraindications\n\n- Fonts are preloaded synchronously (font already available before render)\n- No layout shift is observed in CLS metrics\n- font-display is set to auto without fallback consideration\n\n## Intervention Moves\n\n- Switch font-display strategy if current choice causes unacceptable UX impact\n- Adjust fallback font CSS (size, weight, letter-spacing) to match web font metrics\n- Pre-reserve layout space using min-height or aspect-ratio on text container\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify font-display strategy', 'detail': 'Choose FOUT (font-display: swap) for immediate text visibility or FOIT (font-display: block) for visual consistency. Document the choice and rationale.'}\n- {'step': 2, 'action': 'Measure fallback and web font dimensions', 'detail': 'Obtain or calculate width, height, and line-height metrics for both fallback and web font. Use font metrics APIs or manual measurement.'}\n- {'step': 3, 'action': 'Align dimensions or pre-reserve space', 'detail': 'If dimensions differ, either adjust CSS to match or use size-adjust descriptor to scale fallback font. Alternatively, pre-reserve layout space for text block to prevent shift.'}\n- {'step': 4, 'action': 'Test and monitor CLS', 'detail': 'Load page with font strategy in place. Use CLS monitoring tools (Web Vitals, DevTools) to confirm shift reduction during font load phase.'}\n\n## Constraints\n\n- Fallback font must be available before web font loads\n- Web font metrics must be measurable or declared\n- Strategy choice (FOUT vs. FOIT) depends on user experience priority (readability vs. visual consistency)\n\n## Cautions\n\n- FOUT may cause visible text flash; FOIT may cause invisible text delay—choose based on UX requirements\n- Dimension mismatch between fallback and web font is the root cause; metric alignment is critical\n- Monitor actual CLS values post-deployment; strategy effectiveness varies by font pair and network conditions\n\n## Output Contract\n\n- Web font loads with minimal or zero CLS; fallback and web font dimensions are matched or space is pre-reserved; text remains visible (FOUT) or invisible (FOIT) consistently without unexpected reflow; CLS metric for font-load phase is below threshold (typically <0.1).\n\n## Example Executions\n\n### Example 1\n\n- Input: Page loads with font-display: swap; fallback font (Arial) is 14px, web font (custom serif) is 16px.\n- Output: Adjust fallback font CSS to 16px or use size-adjust: 114% to scale Arial. Monitor CLS during font swap; expect minimal shift if dimensions match.\n- Notes: FOUT strategy chosen for readability; dimension alignment prevents reflow.\n\n### Example 2\n\n- Input: Page uses font-display: block; text is invisible until web font loads; CLS spike observed when text becomes visible.\n- Output: Pre-reserve space for text block using min-height or aspect-ratio. Ensure web font dimensions are declared or measured. Re-test CLS.\n- Notes: FOIT strategy chosen for visual consistency; space reservation prevents layout shift on visibility change.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Reduce CLS impact from web font rendering transitions",
+    "domain": "default",
+    "task_family": "web_performance_optimization",
+    "method_family": "font_loading_strategy",
+    "stage": "rendering_optimization",
+    "applicable_signals": [
+      "font-display property is set to swap or block",
+      "Fallback font and web font have different metrics",
+      "Layout Shift Inspector or CLS monitoring detects shifts during font load phase"
+    ],
+    "contraindications": [
+      "Fonts are preloaded synchronously (font already available before render)",
+      "No layout shift is observed in CLS metrics",
+      "font-display is set to auto without fallback consideration"
+    ],
+    "intervention_moves": [
+      "Switch font-display strategy if current choice causes unacceptable UX impact",
+      "Adjust fallback font CSS (size, weight, letter-spacing) to match web font metrics",
+      "Pre-reserve layout space using min-height or aspect-ratio on text container"
+    ],
+    "triggers": [
+      "Web fonts are loaded asynchronously",
+      "Text reflow or visibility changes occur during font swap",
+      "CLS metrics show font-related shifts during page load"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Identify font-display strategy', 'detail': 'Choose FOUT (font-display: swap) for immediate text visibility or FOIT (font-display: block) for visual consistency. Document the choice and rationale.'}",
+      "{'step': 2, 'action': 'Measure fallback and web font dimensions', 'detail': 'Obtain or calculate width, height, and line-height metrics for both fallback and web font. Use font metrics APIs or manual measurement.'}",
+      "{'step': 3, 'action': 'Align dimensions or pre-reserve space', 'detail': 'If dimensions differ, either adjust CSS to match or use size-adjust descriptor to scale fallback font. Alternatively, pre-reserve layout space for text block to prevent shift.'}",
+      "{'step': 4, 'action': 'Test and monitor CLS', 'detail': 'Load page with font strategy in place. Use CLS monitoring tools (Web Vitals, DevTools) to confirm shift reduction during font load phase.'}"
+    ],
+    "constraints": [
+      "Fallback font must be available before web font loads",
+      "Web font metrics must be measurable or declared",
+      "Strategy choice (FOUT vs. FOIT) depends on user experience priority (readability vs. visual consistency)"
+    ],
+    "cautions": [
+      "FOUT may cause visible text flash; FOIT may cause invisible text delay—choose based on UX requirements",
+      "Dimension mismatch between fallback and web font is the root cause; metric alignment is critical",
+      "Monitor actual CLS values post-deployment; strategy effectiveness varies by font pair and network conditions"
+    ],
+    "output_contract": [
+      "Web font loads with minimal or zero CLS; fallback and web font dimensions are matched or space is pre-reserved; text remains visible (FOUT) or invisible (FOIT) consistently without unexpected reflow; CLS metric for font-load phase is below threshold (typically <0.1)."
+    ],
+    "examples": [
+      {
+        "input": "Page loads with font-display: swap; fallback font (Arial) is 14px, web font (custom serif) is 16px.",
+        "output": "Adjust fallback font CSS to 16px or use size-adjust: 114% to scale Arial. Monitor CLS during font swap; expect minimal shift if dimensions match.",
+        "notes": "FOUT strategy chosen for readability; dimension alignment prevents reflow."
+      },
+      {
+        "input": "Page uses font-display: block; text is invisible until web font loads; CLS spike observed when text becomes visible.",
+        "output": "Pre-reserve space for text block using min-height or aspect-ratio. Ensure web font dimensions are declared or measured. Re-test CLS.",
+        "notes": "FOIT strategy chosen for visual consistency; space reservation prevents layout shift on visibility change."
+      }
+    ],
+    "tags": [
+      "web_performance",
+      "cumulative_layout_shift",
+      "font_loading",
+      "rendering_optimization",
+      "fout",
+      "foit"
+    ],
+    "support_ids": [
+      "944e128a-c310-599e-8da5-27cd9874115b"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "cd94fa72-1585-5f81-90a6-a614b7ba6b32"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|reduce cls impact from web font rendering transitions|default|web_performance_optimization|font_loading_strategy|rendering_optimization|mitigate web font layout shift"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

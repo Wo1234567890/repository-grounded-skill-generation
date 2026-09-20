@@ -1,0 +1,130 @@
+{
+  "skill_id": "9533f43e-b370-52fc-97e8-f364f1d5fe6a",
+  "name": "Detect and Avoid ThreadPoolExecutor Deadlock",
+  "description": "Identify and prevent deadlock scenarios in ThreadPoolExecutor where a task waits on another task's result within the same pool, or a single-worker pool task submits and waits on a child task.",
+  "skill_body": "Review task callables before submission to ThreadPoolExecutor. Check for any calls to .result() on futures within the callable body. Ensure that if a task waits on another future, sufficient worker threads exist to execute both tasks concurrently. For single-worker pools, never submit a task that internally submits and waits on a child task.\n\n## Objective\n\nPrevent task interdependency deadlocks in thread pool execution\n## Applicable Signals\n\n- Designing task callables that may call .result() on other futures\n- Submitting tasks to a pool with limited workers\n- Using ThreadPoolExecutor with max_workers < number of interdependent tasks\n\n## Contraindications\n\n- Tasks are guaranteed independent with no inter-task result waits\n- Using separate executor instances for parent and child tasks\n- Pool has sufficient workers to execute all potentially concurrent tasks\n\n## Intervention Moves\n\n- Refactor task callables to eliminate inter-task result waits\n- Use separate executor instances for parent and child tasks\n- Increase max_workers to accommodate all potentially concurrent tasks\n- Restructure task hierarchy to avoid nested submissions with waits\n\n## Workflow Steps\n\n- Inspect task callable source code for .result() calls on futures\n- Identify all futures that a given task may wait on\n- Count maximum concurrent tasks that may execute simultaneously\n- Verify max_workers >= maximum concurrent task count\n- For single-worker pools, confirm no task submits and waits on child tasks\n- Approve task design or recommend refactoring\n\n## Constraints\n\n- Do not call .result() on a future within a task callable submitted to the same executor\n- If a task must wait on another task's result, ensure max_workers >= 2 and account for all concurrent waits\n- Single-worker pools (max_workers=1) must never submit a task that internally submits and waits on another task\n\n## Cautions\n\n- Deadlocks may not manifest immediately; they occur only when task scheduling causes a wait-on-wait cycle\n- Circular waits between two or more tasks in the same pool will hang indefinitely\n- Initializer exceptions in ThreadPoolExecutor will raise BrokenThreadPool on all pending jobs\n\n## Output Contract\n\n- Task design review confirms no circular waits and no result() calls within task callables\n- All submitted tasks execute to completion without blocking\n- Pool shutdown completes successfully\n\n## Example Executions\n\n### Example 1\n\n- Input: Task callable that calls .result() on another future in the same pool\n- Output: Deadlock detected; refactor to avoid inter-task result waits or use separate executors\n- Notes: Example: wait_on_b() calls b.result() while b is waiting on a.result() in the same 2-worker pool\n\n### Example 2\n\n- Input: Single-worker pool submitting a task that internally submits and waits on a child task\n- Output: Deadlock detected; increase max_workers or restructure task hierarchy\n- Notes: Example: max_workers=1 executor submitting wait_on_future() which calls executor.submit(pow, 5, 2).result()",
+  "asset_type": "safety_rule",
+  "granularity": "session",
+  "asset_node_id": "safety_rule_node",
+  "asset_path": "family_root/safety_module/safety_rule_node",
+  "asset_level": 2,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "Prevent task interdependency deadlocks in thread pool execution",
+  "domain": "default",
+  "task_family": "parallel_execution",
+  "method_family": "deadlock_prevention",
+  "stage": "task_design_and_submission",
+  "applicable_signals": [
+    "Designing task callables that may call .result() on other futures",
+    "Submitting tasks to a pool with limited workers",
+    "Using ThreadPoolExecutor with max_workers < number of interdependent tasks"
+  ],
+  "contraindications": [
+    "Tasks are guaranteed independent with no inter-task result waits",
+    "Using separate executor instances for parent and child tasks",
+    "Pool has sufficient workers to execute all potentially concurrent tasks"
+  ],
+  "intervention_moves": [
+    "Refactor task callables to eliminate inter-task result waits",
+    "Use separate executor instances for parent and child tasks",
+    "Increase max_workers to accommodate all potentially concurrent tasks",
+    "Restructure task hierarchy to avoid nested submissions with waits"
+  ],
+  "triggers": [
+    "Designing task callables that may call .result() on other futures",
+    "Submitting tasks to a pool with limited workers"
+  ],
+  "workflow_steps": [
+    "Inspect task callable source code for .result() calls on futures",
+    "Identify all futures that a given task may wait on",
+    "Count maximum concurrent tasks that may execute simultaneously",
+    "Verify max_workers >= maximum concurrent task count",
+    "For single-worker pools, confirm no task submits and waits on child tasks",
+    "Approve task design or recommend refactoring"
+  ],
+  "constraints": [
+    "Do not call .result() on a future within a task callable submitted to the same executor",
+    "If a task must wait on another task's result, ensure max_workers >= 2 and account for all concurrent waits",
+    "Single-worker pools (max_workers=1) must never submit a task that internally submits and waits on another task"
+  ],
+  "cautions": [
+    "Deadlocks may not manifest immediately; they occur only when task scheduling causes a wait-on-wait cycle",
+    "Circular waits between two or more tasks in the same pool will hang indefinitely",
+    "Initializer exceptions in ThreadPoolExecutor will raise BrokenThreadPool on all pending jobs"
+  ],
+  "output_contract": [
+    "Task design review confirms no circular waits and no result() calls within task callables",
+    "All submitted tasks execute to completion without blocking",
+    "Pool shutdown completes successfully"
+  ],
+  "examples": [
+    {
+      "input": "Task callable that calls .result() on another future in the same pool",
+      "output": "Deadlock detected; refactor to avoid inter-task result waits or use separate executors",
+      "notes": "Example: wait_on_b() calls b.result() while b is waiting on a.result() in the same 2-worker pool"
+    },
+    {
+      "input": "Single-worker pool submitting a task that internally submits and waits on a child task",
+      "output": "Deadlock detected; increase max_workers or restructure task hierarchy",
+      "notes": "Example: max_workers=1 executor submitting wait_on_future() which calls executor.submit(pow, 5, 2).result()"
+    }
+  ],
+  "tags": [
+    "concurrency",
+    "thread_pool",
+    "deadlock_prevention",
+    "task_design",
+    "safety_guardrail"
+  ],
+  "support_ids": [
+    "9a66794f-61f2-5dbe-9ea5-a0ac86eef70c"
+  ],
+  "metadata": {
+    "risk_class": "high",
+    "source_draft_ids": [
+      "048f3f2b-fe00-514a-8be4-8cc7fe8ebdbe"
+    ],
+    "support_summary": {
+      "support": 0,
+      "constraint": 1,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.88,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||safety_rule|session|safety_rule_node|prevent task interdependency deadlocks in thread pool execution|default|parallel_execution|deadlock_prevention|task_design_and_submission|detect and avoid threadpoolexecutor deadlock",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct safety_rule addressing ThreadPoolExecutor deadlock prevention at task design stage. It does not semantically overlap with existing skills (Virtual WAN routing, Maven repository security) or peer candidates (which address exception handling and recovery after failures, not prevention). The candidate operates at task_design_and_submission stage with preventive constraints, while peer candidates operate at execution_monitoring stage with reactive exception handling. No merge, split, or revision relationship exists.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

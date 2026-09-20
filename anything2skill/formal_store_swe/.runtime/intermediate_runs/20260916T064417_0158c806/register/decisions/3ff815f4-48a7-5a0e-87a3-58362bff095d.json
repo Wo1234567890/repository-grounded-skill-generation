@@ -1,0 +1,125 @@
+{
+  "skill_id": "3ff815f4-48a7-5a0e-87a3-58362bff095d",
+  "action": "merge",
+  "matched_skill_ids": [
+    "6d8fa45a-b5a5-5a9a-9e04-504a7636bdcb"
+  ],
+  "reason": "The candidate skill 'Ensure consistent aspect ratio across responsive image variants' is a validation prerequisite that logically belongs within the broader workflows of setting image dimensions (1e9b19a6) and applying responsive sizing (87e2bad2). The candidate's core capability—verifying uniform aspect ratio across srcset variants—is a necessary precondition for both target skills' constraints ('all images in a responsive srcset must use the same aspect ratio'). Rather than maintain a separate validation micro_skill, this validation logic should be integrated into the execution steps of the target skills to form a cohesive responsive image workflow. The peer candidate 00c485a4 (aspect ratio calculation) is orthogonal and should remain distinct.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "3ff815f4-48a7-5a0e-87a3-58362bff095d",
+    "name": "Ensure consistent aspect ratio across responsive image variants",
+    "description": "When using srcset for responsive images, verify that all image variants maintain the same aspect ratio so that HTML width/height attributes can be reliably set and prevent cumulative layout shifts.",
+    "skill_body": "Before deploying responsive images with srcset, confirm that every image variant in the srcset list uses the same aspect ratio. This allows you to set width and height attributes once on the <img> element, enabling the browser to reserve space and calculate height automatically as the image scales. Check each variant's dimensions and compute the aspect ratio (width ÷ height); all variants must produce the same ratio.\n\n## Objective\n\nmaintain layout stability across multiple image sources by enforcing uniform aspect ratio\n## Applicable Signals\n\n- use_when: using srcset attribute; multiple image variants exist; aspect ratio consistency is required for CLS prevention\n\n## Contraindications\n\n- single image source (srcset not needed)\n- aspect ratio intentionally varies across breakpoints (art direction scenario)\n- art direction is the primary goal rather than responsive sizing\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify all image variants in the srcset attribute', 'detail': 'List each image file and its declared size (e.g., 640w, 1280w, 2x).'}\n- {'step': 2, 'action': 'Measure or retrieve the actual dimensions of each variant', 'detail': 'Obtain width and height in pixels for every image file referenced in srcset.'}\n- {'step': 3, 'action': 'Calculate aspect ratio for each variant', 'detail': 'Divide width by height for each image. Record the result (e.g., 1.78 for 16:9).'}\n- {'step': 4, 'action': 'Verify all ratios are identical', 'detail': 'Compare all calculated aspect ratios. If any differ, the variants are not compatible for single width/height attributes.'}\n- {'step': 5, 'action': 'Set width and height attributes on the <img> element', 'detail': 'Use the dimensions of one variant (e.g., 640×360) as the HTML attributes. The browser will use the aspect ratio to calculate height when width is set to 100% or a responsive value.'}\n\n## Constraints\n\n- All srcset image variants must share identical aspect ratio\n- Width and height attributes must be set on the <img> element\n- Aspect ratio is calculated as width ÷ height and must be consistent across all variants\n\n## Cautions\n\n- If variants have different aspect ratios, the browser cannot reliably reserve space; layout shifts will occur.\n- Art direction (intentional aspect ratio changes) requires a different approach; do not force uniform aspect ratio in that case.\n\n## Output Contract\n\n- All srcset image variants have identical aspect ratio\n- HTML width and height attributes are set on the <img> element\n- Browser can reserve space before image load\n- Layout remains stable across all viewport sizes and pixel densities\n\n## Example Executions\n\n### Example 1\n\n- Input: srcset=\"puppy-small.jpg 640w, puppy-large.jpg 1280w\" with dimensions 640×360 and 1280×720\n- Output: Both variants have 16:9 aspect ratio (1.78). Set <img width=\"640\" height=\"360\" srcset=\"...\">. Layout is stable.\n- Notes: Aspect ratios match; single width/height pair is sufficient.\n\n### Example 2\n\n- Input: srcset=\"image-1x.jpg 1x, image-2x.jpg 2x\" with dimensions 640×360 and 1280×720\n- Output: Both variants have 16:9 aspect ratio. Set <img width=\"640\" height=\"360\" srcset=\"...\">. Layout is stable.\n- Notes: Pixel density variants with matching aspect ratio.\n\n### Example 3\n\n- Input: srcset=\"photo-mobile.jpg 640w, photo-desktop.jpg 1280w\" with dimensions 640×480 and 1280×720\n- Output: Mobile variant is 4:3 (1.33), desktop variant is 16:9 (1.78). Aspect ratios do not match. Cannot use single width/height attributes. Layout shifts will occur.\n- Notes: Incompatible aspect ratios; this is an art direction scenario, not responsive sizing.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "maintain layout stability across multiple image sources by enforcing uniform aspect ratio",
+    "domain": "default",
+    "task_family": "responsive_images",
+    "method_family": "srcset_validation",
+    "stage": "asset_preparation",
+    "applicable_signals": [
+      "use_when: using srcset attribute; multiple image variants exist; aspect ratio consistency is required for CLS prevention"
+    ],
+    "contraindications": [
+      "single image source (srcset not needed)",
+      "aspect ratio intentionally varies across breakpoints (art direction scenario)",
+      "art direction is the primary goal rather than responsive sizing"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "srcset attribute is present on an <img> element",
+      "multiple image variants are defined for different viewport sizes or pixel densities",
+      "cumulative layout shift (CLS) prevention is a requirement"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Identify all image variants in the srcset attribute', 'detail': 'List each image file and its declared size (e.g., 640w, 1280w, 2x).'}",
+      "{'step': 2, 'action': 'Measure or retrieve the actual dimensions of each variant', 'detail': 'Obtain width and height in pixels for every image file referenced in srcset.'}",
+      "{'step': 3, 'action': 'Calculate aspect ratio for each variant', 'detail': 'Divide width by height for each image. Record the result (e.g., 1.78 for 16:9).'}",
+      "{'step': 4, 'action': 'Verify all ratios are identical', 'detail': 'Compare all calculated aspect ratios. If any differ, the variants are not compatible for single width/height attributes.'}",
+      "{'step': 5, 'action': 'Set width and height attributes on the <img> element', 'detail': 'Use the dimensions of one variant (e.g., 640×360) as the HTML attributes. The browser will use the aspect ratio to calculate height when width is set to 100% or a responsive value.'}"
+    ],
+    "constraints": [
+      "All srcset image variants must share identical aspect ratio",
+      "Width and height attributes must be set on the <img> element",
+      "Aspect ratio is calculated as width ÷ height and must be consistent across all variants"
+    ],
+    "cautions": [
+      "If variants have different aspect ratios, the browser cannot reliably reserve space; layout shifts will occur.",
+      "Art direction (intentional aspect ratio changes) requires a different approach; do not force uniform aspect ratio in that case."
+    ],
+    "output_contract": [
+      "All srcset image variants have identical aspect ratio",
+      "HTML width and height attributes are set on the <img> element",
+      "Browser can reserve space before image load",
+      "Layout remains stable across all viewport sizes and pixel densities"
+    ],
+    "examples": [
+      {
+        "input": "srcset=\"puppy-small.jpg 640w, puppy-large.jpg 1280w\" with dimensions 640×360 and 1280×720",
+        "output": "Both variants have 16:9 aspect ratio (1.78). Set <img width=\"640\" height=\"360\" srcset=\"...\">. Layout is stable.",
+        "notes": "Aspect ratios match; single width/height pair is sufficient."
+      },
+      {
+        "input": "srcset=\"image-1x.jpg 1x, image-2x.jpg 2x\" with dimensions 640×360 and 1280×720",
+        "output": "Both variants have 16:9 aspect ratio. Set <img width=\"640\" height=\"360\" srcset=\"...\">. Layout is stable.",
+        "notes": "Pixel density variants with matching aspect ratio."
+      },
+      {
+        "input": "srcset=\"photo-mobile.jpg 640w, photo-desktop.jpg 1280w\" with dimensions 640×480 and 1280×720",
+        "output": "Mobile variant is 4:3 (1.33), desktop variant is 16:9 (1.78). Aspect ratios do not match. Cannot use single width/height attributes. Layout shifts will occur.",
+        "notes": "Incompatible aspect ratios; this is an art direction scenario, not responsive sizing."
+      }
+    ],
+    "tags": [
+      "responsive_images",
+      "srcset",
+      "aspect_ratio",
+      "layout_stability",
+      "CLS_prevention",
+      "web_performance"
+    ],
+    "support_ids": [
+      "912f4f92-5699-505c-a1a5-bb112063d30a"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "3a638b93-38ec-588e-a07a-bdfdd96c8c0a"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|maintain layout stability across multiple image sources by enforcing uniform aspect ratio|default|responsive_images|srcset_validation|asset_preparation|ensure consistent aspect ratio across responsive image variants"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

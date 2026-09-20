@@ -1,0 +1,117 @@
+{
+  "skill_id": "14a91775-8c41-5053-967f-aa0bb64cd7bc",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct session_skill for ThreadPoolExecutor configuration with adaptive worker sizing and idle thread reuse. It differs semantically from peer ProcessPoolExecutor skills (which target CPU-bound work with process isolation) and from the generic Executor.map skill. No existing skill covers ThreadPoolExecutor-specific initialization with the min(32, os.cpu_count() + 4) default and idle worker reuse semantics. The candidate has clear support evidence from Python 3.8+ concurrent.futures documentation and addresses a different task_family (parallel_task_execution with thread_pool_configuration method) than existing skills.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "14a91775-8c41-5053-967f-aa0bb64cd7bc",
+    "name": "ThreadPoolExecutor Configuration and Worker Reuse",
+    "description": "Configure ThreadPoolExecutor with adaptive max_workers sizing (min(32, os.cpu_count() + 4)) and enable idle worker thread reuse to balance I/O-bound and CPU-bound task execution while avoiding excessive resource allocation on multi-core systems.",
+    "skill_body": "Initialize ThreadPoolExecutor with default max_workers strategy: min(32, os.cpu_count() + 4). This preserves at least 5 workers for I/O-bound tasks, utilizes at most 32 CPU cores for CPU-bound tasks that release the GIL, and avoids implicit large resource allocation on many-core machines. The executor automatically reuses idle worker threads before spawning new workers.\n\n## Objective\n\nSet up thread pool with adaptive worker sizing and idle thread reuse\n## Applicable Signals\n\n- Need to balance I/O-bound and CPU-bound task execution\n- Requirement to avoid excessive implicit resource allocation\n- Workload includes network or I/O operations with thread blocking\n\n## Contraindications\n\n- CPU-bound tasks requiring process isolation (use ProcessPoolExecutor instead)\n- Interactive interpreter context (ProcessPoolExecutor limitation applies to thread pools in some contexts)\n- Single-threaded or synchronous execution preferred\n- Real-time constraints requiring deterministic thread count\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Import concurrent.futures module', 'detail': 'from concurrent.futures import ThreadPoolExecutor'}\n- {'step': 2, 'action': 'Create ThreadPoolExecutor instance without explicit max_workers', 'detail': 'executor = ThreadPoolExecutor() or ThreadPoolExecutor(max_workers=None)'}\n- {'step': 3, 'action': 'Submit I/O-bound tasks to executor', 'detail': 'Use executor.submit(callable, *args) or executor.map(callable, iterable)'}\n- {'step': 4, 'action': 'Observe automatic idle thread reuse', 'detail': 'Executor reuses idle workers before spawning new threads; no explicit action required'}\n- {'step': 5, 'action': 'Clean up executor', 'detail': 'Use context manager (with ThreadPoolExecutor() as executor:) or call executor.shutdown(wait=True)'}\n\n## Constraints\n\n- max_workers default applies only when max_workers parameter is None or omitted\n- Idle thread reuse is automatic; no explicit configuration required\n- Maximum of 32 workers enforced to prevent resource exhaustion on many-core systems\n\n## Cautions\n\n- Ensure submitted callables are thread-safe and do not hold locks across I/O operations\n- Monitor actual thread count in production; default may still be high on systems with >28 CPU cores\n\n## Output Contract\n\n- ThreadPoolExecutor instance created with max_workers set to min(32, os.cpu_count() + 4); idle worker threads are reused before new workers are spawned; executor ready to accept and execute submitted tasks with adaptive concurrency.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Launch multiple I/O-bound tasks (e.g., HTTP requests) on a 16-core system\n- Therapist/Output: ThreadPoolExecutor created with max_workers=20 (min(32, 16+4)); idle threads reused across task submissions\n- Notes: Balances I/O blocking with resource efficiency\n\n### Example 2\n\n- Client/Input: Launch tasks on a 64-core system\n- Therapist/Output: ThreadPoolExecutor created with max_workers=32 (capped); prevents implicit over-allocation\n- Notes: Cap prevents resource exhaustion on many-core machines",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Set up thread pool with adaptive worker sizing and idle thread reuse",
+    "domain": "default",
+    "task_family": "parallel_task_execution",
+    "method_family": "thread_pool_configuration",
+    "stage": "initialization",
+    "applicable_signals": [
+      "Need to balance I/O-bound and CPU-bound task execution",
+      "Requirement to avoid excessive implicit resource allocation",
+      "Workload includes network or I/O operations with thread blocking"
+    ],
+    "contraindications": [
+      "CPU-bound tasks requiring process isolation (use ProcessPoolExecutor instead)",
+      "Interactive interpreter context (ProcessPoolExecutor limitation applies to thread pools in some contexts)",
+      "Single-threaded or synchronous execution preferred",
+      "Real-time constraints requiring deterministic thread count"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Launching I/O-bound workloads (network requests, file I/O)",
+      "Mixed workload execution requiring adaptive thread pool sizing",
+      "System with variable CPU core count requiring portable configuration"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Import concurrent.futures module', 'detail': 'from concurrent.futures import ThreadPoolExecutor'}",
+      "{'step': 2, 'action': 'Create ThreadPoolExecutor instance without explicit max_workers', 'detail': 'executor = ThreadPoolExecutor() or ThreadPoolExecutor(max_workers=None)'}",
+      "{'step': 3, 'action': 'Submit I/O-bound tasks to executor', 'detail': 'Use executor.submit(callable, *args) or executor.map(callable, iterable)'}",
+      "{'step': 4, 'action': 'Observe automatic idle thread reuse', 'detail': 'Executor reuses idle workers before spawning new threads; no explicit action required'}",
+      "{'step': 5, 'action': 'Clean up executor', 'detail': 'Use context manager (with ThreadPoolExecutor() as executor:) or call executor.shutdown(wait=True)'}"
+    ],
+    "constraints": [
+      "max_workers default applies only when max_workers parameter is None or omitted",
+      "Idle thread reuse is automatic; no explicit configuration required",
+      "Maximum of 32 workers enforced to prevent resource exhaustion on many-core systems"
+    ],
+    "cautions": [
+      "Ensure submitted callables are thread-safe and do not hold locks across I/O operations",
+      "Monitor actual thread count in production; default may still be high on systems with >28 CPU cores"
+    ],
+    "output_contract": [
+      "ThreadPoolExecutor instance created with max_workers set to min(32, os.cpu_count() + 4); idle worker threads are reused before new workers are spawned; executor ready to accept and execute submitted tasks with adaptive concurrency."
+    ],
+    "examples": [
+      {
+        "input": "Launch multiple I/O-bound tasks (e.g., HTTP requests) on a 16-core system",
+        "output": "ThreadPoolExecutor created with max_workers=20 (min(32, 16+4)); idle threads reused across task submissions",
+        "notes": "Balances I/O blocking with resource efficiency"
+      },
+      {
+        "input": "Launch tasks on a 64-core system",
+        "output": "ThreadPoolExecutor created with max_workers=32 (capped); prevents implicit over-allocation",
+        "notes": "Cap prevents resource exhaustion on many-core machines"
+      }
+    ],
+    "tags": [
+      "concurrency",
+      "thread_pool",
+      "I/O-bound",
+      "resource_management",
+      "Python 3.8+"
+    ],
+    "support_ids": [
+      "ac0b3509-7fd0-5199-b1aa-2124f9caa510"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "6641d10a-941d-558e-810b-0279bec4ada9"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|set up thread pool with adaptive worker sizing and idle thread reuse|default|parallel_task_execution|thread_pool_configuration|initialization|threadpoolexecutor configuration and worker reuse"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

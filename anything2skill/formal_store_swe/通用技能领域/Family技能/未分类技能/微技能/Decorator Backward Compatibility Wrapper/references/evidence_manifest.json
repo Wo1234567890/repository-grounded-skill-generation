@@ -1,0 +1,66 @@
+{
+  "schema": "autoskill.document.evidence_manifest.v1",
+  "generated_at": "2026-09-15T23:23:44+00:00",
+  "family_name": "未分类技能",
+  "skill_id": "7087fb2f-2eeb-5e8c-b7a2-03f1f776f596",
+  "skill_name": "Decorator Backward Compatibility Wrapper",
+  "support_count": 1,
+  "supports": [
+    {
+      "support_id": "e536a184-a4a3-5e2a-a2e8-3d6d307b5138",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "document_title": "agentops-docs.txt",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 59239,
+        "end": 60867
+      },
+      "relation_type": "support",
+      "confidence": 0.8,
+      "quote": "from agentops.helpers.deprecation import deprecated\nfrom agentops.sdk.decorators.factory import create_entity_decorator\nfrom agentops.semconv.span_kinds import SpanKind\n\n# Create decorators for specific entity types using the factory\nagent = create_entity_decorator(SpanKind.AGENT)\ntask = create_entity_decorator(SpanKind.TASK)\noperation_decorator = create_entity_decorator(SpanKind.OPERATION)\nworkflow = create_entity_decorator(SpanKind.WORKFLOW)\ntrace = create_entity_decorator(SpanKind.SESSION)\ntool = create_entity_decorator(SpanKind.TOOL)\noperation = task\nguardrail = create_entity_decorator(SpanKind.GUARDRAIL)\ntrack_endpoint = create_entity_decorator(SpanKind.HTTP)\n\n# For backward compatibility: @session decorator calls @trace decorator\ndef session(*args, **kwargs):  # noqa: F811\n    \"\"\"@deprecated Use @agentops.trace instead. Wraps the @trace decorator for backward compatibility.\"\"\"\n    # If called as @session or @session(...)\n    if not args or not callable(args[0]):  # called with kwargs like @session(name=...)\n        return trace(*args, **kwargs)\n    else:  # called as @session directly on a function\n        return trace(args[0], **kwargs)  # args[0] is the wrapped function\n\n# Apply deprecation decorator to session function\nsession = deprecated(\"Use @trace decorator instead.\")(session)\n\n# Note: The original `operation = task` was potentially problematic if `operation` was meant to be distinct.\n# Using operation_decorator for clarity if a distinct OPERATION kind decorator is needed.\n# For now, keeping the alias as it was, assuming it was intentional for `operation` to be `task`.\noperation = task",
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Decorator Backward Compatibility Wrapper",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Maintain legacy @session decorator API while routing to new @trace implementation",
+        "task_family": "api_migration",
+        "method_family": "decorator_wrapper",
+        "stage": "integration",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "d70cc43f-90be-5592-ac80-bc4520041471",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "session"
+        ],
+        "paragraph_start": 15,
+        "paragraph_end": 19,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    }
+  ]
+}

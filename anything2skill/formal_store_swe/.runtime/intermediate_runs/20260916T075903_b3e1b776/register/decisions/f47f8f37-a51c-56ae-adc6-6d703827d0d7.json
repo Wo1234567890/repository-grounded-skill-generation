@@ -1,0 +1,119 @@
+{
+  "skill_id": "f47f8f37-a51c-56ae-adc6-6d703827d0d7",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct session_skill for classifying module origin during instrumentation initialization. It has no semantic overlap with existing skills (Path Command Execution is graphics-focused; Resolve Scala Standard Library Module Import is Scala-specific dependency resolution). Peer candidates operate at different stages (eligibility filtering, SDK installation, agent initialization) and do not subsume this path-inspection capability. The skill addresses a specific, well-defined objective (classify_module_origin) with concrete workflow steps and cross-platform path normalization logic that should be preserved as a new capability.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "f47f8f37-a51c-56ae-adc6-6d703827d0d7",
+    "name": "Detect Installed Package vs Local Module",
+    "description": "Classify whether a Python module is an installed library (in site-packages) or a local development module by normalizing file paths and comparing against site-packages directories. Used during instrumentation initialization to decide whether to apply monitoring.",
+    "skill_body": "Check if a module's file path is located within any site-packages directory. Normalize both the module path and site-packages paths using os.path.normcase and os.path.realpath. Compare the module path prefix against all normalized site-packages directories (including user site if present). Return True if the module is in site-packages (installed library); return False if it is a local module or not found in any site-packages directory.\n\n## Objective\n\nclassify_module_origin\n## Applicable Signals\n\n- module object with __file__ attribute available\n- import hook or instrumentation initialization phase active\n- package name and module path provided\n\n## Contraindications\n\n- module path is already known to be a built-in or third-party library from prior context\n- non-Python environments or modules without __file__ attribute\n- module is a namespace package without a concrete file path\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Normalize the module file path using os.path.normcase(os.path.realpath(os.path.abspath(module_obj.__file__)))'}\n- {'step': 2, 'action': 'Retrieve site-packages directories via site.getsitepackages(); handle both string and list return types'}\n- {'step': 3, 'action': 'If site.USER_SITE exists and is a valid path, append it to the site-packages directories list'}\n- {'step': 4, 'action': 'Normalize all site-packages directory paths using os.path.normcase(os.path.realpath(p)) and filter out non-existent paths'}\n- {'step': 5, 'action': 'Iterate through normalized site-packages directories and check if module_path starts with any of them'}\n- {'step': 6, 'action': 'If a match is found, log debug message and return True (installed library)'}\n- {'step': 7, 'action': 'If no match is found after checking all directories, log debug message and return False (local module)'}\n\n## Constraints\n\n- module must have a valid __file__ attribute\n- site-packages directories must be accessible and readable\n- path normalization must use os.path.normcase and os.path.realpath for cross-platform consistency\n\n## Cautions\n\n- site.getsitepackages() may return a string or list depending on Python version; handle both cases\n- user site directory (site.USER_SITE) may be None or non-existent; check existence before use\n- symlinks and relative paths must be resolved to absolute normalized paths for accurate comparison\n\n## Output Contract\n\n- Returns a boolean flag: True if the module is an installed library (located in site-packages), False if it is a local module or not found in any site-packages directory. Includes debug logging of the classification decision for traceability.\n\n## Example Executions\n\n### Example 1\n\n- Input: module_obj with __file__ = '/usr/local/lib/python3.9/site-packages/requests/__init__.py'\n- Output: True (installed library)\n- Notes: Module path starts with normalized site-packages directory\n\n### Example 2\n\n- Input: module_obj with __file__ = '/home/user/project/local_module.py'\n- Output: False (local module)\n- Notes: Module path does not match any site-packages directory",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "classify_module_origin",
+    "domain": "default",
+    "task_family": "instrumentation_setup",
+    "method_family": "path_inspection",
+    "stage": "initialization",
+    "applicable_signals": [
+      "module object with __file__ attribute available",
+      "import hook or instrumentation initialization phase active",
+      "package name and module path provided"
+    ],
+    "contraindications": [
+      "module path is already known to be a built-in or third-party library from prior context",
+      "non-Python environments or modules without __file__ attribute",
+      "module is a namespace package without a concrete file path"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "deciding whether to instrument a dynamically imported package",
+      "called during module import interception",
+      "need to classify module as library or local before applying instrumentation"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Normalize the module file path using os.path.normcase(os.path.realpath(os.path.abspath(module_obj.__file__)))'}",
+      "{'step': 2, 'action': 'Retrieve site-packages directories via site.getsitepackages(); handle both string and list return types'}",
+      "{'step': 3, 'action': 'If site.USER_SITE exists and is a valid path, append it to the site-packages directories list'}",
+      "{'step': 4, 'action': 'Normalize all site-packages directory paths using os.path.normcase(os.path.realpath(p)) and filter out non-existent paths'}",
+      "{'step': 5, 'action': 'Iterate through normalized site-packages directories and check if module_path starts with any of them'}",
+      "{'step': 6, 'action': 'If a match is found, log debug message and return True (installed library)'}",
+      "{'step': 7, 'action': 'If no match is found after checking all directories, log debug message and return False (local module)'}"
+    ],
+    "constraints": [
+      "module must have a valid __file__ attribute",
+      "site-packages directories must be accessible and readable",
+      "path normalization must use os.path.normcase and os.path.realpath for cross-platform consistency"
+    ],
+    "cautions": [
+      "site.getsitepackages() may return a string or list depending on Python version; handle both cases",
+      "user site directory (site.USER_SITE) may be None or non-existent; check existence before use",
+      "symlinks and relative paths must be resolved to absolute normalized paths for accurate comparison"
+    ],
+    "output_contract": [
+      "Returns a boolean flag: True if the module is an installed library (located in site-packages), False if it is a local module or not found in any site-packages directory. Includes debug logging of the classification decision for traceability."
+    ],
+    "examples": [
+      {
+        "input": "module_obj with __file__ = '/usr/local/lib/python3.9/site-packages/requests/__init__.py'",
+        "output": "True (installed library)",
+        "notes": "Module path starts with normalized site-packages directory"
+      },
+      {
+        "input": "module_obj with __file__ = '/home/user/project/local_module.py'",
+        "output": "False (local module)",
+        "notes": "Module path does not match any site-packages directory"
+      }
+    ],
+    "tags": [
+      "instrumentation",
+      "module_classification",
+      "path_inspection",
+      "import_interception",
+      "site_packages_detection"
+    ],
+    "support_ids": [
+      "86127805-ffe9-5b13-a8a0-aa5f95381ff2"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "a17538c0-84d0-50ac-a8c6-f438401c46f6"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|micro_skill_node|classify_module_origin|default|instrumentation_setup|path_inspection|initialization|detect installed package vs local module"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

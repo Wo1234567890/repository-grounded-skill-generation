@@ -1,0 +1,163 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "virtual_wan_route_programming",
+  "run_id": "20260915T070022_ed13c4f1",
+  "skills": [
+    {
+      "skill_id": "531cf59a-b6b2-5f8b-ab8c-931e75377728",
+      "name": "Virtual Network Route Injection Prefix Specificity Validation",
+      "description": "Validates that a route prefix being injected into a spoke virtual network via Virtual WAN is shorter (less specific) than the target VNet's CIDR prefix. Prevents routing conflicts, subnet route collisions, and unintended inter-subnet traffic attraction within the same VNet.",
+      "skill_body": "Before injecting a route into a spoke virtual network via Virtual WAN, validate that the route prefix length is shorter (less specific) than the virtual network's CIDR prefix. If the route prefix matches or is longer (more specific) than the VNet prefix, reject the injection and return a clear error message. Example: if spoke VNET1 has prefix 10.1.0.0/16, Virtual WAN cannot inject routes matching 10.1.0.0/16 or any subnet like 10.1.0.0/24 or 10.1.1.0/24.\n\n## Objective\n\nprevent_route_injection_conflicts\n## Applicable Signals\n\n- route prefix length being configured\n- target spoke virtual network CIDR prefix known\n- route injection operation initiated\n\n## Contraindications\n\n- route prefix is equal to or longer (more specific) than VNet prefix\n- no route injection is required\n- target VNet prefix is unknown or unavailable\n- static route definition without Virtual WAN programming\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Retrieve target spoke virtual network CIDR prefix (e.g., 10.1.0.0/16)'}\n- {'step': 2, 'action': 'Retrieve route prefix to be injected (e.g., 10.0.0.0/8)'}\n- {'step': 3, 'action': 'Compare prefix lengths: if route prefix length > VNet prefix length (shorter/less specific), proceed to step 5'}\n- {'step': 4, 'action': 'If route prefix length <= VNet prefix length (equal or longer/more specific), reject injection and return error message with reason'}\n- {'step': 5, 'action': 'Confirm route injection is safe; allow programming into Virtual WAN'}\n\n## Constraints\n\n- prefix comparison must be performed before any route injection\n- validation applies only to Virtual WAN-programmed routes, not to routes already in the VNet\n- this rule does not apply to routes propagated between hubs (dynamic routing only)\n\n## Cautions\n\n- Virtual WAN cannot attract traffic between two subnets in the same virtual network; this constraint prevents that scenario\n- subnet routes within the VNet take precedence; injected routes must not conflict with them\n\n## Output Contract\n\n- Route prefix validated as shorter than target VNet prefix and injection confirmed safe, OR injection rejected with clear error message indicating prefix specificity violation and reason.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Route prefix: 10.0.0.0/8; Spoke VNet prefix: 10.1.0.0/16\n- Therapist/Output: Validation passed. Route prefix /8 is shorter than VNet prefix /16. Injection safe.\n- Notes: Route is less specific than VNet, no conflict with subnets.\n\n### Example 2\n\n- Client/Input: Route prefix: 10.1.0.0/24; Spoke VNet prefix: 10.1.0.0/16\n- Therapist/Output: Validation failed. Route prefix /24 is longer (more specific) than VNet prefix /16. Injection rejected.\n- Notes: Route matches a subnet within the VNet; would create routing conflict.\n\n### Example 3\n\n- Client/Input: Route prefix: 10.1.0.0/16; Spoke VNet prefix: 10.1.0.0/16\n- Therapist/Output: Validation failed. Route prefix /16 matches VNet prefix /16. Injection rejected.\n- Notes: Route is equally specific; cannot be injected by Virtual WAN.",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "prevent_route_injection_conflicts",
+      "domain": "default",
+      "task_family": "virtual_wan_route_programming",
+      "method_family": "prefix_validation_rule",
+      "stage": "route_configuration",
+      "applicable_signals": [
+        "route prefix length being configured",
+        "target spoke virtual network CIDR prefix known",
+        "route injection operation initiated"
+      ],
+      "contraindications": [
+        "route prefix is equal to or longer (more specific) than VNet prefix",
+        "no route injection is required",
+        "target VNet prefix is unknown or unavailable",
+        "static route definition without Virtual WAN programming"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "route injection request into a spoke virtual network",
+        "validation of route prefix before programming into Virtual WAN"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Retrieve target spoke virtual network CIDR prefix (e.g., 10.1.0.0/16)'}",
+        "{'step': 2, 'action': 'Retrieve route prefix to be injected (e.g., 10.0.0.0/8)'}",
+        "{'step': 3, 'action': 'Compare prefix lengths: if route prefix length > VNet prefix length (shorter/less specific), proceed to step 5'}",
+        "{'step': 4, 'action': 'If route prefix length <= VNet prefix length (equal or longer/more specific), reject injection and return error message with reason'}",
+        "{'step': 5, 'action': 'Confirm route injection is safe; allow programming into Virtual WAN'}"
+      ],
+      "constraints": [
+        "prefix comparison must be performed before any route injection",
+        "validation applies only to Virtual WAN-programmed routes, not to routes already in the VNet",
+        "this rule does not apply to routes propagated between hubs (dynamic routing only)"
+      ],
+      "cautions": [
+        "Virtual WAN cannot attract traffic between two subnets in the same virtual network; this constraint prevents that scenario",
+        "subnet routes within the VNet take precedence; injected routes must not conflict with them"
+      ],
+      "output_contract": [
+        "Route prefix validated as shorter than target VNet prefix and injection confirmed safe, OR injection rejected with clear error message indicating prefix specificity violation and reason."
+      ],
+      "examples": [
+        {
+          "input": "Route prefix: 10.0.0.0/8; Spoke VNet prefix: 10.1.0.0/16",
+          "output": "Validation passed. Route prefix /8 is shorter than VNet prefix /16. Injection safe.",
+          "notes": "Route is less specific than VNet, no conflict with subnets."
+        },
+        {
+          "input": "Route prefix: 10.1.0.0/24; Spoke VNet prefix: 10.1.0.0/16",
+          "output": "Validation failed. Route prefix /24 is longer (more specific) than VNet prefix /16. Injection rejected.",
+          "notes": "Route matches a subnet within the VNet; would create routing conflict."
+        },
+        {
+          "input": "Route prefix: 10.1.0.0/16; Spoke VNet prefix: 10.1.0.0/16",
+          "output": "Validation failed. Route prefix /16 matches VNet prefix /16. Injection rejected.",
+          "notes": "Route is equally specific; cannot be injected by Virtual WAN."
+        }
+      ],
+      "tags": [
+        "virtual_wan",
+        "route_injection",
+        "prefix_validation",
+        "spoke_network",
+        "routing_safety"
+      ],
+      "support_ids": [
+        "48dd86ee-bdac-5620-8358-657b339ed3e4"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "ced46bfc-d2bf-5df2-b352-d2b9fbcb0d13"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.88,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|prevent_route_injection_conflicts|default|virtual_wan_route_programming|prefix_validation_rule|route_configuration|virtual network route injection prefix specificity validation",
+        "change_action": "create",
+        "llm_reason": "Distinct safety rule addressing prefix length validation for route injection into spoke VNets via Virtual WAN. No overlap with peer candidates: differs from next hop IP validation (peer 1), hub router IP validation (peer 2), and branch routing consistency (peer 3). Addresses a specific conflict prevention scenario (subnet route collisions within same VNet) not covered by peers. Supported by evidence and operationally necessary.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "3c37106f-ff8d-4539-9dd3-0304006e1556",
+      "entity_type": "skill",
+      "entity_id": "531cf59a-b6b2-5f8b-ab8c-931e75377728",
+      "action": "create",
+      "changed_at": "2026-09-14T21:00:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Distinct safety rule addressing prefix length validation for route injection into spoke VNets via Virtual WAN. No overlap with peer candidates: differs from next hop IP validation (peer 1), hub router IP validation (peer 2), and branch routing consistency (peer 3). Addresses a specific conflict prevention scenario (subnet route collisions within same VNet) not covered by peers. Supported by evidence and operationally necessary.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "531cf59a-b6b2-5f8b-ab8c-931e75377728",
+        "doc_ids": [
+          "3937f901-1162-503e-8dde-3cd1a710796b"
+        ],
+        "support_added": [
+          "48dd86ee-bdac-5620-8358-657b339ed3e4"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

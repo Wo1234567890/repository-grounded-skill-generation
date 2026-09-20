@@ -1,0 +1,149 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "distributed_tracing",
+  "run_id": "20260915T093653_98770905",
+  "skills": [
+    {
+      "skill_id": "f7f4d305-3894-5d88-8f74-41d498d0b6e8",
+      "name": "Active Span Resolution in Distributed Tracing",
+      "description": "Retrieve and validate the current OpenTelemetry span from context, then resolve it to the appropriate session or root trace span for logging and debugging.",
+      "skill_body": "1. Call get_current_span() to retrieve the span from OpenTelemetry context.\n2. Validate that the span exists and is recording (check is_recording() method).\n3. Inspect the span name to determine if it is a session/trace span (ends with .SESSION) or a child span.\n4. If it is a session span, use it directly.\n5. If it is a child span, attempt to retrieve active traces via tracer.get_active_traces().\n6. Match the current span's trace_id against active traces to find the parent trace span.\n7. If no parent trace is found or no active traces exist, fall back to the current span.\n8. Return the resolved span object.\n\n## Objective\n\nresolve_active_span\n## Applicable Signals\n\n- OpenTelemetry context is active\n- get_current_span() returns a non-null span\n- Span has is_recording() method available\n\n## Contraindications\n\n- No OpenTelemetry context is available in the current execution\n- The span is not recording (is_recording() returns false)\n- Offline or non-instrumented execution paths\n- Tracer instance is unavailable or uninitialized\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Retrieve current span', 'detail': 'Call get_current_span() from OpenTelemetry context'}\n- {'step': 2, 'action': 'Validate span', 'detail': 'Check that span is not null, has is_recording method, and is_recording() returns true'}\n- {'step': 3, 'action': 'Determine span type', 'detail': 'Extract span name and check if it ends with .SESSION to identify session/trace span'}\n- {'step': 4, 'action': 'Resolve to appropriate span', 'detail': 'If session span, use directly; if child span, query active traces and match by trace_id'}\n- {'step': 5, 'action': 'Fallback handling', 'detail': 'If parent trace not found or no active traces, use current span as fallback'}\n\n## Constraints\n\n- The span object must have a name attribute or default to empty string\n- The span context must expose a trace_id for parent matching\n- Active traces must be queryable via tracer.get_active_traces()\n\n## Cautions\n\n- If no parent trace is found, the fallback to current span may not represent the full session context\n- Span name matching relies on exact suffix comparison; naming conventions must be consistent\n\n## Output Contract\n\n- A valid, recording span object (either the current session span or the resolved root trace span) ready for event or attribute attachment. The returned span must satisfy: span is not null, span.is_recording() == true, and span has a valid trace_id.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "resolve_active_span",
+      "domain": "default",
+      "task_family": "distributed_tracing",
+      "method_family": "span_resolution",
+      "stage": "instrumentation",
+      "applicable_signals": [
+        "OpenTelemetry context is active",
+        "get_current_span() returns a non-null span",
+        "Span has is_recording() method available"
+      ],
+      "contraindications": [
+        "No OpenTelemetry context is available in the current execution",
+        "The span is not recording (is_recording() returns false)",
+        "Offline or non-instrumented execution paths",
+        "Tracer instance is unavailable or uninitialized"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "A logging or debugging operation needs to attach telemetry data to the correct trace context",
+        "The current execution context may be a child span or a root session span",
+        "Span attachment is required before recording events or attributes"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Retrieve current span', 'detail': 'Call get_current_span() from OpenTelemetry context'}",
+        "{'step': 2, 'action': 'Validate span', 'detail': 'Check that span is not null, has is_recording method, and is_recording() returns true'}",
+        "{'step': 3, 'action': 'Determine span type', 'detail': 'Extract span name and check if it ends with .SESSION to identify session/trace span'}",
+        "{'step': 4, 'action': 'Resolve to appropriate span', 'detail': 'If session span, use directly; if child span, query active traces and match by trace_id'}",
+        "{'step': 5, 'action': 'Fallback handling', 'detail': 'If parent trace not found or no active traces, use current span as fallback'}"
+      ],
+      "constraints": [
+        "The span object must have a name attribute or default to empty string",
+        "The span context must expose a trace_id for parent matching",
+        "Active traces must be queryable via tracer.get_active_traces()"
+      ],
+      "cautions": [
+        "If no parent trace is found, the fallback to current span may not represent the full session context",
+        "Span name matching relies on exact suffix comparison; naming conventions must be consistent"
+      ],
+      "output_contract": [
+        "A valid, recording span object (either the current session span or the resolved root trace span) ready for event or attribute attachment. The returned span must satisfy: span is not null, span.is_recording() == true, and span has a valid trace_id."
+      ],
+      "examples": [],
+      "tags": [
+        "opentelemetry",
+        "distributed_tracing",
+        "span_resolution",
+        "instrumentation",
+        "debugging",
+        "telemetry"
+      ],
+      "support_ids": [
+        "3259b7fc-d130-551f-94a5-cff16de3f3d9"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "808d0e18-44c9-5274-a639-9999d1ec02b3"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|resolve_active_span|default|distributed_tracing|span_resolution|instrumentation|active span resolution in distributed tracing",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill for resolving active OpenTelemetry spans in distributed tracing context. It has unique semantic identity (span retrieval and validation from context, parent trace matching) that does not overlap with existing skills. Peer candidates address complementary concerns (span hierarchy composition, attribute extraction, span management) but operate at different workflow stages and with different objectives. No existing skill covers the specific capability of retrieving, validating, and resolving the current span to session/root trace context.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "50f4db36-e6ee-4901-9412-33943a4beb2e",
+      "entity_type": "skill",
+      "entity_id": "f7f4d305-3894-5d88-8f74-41d498d0b6e8",
+      "action": "create",
+      "changed_at": "2026-09-14T23:32:37+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill for resolving active OpenTelemetry spans in distributed tracing context. It has unique semantic identity (span retrieval and validation from context, parent trace matching) that does not overlap with existing skills. Peer candidates address complementary concerns (span hierarchy composition, attribute extraction, span management) but operate at different workflow stages and with different objectives. No existing skill covers the specific capability of retrieving, validating, and resolving the current span to session/root trace context.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "f7f4d305-3894-5d88-8f74-41d498d0b6e8",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "3259b7fc-d130-551f-94a5-cff16de3f3d9"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

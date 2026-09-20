@@ -1,0 +1,168 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "url_routing_configuration",
+  "run_id": "20260916T060701_7062b236",
+  "skills": [
+    {
+      "skill_id": "3f5e0e83-f308-5ccd-9232-7a63a98b7348",
+      "name": "Configure Trailing Slash URL Matching in Spring MVC/WebFlux",
+      "description": "Restore Spring Boot 2.x trailing-slash matching behavior by configuring PathMatchConfigurer in WebMvcConfigurer or WebFluxConfigurer. Use when migrating to Spring Boot 3.0 and existing routes depend on trailing-slash tolerance.",
+      "skill_body": "To enable trailing-slash URL matching for backward compatibility during Spring Boot 3.0 migration:\n\n1. For Spring MVC: Create a @Configuration class implementing WebMvcConfigurer and override configurePathMatch() to call configurer.setUseTrailingSlashMatch(true).\n2. For Spring WebFlux: Create a @Configuration class implementing WebFluxConfigurer and override configurePathMatching() to call configurer.setUseTrailingSlashMatch(true).\n3. This allows routes to match both with and without trailing slashes, preventing 404 errors on slash-variant requests.\n4. Apply this only as a temporary migration bridge; consider explicit route declarations (@GetMapping with multiple paths) for new code.\n\n## Objective\n\nEnable trailing-slash URL matching for backward compatibility\n## Applicable Signals\n\n- HTTP 404 errors on URLs with trailing slashes after upgrade\n- Application logs show path mismatch errors\n- Controller handlers not invoked for slash-variant requests\n\n## Contraindications\n\n- New application design intentionally enforces strict URL matching\n- Trailing-slash inconsistency is desired behavior for API versioning or routing logic\n- Application has already migrated routes to explicit multi-path declarations\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify framework in use', 'detail': 'Determine whether application uses Spring MVC or Spring WebFlux'}\n- {'step': 2, 'action': 'Create configuration class', 'detail': 'Declare a new @Configuration class implementing WebMvcConfigurer (MVC) or WebFluxConfigurer (WebFlux)'}\n- {'step': 3, 'action': 'Override path match configuration method', 'detail': 'For MVC: override configurePathMatch(PathMatchConfigurer configurer); for WebFlux: override configurePathMatching(PathMatchConfigurer configurer)'}\n- {'step': 4, 'action': 'Enable trailing-slash matching', 'detail': 'Call configurer.setUseTrailingSlashMatch(true) within the override method'}\n- {'step': 5, 'action': 'Test route resolution', 'detail': 'Verify that routes resolve correctly both with and without trailing slashes; confirm no 404 errors on slash variants'}\n\n## Constraints\n\n- Configuration must be applied at application startup\n- Requires @Configuration annotation and appropriate WebMvcConfigurer or WebFluxConfigurer interface implementation\n- Only affects request path matching; does not modify response headers or redirect behavior\n\n## Cautions\n\n- This is a temporary migration bridge; consider refactoring to explicit route declarations for long-term maintainability\n- Enabling trailing-slash matching may mask URL design inconsistencies that should be addressed in the application\n- Do not use this as a permanent solution for new Spring Boot 3.0 applications\n\n## Output Contract\n\n- Routes with and without trailing slashes both resolve to the same handler\n- No 404 errors on trailing-slash variants\n- Application behavior matches Spring Boot 2.x trailing-slash tolerance during migration window\n\n## Example Executions\n\n### Example 1\n\n- Input: Spring MVC application with route /api/users that previously matched both /api/users and /api/users/ in Spring Boot 2.x\n- Output: After configuration, both /api/users and /api/users/ invoke the same handler without 404 error\n- Notes: Configuration class implements WebMvcConfigurer and sets setUseTrailingSlashMatch(true)\n\n### Example 2\n\n- Input: Spring WebFlux application with route /api/data that fails with 404 when accessed as /api/data/ after Spring Boot 3.0 upgrade\n- Output: After configuration, /api/data/ resolves successfully to the same handler as /api/data\n- Notes: Configuration class implements WebFluxConfigurer and sets setUseTrailingSlashMatch(true)",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "9d9280ad-da31-5dcd-b42e-7af702e842e9",
+        "74d1515b-7065-54b8-b35b-2520eb505ac3"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Enable trailing-slash URL matching for backward compatibility",
+      "domain": "default",
+      "task_family": "url_routing_configuration",
+      "method_family": "spring_mvc_webflux_configuration",
+      "stage": "migration_adaptation",
+      "applicable_signals": [
+        "HTTP 404 errors on URLs with trailing slashes after upgrade",
+        "Application logs show path mismatch errors",
+        "Controller handlers not invoked for slash-variant requests"
+      ],
+      "contraindications": [
+        "New application design intentionally enforces strict URL matching",
+        "Trailing-slash inconsistency is desired behavior for API versioning or routing logic",
+        "Application has already migrated routes to explicit multi-path declarations"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Spring Boot 3.0 migration initiated",
+        "Existing application routes fail with 404 on trailing-slash variants",
+        "Routes were previously matched with or without trailing slash in Spring Boot 2.x"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Identify framework in use', 'detail': 'Determine whether application uses Spring MVC or Spring WebFlux'}",
+        "{'step': 2, 'action': 'Create configuration class', 'detail': 'Declare a new @Configuration class implementing WebMvcConfigurer (MVC) or WebFluxConfigurer (WebFlux)'}",
+        "{'step': 3, 'action': 'Override path match configuration method', 'detail': 'For MVC: override configurePathMatch(PathMatchConfigurer configurer); for WebFlux: override configurePathMatching(PathMatchConfigurer configurer)'}",
+        "{'step': 4, 'action': 'Enable trailing-slash matching', 'detail': 'Call configurer.setUseTrailingSlashMatch(true) within the override method'}",
+        "{'step': 5, 'action': 'Test route resolution', 'detail': 'Verify that routes resolve correctly both with and without trailing slashes; confirm no 404 errors on slash variants'}"
+      ],
+      "constraints": [
+        "Configuration must be applied at application startup",
+        "Requires @Configuration annotation and appropriate WebMvcConfigurer or WebFluxConfigurer interface implementation",
+        "Only affects request path matching; does not modify response headers or redirect behavior"
+      ],
+      "cautions": [
+        "This is a temporary migration bridge; consider refactoring to explicit route declarations for long-term maintainability",
+        "Enabling trailing-slash matching may mask URL design inconsistencies that should be addressed in the application",
+        "Do not use this as a permanent solution for new Spring Boot 3.0 applications"
+      ],
+      "output_contract": [
+        "Routes with and without trailing slashes both resolve to the same handler",
+        "No 404 errors on trailing-slash variants",
+        "Application behavior matches Spring Boot 2.x trailing-slash tolerance during migration window"
+      ],
+      "examples": [
+        {
+          "input": "Spring MVC application with route /api/users that previously matched both /api/users and /api/users/ in Spring Boot 2.x",
+          "output": "After configuration, both /api/users and /api/users/ invoke the same handler without 404 error",
+          "notes": "Configuration class implements WebMvcConfigurer and sets setUseTrailingSlashMatch(true)"
+        },
+        {
+          "input": "Spring WebFlux application with route /api/data that fails with 404 when accessed as /api/data/ after Spring Boot 3.0 upgrade",
+          "output": "After configuration, /api/data/ resolves successfully to the same handler as /api/data",
+          "notes": "Configuration class implements WebFluxConfigurer and sets setUseTrailingSlashMatch(true)"
+        }
+      ],
+      "tags": [
+        "spring-boot-3-migration",
+        "url-routing",
+        "backward-compatibility",
+        "spring-mvc",
+        "spring-webflux",
+        "configuration"
+      ],
+      "support_ids": [
+        "2f1b8115-1f94-5b64-80fb-0bf7b03c6083"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "0f62d6a7-2bdb-538c-b6fe-c00f83b5a362"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.92,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|enable trailing-slash url matching for backward compatibility|default|url_routing_configuration|spring_mvc_webflux_configuration|migration_adaptation|configure trailing slash url matching in spring mvc/webflux",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "9d9280ad-da31-5dcd-b42e-7af702e842e9",
+          "74d1515b-7065-54b8-b35b-2520eb505ac3"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "848c1d14-0ce4-4286-9fc2-c600cef650d3",
+      "entity_type": "skill",
+      "entity_id": "3f5e0e83-f308-5ccd-9232-7a63a98b7348",
+      "action": "create",
+      "changed_at": "2026-09-15T20:04:50+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "create",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "3f5e0e83-f308-5ccd-9232-7a63a98b7348",
+        "doc_ids": [
+          "8a0719aa-8715-5b31-81e8-b6b7665dcece"
+        ],
+        "support_added": [
+          "2f1b8115-1f94-5b64-80fb-0bf7b03c6083"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

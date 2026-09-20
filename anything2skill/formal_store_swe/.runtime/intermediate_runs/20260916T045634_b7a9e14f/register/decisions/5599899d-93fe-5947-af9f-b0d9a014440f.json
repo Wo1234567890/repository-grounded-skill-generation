@@ -1,0 +1,117 @@
+{
+  "skill_id": "5599899d-93fe-5947-af9f-b0d9a014440f",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill in parallel_execution/worker_initialization domain focused on ThreadPoolExecutor initializer configuration. It does not semantically overlap with existing skills (Script Loading Control and GRPO Loss Formulation are in unrelated domains: ui_optimization and loss_computation). Peer candidates (Map Function, ProcessPoolExecutor Lifecycle, Submit Callable) are related but operate at different stages and task families; this skill is specifically about ThreadPoolExecutor initializer setup at pool_configuration stage, not task dispatch, batch processing, or process-level lifecycle. The skill has valid support evidence and no conflicts.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "5599899d-93fe-5947-af9f-b0d9a014440f",
+    "name": "ThreadPoolExecutor Initialization with Worker Setup",
+    "description": "Configure ThreadPoolExecutor with initializer and initargs to run setup code once per worker thread at startup. Handles resource allocation, logging, or thread-local state initialization with exception safety.",
+    "skill_body": "Pass an initializer callable and initargs tuple to ThreadPoolExecutor constructor. The initializer runs once at the start of each worker thread before any tasks execute. If initializer raises an exception, all pending jobs will raise BrokenThreadPool and further submissions are rejected.\n\n## Objective\n\nInitialize worker thread state and resources before task execution\n## Applicable Signals\n\n- Executor creation with max_workers > 1\n- Tasks depend on thread-local state or resources\n- Setup cost is amortized across many tasks\n\n## Contraindications\n\n- No per-worker setup needed\n- Initialization is task-specific rather than thread-specific\n- Setup must vary per task (use task wrapper instead)\n\n## Workflow Steps\n\n- Define initializer callable with signature matching initargs\n- Create ThreadPoolExecutor with initializer and initargs parameters\n- Submit tasks; initializer runs once per worker before first task\n- Handle BrokenThreadPool exception if initializer fails\n\n## Constraints\n\n- Initializer must be callable and accept only initargs\n- initargs must be a tuple of arguments to pass to initializer\n- Initializer exception blocks all pending and future submissions\n\n## Cautions\n\n- If initializer raises an exception, all currently pending jobs raise BrokenThreadPool\n- Any attempt to submit more jobs after initializer failure is rejected\n- Initializer runs in worker thread context; use thread-safe operations only\n\n## Output Contract\n\n- Initializer callable executes exactly once per worker thread at startup. On success, worker is ready for task execution. On failure, all pending jobs raise BrokenThreadPool and executor rejects further submissions.\n\n## Example Executions\n\n### Example 1\n\n- Input: initializer=setup_db, initargs=('connection_string',), max_workers=4\n- Output: Each of 4 worker threads calls setup_db('connection_string') once at startup; workers then execute submitted tasks with initialized state\n- Notes: Typical use case for database connection pooling per worker\n\n### Example 2\n\n- Input: initializer raises ValueError during startup\n- Output: All pending jobs raise BrokenThreadPool; executor.submit() rejects new submissions\n- Notes: Failure mode: initialization exception propagates to all jobs",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Initialize worker thread state and resources before task execution",
+    "domain": "default",
+    "task_family": "parallel_execution",
+    "method_family": "worker_initialization",
+    "stage": "pool_configuration",
+    "applicable_signals": [
+      "Executor creation with max_workers > 1",
+      "Tasks depend on thread-local state or resources",
+      "Setup cost is amortized across many tasks"
+    ],
+    "contraindications": [
+      "No per-worker setup needed",
+      "Initialization is task-specific rather than thread-specific",
+      "Setup must vary per task (use task wrapper instead)"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Each worker thread requires shared state setup before executing tasks",
+      "Need to allocate per-thread resources (database connections, caches, handlers)",
+      "Logging or instrumentation must be initialized per worker"
+    ],
+    "workflow_steps": [
+      "Define initializer callable with signature matching initargs",
+      "Create ThreadPoolExecutor with initializer and initargs parameters",
+      "Submit tasks; initializer runs once per worker before first task",
+      "Handle BrokenThreadPool exception if initializer fails"
+    ],
+    "constraints": [
+      "Initializer must be callable and accept only initargs",
+      "initargs must be a tuple of arguments to pass to initializer",
+      "Initializer exception blocks all pending and future submissions"
+    ],
+    "cautions": [
+      "If initializer raises an exception, all currently pending jobs raise BrokenThreadPool",
+      "Any attempt to submit more jobs after initializer failure is rejected",
+      "Initializer runs in worker thread context; use thread-safe operations only"
+    ],
+    "output_contract": [
+      "Initializer callable executes exactly once per worker thread at startup. On success, worker is ready for task execution. On failure, all pending jobs raise BrokenThreadPool and executor rejects further submissions."
+    ],
+    "examples": [
+      {
+        "input": "initializer=setup_db, initargs=('connection_string',), max_workers=4",
+        "output": "Each of 4 worker threads calls setup_db('connection_string') once at startup; workers then execute submitted tasks with initialized state",
+        "notes": "Typical use case for database connection pooling per worker"
+      },
+      {
+        "input": "initializer raises ValueError during startup",
+        "output": "All pending jobs raise BrokenThreadPool; executor.submit() rejects new submissions",
+        "notes": "Failure mode: initialization exception propagates to all jobs"
+      }
+    ],
+    "tags": [
+      "concurrent.futures",
+      "ThreadPoolExecutor",
+      "worker_setup",
+      "initialization",
+      "thread_safety",
+      "resource_allocation"
+    ],
+    "support_ids": [
+      "ff9014ed-196e-5214-84ff-9befb117c749"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "f9d95d03-15eb-59c6-8a67-a51eaf34aa95"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|initialize worker thread state and resources before task execution|default|parallel_execution|worker_initialization|pool_configuration|threadpoolexecutor initialization with worker setup"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,115 @@
+{
+  "skill_id": "cf066521-44bd-5d3a-ba81-5603ffba695b",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "cf066521-44bd-5d3a-ba81-5603ffba695b",
+    "name": "Span Management with Attribute Tracking",
+    "description": "Create and manage instrumentation spans with consistent attribute assignment using SpanAttributeManager and create_span context manager. Use when instrumenting operations that need distributed tracing and attribute metadata.",
+    "skill_body": "To establish a span with consistent attributes:\n1. Import create_span and SpanAttributeManager from agentops.instrumentation.common\n2. Instantiate SpanAttributeManager with service_name\n3. Use create_span as a context manager, passing tracer, operation name, attributes dict, and attribute_manager\n4. Execute operation code within the span context\n5. Span automatically closes on context exit\n\n## Objective\n\nEstablish consistent span creation and attribute management for operation tracing\n## Applicable Signals\n\n- Operation requires distributed tracing instrumentation\n- Custom attribute metadata must be attached to operation span\n- Caller needs to track operation execution with service context\n\n## Contraindications\n\n- Operation does not require tracing or monitoring\n- Span context is already managed by parent instrumentation\n- Tracer is not initialized or available\n\n## Intervention Moves\n\n- Initialize SpanAttributeManager with service identifier\n- Wrap operation code in create_span context manager\n- Pass operation name and attribute dict to create_span\n- Allow span to auto-close on context exit\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Import utilities', 'detail': 'from agentops.instrumentation.common import create_span, SpanAttributeManager'}\n- {'step': 2, 'action': 'Create attribute manager', 'detail': 'attr_manager = SpanAttributeManager(service_name=\"<service-identifier>\")'}\n- {'step': 3, 'action': 'Enter span context', 'detail': 'with create_span(tracer, \"<operation.name>\", attributes={...}, attribute_manager=attr_manager) as span:'}\n- {'step': 4, 'action': 'Execute operation', 'detail': 'Place operation code inside the with block'}\n- {'step': 5, 'action': 'Exit and record', 'detail': 'Span automatically closes and records on context exit'}\n\n## Constraints\n\n- Tracer object must be available and initialized before calling create_span\n- SpanAttributeManager must be instantiated with valid service_name\n- Operation code must execute within the context manager block\n\n## Cautions\n\n- Ensure tracer lifecycle is managed by caller; create_span does not initialize tracer\n- Attributes dict should contain only serializable values\n- Nested spans require separate create_span calls; do not reuse span context across operations\n\n## Output Contract\n\n- Returns active span object with service_name and custom attributes set; operation code executes within span context; span automatically closes and records on context exit\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Instrumenting a database query operation with service context\n- Therapist/Output: Active span named 'db.query' with attributes {service_name: 'my-service', 'db.operation': 'select'} recorded after query execution\n- Notes: Caller provides tracer and operation name; SpanAttributeManager ensures consistent service metadata",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Establish consistent span creation and attribute management for operation tracing",
+    "domain": "default",
+    "task_family": "instrumentation",
+    "method_family": "span_management",
+    "stage": "execution",
+    "applicable_signals": [
+      "Operation requires distributed tracing instrumentation",
+      "Custom attribute metadata must be attached to operation span",
+      "Caller needs to track operation execution with service context"
+    ],
+    "contraindications": [
+      "Operation does not require tracing or monitoring",
+      "Span context is already managed by parent instrumentation",
+      "Tracer is not initialized or available"
+    ],
+    "intervention_moves": [
+      "Initialize SpanAttributeManager with service identifier",
+      "Wrap operation code in create_span context manager",
+      "Pass operation name and attribute dict to create_span",
+      "Allow span to auto-close on context exit"
+    ],
+    "triggers": [
+      "Instrumenting a discrete operation or function call that requires distributed tracing and attribute metadata capture"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Import utilities', 'detail': 'from agentops.instrumentation.common import create_span, SpanAttributeManager'}",
+      "{'step': 2, 'action': 'Create attribute manager', 'detail': 'attr_manager = SpanAttributeManager(service_name=\"<service-identifier>\")'}",
+      "{'step': 3, 'action': 'Enter span context', 'detail': 'with create_span(tracer, \"<operation.name>\", attributes={...}, attribute_manager=attr_manager) as span:'}",
+      "{'step': 4, 'action': 'Execute operation', 'detail': 'Place operation code inside the with block'}",
+      "{'step': 5, 'action': 'Exit and record', 'detail': 'Span automatically closes and records on context exit'}"
+    ],
+    "constraints": [
+      "Tracer object must be available and initialized before calling create_span",
+      "SpanAttributeManager must be instantiated with valid service_name",
+      "Operation code must execute within the context manager block"
+    ],
+    "cautions": [
+      "Ensure tracer lifecycle is managed by caller; create_span does not initialize tracer",
+      "Attributes dict should contain only serializable values",
+      "Nested spans require separate create_span calls; do not reuse span context across operations"
+    ],
+    "output_contract": [
+      "Returns active span object with service_name and custom attributes set; operation code executes within span context; span automatically closes and records on context exit"
+    ],
+    "examples": [
+      {
+        "input": "Instrumenting a database query operation with service context",
+        "output": "Active span named 'db.query' with attributes {service_name: 'my-service', 'db.operation': 'select'} recorded after query execution",
+        "notes": "Caller provides tracer and operation name; SpanAttributeManager ensures consistent service metadata"
+      }
+    ],
+    "tags": [
+      "instrumentation",
+      "distributed-tracing",
+      "span-management",
+      "attribute-tracking",
+      "context-manager"
+    ],
+    "support_ids": [
+      "60247652-999e-5994-b702-f82a0c19f018"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "0cdf83fa-0db3-5ae0-81d0-13f0b95f9258"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|establish consistent span creation and attribute management for operation tracing|default|instrumentation|span_management|execution|span management with attribute tracking"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

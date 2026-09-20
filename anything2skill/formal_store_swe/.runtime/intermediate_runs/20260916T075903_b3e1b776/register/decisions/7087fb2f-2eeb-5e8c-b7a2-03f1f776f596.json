@@ -1,0 +1,122 @@
+{
+  "skill_id": "7087fb2f-2eeb-5e8c-b7a2-03f1f776f596",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for implementing a deprecated @session decorator wrapper that delegates to @trace. It has unique semantic identity (decorator backward compatibility routing), different task_family (api_migration vs. peer candidates' observability_instrumentation, compatibility_maintenance, initialization), and does not overlap with existing skills which focus on trace filtering, data preparation, and thread pool execution. Peer candidates address related but separate concerns (span hierarchy, global state sync, legacy module sync) and do not subsume this decorator wrapper pattern.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "7087fb2f-2eeb-5e8c-b7a2-03f1f776f596",
+    "name": "Decorator Backward Compatibility Wrapper",
+    "description": "Provide a deprecated @session decorator that delegates to @trace for backward compatibility, handling both direct decoration and parameterized invocation patterns.",
+    "skill_body": "Implement a @session decorator that wraps @trace to maintain legacy API compatibility. The decorator must handle two invocation styles: bare decoration (@session on a function) and parameterized decoration (@session(name=...)). Route all calls to @trace with the same arguments and emit a deprecation warning. Use the deprecated() helper to mark @session as obsolete.\n\n## Objective\n\nMaintain legacy @session decorator API while routing to new @trace implementation\n## Applicable Signals\n\n- Existing codebase uses @session decorator\n- Migration to @trace is in progress\n- Legacy code must continue to work without modification\n\n## Contraindications\n\n- Full removal of @session is acceptable\n- No legacy code depends on @session decorator\n- New code should use @trace directly\n\n## Intervention Moves\n\n- Detect invocation style: bare vs. parameterized\n- Route to @trace with appropriate argument unpacking\n- Wrap with deprecation warning via deprecated() helper\n\n## Workflow Steps\n\n- Import deprecated() from agentops.helpers.deprecation\n- Import trace decorator from agentops.sdk.decorators.factory via create_entity_decorator(SpanKind.SESSION)\n- Define session(*args, **kwargs) function\n- Implement conditional routing: if not args or not callable(args[0]), invoke trace(*args, **kwargs); else invoke trace(args[0], **kwargs)\n- Apply deprecated() wrapper to session function with message 'Use @trace decorator instead.'\n- Return wrapped session callable\n\n## Constraints\n\n- Must preserve exact argument passing to @trace\n- Must handle both @session and @session(...) syntax\n- Deprecation warning must be emitted on every invocation\n- No additional logic or transformation of arguments\n\n## Cautions\n\n- Ensure trace decorator is available before wrapping session\n- Test both bare and parameterized invocation paths\n- Verify deprecation warning is visible to end users\n\n## Output Contract\n\n- Callable @session decorator that accepts any arguments, transparently invokes @trace with the same arguments, and emits a deprecation warning. Callers receive the same behavior as @trace with no functional difference.\n\n## Example Executions\n\n### Example 1\n\n- Input: @session\ndef my_function(): pass\n- Output: my_function is decorated; @trace is invoked with my_function as first argument; deprecation warning emitted\n- Notes: Bare decorator invocation\n\n### Example 2\n\n- Input: @session(name='custom_name')\ndef my_function(): pass\n- Output: my_function is decorated; @trace is invoked with name='custom_name'; deprecation warning emitted\n- Notes: Parameterized decorator invocation",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "leaf",
+    "objective": "Maintain legacy @session decorator API while routing to new @trace implementation",
+    "domain": "default",
+    "task_family": "api_migration",
+    "method_family": "decorator_wrapper",
+    "stage": "integration",
+    "applicable_signals": [
+      "Existing codebase uses @session decorator",
+      "Migration to @trace is in progress",
+      "Legacy code must continue to work without modification"
+    ],
+    "contraindications": [
+      "Full removal of @session is acceptable",
+      "No legacy code depends on @session decorator",
+      "New code should use @trace directly"
+    ],
+    "intervention_moves": [
+      "Detect invocation style: bare vs. parameterized",
+      "Route to @trace with appropriate argument unpacking",
+      "Wrap with deprecation warning via deprecated() helper"
+    ],
+    "triggers": [
+      "Existing code uses @session decorator and must continue to work; migration to @trace is in progress."
+    ],
+    "workflow_steps": [
+      "Import deprecated() from agentops.helpers.deprecation",
+      "Import trace decorator from agentops.sdk.decorators.factory via create_entity_decorator(SpanKind.SESSION)",
+      "Define session(*args, **kwargs) function",
+      "Implement conditional routing: if not args or not callable(args[0]), invoke trace(*args, **kwargs); else invoke trace(args[0], **kwargs)",
+      "Apply deprecated() wrapper to session function with message 'Use @trace decorator instead.'",
+      "Return wrapped session callable"
+    ],
+    "constraints": [
+      "Must preserve exact argument passing to @trace",
+      "Must handle both @session and @session(...) syntax",
+      "Deprecation warning must be emitted on every invocation",
+      "No additional logic or transformation of arguments"
+    ],
+    "cautions": [
+      "Ensure trace decorator is available before wrapping session",
+      "Test both bare and parameterized invocation paths",
+      "Verify deprecation warning is visible to end users"
+    ],
+    "output_contract": [
+      "Callable @session decorator that accepts any arguments, transparently invokes @trace with the same arguments, and emits a deprecation warning. Callers receive the same behavior as @trace with no functional difference."
+    ],
+    "examples": [
+      {
+        "input": "@session\ndef my_function(): pass",
+        "output": "my_function is decorated; @trace is invoked with my_function as first argument; deprecation warning emitted",
+        "notes": "Bare decorator invocation"
+      },
+      {
+        "input": "@session(name='custom_name')\ndef my_function(): pass",
+        "output": "my_function is decorated; @trace is invoked with name='custom_name'; deprecation warning emitted",
+        "notes": "Parameterized decorator invocation"
+      }
+    ],
+    "tags": [
+      "decorator",
+      "backward_compatibility",
+      "deprecation",
+      "api_migration",
+      "wrapper"
+    ],
+    "support_ids": [
+      "e536a184-a4a3-5e2a-a2e8-3d6d307b5138"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "89e0c69f-43ec-5b57-ad21-190782c61aae"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|maintain legacy @session decorator api while routing to new @trace implementation|default|api_migration|decorator_wrapper|integration|decorator backward compatibility wrapper",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

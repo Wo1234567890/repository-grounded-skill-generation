@@ -1,0 +1,130 @@
+{
+  "skill_id": "d0c0577d-6e2d-5153-a42c-06b985df0433",
+  "name": "Token Usage Extraction and Attribution",
+  "description": "Extract token usage metrics from API responses and attach them as span attributes for cost and quota tracking. Applies to instrumented LLM or API calls that return token consumption data.",
+  "skill_body": "Use TokenUsageExtractor to extract token usage from a response object, then call set_token_usage_attributes to attach prompt_tokens and completion_tokens to the active span. Optionally record metrics via MetricsRecorder for aggregated tracking.\n\n## Objective\n\nExtract and record token usage from a response object onto a span\n## Applicable Signals\n\n- Response object contains token usage fields (prompt_tokens, completion_tokens)\n- Need to track LLM cost or quota per operation\n- Span is active and ready to receive attributes\n\n## Contraindications\n\n- Response does not include token usage data\n- Token counting is handled by the API client library itself\n- Metrics are aggregated at a higher level without per-operation attribution\n\n## Intervention Moves\n\n- Call TokenUsageExtractor.extract_from_response(response) to parse token counts\n- Call set_token_usage_attributes(span, response) to attach metrics to span\n- Optionally call MetricsRecorder.record_token_usage(prompt_tokens, completion_tokens) for aggregation\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Import TokenUsageExtractor and set_token_usage_attributes from agentops.instrumentation.common'}\n- {'step': 2, 'action': 'After API call returns, extract token usage: usage = TokenUsageExtractor.extract_from_response(response)'}\n- {'step': 3, 'action': 'Attach to active span: set_token_usage_attributes(span, response)'}\n- {'step': 4, 'action': 'Optionally record in metrics: recorder.record_token_usage(usage.prompt_tokens, usage.completion_tokens)'}\n\n## Constraints\n\n- Span must be active before calling set_token_usage_attributes\n- Response object must be available after API call completes\n- Token fields must be present in response structure\n\n## Cautions\n\n- Verify response structure includes token usage fields before extraction\n- Ensure span context is not closed before attribute assignment\n\n## Output Contract\n\n- Token usage attributes (prompt_tokens, completion_tokens) are set on the span; metrics are recorded in MetricsRecorder if invoked. Downstream callers can query span attributes for cost calculation and quota enforcement.\n\n## Example Executions\n\n### Example 1\n\n- Input: API response object with fields: {prompt_tokens: 100, completion_tokens: 50, ...}\n- Output: Span attributes set: span.attributes['prompt_tokens'] = 100, span.attributes['completion_tokens'] = 50\n- Notes: Typical LLM API response after completion\n\n### Example 2\n\n- Input: Active span context and MetricsRecorder instance\n- Output: Metrics recorded: recorder.record_token_usage(prompt_tokens=100, completion_tokens=50)\n- Notes: Enables aggregated cost tracking across multiple operations",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [
+    "812e7026-499e-5857-812c-08f5685e456e",
+    "d455d61a-a585-56d3-b134-16e49b8d6cb2"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "Extract and record token usage from a response object onto a span",
+  "domain": "default",
+  "task_family": "instrumentation",
+  "method_family": "metrics_extraction",
+  "stage": "post_execution",
+  "applicable_signals": [
+    "Response object contains token usage fields (prompt_tokens, completion_tokens)",
+    "Need to track LLM cost or quota per operation",
+    "Span is active and ready to receive attributes"
+  ],
+  "contraindications": [
+    "Response does not include token usage data",
+    "Token counting is handled by the API client library itself",
+    "Metrics are aggregated at a higher level without per-operation attribution"
+  ],
+  "intervention_moves": [
+    "Call TokenUsageExtractor.extract_from_response(response) to parse token counts",
+    "Call set_token_usage_attributes(span, response) to attach metrics to span",
+    "Optionally call MetricsRecorder.record_token_usage(prompt_tokens, completion_tokens) for aggregation"
+  ],
+  "triggers": [
+    "Response object contains token usage fields (prompt_tokens, completion_tokens); need to track LLM cost or quota per operation"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Import TokenUsageExtractor and set_token_usage_attributes from agentops.instrumentation.common'}",
+    "{'step': 2, 'action': 'After API call returns, extract token usage: usage = TokenUsageExtractor.extract_from_response(response)'}",
+    "{'step': 3, 'action': 'Attach to active span: set_token_usage_attributes(span, response)'}",
+    "{'step': 4, 'action': 'Optionally record in metrics: recorder.record_token_usage(usage.prompt_tokens, usage.completion_tokens)'}"
+  ],
+  "constraints": [
+    "Span must be active before calling set_token_usage_attributes",
+    "Response object must be available after API call completes",
+    "Token fields must be present in response structure"
+  ],
+  "cautions": [
+    "Verify response structure includes token usage fields before extraction",
+    "Ensure span context is not closed before attribute assignment"
+  ],
+  "output_contract": [
+    "Token usage attributes (prompt_tokens, completion_tokens) are set on the span; metrics are recorded in MetricsRecorder if invoked. Downstream callers can query span attributes for cost calculation and quota enforcement."
+  ],
+  "examples": [
+    {
+      "input": "API response object with fields: {prompt_tokens: 100, completion_tokens: 50, ...}",
+      "output": "Span attributes set: span.attributes['prompt_tokens'] = 100, span.attributes['completion_tokens'] = 50",
+      "notes": "Typical LLM API response after completion"
+    },
+    {
+      "input": "Active span context and MetricsRecorder instance",
+      "output": "Metrics recorded: recorder.record_token_usage(prompt_tokens=100, completion_tokens=50)",
+      "notes": "Enables aggregated cost tracking across multiple operations"
+    }
+  ],
+  "tags": [
+    "instrumentation",
+    "metrics",
+    "token_counting",
+    "span_attributes",
+    "cost_tracking",
+    "quota_management"
+  ],
+  "support_ids": [
+    "a1ebf207-5d45-5276-b614-a55d36dda2da"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "8ef30522-5b37-5023-8549-283e4a08cb73"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.82,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|extract and record token usage from a response object onto a span|default|instrumentation|metrics_extraction|post_execution|token usage extraction and attribution",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct micro_skill for extracting and attributing token usage metrics to spans in instrumented LLM/API calls. It differs semantically from peer candidates (streaming instrumentation, session termination, decorator factory) and existing skills (Spring URL routing). The support evidence confirms the capability exists in the codebase (Debugging Roadmap references span management utilities). No conflicts detected. This is a new, independent instrumentation capability.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [
+      "812e7026-499e-5857-812c-08f5685e456e",
+      "d455d61a-a585-56d3-b134-16e49b8d6cb2"
+    ],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

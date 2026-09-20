@@ -1,0 +1,2212 @@
+{
+  "documents": [
+    {
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "source_type": "document",
+      "title": "azure-virtual-wan-docs.md",
+      "authors": [],
+      "year": null,
+      "domain": "",
+      "raw_text": "About virtual hub routing - Azure Virtual WAN | Microsoft Learn\n\n \n\n\n  \n\n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n\n \n\n \n\n \n\n \n\n\n \n\n\n \n\n\n \n\n \n\n \n\n\n \n Skip to main content\n\n \n\n Skip to Ask Learn chat experience\n\n \n\n\n \n\n\nThis browser is no longer supported.\n\n\n Upgrade to Microsoft Edge to take advantage of the latest features, security updates, and technical support.\n\n\n Download Microsoft Edge\n\n \n More info about Internet Explorer and Microsoft Edge\n\n \n\n \n\n \n\n\n \n\n \n\n\n \n\n \n\n \n\n\n \n\n\n \n\n\n \n\n \n\n \n\n\n \n\n \n\n \n\n\n \n\n\n \n  Table of contents \n\n \n\n Exit editor mode\n\n \n\n \n\n\n \n\n\n \n\n\n \n\n \n\n \n\n \n\n\n \n\n\n \n\n \n\n \n\n \n\n \n Ask Learn\n\n \n\n \n\n Ask Learn\n\n \n\n\n \n\n \n\n \n\n\n \n\n \n\n Reading mode\n\n \n\n \n Table of contents\n\n \n\n \n\n \n Read in English\n\n \n\n \n\n \n\n Add\n\n \n\n \n\n \n Add to Plans\n\n \n\n \n\n \n\n Edit\n\n \n\n \n\n \n\n \n\n \n Copy Markdown\n\n \n\n \n\n \n Print\n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n\n Note\n\n\n Access to this page requires authorization. You can try signing in or changing directories.\n\n\n Access to this page requires authorization. You can try changing directories.\n\n\n \n\n \n\n\n# About virtual hub routing\n\n\n \n\n\n \n\n\n \n\n \n\n Feedback\n\n \n\n \n\n \n\n\n \n\n \n\n Summarize this article for me\n\n \n\n \n\n\n \n\n \n\n## \n In this article\n\n\n \n\n\nThe routing capabilities in a virtual hub are provided by a router that manages all routing between gateways using Border Gateway Protocol (BGP). A virtual hub can contain multiple gateways such as a Site-to-site VPN gateway, ExpressRoute gateway, Point-to-site gateway, Azure Firewall. This router also provides transit connectivity between virtual networks that connect to a virtual hub and can support up to an aggregate throughput of 50 Gbps. These routing capabilities apply to Standard Virtual WAN customers.\n\n\nTo configure routing, see How to configure virtual hub routing.\n\n\n## Routing concepts\n\n\nThe following sections describe the key concepts in virtual hub routing.\n\n\n### Hub route table\n\n\nA virtual hub route table can contain one or more routes. A route includes its name, a label, a destination type, a list of destination prefixes, and next hop information for a packet to be routed. A Connection typically has a routing configuration that associates or propagates to a route table.\n\n\n###  Hub routing intent and policies\n\n\nRouting Intent and Routing policies allow you to configure your Virtual WAN hub to send Internet-bound and Private (Point-to-site, Site-to-site, ExpressRoute, Network Virtual Appliances inside the Virtual WAN Hub and virtual network) Traffic via an Azure Firewall, Next-Generation Firewall NVA or software-as-a-service solution deployed in the Virtual WAN hub. There are two types of Routing Policies: Internet Traffic and Private Traffic Routing Policies. Each Virtual WAN hub can have, at most, one Internet Traffic Routing Policy and one Private Traffic Routing Policy, each with a Next Hop resource.\n\n\nWhile Private Traffic includes both branch and virtual network address prefixes, Routing Policies considers them as one entity within the Routing Intent concepts.\n\n\n- \n\nInternet Traffic Routing Policy: When an Internet Traffic Routing Policy is configured on a Virtual WAN hub, all branch (User VPN (Point-to-site VPN), Site-to-site VPN and ExpressRoute), and virtual network connections to that Virtual WAN hub will forward Internet-bound traffic to the Azure Firewall resource or a third-party security provider specified as part of the routing policy.\n\n\n- \n\nPrivate Traffic Routing Policy: When a Private Traffic Routing Policy is configured on a Virtual WAN hub, all branch and virtual network traffic in and out of the Virtual WAN hub including inter-hub traffic will be forwarded to the Next Hop Azure Firewall resource that was specified in the Private Traffic Routing Policy.\n\n\nFor more information, see How to configure Virtual WAN hub routing intent and routing policies.\n\n\n### Connections\n\n\nConnections are Resource Manager resources that have a routing configuration. The four types of connections are:\n\n\n- VPN connection: Connects a VPN site to a virtual hub VPN gateway.\n\n- ExpressRoute connection: Connects an ExpressRoute circuit to a virtual hub ExpressRoute gateway.\n\n- P2S configuration connection: Connects a User VPN (Point-to-site) configuration to a virtual hub User VPN (Point-to-site) gateway.\n\n- Hub virtual network connection: Connects virtual networks to a virtual hub.\n\n\nYou can set up the routing configuration for a virtual network connection during setup. By default, all connections associate and propagate to the Default route table.\n\n\n### Association\n\n\nEach connection is associated to one route table. Associating a connection to a route table allows the traffic (from that connection) to be sent to the destination indicated as routes in the route table. The routing configuration of the connection shows the associated route table. Multiple connections can be associated to the same route table. All VPN, ExpressRoute, and User VPN connections are associated to the same (default) route table.\n\n\nBy default, all connections are associated to a Default route table in a virtual hub. Each virtual hub has its own Default route table, which can be edited to add a static route or routes. Routes added statically take precedence over dynamically learned routes for the same prefixes.\n\n\n### Propagation\n\n\nConnections dynamically propagate routes to a route table. With a VPN connection, ExpressRoute connection, or P2S configuration connection, routes are propagated from the virtual hub to the on-premises router using BGP. Routes can be propagated to one or multiple route tables.\n\n\nA None route table is also available for each virtual hub. Propagating to the None route table implies that no routes are required to be propagated from the connection. VPN, ExpressRoute, and User VPN connections propagate routes to the same set of route tables.\n\n\n### Labels\n\n\nLabels provide a mechanism to logically group route tables. This is especially helpful during propagation of routes from connections to multiple route tables. For example, the Default Route Table has a built-in label called 'Default'. When users propagate connection routes to 'Default' label, it automatically applies to all the Default Route Tables across every hub in the virtual WAN.\n\n\nIf no label is specified in the list of labels that a virtual network connection is propagating to, then the virtual network connection will automatically propagate to the 'Default' label.\n\n\n### Configuring static routes in a virtual network connection\n\n\nConfiguring static routes provides a mechanism to steer traffic from the hub through a next hop IP, which could be of a Network Virtual Appliance (NVA) provisioned in a Spoke virtual network attached to a virtual hub. The static route is composed of a route name, list of destination prefixes, and a next hop IP.\n\n\n### Deleting static routes\n\n\nTo delete a static route, the route must be deleted from the route table that it's placed in. See Delete a route for steps.\n\n\n## Route tables for pre-existing routes\n\n\nRoute tables now have features for association and propagation. A pre-existing route table is a route table that doesn't have these features. If you have pre-existing routes in hub routing and would like to use the new capabilities, consider the following items:\n\n\n- \n\nStandard virtual WAN with pre-existing routes in a virtual hub:\n\n\nIf you have pre-existing routes in Routing section for the hub in the Azure portal, you need to first delete them, and then attempt to create new route tables (available in the Route Tables section for the hub in Azure portal).\n\n\n- \n\nBasic virtual WAN with pre-existing routes in a virtual hub:\n\n\nIf you have pre-existing routes in Routing section for the hub in Azure portal, you need to first delete them, then upgrade your Basic virtual WAN to a Standard virtual WAN. See Upgrade a virtual WAN from Basic to Standard.\n\n\n## Hub reset\n\n\nVirtual hub Reset is available only in the Azure portal. Resetting provides you with a way to bring any failed resources such as route tables, hub router, or the virtual hub resource itself back to its rightful provisioning state. Consider resetting the hub before contacting Microsoft for support. This operation doesn't reset any of the gateways in a virtual hub.\n\n\n## Router reset\n\n\nIf your Virtual Hub Router enters a failed state, you may be unable to update routes, even though network connectivity might still work. In this scenario, use the Reset router option in the vHub settings to restore normal operation. This process typically takes less than 10 minutes and rarely disrupts network traffic. Use this option if the Hub status is in a succeeded state while the routing status is in a failed state.\n\n\n## Additional considerations\n\n\nConsider the following items when configuring Virtual WAN routing:\n\n\n- All branch connections (Point-to-site, Site-to-site, and ExpressRoute) need to be associated to the Default route table. That way, all branches learn the same prefixes.\n\n- All branch connections need to propagate their routes to the same set of route tables. For example, if you decide that branches should propagate to the Default route table, this configuration should be consistent across all branches. As a result, all connections associated to the Default route table will be able to reach all of the branches.\n\n- When you use Azure Firewall in multiple regions, all spoke virtual networks must be associated to the same route table. For example, having a subset of the VNets going through the Azure Firewall while other VNets bypass the Azure Firewall in the same virtual hub isn't possible.\n\n- You can specify multiple next hop IP addresses on a single virtual network connection. However, a virtual network connection doesn't support ‘multiple/unique’ next hop IP to the ‘same’ network virtual appliance in a spoke virtual network 'if' one of the routes with next hop IP is indicated to be public IP address or 0.0.0.0/0 (internet)\n\n- All information pertaining to 0.0.0.0/0 route is confined to a local hub's route table. This route does not propagate across hubs.\n\n- You can only use Virtual WAN to program routes in a spoke if the prefix is shorter (less specific) than the virtual network prefix. For example, in the diagram above the spoke VNET1 has the prefix 10.1.0.0/16: in this case, Virtual WAN wouldn't be able to inject a route that matches the virtual network prefix (10.1.0.0/16) or any of the subnets (10.1.0.0/24, 10.1.1.0/24). In other words, Virtual WAN can't attract traffic between two subnets that are in the same virtual network.\n\n- While it's true that two hubs on the same virtual WAN announce routes to each other (as long as the propagation is enabled to the same labels), this only applies to dynamic routing. Once you define a static route, this isn't the case.\n\n- When configuring static routes, don't use the hub router IPs as the next hop.\n\n- If you plan to remove Azure BGP communities from VNet and UDR routes, don't advertise these routes back into your virtual WAN. Doing so will create routing issues and outages.\n\n\n## Next steps\n\n\n- To configure routing, see How to configure virtual hub routing.\n\n- For more information about Virtual WAN, see the FAQ.\n\n\n \n\n\n \n\n\n \n\n \n\n\n \n\n## Feedback\n\n\n Was this page helpful?\n\n\n \n\n \n Yes\n\n \n\n \n\n No\n\n \n\n \n\n \n No\n\n \n\n\n Need help with this topic?\n\n\n Want to try using Ask Learn to clarify or guide you through this topic?\n\n\n \n\n\n \n\n \n\n \n\n \n\n Ask Learn\n\n \n\n \n\n Ask Learn\n\n \n\n \n\n \n  Suggest a fix? \n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n## \n Additional resources\n\n\n \n\n\n \n\n\n \n\n\n \n\n \n\n\n \n\n\n- \n\n Last updated on \n 2025-10-15\n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n\n### In this article\n\n\n \n\n \n\n\n Was this page helpful?\n\n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n\n Need help with this topic?\n\n\n Want to try using Ask Learn to clarify or guide you through this topic?\n\n\n \n\n\n \n\n \n\n \n\n \n\n Ask Learn\n\n \n\n \n\n Ask Learn\n\n \n\n \n\n \n  Suggest a fix? \n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n\n en-us\n\n\n \n\n \n Your Privacy Choices\n\n \n\n\n \n Theme\n\n \n\n \n\n\n- \n\n \n\n \n\n \n  Light \n\n \n\n- \n\n \n\n \n\n \n  Dark \n\n \n\n- \n\n \n\n \n\n \n  High contrast \n\n \n\n \n\n \n\n \n\n\n- \n\n- \n\n AI Disclaimer\n\n \n- \n\n Previous Versions\n\n  \n- \n\n Blog\n\n  \n- \n\n Contribute\n\n \n- \n\n Privacy\n\n \n- \n\n Consumer Health Privacy\n\n \n- \n\n Terms of Use\n\n \n- \n\n Trademarks\n\n \n\n- © Microsoft 2026",
+      "sections": [
+        {
+          "heading": "azure-virtual-wan-docs.md",
+          "text": "About virtual hub routing - Azure Virtual WAN | Microsoft Learn\n\n \n\n\n  \n\n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n\n \n\n \n\n \n\n \n\n\n \n\n\n \n\n\n \n\n \n\n \n\n\n \n Skip to main content\n\n \n\n Skip to Ask Learn chat experience\n\n \n\n\n \n\n\nThis browser is no longer supported.\n\n\n Upgrade to Microsoft Edge to take advantage of the latest features, security updates, and technical support.\n\n\n Download Microsoft Edge\n\n \n More info about Internet Explorer and Microsoft Edge\n\n \n\n \n\n \n\n\n \n\n \n\n\n \n\n \n\n \n\n\n \n\n\n \n\n\n \n\n \n\n \n\n\n \n\n \n\n \n\n\n \n\n\n \n  Table of contents \n\n \n\n Exit editor mode\n\n \n\n \n\n\n \n\n\n \n\n\n \n\n \n\n \n\n \n\n\n \n\n\n \n\n \n\n \n\n \n\n \n Ask Learn\n\n \n\n \n\n Ask Learn\n\n \n\n\n \n\n \n\n \n\n\n \n\n \n\n Reading mode\n\n \n\n \n Table of contents\n\n \n\n \n\n \n Read in English\n\n \n\n \n\n \n\n Add\n\n \n\n \n\n \n Add to Plans\n\n \n\n \n\n \n\n Edit\n\n \n\n \n\n \n\n \n\n \n Copy Markdown\n\n \n\n \n\n \n Print\n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n\n Note\n\n\n Access to this page requires authorization. You can try signing in or changing directories.\n\n\n Access to this page requires authorization. You can try changing directories.",
+          "level": 1,
+          "span": {
+            "start": 0,
+            "end": 1164
+          },
+          "metadata": {
+            "heading_path": [
+              "azure-virtual-wan-docs.md"
+            ],
+            "parent_heading": "",
+            "section_summary": "About virtual hub routing - Azure Virtual WAN | Microsoft Learn",
+            "sibling_headings": [
+              "# About virtual hub routing"
+            ]
+          }
+        },
+        {
+          "heading": "# About virtual hub routing",
+          "text": "Feedback\n\n \n\n \n\n \n\n\n \n\n \n\n Summarize this article for me\n\n \n\n \n\n\n \n\n \n\n## \n In this article\n\n\n \n\n\nThe routing capabilities in a virtual hub are provided by a router that manages all routing between gateways using Border Gateway Protocol (BGP). A virtual hub can contain multiple gateways such as a Site-to-site VPN gateway, ExpressRoute gateway, Point-to-site gateway, Azure Firewall. This router also provides transit connectivity between virtual networks that connect to a virtual hub and can support up to an aggregate throughput of 50 Gbps. These routing capabilities apply to Standard Virtual WAN customers.\n\n\nTo configure routing, see How to configure virtual hub routing.",
+          "level": 1,
+          "span": {
+            "start": 1192,
+            "end": 1890
+          },
+          "metadata": {
+            "heading_path": [
+              "# About virtual hub routing"
+            ],
+            "parent_heading": "",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "Feedback",
+            "sibling_headings": [
+              "azure-virtual-wan-docs.md"
+            ]
+          }
+        },
+        {
+          "heading": "## Routing concepts",
+          "text": "The following sections describe the key concepts in virtual hub routing.",
+          "level": 2,
+          "span": {
+            "start": 1910,
+            "end": 1987
+          },
+          "metadata": {
+            "heading_path": [
+              "# About virtual hub routing",
+              "## Routing concepts"
+            ],
+            "parent_heading": "# About virtual hub routing",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "The following sections describe the key concepts in virtual hub routing.",
+            "sibling_headings": [
+              "## Route tables for pre-existing routes",
+              "## Hub reset",
+              "## Router reset",
+              "## Additional considerations"
+            ]
+          }
+        },
+        {
+          "heading": "### Hub route table",
+          "text": "A virtual hub route table can contain one or more routes. A route includes its name, a label, a destination type, a list of destination prefixes, and next hop information for a packet to be routed. A Connection typically has a routing configuration that associates or propagates to a route table.",
+          "level": 3,
+          "span": {
+            "start": 2007,
+            "end": 2308
+          },
+          "metadata": {
+            "heading_path": [
+              "# About virtual hub routing",
+              "## Routing concepts",
+              "### Hub route table"
+            ],
+            "parent_heading": "## Routing concepts",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "A virtual hub route table can contain one or more routes. A route includes its name, a label, a destination type, a list of destination prefixes, and next hop information for a pac",
+            "sibling_headings": [
+              "###  Hub routing intent and policies",
+              "### Connections",
+              "### Association",
+              "### Propagation",
+              "### Labels",
+              "### Configuring static routes in a virtual network connection",
+              "### Deleting static routes"
+            ]
+          }
+        },
+        {
+          "heading": "###  Hub routing intent and policies",
+          "text": "Routing Intent and Routing policies allow you to configure your Virtual WAN hub to send Internet-bound and Private (Point-to-site, Site-to-site, ExpressRoute, Network Virtual Appliances inside the Virtual WAN Hub and virtual network) Traffic via an Azure Firewall, Next-Generation Firewall NVA or software-as-a-service solution deployed in the Virtual WAN hub. There are two types of Routing Policies: Internet Traffic and Private Traffic Routing Policies. Each Virtual WAN hub can have, at most, one Internet Traffic Routing Policy and one Private Traffic Routing Policy, each with a Next Hop resource.\n\n\nWhile Private Traffic includes both branch and virtual network address prefixes, Routing Policies considers them as one entity within the Routing Intent concepts.\n\n\n- \n\nInternet Traffic Routing Policy: When an Internet Traffic Routing Policy is configured on a Virtual WAN hub, all branch (User VPN (Point-to-site VPN), Site-to-site VPN and ExpressRoute), and virtual network connections to that Virtual WAN hub will forward Internet-bound traffic to the Azure Firewall resource or a third-party security provider specified as part of the routing policy.\n\n\n- \n\nPrivate Traffic Routing Policy: When a Private Traffic Routing Policy is configured on a Virtual WAN hub, all branch and virtual network traffic in and out of the Virtual WAN hub including inter-hub traffic will be forwarded to the Next Hop Azure Firewall resource that was specified in the Private Traffic Routing Policy.\n\n\nFor more information, see How to configure Virtual WAN hub routing intent and routing policies.",
+          "level": 3,
+          "span": {
+            "start": 2345,
+            "end": 3937
+          },
+          "metadata": {
+            "heading_path": [
+              "# About virtual hub routing",
+              "## Routing concepts",
+              "###  Hub routing intent and policies"
+            ],
+            "parent_heading": "## Routing concepts",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "Routing Intent and Routing policies allow you to configure your Virtual WAN hub to send Internet-bound and Private (Point-to-site, Site-to-site, ExpressRoute, Network Virtual Appli",
+            "sibling_headings": [
+              "### Hub route table",
+              "### Connections",
+              "### Association",
+              "### Propagation",
+              "### Labels",
+              "### Configuring static routes in a virtual network connection",
+              "### Deleting static routes"
+            ]
+          }
+        },
+        {
+          "heading": "### Connections",
+          "text": "Connections are Resource Manager resources that have a routing configuration. The four types of connections are:\n\n\n- VPN connection: Connects a VPN site to a virtual hub VPN gateway.\n\n- ExpressRoute connection: Connects an ExpressRoute circuit to a virtual hub ExpressRoute gateway.\n\n- P2S configuration connection: Connects a User VPN (Point-to-site) configuration to a virtual hub User VPN (Point-to-site) gateway.\n\n- Hub virtual network connection: Connects virtual networks to a virtual hub.\n\n\nYou can set up the routing configuration for a virtual network connection during setup. By default, all connections associate and propagate to the Default route table.",
+          "level": 3,
+          "span": {
+            "start": 3953,
+            "end": 4623
+          },
+          "metadata": {
+            "heading_path": [
+              "# About virtual hub routing",
+              "## Routing concepts",
+              "### Connections"
+            ],
+            "parent_heading": "## Routing concepts",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "Connections are Resource Manager resources that have a routing configuration. The four types of connections are:",
+            "sibling_headings": [
+              "### Hub route table",
+              "###  Hub routing intent and policies",
+              "### Association",
+              "### Propagation",
+              "### Labels",
+              "### Configuring static routes in a virtual network connection",
+              "### Deleting static routes"
+            ]
+          }
+        },
+        {
+          "heading": "### Association",
+          "text": "Each connection is associated to one route table. Associating a connection to a route table allows the traffic (from that connection) to be sent to the destination indicated as routes in the route table. The routing configuration of the connection shows the associated route table. Multiple connections can be associated to the same route table. All VPN, ExpressRoute, and User VPN connections are associated to the same (default) route table.\n\n\nBy default, all connections are associated to a Default route table in a virtual hub. Each virtual hub has its own Default route table, which can be edited to add a static route or routes. Routes added statically take precedence over dynamically learned routes for the same prefixes.",
+          "level": 3,
+          "span": {
+            "start": 4639,
+            "end": 5373
+          },
+          "metadata": {
+            "heading_path": [
+              "# About virtual hub routing",
+              "## Routing concepts",
+              "### Association"
+            ],
+            "parent_heading": "## Routing concepts",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "Each connection is associated to one route table. Associating a connection to a route table allows the traffic (from that connection) to be sent to the destination indicated as rou",
+            "sibling_headings": [
+              "### Hub route table",
+              "###  Hub routing intent and policies",
+              "### Connections",
+              "### Propagation",
+              "### Labels",
+              "### Configuring static routes in a virtual network connection",
+              "### Deleting static routes"
+            ]
+          }
+        },
+        {
+          "heading": "### Propagation",
+          "text": "Connections dynamically propagate routes to a route table. With a VPN connection, ExpressRoute connection, or P2S configuration connection, routes are propagated from the virtual hub to the on-premises router using BGP. Routes can be propagated to one or multiple route tables.\n\n\nA None route table is also available for each virtual hub. Propagating to the None route table implies that no routes are required to be propagated from the connection. VPN, ExpressRoute, and User VPN connections propagate routes to the same set of route tables.",
+          "level": 3,
+          "span": {
+            "start": 5389,
+            "end": 5936
+          },
+          "metadata": {
+            "heading_path": [
+              "# About virtual hub routing",
+              "## Routing concepts",
+              "### Propagation"
+            ],
+            "parent_heading": "## Routing concepts",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "Connections dynamically propagate routes to a route table. With a VPN connection, ExpressRoute connection, or P2S configuration connection, routes are propagated from the virtual h",
+            "sibling_headings": [
+              "### Hub route table",
+              "###  Hub routing intent and policies",
+              "### Connections",
+              "### Association",
+              "### Labels",
+              "### Configuring static routes in a virtual network connection",
+              "### Deleting static routes"
+            ]
+          }
+        },
+        {
+          "heading": "### Labels",
+          "text": "Labels provide a mechanism to logically group route tables. This is especially helpful during propagation of routes from connections to multiple route tables. For example, the Default Route Table has a built-in label called 'Default'. When users propagate connection routes to 'Default' label, it automatically applies to all the Default Route Tables across every hub in the virtual WAN.\n\n\nIf no label is specified in the list of labels that a virtual network connection is propagating to, then the virtual network connection will automatically propagate to the 'Default' label.",
+          "level": 3,
+          "span": {
+            "start": 5947,
+            "end": 6530
+          },
+          "metadata": {
+            "heading_path": [
+              "# About virtual hub routing",
+              "## Routing concepts",
+              "### Labels"
+            ],
+            "parent_heading": "## Routing concepts",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "Labels provide a mechanism to logically group route tables. This is especially helpful during propagation of routes from connections to multiple route tables. For example, the Defa",
+            "sibling_headings": [
+              "### Hub route table",
+              "###  Hub routing intent and policies",
+              "### Connections",
+              "### Association",
+              "### Propagation",
+              "### Configuring static routes in a virtual network connection",
+              "### Deleting static routes"
+            ]
+          }
+        },
+        {
+          "heading": "### Configuring static routes in a virtual network connection",
+          "text": "Configuring static routes provides a mechanism to steer traffic from the hub through a next hop IP, which could be of a Network Virtual Appliance (NVA) provisioned in a Spoke virtual network attached to a virtual hub. The static route is composed of a route name, list of destination prefixes, and a next hop IP.",
+          "level": 3,
+          "span": {
+            "start": 6592,
+            "end": 6909
+          },
+          "metadata": {
+            "heading_path": [
+              "# About virtual hub routing",
+              "## Routing concepts",
+              "### Configuring static routes in a virtual network connection"
+            ],
+            "parent_heading": "## Routing concepts",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "Configuring static routes provides a mechanism to steer traffic from the hub through a next hop IP, which could be of a Network Virtual Appliance (NVA) provisioned in a Spoke virtu",
+            "sibling_headings": [
+              "### Hub route table",
+              "###  Hub routing intent and policies",
+              "### Connections",
+              "### Association",
+              "### Propagation",
+              "### Labels",
+              "### Deleting static routes"
+            ]
+          }
+        },
+        {
+          "heading": "### Deleting static routes",
+          "text": "To delete a static route, the route must be deleted from the route table that it's placed in. See Delete a route for steps.",
+          "level": 3,
+          "span": {
+            "start": 6936,
+            "end": 7064
+          },
+          "metadata": {
+            "heading_path": [
+              "# About virtual hub routing",
+              "## Routing concepts",
+              "### Deleting static routes"
+            ],
+            "parent_heading": "## Routing concepts",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "To delete a static route, the route must be deleted from the route table that it's placed in. See Delete a route for steps.",
+            "sibling_headings": [
+              "### Hub route table",
+              "###  Hub routing intent and policies",
+              "### Connections",
+              "### Association",
+              "### Propagation",
+              "### Labels",
+              "### Configuring static routes in a virtual network connection"
+            ]
+          }
+        },
+        {
+          "heading": "## Route tables for pre-existing routes",
+          "text": "Route tables now have features for association and propagation. A pre-existing route table is a route table that doesn't have these features. If you have pre-existing routes in hub routing and would like to use the new capabilities, consider the following items:\n\n\n- \n\nStandard virtual WAN with pre-existing routes in a virtual hub:\n\n\nIf you have pre-existing routes in Routing section for the hub in the Azure portal, you need to first delete them, and then attempt to create new route tables (available in the Route Tables section for the hub in Azure portal).\n\n\n- \n\nBasic virtual WAN with pre-existing routes in a virtual hub:\n\n\nIf you have pre-existing routes in Routing section for the hub in Azure portal, you need to first delete them, then upgrade your Basic virtual WAN to a Standard virtual WAN. See Upgrade a virtual WAN from Basic to Standard.",
+          "level": 2,
+          "span": {
+            "start": 7104,
+            "end": 7964
+          },
+          "metadata": {
+            "heading_path": [
+              "# About virtual hub routing",
+              "## Route tables for pre-existing routes"
+            ],
+            "parent_heading": "# About virtual hub routing",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "Route tables now have features for association and propagation. A pre-existing route table is a route table that doesn't have these features. If you have pre-existing routes in hub",
+            "sibling_headings": [
+              "## Routing concepts",
+              "## Hub reset",
+              "## Router reset",
+              "## Additional considerations"
+            ]
+          }
+        },
+        {
+          "heading": "## Hub reset",
+          "text": "Virtual hub Reset is available only in the Azure portal. Resetting provides you with a way to bring any failed resources such as route tables, hub router, or the virtual hub resource itself back to its rightful provisioning state. Consider resetting the hub before contacting Microsoft for support. This operation doesn't reset any of the gateways in a virtual hub.",
+          "level": 2,
+          "span": {
+            "start": 7977,
+            "end": 8347
+          },
+          "metadata": {
+            "heading_path": [
+              "# About virtual hub routing",
+              "## Hub reset"
+            ],
+            "parent_heading": "# About virtual hub routing",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "Virtual hub Reset is available only in the Azure portal. Resetting provides you with a way to bring any failed resources such as route tables, hub router, or the virtual hub resour",
+            "sibling_headings": [
+              "## Routing concepts",
+              "## Route tables for pre-existing routes",
+              "## Router reset",
+              "## Additional considerations"
+            ]
+          }
+        },
+        {
+          "heading": "## Router reset",
+          "text": "If your Virtual Hub Router enters a failed state, you may be unable to update routes, even though network connectivity might still work. In this scenario, use the Reset router option in the vHub settings to restore normal operation. This process typically takes less than 10 minutes and rarely disrupts network traffic. Use this option if the Hub status is in a succeeded state while the routing status is in a failed state.",
+          "level": 2,
+          "span": {
+            "start": 8363,
+            "end": 8792
+          },
+          "metadata": {
+            "heading_path": [
+              "# About virtual hub routing",
+              "## Router reset"
+            ],
+            "parent_heading": "# About virtual hub routing",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "If your Virtual Hub Router enters a failed state, you may be unable to update routes, even though network connectivity might still work. In this scenario, use the Reset router opti",
+            "sibling_headings": [
+              "## Routing concepts",
+              "## Route tables for pre-existing routes",
+              "## Hub reset",
+              "## Additional considerations"
+            ]
+          }
+        },
+        {
+          "heading": "## Additional considerations",
+          "text": "Consider the following items when configuring Virtual WAN routing:\n\n\n- All branch connections (Point-to-site, Site-to-site, and ExpressRoute) need to be associated to the Default route table. That way, all branches learn the same prefixes.\n\n- All branch connections need to propagate their routes to the same set of route tables. For example, if you decide that branches should propagate to the Default route table, this configuration should be consistent across all branches. As a result, all connections associated to the Default route table will be able to reach all of the branches.\n\n- When you use Azure Firewall in multiple regions, all spoke virtual networks must be associated to the same route table. For example, having a subset of the VNets going through the Azure Firewall while other VNets bypass the Azure Firewall in the same virtual hub isn't possible.\n\n- You can specify multiple next hop IP addresses on a single virtual network connection. However, a virtual network connection doesn't support ‘multiple/unique’ next hop IP to the ‘same’ network virtual appliance in a spoke virtual network 'if' one of the routes with next hop IP is indicated to be public IP address or 0.0.0.0/0 (internet)\n\n- All information pertaining to 0.0.0.0/0 route is confined to a local hub's route table. This route does not propagate across hubs.\n\n- You can only use Virtual WAN to program routes in a spoke if the prefix is shorter (less specific) than the virtual network prefix. For example, in the diagram above the spoke VNET1 has the prefix 10.1.0.0/16: in this case, Virtual WAN wouldn't be able to inject a route that matches the virtual network prefix (10.1.0.0/16) or any of the subnets (10.1.0.0/24, 10.1.1.0/24). In other words, Virtual WAN can't attract traffic between two subnets that are in the same virtual network.\n\n- While it's true that two hubs on the same virtual WAN announce routes to each other (as long as the propagation is enabled to the same labels), this only applies to dynamic routing. Once you define a static route, this isn't the case.\n\n- When configuring static routes, don't use the hub router IPs as the next hop.\n\n- If you plan to remove Azure BGP communities from VNet and UDR routes, don't advertise these routes back into your virtual WAN. Doing so will create routing issues and outages.\n\n\n## Next steps\n\n\n- To configure routing, see How to configure virtual hub routing.\n\n- For more information about Virtual WAN, see the FAQ.\n\n\n \n\n\n \n\n\n \n\n \n\n\n \n\n## Feedback\n\n\n Was this page helpful?\n\n\n \n\n \n Yes\n\n \n\n \n\n No\n\n \n\n \n\n \n No\n\n \n\n\n Need help with this topic?\n\n\n Want to try using Ask Learn to clarify or guide you through this topic?\n\n\n \n\n\n \n\n \n\n \n\n \n\n Ask Learn\n\n \n\n \n\n Ask Learn\n\n \n\n \n\n \n  Suggest a fix? \n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n## \n Additional resources\n\n\n \n\n\n \n\n\n \n\n\n \n\n \n\n\n \n\n\n- \n\n Last updated on \n 2025-10-15\n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n\n### In this article\n\n\n \n\n \n\n\n Was this page helpful?\n\n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n\n Need help with this topic?\n\n\n Want to try using Ask Learn to clarify or guide you through this topic?\n\n\n \n\n\n \n\n \n\n \n\n \n\n Ask Learn\n\n \n\n \n\n Ask Learn\n\n \n\n \n\n \n  Suggest a fix? \n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n\n en-us\n\n\n \n\n \n Your Privacy Choices\n\n \n\n\n \n Theme\n\n \n\n \n\n\n- \n\n \n\n \n\n \n  Light \n\n \n\n- \n\n \n\n \n\n \n  Dark \n\n \n\n- \n\n \n\n \n\n \n  High contrast \n\n \n\n \n\n \n\n \n\n\n- \n\n- \n\n AI Disclaimer\n\n \n- \n\n Previous Versions\n\n  \n- \n\n Blog\n\n  \n- \n\n Contribute\n\n \n- \n\n Privacy\n\n \n- \n\n Consumer Health Privacy\n\n \n- \n\n Terms of Use\n\n \n- \n\n Trademarks\n\n \n\n- © Microsoft 2026",
+          "level": 2,
+          "span": {
+            "start": 8821,
+            "end": 12324
+          },
+          "metadata": {
+            "heading_path": [
+              "# About virtual hub routing",
+              "## Additional considerations"
+            ],
+            "parent_heading": "# About virtual hub routing",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "Consider the following items when configuring Virtual WAN routing:",
+            "sibling_headings": [
+              "## Routing concepts",
+              "## Route tables for pre-existing routes",
+              "## Hub reset",
+              "## Router reset"
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "channel": "offline_extract_from_doc",
+        "source_type": "document",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "resume_key": "74686db925bee010cd4d860025acd84918ad8c92e67b245cece83c7d44e310b6",
+        "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md"
+      },
+      "checksum": "729ddc4b0ac5ff7081b30ed9bd0e576e6f6f29a8",
+      "content_hash": "729ddc4b0ac5ff7081b30ed9bd0e576e6f6f29a8",
+      "imported_at": "2026-09-15T18:44:56+00:00"
+    }
+  ],
+  "windows": [
+    {
+      "window_id": "0b6c84b0-e6fc-5b14-ac8a-6da6dceb9d91",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+      "unit_title": "azure-virtual-wan-docs.md",
+      "section_heading": "azure-virtual-wan-docs.md",
+      "section_level": 1,
+      "paragraph_start": 0,
+      "paragraph_end": 21,
+      "anchor_hits": [],
+      "text": "About virtual hub routing - Azure Virtual WAN | Microsoft Learn\n\nSkip to main content\n\nSkip to Ask Learn chat experience\n\nThis browser is no longer supported.\n\nUpgrade to Microsoft Edge to take advantage of the latest features, security updates, and technical support.\n\nDownload Microsoft Edge\n\nMore info about Internet Explorer and Microsoft Edge\n\nTable of contents\n\nExit editor mode\n\nAsk Learn\n\nAsk Learn\n\nReading mode\n\nTable of contents\n\nRead in English\n\nAdd\n\nAdd to Plans\n\nEdit\n\nCopy Markdown\n\nPrint\n\nNote\n\nAccess to this page requires authorization. You can try signing in or changing directories.\n\nAccess to this page requires authorization. You can try changing directories.",
+      "span": {
+        "start": 0,
+        "end": 1154
+      },
+      "strategy": "strict",
+      "metadata": {
+        "section_heading": "azure-virtual-wan-docs.md",
+        "effective_strategy": "strict",
+        "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+        "heading_path": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "# About virtual hub routing"
+        ],
+        "subsection_headings": [],
+        "heading_number": "",
+        "heading_kind": "",
+        "section_summary": "About virtual hub routing - Azure Virtual WAN | Microsoft Learn",
+        "section_chunk_index": 0,
+        "section_chunk_count": 0,
+        "section_chunk_span": {},
+        "original_section_span": {}
+      }
+    },
+    {
+      "window_id": "de957e37-ff15-578f-8adb-408966a28cd5",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+      "unit_title": "azure-virtual-wan-docs.md",
+      "section_heading": "# About virtual hub routing",
+      "section_level": 1,
+      "paragraph_start": 2,
+      "paragraph_end": 4,
+      "anchor_hits": [],
+      "text": "## \n In this article\n\nThe routing capabilities in a virtual hub are provided by a router that manages all routing between gateways using Border Gateway Protocol (BGP). A virtual hub can contain multiple gateways such as a Site-to-site VPN gateway, ExpressRoute gateway, Point-to-site gateway, Azure Firewall. This router also provides transit connectivity between virtual networks that connect to a virtual hub and can support up to an aggregate throughput of 50 Gbps. These routing capabilities apply to Standard Virtual WAN customers.\n\nTo configure routing, see How to configure virtual hub routing.",
+      "span": {
+        "start": 1263,
+        "end": 1870
+      },
+      "strategy": "strict",
+      "metadata": {
+        "section_heading": "# About virtual hub routing",
+        "effective_strategy": "strict",
+        "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback",
+        "section_chunk_index": 1,
+        "section_chunk_count": 2,
+        "section_chunk_span": {
+          "start": 0,
+          "end": 9987
+        },
+        "original_section_span": {
+          "start": 1192,
+          "end": 12324
+        }
+      }
+    },
+    {
+      "window_id": "e4e68d5d-ea2e-564b-89b9-950bef95037f",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+      "unit_title": "azure-virtual-wan-docs.md",
+      "section_heading": "# About virtual hub routing",
+      "section_level": 1,
+      "paragraph_start": 14,
+      "paragraph_end": 19,
+      "anchor_hits": [],
+      "text": "### Connections\nConnections are Resource Manager resources that have a routing configuration. The four types of connections are:\n\n- VPN connection: Connects a VPN site to a virtual hub VPN gateway.\n\n- ExpressRoute connection: Connects an ExpressRoute circuit to a virtual hub ExpressRoute gateway.\n\n- P2S configuration connection: Connects a User VPN (Point-to-site) configuration to a virtual hub User VPN (Point-to-site) gateway.\n\n- Hub virtual network connection: Connects virtual networks to a virtual hub.\n\nYou can set up the routing configuration for a virtual network connection during setup. By default, all connections associate and propagate to the Default route table.",
+      "span": {
+        "start": 3910,
+        "end": 4591
+      },
+      "strategy": "strict",
+      "metadata": {
+        "section_heading": "# About virtual hub routing",
+        "effective_strategy": "strict",
+        "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback",
+        "section_chunk_index": 1,
+        "section_chunk_count": 2,
+        "section_chunk_span": {
+          "start": 0,
+          "end": 9987
+        },
+        "original_section_span": {
+          "start": 1192,
+          "end": 12324
+        }
+      }
+    },
+    {
+      "window_id": "3cd27390-476b-5e7b-b74a-fa1a86cbecdf",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+      "unit_title": "azure-virtual-wan-docs.md",
+      "section_heading": "# About virtual hub routing",
+      "section_level": 1,
+      "paragraph_start": 37,
+      "paragraph_end": 47,
+      "anchor_hits": [],
+      "text": "## Additional considerations\nConsider the following items when configuring Virtual WAN routing:\n\n- All branch connections (Point-to-site, Site-to-site, and ExpressRoute) need to be associated to the Default route table. That way, all branches learn the same prefixes.\n\n- All branch connections need to propagate their routes to the same set of route tables. For example, if you decide that branches should propagate to the Default route table, this configuration should be consistent across all branches. As a result, all connections associated to the Default route table will be able to reach all of the branches.\n\n- When you use Azure Firewall in multiple regions, all spoke virtual networks must be associated to the same route table. For example, having a subset of the VNets going through the Azure Firewall while other VNets bypass the Azure Firewall in the same virtual hub isn't possible.\n\n- You can specify multiple next hop IP addresses on a single virtual network connection. However, a virtual network connection doesn't support ‘multiple/unique’ next hop IP to the ‘same’ network virtual appliance in a spoke virtual network 'if' one of the routes with next hop IP is indicated to be public IP address or 0.0.0.0/0 (internet)\n\n- All information pertaining to 0.0.0.0/0 route is confined to a local hub's route table. This route does not propagate across hubs.\n\n- You can only use Virtual WAN to program routes in a spoke if the prefix is shorter (less specific) than the virtual network prefix. For example, in the diagram above the spoke VNET1 has the prefix 10.1.0.0/16: in this case, Virtual WAN wouldn't be able to inject a route that matches the virtual network prefix (10.1.0.0/16) or any of the subnets (10.1.0.0/24, 10.1.1.0/24). In other words, Virtual WAN can't attract traffic between two subnets that are in the same virtual network.\n\n- While it's true that two hubs on the same virtual WAN announce routes to each other (as long as the propagation is enabled to the same labels), this only applies to dynamic routing. Once you define a static route, this isn't the case.\n\n- When configuring static routes, don't use the hub router IPs as the next hop.\n\n- If you plan to remove Azure BGP communities from VNet and UDR routes, don't advertise these routes back into your virtual WAN. Doing so will create routing issues and outages.\n\n## Next steps",
+      "span": {
+        "start": 8738,
+        "end": 11111
+      },
+      "strategy": "strict",
+      "metadata": {
+        "section_heading": "# About virtual hub routing",
+        "effective_strategy": "strict",
+        "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback",
+        "section_chunk_index": 1,
+        "section_chunk_count": 2,
+        "section_chunk_span": {
+          "start": 0,
+          "end": 9987
+        },
+        "original_section_span": {
+          "start": 1192,
+          "end": 12324
+        }
+      }
+    },
+    {
+      "window_id": "bf08843c-25f4-5098-b147-5714dd85c577",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+      "unit_title": "azure-virtual-wan-docs.md",
+      "section_heading": "# About virtual hub routing",
+      "section_level": 1,
+      "paragraph_start": 47,
+      "paragraph_end": 48,
+      "anchor_hits": [],
+      "text": "## Next steps\n\n- To configure routing, see How to configure virtual hub routing.",
+      "span": {
+        "start": 11098,
+        "end": 11179
+      },
+      "strategy": "strict",
+      "metadata": {
+        "section_heading": "# About virtual hub routing",
+        "effective_strategy": "strict",
+        "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback",
+        "section_chunk_index": 1,
+        "section_chunk_count": 2,
+        "section_chunk_span": {
+          "start": 0,
+          "end": 9987
+        },
+        "original_section_span": {
+          "start": 1192,
+          "end": 12324
+        }
+      }
+    },
+    {
+      "window_id": "27f466b2-8c11-5510-9eb4-f9ebcd921e1c",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+      "unit_title": "azure-virtual-wan-docs.md",
+      "section_heading": "# About virtual hub routing",
+      "section_level": 1,
+      "paragraph_start": 0,
+      "paragraph_end": 47,
+      "anchor_hits": [],
+      "text": "- For more information about Virtual WAN, see the FAQ.\n\n## Feedback\n\nWas this page helpful?\n\nYes\n\nNo\n\nNo\n\nNeed help with this topic?\n\nWant to try using Ask Learn to clarify or guide you through this topic?\n\nAsk Learn\n\nAsk Learn\n\nSuggest a fix?\n\n## \n Additional resources\n\n-\n\nLast updated on \n 2025-10-15\n\n### In this article\n\nWas this page helpful?\n\nNeed help with this topic?\n\nWant to try using Ask Learn to clarify or guide you through this topic?\n\nAsk Learn\n\nAsk Learn\n\nSuggest a fix?\n\nen-us\n\nYour Privacy Choices\n\nTheme\n\n-\n\nLight\n\n-\n\nDark\n\n-\n\nHigh contrast\n\n-\n\n-\n\nAI Disclaimer\n\n-\n\nPrevious Versions\n\n-\n\nBlog\n\n-\n\nContribute\n\n-\n\nPrivacy\n\n-\n\nConsumer Health Privacy\n\n-\n\nTerms of Use\n\n-\n\nTrademarks\n\n- © Microsoft 2026",
+      "span": {
+        "start": 11181,
+        "end": 12268
+      },
+      "strategy": "strict",
+      "metadata": {
+        "section_heading": "# About virtual hub routing",
+        "effective_strategy": "strict",
+        "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback",
+        "section_chunk_index": 2,
+        "section_chunk_count": 2,
+        "section_chunk_span": {
+          "start": 9989,
+          "end": 11076
+        },
+        "original_section_span": {
+          "start": 1192,
+          "end": 12324
+        }
+      }
+    }
+  ],
+  "support_records": [
+    {
+      "support_id": "e1bf6b85-178e-5954-9199-8d4448849f5f",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+      "section": "# About virtual hub routing",
+      "span": {
+        "start": 8738,
+        "end": 11111
+      },
+      "excerpt": "## Additional considerations\nConsider the following items when configuring Virtual WAN routing:\n\n- All branch connections (Point-to-site, Site-to-site, and ExpressRoute) need to be associated to the Default route table. That way, all branches learn the same prefixes.\n\n- All branch connections need to propagate their routes to the same set of route tables. For example, if you decide that branches should propagate to the Default route table, this configuration should be consistent across all branches. As a result, all connections associated to the Default route table will be able to reach all of the branches.\n\n- When you use Azure Firewall in multiple regions, all spoke virtual networks must be associated to the same route table. For example, having a subset of the VNets going through the Azure Firewall while other VNets bypass the Azure Firewall in the same virtual hub isn't possible.\n\n- You can specify multiple next hop IP addresses on a single virtual network connection. However, a virtual network connection doesn't support ‘multiple/unique’ next hop IP to the ‘same’ network virtual appliance in a spoke virtual network 'if' one of the routes with next hop IP is indicated to be public IP address or 0.0.0.0/0 (internet)\n\n- All information pertaining to 0.0.0.0/0 route is confined to a local hub's route table. This route does not propagate across hubs.\n\n- You can only use Virtual WAN to program routes in a spoke if the prefix is shorter (less specific) than the virtual network prefix. For example, in the diagram above the spoke VNET1 has the prefix 10.1.0.0/16: in this case, Virtual WAN wouldn't be able to inject a route that matches the virtual network prefix (10.1.0.0/16) or any of the subnets (10.1.0.0/24, 10.1.1.0/24). In other words, Virtual WAN can't attract traffic between two subnets that are in the same virtual network.\n\n- While it's true that two hubs on the same virtual WAN announce routes to each other (as long as the propagation is enabled to the same labels), this only applies to dynamic routing. Once you define a static route, this isn't the case.\n\n- When configuring static routes, don't use the hub router IPs as the next hop.\n\n- If you plan to remove Azure BGP communities from VNet and UDR routes, don't advertise these routes back into your virtual WAN. Doing so will create routing issues and outages.\n\n## Next steps",
+      "relation_type": "constraint",
+      "confidence": 0.92,
+      "metadata": {
+        "document_title": "azure-virtual-wan-docs.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Virtual WAN Branch Connection Association and Propagation",
+        "asset_type": "safety_rule",
+        "granularity": "session",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "objective": "Enforce consistent branch routing configuration to prevent routing inconsistencies and unreachability",
+        "task_family": "virtual_wan_routing",
+        "method_family": "routing_policy_enforcement",
+        "stage": "configuration",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "3cd27390-476b-5e7b-b74a-fa1a86cbecdf",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 37,
+        "paragraph_end": 47,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      },
+      "created_at": "2026-09-15T18:46:45+00:00"
+    },
+    {
+      "support_id": "38fc6b1d-37d8-5011-b562-01fca6b4d35e",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+      "section": "# About virtual hub routing",
+      "span": {
+        "start": 8738,
+        "end": 11111
+      },
+      "excerpt": "## Additional considerations\nConsider the following items when configuring Virtual WAN routing:\n\n- All branch connections (Point-to-site, Site-to-site, and ExpressRoute) need to be associated to the Default route table. That way, all branches learn the same prefixes.\n\n- All branch connections need to propagate their routes to the same set of route tables. For example, if you decide that branches should propagate to the Default route table, this configuration should be consistent across all branches. As a result, all connections associated to the Default route table will be able to reach all of the branches.\n\n- When you use Azure Firewall in multiple regions, all spoke virtual networks must be associated to the same route table. For example, having a subset of the VNets going through the Azure Firewall while other VNets bypass the Azure Firewall in the same virtual hub isn't possible.\n\n- You can specify multiple next hop IP addresses on a single virtual network connection. However, a virtual network connection doesn't support ‘multiple/unique’ next hop IP to the ‘same’ network virtual appliance in a spoke virtual network 'if' one of the routes with next hop IP is indicated to be public IP address or 0.0.0.0/0 (internet)\n\n- All information pertaining to 0.0.0.0/0 route is confined to a local hub's route table. This route does not propagate across hubs.\n\n- You can only use Virtual WAN to program routes in a spoke if the prefix is shorter (less specific) than the virtual network prefix. For example, in the diagram above the spoke VNET1 has the prefix 10.1.0.0/16: in this case, Virtual WAN wouldn't be able to inject a route that matches the virtual network prefix (10.1.0.0/16) or any of the subnets (10.1.0.0/24, 10.1.1.0/24). In other words, Virtual WAN can't attract traffic between two subnets that are in the same virtual network.\n\n- While it's true that two hubs on the same virtual WAN announce routes to each other (as long as the propagation is enabled to the same labels), this only applies to dynamic routing. Once you define a static route, this isn't the case.\n\n- When configuring static routes, don't use the hub router IPs as the next hop.\n\n- If you plan to remove Azure BGP communities from VNet and UDR routes, don't advertise these routes back into your virtual WAN. Doing so will create routing issues and outages.\n\n## Next steps",
+      "relation_type": "constraint",
+      "confidence": 0.9,
+      "metadata": {
+        "document_title": "azure-virtual-wan-docs.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Azure Firewall Multi-Region VNet Association Constraint",
+        "asset_type": "safety_rule",
+        "granularity": "session",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "objective": "Prevent inconsistent firewall policy application and partial bypass scenarios across spoke VNets in multi-region deployments",
+        "task_family": "virtual_wan_routing",
+        "method_family": "firewall_routing_policy",
+        "stage": "configuration",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "3cd27390-476b-5e7b-b74a-fa1a86cbecdf",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 37,
+        "paragraph_end": 47,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      },
+      "created_at": "2026-09-15T18:46:45+00:00"
+    },
+    {
+      "support_id": "95b49e70-7347-54a7-9217-023e7ea9bf1d",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+      "section": "# About virtual hub routing",
+      "span": {
+        "start": 8738,
+        "end": 11111
+      },
+      "excerpt": "## Additional considerations\nConsider the following items when configuring Virtual WAN routing:\n\n- All branch connections (Point-to-site, Site-to-site, and ExpressRoute) need to be associated to the Default route table. That way, all branches learn the same prefixes.\n\n- All branch connections need to propagate their routes to the same set of route tables. For example, if you decide that branches should propagate to the Default route table, this configuration should be consistent across all branches. As a result, all connections associated to the Default route table will be able to reach all of the branches.\n\n- When you use Azure Firewall in multiple regions, all spoke virtual networks must be associated to the same route table. For example, having a subset of the VNets going through the Azure Firewall while other VNets bypass the Azure Firewall in the same virtual hub isn't possible.\n\n- You can specify multiple next hop IP addresses on a single virtual network connection. However, a virtual network connection doesn't support ‘multiple/unique’ next hop IP to the ‘same’ network virtual appliance in a spoke virtual network 'if' one of the routes with next hop IP is indicated to be public IP address or 0.0.0.0/0 (internet)\n\n- All information pertaining to 0.0.0.0/0 route is confined to a local hub's route table. This route does not propagate across hubs.\n\n- You can only use Virtual WAN to program routes in a spoke if the prefix is shorter (less specific) than the virtual network prefix. For example, in the diagram above the spoke VNET1 has the prefix 10.1.0.0/16: in this case, Virtual WAN wouldn't be able to inject a route that matches the virtual network prefix (10.1.0.0/16) or any of the subnets (10.1.0.0/24, 10.1.1.0/24). In other words, Virtual WAN can't attract traffic between two subnets that are in the same virtual network.\n\n- While it's true that two hubs on the same virtual WAN announce routes to each other (as long as the propagation is enabled to the same labels), this only applies to dynamic routing. Once you define a static route, this isn't the case.\n\n- When configuring static routes, don't use the hub router IPs as the next hop.\n\n- If you plan to remove Azure BGP communities from VNet and UDR routes, don't advertise these routes back into your virtual WAN. Doing so will create routing issues and outages.\n\n## Next steps",
+      "relation_type": "constraint",
+      "confidence": 0.88,
+      "metadata": {
+        "document_title": "azure-virtual-wan-docs.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Virtual WAN Route Injection Prefix Specificity Constraint",
+        "asset_type": "knowledge_reference",
+        "granularity": "session",
+        "asset_node_id": "knowledge_reference_node",
+        "asset_path": "family_root/knowledge_reference_node",
+        "asset_level": 1,
+        "visible_role": "leaf",
+        "objective": "Document the technical boundary of Virtual WAN route injection capability to prevent misconfiguration attempts",
+        "task_family": "virtual_wan_routing",
+        "method_family": "route_injection_limits",
+        "stage": "design",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 3,
+        "window_id": "3cd27390-476b-5e7b-b74a-fa1a86cbecdf",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 37,
+        "paragraph_end": 47,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      },
+      "created_at": "2026-09-15T18:46:45+00:00"
+    },
+    {
+      "support_id": "7b0f1243-7fd6-5e3f-ac28-10ed8f60ad12",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+      "section": "# About virtual hub routing",
+      "span": {
+        "start": 8738,
+        "end": 11111
+      },
+      "excerpt": "## Additional considerations\nConsider the following items when configuring Virtual WAN routing:\n\n- All branch connections (Point-to-site, Site-to-site, and ExpressRoute) need to be associated to the Default route table. That way, all branches learn the same prefixes.\n\n- All branch connections need to propagate their routes to the same set of route tables. For example, if you decide that branches should propagate to the Default route table, this configuration should be consistent across all branches. As a result, all connections associated to the Default route table will be able to reach all of the branches.\n\n- When you use Azure Firewall in multiple regions, all spoke virtual networks must be associated to the same route table. For example, having a subset of the VNets going through the Azure Firewall while other VNets bypass the Azure Firewall in the same virtual hub isn't possible.\n\n- You can specify multiple next hop IP addresses on a single virtual network connection. However, a virtual network connection doesn't support ‘multiple/unique’ next hop IP to the ‘same’ network virtual appliance in a spoke virtual network 'if' one of the routes with next hop IP is indicated to be public IP address or 0.0.0.0/0 (internet)\n\n- All information pertaining to 0.0.0.0/0 route is confined to a local hub's route table. This route does not propagate across hubs.\n\n- You can only use Virtual WAN to program routes in a spoke if the prefix is shorter (less specific) than the virtual network prefix. For example, in the diagram above the spoke VNET1 has the prefix 10.1.0.0/16: in this case, Virtual WAN wouldn't be able to inject a route that matches the virtual network prefix (10.1.0.0/16) or any of the subnets (10.1.0.0/24, 10.1.1.0/24). In other words, Virtual WAN can't attract traffic between two subnets that are in the same virtual network.\n\n- While it's true that two hubs on the same virtual WAN announce routes to each other (as long as the propagation is enabled to the same labels), this only applies to dynamic routing. Once you define a static route, this isn't the case.\n\n- When configuring static routes, don't use the hub router IPs as the next hop.\n\n- If you plan to remove Azure BGP communities from VNet and UDR routes, don't advertise these routes back into your virtual WAN. Doing so will create routing issues and outages.\n\n## Next steps",
+      "relation_type": "constraint",
+      "confidence": 0.85,
+      "metadata": {
+        "document_title": "azure-virtual-wan-docs.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Static Route Configuration Safety Checks",
+        "asset_type": "safety_rule",
+        "granularity": "session",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "objective": "Prevent routing loops, outages, and configuration errors when using static routes",
+        "task_family": "virtual_wan_routing",
+        "method_family": "static_route_validation",
+        "stage": "configuration",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 4,
+        "window_id": "3cd27390-476b-5e7b-b74a-fa1a86cbecdf",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 37,
+        "paragraph_end": 47,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      },
+      "created_at": "2026-09-15T18:46:45+00:00"
+    },
+    {
+      "support_id": "7cc4bed8-3b65-5809-b7aa-79eb8be48ced",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+      "section": "# About virtual hub routing",
+      "span": {
+        "start": 8738,
+        "end": 11111
+      },
+      "excerpt": "## Additional considerations\nConsider the following items when configuring Virtual WAN routing:\n\n- All branch connections (Point-to-site, Site-to-site, and ExpressRoute) need to be associated to the Default route table. That way, all branches learn the same prefixes.\n\n- All branch connections need to propagate their routes to the same set of route tables. For example, if you decide that branches should propagate to the Default route table, this configuration should be consistent across all branches. As a result, all connections associated to the Default route table will be able to reach all of the branches.\n\n- When you use Azure Firewall in multiple regions, all spoke virtual networks must be associated to the same route table. For example, having a subset of the VNets going through the Azure Firewall while other VNets bypass the Azure Firewall in the same virtual hub isn't possible.\n\n- You can specify multiple next hop IP addresses on a single virtual network connection. However, a virtual network connection doesn't support ‘multiple/unique’ next hop IP to the ‘same’ network virtual appliance in a spoke virtual network 'if' one of the routes with next hop IP is indicated to be public IP address or 0.0.0.0/0 (internet)\n\n- All information pertaining to 0.0.0.0/0 route is confined to a local hub's route table. This route does not propagate across hubs.\n\n- You can only use Virtual WAN to program routes in a spoke if the prefix is shorter (less specific) than the virtual network prefix. For example, in the diagram above the spoke VNET1 has the prefix 10.1.0.0/16: in this case, Virtual WAN wouldn't be able to inject a route that matches the virtual network prefix (10.1.0.0/16) or any of the subnets (10.1.0.0/24, 10.1.1.0/24). In other words, Virtual WAN can't attract traffic between two subnets that are in the same virtual network.\n\n- While it's true that two hubs on the same virtual WAN announce routes to each other (as long as the propagation is enabled to the same labels), this only applies to dynamic routing. Once you define a static route, this isn't the case.\n\n- When configuring static routes, don't use the hub router IPs as the next hop.\n\n- If you plan to remove Azure BGP communities from VNet and UDR routes, don't advertise these routes back into your virtual WAN. Doing so will create routing issues and outages.\n\n## Next steps",
+      "relation_type": "constraint",
+      "confidence": 0.83,
+      "metadata": {
+        "document_title": "azure-virtual-wan-docs.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Virtual WAN Multiple Next Hop IP Validation",
+        "asset_type": "safety_rule",
+        "granularity": "session",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "objective": "Prevent unsupported multiple next hop configurations that could cause routing failures",
+        "task_family": "virtual_wan_routing",
+        "method_family": "next_hop_validation",
+        "stage": "configuration",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 5,
+        "window_id": "3cd27390-476b-5e7b-b74a-fa1a86cbecdf",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 37,
+        "paragraph_end": 47,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      },
+      "created_at": "2026-09-15T18:46:45+00:00"
+    },
+    {
+      "support_id": "577a49ff-270d-5119-844f-44f7a7c5e115",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+      "section": "# About virtual hub routing",
+      "span": {
+        "start": 1263,
+        "end": 1870
+      },
+      "excerpt": "## \n In this article\n\nThe routing capabilities in a virtual hub are provided by a router that manages all routing between gateways using Border Gateway Protocol (BGP). A virtual hub can contain multiple gateways such as a Site-to-site VPN gateway, ExpressRoute gateway, Point-to-site gateway, Azure Firewall. This router also provides transit connectivity between virtual networks that connect to a virtual hub and can support up to an aggregate throughput of 50 Gbps. These routing capabilities apply to Standard Virtual WAN customers.\n\nTo configure routing, see How to configure virtual hub routing.",
+      "relation_type": "support",
+      "confidence": 0.75,
+      "metadata": {
+        "document_title": "azure-virtual-wan-docs.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Virtual Hub Router Configuration",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "Set up multi-gateway routing with BGP protocol in a virtual hub",
+        "task_family": "network_routing_configuration",
+        "method_family": "bgp_gateway_management",
+        "stage": "configuration",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "de957e37-ff15-578f-8adb-408966a28cd5",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 2,
+        "paragraph_end": 4,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      },
+      "created_at": "2026-09-15T18:45:23+00:00"
+    },
+    {
+      "support_id": "afddbda9-3c71-59f8-b166-03e99073e56a",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+      "section": "# About virtual hub routing",
+      "span": {
+        "start": 1263,
+        "end": 1870
+      },
+      "excerpt": "## \n In this article\n\nThe routing capabilities in a virtual hub are provided by a router that manages all routing between gateways using Border Gateway Protocol (BGP). A virtual hub can contain multiple gateways such as a Site-to-site VPN gateway, ExpressRoute gateway, Point-to-site gateway, Azure Firewall. This router also provides transit connectivity between virtual networks that connect to a virtual hub and can support up to an aggregate throughput of 50 Gbps. These routing capabilities apply to Standard Virtual WAN customers.\n\nTo configure routing, see How to configure virtual hub routing.",
+      "relation_type": "support",
+      "confidence": 0.7,
+      "metadata": {
+        "document_title": "azure-virtual-wan-docs.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Virtual Hub Routing Concepts Reference",
+        "asset_type": "knowledge_reference",
+        "granularity": "session",
+        "asset_node_id": "knowledge_reference_node",
+        "asset_path": "family_root/knowledge_reference_node",
+        "asset_level": 1,
+        "visible_role": "leaf",
+        "objective": "Provide foundational routing concepts and terminology for virtual hub design",
+        "task_family": "network_routing_design",
+        "method_family": "conceptual_reference",
+        "stage": "planning",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "de957e37-ff15-578f-8adb-408966a28cd5",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 2,
+        "paragraph_end": 4,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      },
+      "created_at": "2026-09-15T18:45:23+00:00"
+    },
+    {
+      "support_id": "ef876700-f428-5ac0-83a3-a205a6145872",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/azure-virtual-wan-docs.md",
+      "section": "# About virtual hub routing",
+      "span": {
+        "start": 3910,
+        "end": 4591
+      },
+      "excerpt": "### Connections\nConnections are Resource Manager resources that have a routing configuration. The four types of connections are:\n\n- VPN connection: Connects a VPN site to a virtual hub VPN gateway.\n\n- ExpressRoute connection: Connects an ExpressRoute circuit to a virtual hub ExpressRoute gateway.\n\n- P2S configuration connection: Connects a User VPN (Point-to-site) configuration to a virtual hub User VPN (Point-to-site) gateway.\n\n- Hub virtual network connection: Connects virtual networks to a virtual hub.\n\nYou can set up the routing configuration for a virtual network connection during setup. By default, all connections associate and propagate to the Default route table.",
+      "relation_type": "support",
+      "confidence": 0.75,
+      "metadata": {
+        "document_title": "azure-virtual-wan-docs.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Configure virtual hub connection routing",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "establish and configure routing for hub connections",
+        "task_family": "hub_connection_setup",
+        "method_family": "routing_configuration",
+        "stage": "connection_initialization",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "e4e68d5d-ea2e-564b-89b9-950bef95037f",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 14,
+        "paragraph_end": 19,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      },
+      "created_at": "2026-09-15T18:45:43+00:00"
+    }
+  ],
+  "skill_drafts": [
+    {
+      "draft_id": "26d5a4aa-08c0-5bcf-84ce-997a78c35adf",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "name": "Virtual WAN Branch Connection Association and Propagation",
+      "description": "Enforce that all branch connections (Point-to-site, Site-to-site, ExpressRoute) are associated to the Default route table and propagate routes consistently across all branches. This prevents routing asymmetry and ensures all branches learn the same prefixes and can reach each other.",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Enforce consistent branch routing configuration to prevent routing inconsistencies and unreachability",
+      "domain": "default",
+      "task_family": "virtual_wan_routing",
+      "method_family": "routing_policy_enforcement",
+      "stage": "configuration",
+      "applicable_signals": [
+        "Adding a new Point-to-site connection",
+        "Adding a new Site-to-site connection",
+        "Adding a new ExpressRoute connection",
+        "Modifying route table associations for existing branch connections",
+        "Reviewing branch routing configuration"
+      ],
+      "contraindications": [
+        "Branches intentionally require different route tables for segmentation",
+        "Hub-to-hub routing is the primary concern and branch-to-branch routing is not required",
+        "Multi-tenant isolation requires branch connections to use separate route tables"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Identify all branch connections', 'detail': 'List all Point-to-site, Site-to-site, and ExpressRoute connections in the virtual hub'}",
+        "{'step': 2, 'action': 'Verify Default route table association', 'detail': 'Confirm each branch connection is associated to the Default route table'}",
+        "{'step': 3, 'action': 'Verify route propagation consistency', 'detail': 'Confirm all branch connections propagate routes to the same set of route tables'}",
+        "{'step': 4, 'action': 'Remediate inconsistencies', 'detail': 'Update any branch connection that does not meet the association or propagation requirements'}",
+        "{'step': 5, 'action': 'Validate reachability', 'detail': 'Test connectivity between branches to confirm routing is symmetric and functional'}"
+      ],
+      "triggers": [
+        "Configuring branch connections in Virtual WAN; adding or modifying Point-to-site, Site-to-site, or ExpressRoute connections"
+      ],
+      "constraints": [
+        "All branch connections must use the Default route table for association",
+        "Route propagation must target the same set of route tables across all branches",
+        "Configuration must be applied consistently; partial or selective application is not permitted"
+      ],
+      "cautions": [
+        "Changing route table associations on existing connections may cause temporary routing disruption",
+        "Inconsistent propagation settings across branches will result in asymmetric routing and unreachability",
+        "Do not use hub router IPs as next hop addresses when configuring static routes"
+      ],
+      "output_contract": [
+        "All branch connections verified as associated to the Default route table; route propagation confirmed consistent across all branches; routing asymmetry and branch isolation risks eliminated"
+      ],
+      "examples": [],
+      "risk_class": "high",
+      "confidence": 0.92,
+      "support_ids": [
+        "e1bf6b85-178e-5954-9199-8d4448849f5f"
+      ],
+      "metadata": {
+        "prompt": "When configuring or modifying branch connections in Virtual WAN, verify and enforce the following: (1) All branch connections must be associated to the Default route table. (2) All branch connections must propagate their routes to the same set of route tables. (3) Configuration must be consistent across all branches. Failure to maintain this consistency results in routing asymmetry and branch isolation.",
+        "tags": [
+          "virtual_wan",
+          "branch_routing",
+          "route_table_association",
+          "routing_consistency",
+          "guardrail"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "# About virtual hub routing"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "candidate_slot": 1,
+        "window_id": "3cd27390-476b-5e7b-b74a-fa1a86cbecdf",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 37,
+        "paragraph_end": 47,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      }
+    },
+    {
+      "draft_id": "405f4ee3-0777-55cc-a9b8-aa35d53f01f3",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "name": "Azure Firewall Multi-Region VNet Association Constraint",
+      "description": "Enforce that all spoke virtual networks must be associated to the same route table when deploying Azure Firewall across multiple regions. This prevents partial bypass scenarios where some VNets route through the firewall while others bypass it in the same virtual hub.",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Prevent inconsistent firewall policy application and partial bypass scenarios across spoke VNets in multi-region deployments",
+      "domain": "default",
+      "task_family": "virtual_wan_routing",
+      "method_family": "firewall_routing_policy",
+      "stage": "configuration",
+      "applicable_signals": [
+        "Azure Firewall deployment initiated in multiple regions",
+        "Spoke VNet association to route tables being configured",
+        "Multi-region Virtual WAN hub setup in progress"
+      ],
+      "contraindications": [
+        "Single-region deployments where multi-region firewall consistency is not applicable",
+        "Scenarios requiring intentional traffic segmentation with different firewall policies per VNet",
+        "Deployments where partial firewall bypass is explicitly designed"
+      ],
+      "intervention_moves": [
+        "Audit current route table associations for all spoke VNets",
+        "Identify any VNets associated to different route tables",
+        "Reassociate non-compliant VNets to the designated route table",
+        "Validate firewall policy enforcement post-association"
+      ],
+      "workflow_steps": [],
+      "triggers": [
+        "Deploying Azure Firewall in multiple regions within a Virtual WAN; associating spoke VNets to route tables"
+      ],
+      "constraints": [
+        "All spoke VNets in the same virtual hub must use the same route table",
+        "Firewall policy must be uniformly applied across all associated VNets",
+        "Route table association changes must be validated before deployment"
+      ],
+      "cautions": [
+        "Changing route table associations after deployment may cause traffic disruption",
+        "Verify firewall policy consistency across all regions before committing configuration",
+        "Test traffic flow from all spoke VNets to confirm firewall enforcement"
+      ],
+      "output_contract": [
+        "Confirmation that all spoke VNets are associated to the same route table; firewall policy application verified as uniform across all regions; no partial bypass paths exist"
+      ],
+      "examples": [],
+      "risk_class": "high",
+      "confidence": 0.9,
+      "support_ids": [
+        "38fc6b1d-37d8-5011-b562-01fca6b4d35e"
+      ],
+      "metadata": {
+        "prompt": "When configuring Azure Firewall in a multi-region Virtual WAN deployment, verify that every spoke VNet is associated to the same route table. Do not allow a subset of VNets to use the firewall while others bypass it. Check route table associations before finalizing the deployment.",
+        "tags": [
+          "azure",
+          "virtual-wan",
+          "firewall",
+          "routing",
+          "multi-region",
+          "constraint"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "# About virtual hub routing"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "candidate_slot": 2,
+        "window_id": "3cd27390-476b-5e7b-b74a-fa1a86cbecdf",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 37,
+        "paragraph_end": 47,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      }
+    },
+    {
+      "draft_id": "3a66ec6a-df7a-576e-a586-e37b946a8ee4",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "name": "Virtual WAN Route Injection Prefix Specificity Constraint",
+      "description": "Validates that route prefixes intended for spoke VNet injection are shorter (less specific) than the spoke's virtual network prefix. Virtual WAN cannot inject routes that match or exceed the specificity of the VNet prefix itself.",
+      "asset_type": "knowledge_reference",
+      "granularity": "session",
+      "asset_node_id": "knowledge_reference_node",
+      "asset_path": "family_root/knowledge_reference_node",
+      "asset_level": 1,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Document the technical boundary of Virtual WAN route injection capability to prevent misconfiguration attempts",
+      "domain": "default",
+      "task_family": "virtual_wan_routing",
+      "method_family": "route_injection_limits",
+      "stage": "design",
+      "applicable_signals": [
+        "Planning route injection into spoke VNets",
+        "Designing routing policies for Virtual WAN",
+        "Troubleshooting route injection failures",
+        "Validating route prefix configuration before deployment"
+      ],
+      "contraindications": [
+        "Configuring inter-subnet routing within a single VNet (Virtual WAN does not apply)",
+        "Hub-to-hub routing scenarios (different constraint set)",
+        "Routes already matching or exceeding spoke VNet prefix specificity"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [],
+      "triggers": [
+        "Planning route injection into spoke VNets; designing routing policies for Virtual WAN; troubleshooting route injection failures"
+      ],
+      "constraints": [
+        "Route prefix must be shorter (less specific) than spoke VNet prefix",
+        "Virtual WAN cannot inject routes matching the VNet prefix itself",
+        "Virtual WAN cannot inject routes more specific than any subnet within the VNet",
+        "This constraint applies per spoke; each spoke VNet has its own prefix boundary"
+      ],
+      "cautions": [
+        "Attempting to inject a route with prefix equal to or more specific than the spoke VNet prefix will fail silently or be rejected",
+        "This is a hard technical limit, not a configuration option",
+        "Misunderstanding this constraint is a common cause of route injection failures"
+      ],
+      "output_contract": [
+        "Route prefix specificity validated against spoke VNet prefix; design confirmed to use only shorter prefixes for injection; confirmation that route will be accepted by Virtual WAN or explicit rejection if prefix violates constraint"
+      ],
+      "examples": [
+        {
+          "input": "Spoke VNET1 prefix: 10.1.0.0/16. Proposed route to inject: 10.0.0.0/8",
+          "output": "Valid. Prefix 10.0.0.0/8 is shorter (less specific) than 10.1.0.0/16. Route can be injected.",
+          "notes": "Shorter prefix means fewer bits specified, allowing Virtual WAN to program the route."
+        },
+        {
+          "input": "Spoke VNET1 prefix: 10.1.0.0/16. Proposed route to inject: 10.1.0.0/24",
+          "output": "Invalid. Prefix 10.1.0.0/24 is more specific than 10.1.0.0/16. Route cannot be injected.",
+          "notes": "More specific prefix (longer) falls within the VNet boundary and violates the constraint."
+        },
+        {
+          "input": "Spoke VNET1 prefix: 10.1.0.0/16. Proposed route to inject: 10.1.0.0/16",
+          "output": "Invalid. Prefix matches the VNet prefix exactly. Route cannot be injected.",
+          "notes": "Equal specificity is not permitted; prefix must be strictly shorter."
+        }
+      ],
+      "risk_class": "medium",
+      "confidence": 0.88,
+      "support_ids": [
+        "95b49e70-7347-54a7-9217-023e7ea9bf1d"
+      ],
+      "metadata": {
+        "prompt": "When planning or validating route injection into a spoke virtual network via Virtual WAN, verify that the route prefix length is shorter than the spoke VNet prefix. For example, if spoke VNET has prefix 10.1.0.0/16, Virtual WAN can inject routes like 10.0.0.0/8 but cannot inject 10.1.0.0/16, 10.1.0.0/24, or any subnet within 10.1.0.0/16. This constraint prevents Virtual WAN from attracting traffic between subnets within the same virtual network.",
+        "tags": [
+          "virtual_wan",
+          "routing",
+          "route_injection",
+          "prefix_specificity",
+          "constraint",
+          "design_validation"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "# About virtual hub routing"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "knowledge_reference_node",
+        "asset_path": "family_root/knowledge_reference_node",
+        "asset_level": 1,
+        "visible_role": "leaf",
+        "candidate_slot": 3,
+        "window_id": "3cd27390-476b-5e7b-b74a-fa1a86cbecdf",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 37,
+        "paragraph_end": 47,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      }
+    },
+    {
+      "draft_id": "65dae4a1-2ce9-5a8f-9489-4b3ca960301a",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "name": "Static Route Configuration Safety Checks",
+      "description": "Validate static route configurations in Virtual WAN to prevent routing loops and outages by enforcing constraints on next hop selection and BGP community handling.",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Prevent routing loops, outages, and configuration errors when using static routes",
+      "domain": "default",
+      "task_family": "virtual_wan_routing",
+      "method_family": "static_route_validation",
+      "stage": "configuration",
+      "applicable_signals": [
+        "Static route creation or modification initiated",
+        "Next hop IP address specified in route configuration",
+        "BGP community removal or modification detected"
+      ],
+      "contraindications": [
+        "Using dynamic routing only (no static routes defined)",
+        "Hub router IPs intentionally required as next hops in other systems outside Virtual WAN"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Review next hop IP addresses in static route definitions', 'check': 'Confirm no hub router IPs are present in next hop list'}",
+        "{'step': 2, 'action': 'Audit BGP community attributes on routes being configured', 'check': 'Identify any routes with removed Azure BGP communities'}",
+        "{'step': 3, 'action': 'Verify re-advertisement settings', 'check': 'Ensure routes with removed BGP communities are not propagated back into Virtual WAN'}",
+        "{'step': 4, 'action': 'Document validation results', 'check': 'Record approval or remediation actions before deployment'}"
+      ],
+      "triggers": [
+        "Defining static routes in Virtual WAN connections",
+        "Configuring next hop addresses for spoke virtual networks",
+        "Managing BGP community attributes on routes"
+      ],
+      "constraints": [
+        "Hub router IPs must never be used as next hop addresses in static routes",
+        "Routes with removed Azure BGP communities must not be re-advertised into Virtual WAN",
+        "Validation must occur before route deployment"
+      ],
+      "cautions": [
+        "Violating these constraints creates routing issues and potential outages",
+        "BGP community removal without proper handling can cause route propagation failures"
+      ],
+      "output_contract": [
+        "Static route configuration validated and approved for deployment; hub router IPs confirmed excluded from next hop definitions; BGP community handling confirmed compliant; validation report generated."
+      ],
+      "examples": [],
+      "risk_class": "high",
+      "confidence": 0.85,
+      "support_ids": [
+        "7b0f1243-7fd6-5e3f-ac28-10ed8f60ad12"
+      ],
+      "metadata": {
+        "prompt": "When defining static routes in Virtual WAN: (1) Verify that hub router IPs are NOT used as next hop addresses. (2) Confirm that routes with removed Azure BGP communities are NOT re-advertised back into Virtual WAN. (3) Document the validation outcome before deployment.",
+        "tags": [
+          "virtual_wan",
+          "static_routing",
+          "safety_constraint",
+          "bgp_communities",
+          "next_hop_validation"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "# About virtual hub routing"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "candidate_slot": 4,
+        "window_id": "3cd27390-476b-5e7b-b74a-fa1a86cbecdf",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 37,
+        "paragraph_end": 47,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      }
+    },
+    {
+      "draft_id": "91895237-04d1-5e87-aae3-ba1ce93ee998",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "name": "Virtual WAN Multiple Next Hop IP Validation",
+      "description": "Validate that multiple next hop IP addresses on a single VNet connection do not include a public IP or 0.0.0.0/0 route pointing to the same network virtual appliance, as this configuration is unsupported and will cause routing failures.",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Prevent unsupported multiple next hop configurations that could cause routing failures",
+      "domain": "default",
+      "task_family": "virtual_wan_routing",
+      "method_family": "next_hop_validation",
+      "stage": "configuration",
+      "applicable_signals": [
+        "Configuring multiple next hop IP addresses on a single VNet connection",
+        "Defining routes to network virtual appliances in spoke virtual networks",
+        "Adding or modifying next hop IPs for the same appliance target"
+      ],
+      "contraindications": [
+        "Single next hop configurations (no validation needed)",
+        "Routes to different network virtual appliances (separate validation per appliance)",
+        "Non-appliance next hop targets"
+      ],
+      "intervention_moves": [
+        "Validate next hop IP list against appliance target",
+        "Check for public IP or 0.0.0.0/0 in multi-hop configuration",
+        "Reject or flag unsupported combinations before deployment"
+      ],
+      "workflow_steps": [],
+      "triggers": [
+        "Configuring multiple next hop IP addresses on VNet connections; defining routes to network virtual appliances in spokes"
+      ],
+      "constraints": [
+        "Multiple next hop IPs to the same appliance must all be private IP addresses",
+        "0.0.0.0/0 (internet route) cannot coexist with other next hops to the same appliance",
+        "Public IP addresses cannot be used as next hop when multiple routes target the same appliance"
+      ],
+      "cautions": [
+        "This constraint applies only to multiple next hop IPs on the same VNet connection targeting the same appliance.",
+        "Single next hop configurations or routes to different appliances are not subject to this restriction."
+      ],
+      "output_contract": [
+        "Configuration validation result: either (1) next hop configuration confirmed as supported (all IPs private, no 0.0.0.0/0 to same appliance), or (2) unsupported configuration identified with specific constraint violation details."
+      ],
+      "examples": [],
+      "risk_class": "high",
+      "confidence": 0.83,
+      "support_ids": [
+        "7cc4bed8-3b65-5809-b7aa-79eb8be48ced"
+      ],
+      "metadata": {
+        "prompt": "When configuring multiple next hop IPs on a VNet connection:\n1. Identify all routes targeting the same network virtual appliance in the spoke.\n2. Check if any route uses a public IP address or 0.0.0.0/0 as the next hop.\n3. If yes, reject the configuration or separate routes to different appliances.\n4. Confirm all next hop IPs for the same appliance use private, non-default routes only.",
+        "tags": [
+          "virtual_wan",
+          "routing",
+          "next_hop",
+          "network_appliance",
+          "configuration_validation"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "# About virtual hub routing"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "candidate_slot": 5,
+        "window_id": "3cd27390-476b-5e7b-b74a-fa1a86cbecdf",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 37,
+        "paragraph_end": 47,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      }
+    },
+    {
+      "draft_id": "2ae4810d-7df9-5573-8031-99dc7e89b67e",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "name": "Virtual Hub Router Configuration",
+      "description": "Configure and manage BGP-based routing between multiple gateways (Site-to-site VPN, ExpressRoute, Point-to-site, Azure Firewall) within a virtual hub to enable transit connectivity across virtual networks.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Set up multi-gateway routing with BGP protocol in a virtual hub",
+      "domain": "default",
+      "task_family": "network_routing_configuration",
+      "method_family": "bgp_gateway_management",
+      "stage": "configuration",
+      "applicable_signals": [
+        "Multiple gateway types present (Site-to-site VPN, ExpressRoute, Point-to-site, Azure Firewall)",
+        "Standard Virtual WAN SKU in use",
+        "Transit routing between virtual networks required"
+      ],
+      "contraindications": [
+        "Non-Standard Virtual WAN SKUs",
+        "Single-gateway deployments without transit requirements",
+        "Aggregate throughput requirements exceed 50 Gbps"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Verify Standard Virtual WAN deployment and SKU', 'detail': 'Confirm the virtual hub is part of a Standard Virtual WAN instance'}",
+        "{'step': 2, 'action': 'Identify and inventory all connected gateways', 'detail': 'Document Site-to-site VPN, ExpressRoute, Point-to-site, and Azure Firewall gateways'}",
+        "{'step': 3, 'action': 'Configure BGP routing on the virtual hub router', 'detail': 'Enable BGP protocol and set up routing policies between gateways'}",
+        "{'step': 4, 'action': 'Establish route propagation between gateways', 'detail': 'Ensure all gateways exchange routes via BGP'}",
+        "{'step': 5, 'action': 'Enable transit connectivity between virtual networks', 'detail': 'Configure virtual network connections to the hub for cross-VNet routing'}",
+        "{'step': 6, 'action': 'Validate routing and throughput', 'detail': 'Test end-to-end connectivity and verify aggregate throughput is within limits'}"
+      ],
+      "triggers": [
+        "Deploying a Standard Virtual WAN with multiple gateway types",
+        "Requirement for inter-gateway route exchange",
+        "Need to establish cross-VNet transit connectivity"
+      ],
+      "constraints": [
+        "Maximum aggregate throughput: 50 Gbps",
+        "Requires Standard Virtual WAN tier",
+        "BGP protocol must be supported by all connected gateways"
+      ],
+      "cautions": [
+        "Verify all gateway types are compatible with BGP routing before configuration",
+        "Monitor aggregate throughput to ensure it does not exceed 50 Gbps limit",
+        "Test route propagation between all gateways after initial setup"
+      ],
+      "output_contract": [
+        "Virtual hub router operational with all connected gateways exchanging routes via BGP and transit connectivity established between virtual networks. Routing tables populated and traffic flowing between gateways and virtual networks."
+      ],
+      "examples": [],
+      "risk_class": "medium",
+      "confidence": 0.75,
+      "support_ids": [
+        "577a49ff-270d-5119-844f-44f7a7c5e115"
+      ],
+      "metadata": {
+        "prompt": "Set up a virtual hub router to manage BGP-based routing between multiple gateway types. Ensure all connected gateways exchange routes via BGP and establish transit connectivity between virtual networks. Verify the router supports the aggregate throughput requirements (up to 50 Gbps).",
+        "tags": [
+          "network_routing",
+          "bgp",
+          "virtual_wan",
+          "gateway_management",
+          "transit_connectivity"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "# About virtual hub routing"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "candidate_slot": 1,
+        "window_id": "de957e37-ff15-578f-8adb-408966a28cd5",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 2,
+        "paragraph_end": 4,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      }
+    },
+    {
+      "draft_id": "1eaa6ec2-c9d0-5ea0-8f91-16a62ca87944",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "name": "Virtual Hub Routing Concepts Reference",
+      "description": "Reference guide covering hub route tables, routing intents, policies, connections, association, propagation, labels, and static route configuration for virtual hub routing design and troubleshooting.",
+      "asset_type": "knowledge_reference",
+      "granularity": "session",
+      "asset_node_id": "knowledge_reference_node",
+      "asset_path": "family_root/knowledge_reference_node",
+      "asset_level": 1,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Provide foundational routing concepts and terminology for virtual hub design",
+      "domain": "default",
+      "task_family": "network_routing_design",
+      "method_family": "conceptual_reference",
+      "stage": "planning",
+      "applicable_signals": [
+        "Designing virtual hub routing topology",
+        "Troubleshooting routing behavior",
+        "Onboarding team members to Virtual WAN routing model",
+        "Planning multi-gateway connectivity"
+      ],
+      "contraindications": [
+        "Immediate operational troubleshooting requiring step-by-step remediation",
+        "Configuration of specific gateway types",
+        "Real-time incident response"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [],
+      "triggers": [
+        "Designing virtual hub routing topology; troubleshooting routing behavior; onboarding team members to Virtual WAN routing model"
+      ],
+      "constraints": [
+        "Applies to Standard Virtual WAN customers only",
+        "Maximum aggregate throughput is 50 Gbps per virtual hub"
+      ],
+      "cautions": [],
+      "output_contract": [
+        "Clear understanding of routing concepts (route tables, intents, policies, association, propagation, labels) enabling informed routing design decisions and topology planning"
+      ],
+      "examples": [],
+      "risk_class": "low",
+      "confidence": 0.7,
+      "support_ids": [
+        "afddbda9-3c71-59f8-b166-03e99073e56a"
+      ],
+      "metadata": {
+        "prompt": "Use this reference to understand core virtual hub routing concepts. A virtual hub router manages all routing between gateways using BGP and can contain multiple gateway types (Site-to-site VPN, ExpressRoute, Point-to-site, Azure Firewall). The router provides transit connectivity between virtual networks and supports up to 50 Gbps aggregate throughput. Key concepts include: route tables (organize and filter routes), routing intents and policies (define traffic forwarding rules), connections (link gateways and virtual networks), association (connect routes to connections), propagation (distribute routes across the hub), and labels (tag routes for policy application). Static routes can be configured in virtual network connections for custom routing behavior.",
+        "tags": [
+          "virtual-wan",
+          "routing",
+          "hub-design",
+          "bgp",
+          "network-architecture"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "# About virtual hub routing"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "knowledge_reference_node",
+        "asset_path": "family_root/knowledge_reference_node",
+        "asset_level": 1,
+        "visible_role": "leaf",
+        "candidate_slot": 2,
+        "window_id": "de957e37-ff15-578f-8adb-408966a28cd5",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 2,
+        "paragraph_end": 4,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      }
+    },
+    {
+      "draft_id": "b7381bf7-97ce-5e48-a195-d5a6090eac94",
+      "doc_id": "3937f901-1162-503e-8dde-3cd1a710796b",
+      "name": "Configure virtual hub connection routing",
+      "description": "Set up routing configuration for a virtual network connection to a virtual hub, including association and propagation to route tables. Establishes the routing behavior when creating or reconfiguring a hub virtual network connection.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "establish and configure routing for hub connections",
+      "domain": "default",
+      "task_family": "hub_connection_setup",
+      "method_family": "routing_configuration",
+      "stage": "connection_initialization",
+      "applicable_signals": [
+        "connection setup workflow initiated",
+        "virtual network connection resource being created or modified",
+        "routing configuration step reached during connection provisioning"
+      ],
+      "contraindications": [
+        "troubleshooting existing route propagation issues unrelated to connection setup",
+        "modifying route table policies independently of connection creation",
+        "adjusting routes after connection is already established and stable"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Identify connection type', 'detail': 'Determine which connection type is being configured: VPN connection, ExpressRoute connection, P2S configuration connection, or Hub virtual network connection.'}",
+        "{'step': 2, 'action': 'Select route table association', 'detail': 'Choose the route table to which the connection will associate. Default is the Default route table; specify a custom route table if non-default routing is required.'}",
+        "{'step': 3, 'action': 'Configure propagation', 'detail': 'Set the propagation behavior to the selected route table. By default, all connections propagate to the Default route table.'}",
+        "{'step': 4, 'action': 'Apply routing configuration', 'detail': 'Complete the connection setup with the routing configuration applied.'}",
+        "{'step': 5, 'action': 'Verify association and propagation', 'detail': 'Confirm that the connection is associated and propagating to the intended route table.'}"
+      ],
+      "triggers": [
+        "creating a new virtual network connection to a virtual hub",
+        "reconfiguring routing behavior for an existing hub virtual network connection",
+        "need to define route table association and propagation for a connection"
+      ],
+      "constraints": [
+        "routing configuration must be set during or immediately after connection creation for optimal application",
+        "connection must be a valid Resource Manager resource type (VPN, ExpressRoute, P2S, or Hub virtual network connection)"
+      ],
+      "cautions": [],
+      "output_contract": [
+        "Virtual network connection resource created or updated with routing configuration applied. Connection is associated and propagating to the specified route table (Default or custom). Routing behavior is active and ready for traffic flow."
+      ],
+      "examples": [],
+      "risk_class": "medium",
+      "confidence": 0.75,
+      "support_ids": [
+        "ef876700-f428-5ac0-83a3-a205a6145872"
+      ],
+      "metadata": {
+        "prompt": "When setting up a virtual network connection to a virtual hub, configure its routing by specifying which route table the connection should associate with and propagate to. By default, all connections associate and propagate to the Default route table. Customize this during connection setup if non-default routing behavior is required.",
+        "tags": [
+          "azure",
+          "virtual-wan",
+          "routing",
+          "hub-connection",
+          "route-table",
+          "network-configuration"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "# About virtual hub routing"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "candidate_slot": 1,
+        "window_id": "e4e68d5d-ea2e-564b-89b9-950bef95037f",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 14,
+        "paragraph_end": 19,
+        "heading_path": [
+          "# About virtual hub routing"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "azure-virtual-wan-docs.md"
+        ],
+        "subsection_headings": [
+          "## Routing concepts",
+          "### Hub route table",
+          "###  Hub routing intent and policies",
+          "### Connections",
+          "### Association",
+          "### Propagation",
+          "### Labels",
+          "### Configuring static routes in a virtual network connection",
+          "### Deleting static routes",
+          "## Route tables for pre-existing routes",
+          "## Hub reset",
+          "## Router reset",
+          "## Additional considerations"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Feedback"
+      }
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,323 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "model_training",
+  "run_id": "20260915T070700_99425c57",
+  "skills": [
+    {
+      "skill_id": "07ee569c-0bbd-51f7-af08-1fc359001c7e",
+      "name": "GRPO Trainer Initialization",
+      "description": "Initialize and configure a GRPO (Group Relative Policy Optimization) trainer for language model post-training. Loads dataset, binds reward function, creates training configuration, and instantiates the trainer as a reusable session-level workflow ready for immediate training execution.",
+      "skill_body": "1. Load the training dataset (e.g., from HuggingFace datasets) with prompt column.\n2. Define a reward function that accepts completions and returns scalar rewards.\n3. Create a GRPOConfig with output directory and logging settings.\n4. Instantiate GRPOTrainer with model name/path, reward function(s), training config, and dataset.\n5. Verify trainer is ready by confirming the instance has a callable .train() method.\n6. Return the initialized trainer for downstream training execution.\n\n## Objective\n\nInitialize GRPO trainer with model, reward function, and training configuration ready for post-training execution\n## Applicable Signals\n\n- Training phase initiated\n- Reward function defined and tested\n- Dataset loaded and format validated\n- Model checkpoint available\n\n## Contraindications\n\n- Using standard supervised fine-tuning instead of reinforcement learning\n- No reward function defined or reward function returns incompatible output\n- Dataset format incompatible with GRPO (e.g., missing prompt column)\n- Model checkpoint not accessible or incompatible with trainer\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Load dataset', 'detail': 'Use datasets.load_dataset() or equivalent to load training data with prompt column'}\n- {'step': 2, 'action': 'Define reward function', 'detail': 'Create callable that accepts completions and returns list of scalar rewards'}\n- {'step': 3, 'action': 'Create GRPOConfig', 'detail': 'Instantiate GRPOConfig with output_dir, logging_steps, and other training hyperparameters'}\n- {'step': 4, 'action': 'Instantiate GRPOTrainer', 'detail': 'Pass model, reward_funcs, args (GRPOConfig), and train_dataset to GRPOTrainer constructor'}\n- {'step': 5, 'action': 'Verify initialization', 'detail': 'Confirm trainer instance is created and .train() method is callable'}\n\n## Constraints\n\n- Reward function must accept completions and return scalar rewards\n- Dataset must contain prompt column; completion column is optional\n- Model must be loadable by the trainer (HuggingFace model ID or local path)\n- GRPOConfig output_dir must be writable\n\n## Cautions\n\n- Reward function design significantly impacts training outcome; validate reward signal before full training run\n- Large models may require distributed training setup; see GRPO at scale documentation for multi-node configuration\n\n## Output Contract\n\n- GRPOTrainer instance initialized, configured, and ready to call .train() method\n- Trainer holds references to model, reward function(s), dataset, and training configuration\n- Caller receives trainer object for immediate training execution\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Model: Qwen/Qwen2-0.5B-Instruct, Dataset: trl-lib/tldr (train split), Reward: length-based (target 20 chars), Output dir: Qwen2-0.5B-GRPO\n- Therapist/Output: GRPOTrainer instance with model loaded, reward_len function bound, dataset loaded, GRPOConfig applied (logging_steps=10)\n- Notes: Trainer ready to call .train() immediately",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+      "parent_candidate_ids": [
+        "85e9f4bf-55a0-5330-9bfe-d6575db46c9c"
+      ],
+      "child_skill_ids": [
+        "f10424df-933b-51bb-8ca1-ad9d207806ef"
+      ],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Initialize GRPO trainer with model, reward function, and training configuration ready for post-training execution",
+      "domain": "default",
+      "task_family": "model_training",
+      "method_family": "reinforcement_learning",
+      "stage": "training_setup",
+      "applicable_signals": [
+        "Training phase initiated",
+        "Reward function defined and tested",
+        "Dataset loaded and format validated",
+        "Model checkpoint available"
+      ],
+      "contraindications": [
+        "Using standard supervised fine-tuning instead of reinforcement learning",
+        "No reward function defined or reward function returns incompatible output",
+        "Dataset format incompatible with GRPO (e.g., missing prompt column)",
+        "Model checkpoint not accessible or incompatible with trainer"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Starting a new GRPO-based model training experiment",
+        "Have model checkpoint, reward function, and dataset ready",
+        "Need to set up post-training with group relative policy optimization"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Load dataset', 'detail': 'Use datasets.load_dataset() or equivalent to load training data with prompt column'}",
+        "{'step': 2, 'action': 'Define reward function', 'detail': 'Create callable that accepts completions and returns list of scalar rewards'}",
+        "{'step': 3, 'action': 'Create GRPOConfig', 'detail': 'Instantiate GRPOConfig with output_dir, logging_steps, and other training hyperparameters'}",
+        "{'step': 4, 'action': 'Instantiate GRPOTrainer', 'detail': 'Pass model, reward_funcs, args (GRPOConfig), and train_dataset to GRPOTrainer constructor'}",
+        "{'step': 5, 'action': 'Verify initialization', 'detail': 'Confirm trainer instance is created and .train() method is callable'}"
+      ],
+      "constraints": [
+        "Reward function must accept completions and return scalar rewards",
+        "Dataset must contain prompt column; completion column is optional",
+        "Model must be loadable by the trainer (HuggingFace model ID or local path)",
+        "GRPOConfig output_dir must be writable"
+      ],
+      "cautions": [
+        "Reward function design significantly impacts training outcome; validate reward signal before full training run",
+        "Large models may require distributed training setup; see GRPO at scale documentation for multi-node configuration"
+      ],
+      "output_contract": [
+        "GRPOTrainer instance initialized, configured, and ready to call .train() method",
+        "Trainer holds references to model, reward function(s), dataset, and training configuration",
+        "Caller receives trainer object for immediate training execution"
+      ],
+      "examples": [
+        {
+          "input": "Model: Qwen/Qwen2-0.5B-Instruct, Dataset: trl-lib/tldr (train split), Reward: length-based (target 20 chars), Output dir: Qwen2-0.5B-GRPO",
+          "output": "GRPOTrainer instance with model loaded, reward_len function bound, dataset loaded, GRPOConfig applied (logging_steps=10)",
+          "notes": "Trainer ready to call .train() immediately"
+        }
+      ],
+      "tags": [
+        "model_training",
+        "reinforcement_learning",
+        "grpo",
+        "trainer_setup",
+        "post_training"
+      ],
+      "support_ids": [
+        "7f669026-4dcf-576b-9258-c15f8ff9b8a3"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "3518cad7-c26a-5acd-be2f-7a561c677ee5"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|initialize grpo trainer with model, reward function, and training configuration ready for post-training execution|default|model_training|reinforcement_learning|training_setup|grpo trainer initialization",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct session-level GRPO trainer initialization workflow with no semantic overlap to existing skills. Existing skills cover unrelated domains (Next.js monitoring, Azure networking). Peer candidates (DeepSpeed, Accelerate, GRPO Reward Scaling) are complementary infrastructure/post-initialization skills, not duplicates. Candidate has strong support evidence from TRL documentation and represents a foundational training setup capability.",
+        "parent_skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+        "parent_candidate_ids": [
+          "85e9f4bf-55a0-5330-9bfe-d6575db46c9c"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "child_skill_ids": [
+          "f10424df-933b-51bb-8ca1-ad9d207806ef"
+        ]
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+      "name": "GRPO Training Configuration and Execution",
+      "description": "Orchestrate distributed GRPO model training across multiple GPUs using TRL's GRPOConfig and accelerate launcher. Configure reward scaling, loss type selection, and completion generation parameters to execute end-to-end training workflow.",
+      "skill_body": "1. Set up GRPOConfig with desired parameters:\n   - Set `scale_rewards=False` if question-level difficulty bias is a concern (default: True).\n   - Choose `loss_type` from available formulations (e.g., `loss_type=\"dr_grpo\"` for the recommended constant-normalized formulation).\n   - Configure completion generation parameters (batch size, number of completions G per prompt).\n2. Launch distributed training using accelerate:\n   ```\n   accelerate launch train_grpo.py\n   ```\n3. Monitor training progress across all GPU nodes.\n4. Verify model checkpoint is saved upon completion.\n\n## Objective\n\nExecute end-to-end GRPO training workflow with configurable reward and loss strategies across distributed GPU infrastructure\n## Applicable Signals\n\n- Need to train a language model using group-relative policy optimization\n- Reward function is available and model supports generation sampling\n- Multi-GPU distributed training infrastructure is available\n- Completion generation and advantage computation are required\n\n## Contraindications\n\n- Do not use for supervised fine-tuning workflows\n- Do not use for inference-only scenarios\n- Do not use if reward function is unavailable\n- Do not use if model does not support generation sampling\n\n## Intervention Moves\n\n- Configure GRPOConfig with reward scaling and loss type parameters\n- Launch training via accelerate across available GPU nodes\n- Monitor convergence and loss reduction across training steps\n- Save trained model checkpoint upon completion\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Initialize GRPOConfig', 'details': 'Set reward scaling, loss type, and generation parameters'}\n- {'step': 2, 'action': 'Launch distributed training', 'details': 'Execute `accelerate launch train_grpo.py` across GPU nodes'}\n- {'step': 3, 'action': 'Sample prompts and generate completions', 'details': 'At each training step, sample batch of prompts and generate G completions per prompt'}\n- {'step': 4, 'action': 'Compute advantage and KL divergence', 'details': 'Calculate scaled advantage and KL penalty for loss computation'}\n- {'step': 5, 'action': 'Compute loss and optimize', 'details': 'Apply selected loss formulation and update model parameters'}\n- {'step': 6, 'action': 'Save checkpoint', 'details': 'Persist trained model upon training completion'}\n\n## Constraints\n\n- Requires TRL library with GRPO Trainer support\n- Requires accelerate launcher for distributed training\n- Requires multi-GPU infrastructure (minimum 1 GPU; 8 GPUs typical for ~1 day training)\n- Requires valid reward function and completion generation capability\n\n## Cautions\n\n- Scaling by std(r) may cause question-level difficulty bias; use `scale_rewards=False` if this is a concern\n- Loss formulation choice affects training dynamics; select based on literature review and empirical validation\n- Training time scales with model size and GPU count; 70B+ models on multiple nodes require careful resource planning\n\n## Output Contract\n\n- Trained model checkpoint saved after distributed training completes\n- Training logs show convergence and loss reduction across all GPU nodes\n- Model is ready for evaluation or deployment",
+      "asset_type": "macro_protocol",
+      "granularity": "macro",
+      "asset_node_id": "macro_skill",
+      "asset_path": "family_root/macro_skill",
+      "asset_level": 1,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [
+        "07ee569c-0bbd-51f7-af08-1fc359001c7e",
+        "7bfb3e92-d1fa-551f-b5de-0cb4c8a2a54a",
+        "f9a27e79-d9a2-5b89-99d9-1c93917486f3"
+      ],
+      "hierarchy_confidence": 1.0,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Execute end-to-end GRPO training workflow with configurable reward and loss strategies across distributed GPU infrastructure",
+      "domain": "default",
+      "task_family": "model_training",
+      "method_family": "reinforcement_learning_from_human_feedback",
+      "stage": "training_setup_and_execution",
+      "applicable_signals": [
+        "Need to train a language model using group-relative policy optimization",
+        "Reward function is available and model supports generation sampling",
+        "Multi-GPU distributed training infrastructure is available",
+        "Completion generation and advantage computation are required"
+      ],
+      "contraindications": [
+        "Do not use for supervised fine-tuning workflows",
+        "Do not use for inference-only scenarios",
+        "Do not use if reward function is unavailable",
+        "Do not use if model does not support generation sampling"
+      ],
+      "intervention_moves": [
+        "Configure GRPOConfig with reward scaling and loss type parameters",
+        "Launch training via accelerate across available GPU nodes",
+        "Monitor convergence and loss reduction across training steps",
+        "Save trained model checkpoint upon completion"
+      ],
+      "triggers": [
+        "Training a language model using group-relative policy optimization; need to configure reward scaling, loss formulation, and distributed training parameters"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Initialize GRPOConfig', 'details': 'Set reward scaling, loss type, and generation parameters'}",
+        "{'step': 2, 'action': 'Launch distributed training', 'details': 'Execute `accelerate launch train_grpo.py` across GPU nodes'}",
+        "{'step': 3, 'action': 'Sample prompts and generate completions', 'details': 'At each training step, sample batch of prompts and generate G completions per prompt'}",
+        "{'step': 4, 'action': 'Compute advantage and KL divergence', 'details': 'Calculate scaled advantage and KL penalty for loss computation'}",
+        "{'step': 5, 'action': 'Compute loss and optimize', 'details': 'Apply selected loss formulation and update model parameters'}",
+        "{'step': 6, 'action': 'Save checkpoint', 'details': 'Persist trained model upon training completion'}"
+      ],
+      "constraints": [
+        "Requires TRL library with GRPO Trainer support",
+        "Requires accelerate launcher for distributed training",
+        "Requires multi-GPU infrastructure (minimum 1 GPU; 8 GPUs typical for ~1 day training)",
+        "Requires valid reward function and completion generation capability"
+      ],
+      "cautions": [
+        "Scaling by std(r) may cause question-level difficulty bias; use `scale_rewards=False` if this is a concern",
+        "Loss formulation choice affects training dynamics; select based on literature review and empirical validation",
+        "Training time scales with model size and GPU count; 70B+ models on multiple nodes require careful resource planning"
+      ],
+      "output_contract": [
+        "Trained model checkpoint saved after distributed training completes",
+        "Training logs show convergence and loss reduction across all GPU nodes",
+        "Model is ready for evaluation or deployment"
+      ],
+      "examples": [],
+      "tags": [
+        "reinforcement_learning",
+        "model_training",
+        "distributed_training",
+        "grpo",
+        "language_model",
+        "reward_optimization"
+      ],
+      "support_ids": [
+        "bca7379f-42dc-5ca4-b3f2-b234ada461da"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "a6206cf4-7995-5908-90ac-fe2d41082fbd"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||macro_protocol|macro|macro_skill|execute end-to-end grpo training workflow with configurable reward and loss strategies across distributed gpu infrastructure|default|model_training|reinforcement_learning_from_human_feedback|training_setup_and_execution|grpo training configuration and execution",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct macro-level orchestration skill that coordinates end-to-end GRPO training workflow across distributed infrastructure. While peer candidates cover initialization (session), reward design (micro), and advantage computation (session), this skill uniquely integrates the full training loop including distributed launcher execution, checkpoint management, and convergence monitoring. No redundancy detected; complements peer skills at different granularity levels.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 1.0,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "child_skill_ids": [
+          "07ee569c-0bbd-51f7-af08-1fc359001c7e",
+          "7bfb3e92-d1fa-551f-b5de-0cb4c8a2a54a",
+          "f9a27e79-d9a2-5b89-99d9-1c93917486f3"
+        ]
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "11f827bd-af2f-4f19-90b1-3ac8baca1171",
+      "entity_type": "skill",
+      "entity_id": "07ee569c-0bbd-51f7-af08-1fc359001c7e",
+      "action": "create",
+      "changed_at": "2026-09-14T21:06:27+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct session-level GRPO trainer initialization workflow with no semantic overlap to existing skills. Existing skills cover unrelated domains (Next.js monitoring, Azure networking). Peer candidates (DeepSpeed, Accelerate, GRPO Reward Scaling) are complementary infrastructure/post-initialization skills, not duplicates. Candidate has strong support evidence from TRL documentation and represents a foundational training setup capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "07ee569c-0bbd-51f7-af08-1fc359001c7e",
+        "doc_ids": [
+          "1b1cfe5e-1be5-5bc1-9b07-6e37f39e1ae1"
+        ],
+        "support_added": [
+          "7f669026-4dcf-576b-9258-c15f8ff9b8a3"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "1c411e3d-c864-4248-98f7-b878e024bed9",
+      "entity_type": "skill",
+      "entity_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+      "action": "create",
+      "changed_at": "2026-09-14T21:06:27+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct macro-level orchestration skill that coordinates end-to-end GRPO training workflow across distributed infrastructure. While peer candidates cover initialization (session), reward design (micro), and advantage computation (session), this skill uniquely integrates the full training loop including distributed launcher execution, checkpoint management, and convergence monitoring. No redundancy detected; complements peer skills at different granularity levels.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+        "doc_ids": [
+          "1b1cfe5e-1be5-5bc1-9b07-6e37f39e1ae1"
+        ],
+        "support_added": [
+          "bca7379f-42dc-5ca4-b3f2-b234ada461da"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

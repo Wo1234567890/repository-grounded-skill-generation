@@ -1,0 +1,414 @@
+{
+  "task_id": "distributed-tracing",
+  "model": "claude-haiku-4-5-20251001",
+  "raw_plan": {
+    "requirements": [
+      {
+        "id": "R1",
+        "requirement": "File examples/pipeline-demo/config.yaml must exist",
+        "primitive": "FILE_EXISTS",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml"
+        },
+        "reason": "Task explicitly specifies this file path as the collector configuration to create"
+      },
+      {
+        "id": "R2",
+        "requirement": "File examples/pipeline-demo/README.md must exist",
+        "primitive": "FILE_EXISTS",
+        "args": {
+          "path": "examples/pipeline-demo/README.md"
+        },
+        "reason": "Task explicitly specifies this file path for documentation"
+      },
+      {
+        "id": "R3",
+        "requirement": "File examples/pipeline-demo/docker-compose.yaml must exist",
+        "primitive": "FILE_EXISTS",
+        "args": {
+          "path": "examples/pipeline-demo/docker-compose.yaml"
+        },
+        "reason": "Task explicitly specifies this file path as optional local setup"
+      },
+      {
+        "id": "R4",
+        "requirement": "config.yaml contains otlp receiver with gRPC and HTTP protocols",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml",
+          "value": "otlp"
+        },
+        "reason": "Task requires otlp receiver to be configured; checking for identifier presence as partial evidence only"
+      },
+      {
+        "id": "R5",
+        "requirement": "config.yaml contains prometheus receiver",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml",
+          "value": "prometheus"
+        },
+        "reason": "Task requires prometheus receiver; checking for presence in file"
+      },
+      {
+        "id": "R6",
+        "requirement": "config.yaml contains jaeger receiver",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml",
+          "value": "jaeger"
+        },
+        "reason": "Task requires jaeger thrift receiver; checking for presence in file"
+      },
+      {
+        "id": "R7",
+        "requirement": "config.yaml contains batch processor",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml",
+          "value": "batch"
+        },
+        "reason": "Task requires batch processor for telemetry data; checking for presence in file"
+      },
+      {
+        "id": "R8",
+        "requirement": "config.yaml contains memory_limiter processor",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml",
+          "value": "memory_limiter"
+        },
+        "reason": "Task requires memory_limiter processor; checking for presence in file"
+      },
+      {
+        "id": "R9",
+        "requirement": "config.yaml contains attributes processor",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml",
+          "value": "attributes"
+        },
+        "reason": "Task requires attributes processor to add/modify span attributes; checking for presence in file"
+      },
+      {
+        "id": "R10",
+        "requirement": "config.yaml contains filter processor",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml",
+          "value": "filter"
+        },
+        "reason": "Task requires filter processor to drop unwanted telemetry; checking for presence in file"
+      },
+      {
+        "id": "R11",
+        "requirement": "config.yaml contains otlp exporter",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml",
+          "value": "otlp"
+        },
+        "reason": "Task requires otlp exporter to send to OTLP endpoint; checking for presence in file"
+      },
+      {
+        "id": "R12",
+        "requirement": "config.yaml contains prometheus exporter",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml",
+          "value": "prometheus"
+        },
+        "reason": "Task requires prometheus exporter to expose Prometheus endpoint; checking for presence in file"
+      },
+      {
+        "id": "R13",
+        "requirement": "config.yaml contains logging exporter",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml",
+          "value": "logging"
+        },
+        "reason": "Task requires logging exporter for debug output; checking for presence in file"
+      },
+      {
+        "id": "R14",
+        "requirement": "config.yaml contains traces pipeline",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml",
+          "value": "traces"
+        },
+        "reason": "Task specifies traces pipeline with otlp -> batch -> otlp flow; checking for presence in file"
+      },
+      {
+        "id": "R15",
+        "requirement": "config.yaml contains metrics pipeline",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml",
+          "value": "metrics"
+        },
+        "reason": "Task specifies metrics pipeline with prometheus -> memory_limiter -> prometheus flow; checking for presence in file"
+      },
+      {
+        "id": "R16",
+        "requirement": "config.yaml contains logs pipeline",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml",
+          "value": "logs"
+        },
+        "reason": "Task specifies logs pipeline with otlp -> filter -> logging flow; checking for presence in file"
+      },
+      {
+        "id": "R17",
+        "requirement": "config.yaml contains multi-pipeline setup configuration",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires semantic verification of YAML structure and pipeline interconnections that cannot be soundly tested with static file primitives"
+      },
+      {
+        "id": "R18",
+        "requirement": "config.yaml contains batch configuration tuning",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires verification of specific batch processor configuration parameters that may vary; cannot be verified without knowing exact tuning values"
+      },
+      {
+        "id": "R19",
+        "requirement": "config.yaml contains memory limits for production",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires verification of specific memory limit values which are not specified in the task"
+      },
+      {
+        "id": "R20",
+        "requirement": "config.yaml contains TLS configuration placeholders",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "examples/pipeline-demo/config.yaml",
+          "value": "tls"
+        },
+        "reason": "Task requires TLS configuration placeholders; checking for presence of 'tls' identifier in file"
+      },
+      {
+        "id": "R21",
+        "requirement": "README explains each pipeline component",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Documentation content quality and comprehensiveness cannot be soundly verified through static file checks"
+      },
+      {
+        "id": "R22",
+        "requirement": "otelcol validate command exits with code 0 for config.yaml",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires runtime execution of validation tool with specific exit code verification; no executable command provided in task"
+      }
+    ]
+  },
+  "sanitized_requirements": [
+    {
+      "id": "R1",
+      "requirement": "File examples/pipeline-demo/config.yaml must exist",
+      "primitive": "FILE_EXISTS",
+      "args": {
+        "path": "examples/pipeline-demo/config.yaml"
+      },
+      "reason": "Task explicitly specifies this file path as the collector configuration to create"
+    },
+    {
+      "id": "R2",
+      "requirement": "File examples/pipeline-demo/README.md must exist",
+      "primitive": "FILE_EXISTS",
+      "args": {
+        "path": "examples/pipeline-demo/README.md"
+      },
+      "reason": "Task explicitly specifies this file path for documentation"
+    },
+    {
+      "id": "R3",
+      "requirement": "File examples/pipeline-demo/docker-compose.yaml must exist",
+      "primitive": "FILE_EXISTS",
+      "args": {
+        "path": "examples/pipeline-demo/docker-compose.yaml"
+      },
+      "reason": "Task explicitly specifies this file path as optional local setup"
+    },
+    {
+      "id": "R4",
+      "requirement": "config.yaml contains otlp receiver with gRPC and HTTP protocols",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "examples/pipeline-demo/config.yaml",
+        "value": "otlp"
+      },
+      "reason": "Task requires otlp receiver to be configured; checking for identifier presence as partial evidence only"
+    },
+    {
+      "id": "R5",
+      "requirement": "config.yaml contains prometheus receiver",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "examples/pipeline-demo/config.yaml",
+        "value": "prometheus"
+      },
+      "reason": "Task requires prometheus receiver; checking for presence in file"
+    },
+    {
+      "id": "R6",
+      "requirement": "config.yaml contains jaeger receiver",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "examples/pipeline-demo/config.yaml",
+        "value": "jaeger"
+      },
+      "reason": "Task requires jaeger thrift receiver; checking for presence in file"
+    },
+    {
+      "id": "R7",
+      "requirement": "config.yaml contains batch processor",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "examples/pipeline-demo/config.yaml",
+        "value": "batch"
+      },
+      "reason": "Task requires batch processor for telemetry data; checking for presence in file"
+    },
+    {
+      "id": "R8",
+      "requirement": "config.yaml contains memory_limiter processor",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "examples/pipeline-demo/config.yaml",
+        "value": "memory_limiter"
+      },
+      "reason": "Task requires memory_limiter processor; checking for presence in file"
+    },
+    {
+      "id": "R9",
+      "requirement": "config.yaml contains attributes processor",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "examples/pipeline-demo/config.yaml",
+        "value": "attributes"
+      },
+      "reason": "Task requires attributes processor to add/modify span attributes; checking for presence in file"
+    },
+    {
+      "id": "R10",
+      "requirement": "config.yaml contains filter processor",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "examples/pipeline-demo/config.yaml",
+        "value": "filter"
+      },
+      "reason": "Task requires filter processor to drop unwanted telemetry; checking for presence in file"
+    },
+    {
+      "id": "R11",
+      "requirement": "config.yaml contains otlp exporter",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "examples/pipeline-demo/config.yaml",
+        "value": "otlp"
+      },
+      "reason": "Task requires otlp exporter to send to OTLP endpoint; checking for presence in file"
+    },
+    {
+      "id": "R12",
+      "requirement": "config.yaml contains prometheus exporter",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "examples/pipeline-demo/config.yaml",
+        "value": "prometheus"
+      },
+      "reason": "Task requires prometheus exporter to expose Prometheus endpoint; checking for presence in file"
+    },
+    {
+      "id": "R13",
+      "requirement": "config.yaml contains logging exporter",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "examples/pipeline-demo/config.yaml",
+        "value": "logging"
+      },
+      "reason": "Task requires logging exporter for debug output; checking for presence in file"
+    },
+    {
+      "id": "R14",
+      "requirement": "config.yaml contains traces pipeline",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "examples/pipeline-demo/config.yaml",
+        "value": "traces"
+      },
+      "reason": "Task specifies traces pipeline with otlp -> batch -> otlp flow; checking for presence in file"
+    },
+    {
+      "id": "R15",
+      "requirement": "config.yaml contains metrics pipeline",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "examples/pipeline-demo/config.yaml",
+        "value": "metrics"
+      },
+      "reason": "Task specifies metrics pipeline with prometheus -> memory_limiter -> prometheus flow; checking for presence in file"
+    },
+    {
+      "id": "R16",
+      "requirement": "config.yaml contains logs pipeline",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "examples/pipeline-demo/config.yaml",
+        "value": "logs"
+      },
+      "reason": "Task specifies logs pipeline with otlp -> filter -> logging flow; checking for presence in file"
+    },
+    {
+      "id": "R17",
+      "requirement": "config.yaml contains multi-pipeline setup configuration",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires semantic verification of YAML structure and pipeline interconnections that cannot be soundly tested with static file primitives"
+    },
+    {
+      "id": "R18",
+      "requirement": "config.yaml contains batch configuration tuning",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires verification of specific batch processor configuration parameters that may vary; cannot be verified without knowing exact tuning values"
+    },
+    {
+      "id": "R19",
+      "requirement": "config.yaml contains memory limits for production",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires verification of specific memory limit values which are not specified in the task"
+    },
+    {
+      "id": "R20",
+      "requirement": "config.yaml contains TLS configuration placeholders",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Task requires TLS configuration placeholders; checking for presence of 'tls' identifier in file value not grounded in task"
+    },
+    {
+      "id": "R21",
+      "requirement": "README explains each pipeline component",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Documentation content quality and comprehensiveness cannot be soundly verified through static file checks"
+    },
+    {
+      "id": "R22",
+      "requirement": "otelcol validate command exits with code 0 for config.yaml",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires runtime execution of validation tool with specific exit code verification; no executable command provided in task"
+    }
+  ],
+  "warnings": [
+    "R20: value not grounded in task"
+  ]
+}

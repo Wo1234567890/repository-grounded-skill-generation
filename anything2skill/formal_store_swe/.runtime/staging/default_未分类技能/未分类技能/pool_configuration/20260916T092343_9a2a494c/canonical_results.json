@@ -1,0 +1,179 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "pool_configuration",
+  "run_id": "20260916T092343_9a2a494c",
+  "skills": [
+    {
+      "skill_id": "e3db3ce1-4c46-5250-8cf3-b6d590656c9e",
+      "name": "ProcessPoolExecutor Worker Lifecycle Configuration",
+      "description": "Register and execute a global atexit handler that safely ends the client's auto-initialized trace context during application shutdown, with error recovery and resource cleanup.",
+      "skill_body": "When the application is shutting down, invoke the atexit handler to terminate the active trace context. The handler checks if a trace context exists and is recording, then calls the global tracer to end the trace with state 'Shutdown'. If an error occurs during trace termination, log a warning and proceed to cleanup. Finally, clear the trace context and legacy session wrapper references to prevent resource leaks.\n\n## Objective\n\nEnsure trace context is properly terminated on process exit\n## Applicable Signals\n\n- Client auto-initialization with trace context active\n- Global _client_init_trace_context is not None\n- Tracer is initialized and span is recording\n\n## Contraindications\n\n- Manual trace lifecycle control is required by caller\n- Trace context is managed externally outside this handler\n- Shutdown hooks are already registered by caller\n- Tracer is not initialized or span is not recording\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if trace context exists', 'condition': '_client_init_trace_context is not None', 'next': 'step 2 if true, else exit'}\n- {'step': 2, 'action': 'Log debug message indicating auto-end of init trace', 'condition': 'Always', 'next': 'step 3'}\n- {'step': 3, 'action': 'Verify tracer is initialized and span is recording', 'condition': 'tracer.initialized and _client_init_trace_context.span.is_recording()', 'next': 'step 4 if true, else step 5'}\n- {'step': 4, 'action': \"Call tracer.end_trace() with end_state='Shutdown'\", 'condition': 'Tracer ready', 'next': 'step 5'}\n- {'step': 5, 'action': 'Catch any exception and log warning', 'condition': 'Exception raised in steps 3-4', 'next': 'step 6'}\n- {'step': 6, 'action': 'Clear trace context and legacy session wrapper', 'condition': 'Always (in finally block)', 'next': 'completion'}\n\n## Constraints\n\n- Handler must be registered only once (use _atexit_registered flag)\n- Handler must execute within Python's atexit phase\n- Global state (_client_init_trace_context, _client_legacy_session_for_init_trace) must be accessible\n- Tracer instance must be available and initialized\n\n## Cautions\n\n- Exceptions during trace termination must be caught and logged; do not propagate during shutdown\n- Resource cleanup (setting context to None) must occur in finally block to guarantee execution\n- Handler should not raise exceptions that would interrupt process exit\n\n## Output Contract\n\n- Atexit handler is registered globally; on process exit, trace context is set to None; legacy session wrapper is cleared; trace span is ended with state 'Shutdown' if conditions permit; errors are logged but do not interrupt shutdown.\n\n## Example Executions\n\n### Example 1\n\n- Input: Application with auto-initialized trace context; process receives SIGTERM\n- Output: Trace context ended with state='Shutdown'; _client_init_trace_context set to None; _client_legacy_session_for_init_trace set to None; process exits cleanly\n- Notes: Normal shutdown path with active trace\n\n### Example 2\n\n- Input: Tracer not initialized or span not recording at shutdown\n- Output: Debug log recorded; trace context and legacy wrapper cleared; no tracer.end_trace() call; process exits cleanly\n- Notes: Graceful degradation when tracer state is incomplete\n\n### Example 3\n\n- Input: Exception raised during tracer.end_trace() call\n- Output: Warning logged with exception details; trace context and legacy wrapper still cleared in finally block; process exits cleanly\n- Notes: Error recovery ensures cleanup occurs despite trace termination failure",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "cf2aafba-8a0b-5349-96e3-578d8595f10b",
+      "parent_candidate_ids": [
+        "cf2aafba-8a0b-5349-96e3-578d8595f10b"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Set up worker process initialization and recycling parameters at pool creation time.",
+      "domain": "default",
+      "task_family": "pool_configuration",
+      "method_family": "worker_lifecycle",
+      "stage": "initialization",
+      "applicable_signals": [
+        "Client auto-initialization with trace context active",
+        "Global _client_init_trace_context is not None",
+        "Tracer is initialized and span is recording"
+      ],
+      "contraindications": [
+        "Manual trace lifecycle control is required by caller",
+        "Trace context is managed externally outside this handler",
+        "Shutdown hooks are already registered by caller",
+        "Tracer is not initialized or span is not recording"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Need to control fork vs. spawn behavior for worker processes",
+        "Require setup code (e.g., database connection) to run in each worker",
+        "Want to limit worker lifetime to prevent memory leaks",
+        "Must ensure consistent worker state across task batches"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check if trace context exists', 'condition': '_client_init_trace_context is not None', 'next': 'step 2 if true, else exit'}",
+        "{'step': 2, 'action': 'Log debug message indicating auto-end of init trace', 'condition': 'Always', 'next': 'step 3'}",
+        "{'step': 3, 'action': 'Verify tracer is initialized and span is recording', 'condition': 'tracer.initialized and _client_init_trace_context.span.is_recording()', 'next': 'step 4 if true, else step 5'}",
+        "{'step': 4, 'action': \"Call tracer.end_trace() with end_state='Shutdown'\", 'condition': 'Tracer ready', 'next': 'step 5'}",
+        "{'step': 5, 'action': 'Catch any exception and log warning', 'condition': 'Exception raised in steps 3-4', 'next': 'step 6'}",
+        "{'step': 6, 'action': 'Clear trace context and legacy session wrapper', 'condition': 'Always (in finally block)', 'next': 'completion'}"
+      ],
+      "constraints": [
+        "Handler must be registered only once (use _atexit_registered flag)",
+        "Handler must execute within Python's atexit phase",
+        "Global state (_client_init_trace_context, _client_legacy_session_for_init_trace) must be accessible",
+        "Tracer instance must be available and initialized"
+      ],
+      "cautions": [
+        "Exceptions during trace termination must be caught and logged; do not propagate during shutdown",
+        "Resource cleanup (setting context to None) must occur in finally block to guarantee execution",
+        "Handler should not raise exceptions that would interrupt process exit"
+      ],
+      "output_contract": [
+        "Atexit handler is registered globally; on process exit, trace context is set to None; legacy session wrapper is cleared; trace span is ended with state 'Shutdown' if conditions permit; errors are logged but do not interrupt shutdown."
+      ],
+      "examples": [
+        {
+          "input": "Application with auto-initialized trace context; process receives SIGTERM",
+          "output": "Trace context ended with state='Shutdown'; _client_init_trace_context set to None; _client_legacy_session_for_init_trace set to None; process exits cleanly",
+          "notes": "Normal shutdown path with active trace"
+        },
+        {
+          "input": "Tracer not initialized or span not recording at shutdown",
+          "output": "Debug log recorded; trace context and legacy wrapper cleared; no tracer.end_trace() call; process exits cleanly",
+          "notes": "Graceful degradation when tracer state is incomplete"
+        },
+        {
+          "input": "Exception raised during tracer.end_trace() call",
+          "output": "Warning logged with exception details; trace context and legacy wrapper still cleared in finally block; process exits cleanly",
+          "notes": "Error recovery ensures cleanup occurs despite trace termination failure"
+        }
+      ],
+      "tags": [
+        "shutdown",
+        "trace_management",
+        "resource_cleanup",
+        "atexit_handler",
+        "error_recovery"
+      ],
+      "support_ids": [
+        "f44c195f-82c0-5417-ba9f-a7bff2574b86",
+        "11aa7168-c478-53e8-abe4-48959aee874b"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "318cdb49-ef4d-52bd-aa8f-654174f71dce"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|set up worker process initialization and recycling parameters at pool creation time.|default|pool_configuration|worker_lifecycle|initialization|processpoolexecutor worker lifecycle configuration",
+        "change_action": "merge",
+        "llm_reason": "The candidate 'Auto-trace shutdown handler registration' is a specialized wrapper around the core termination logic in 'Trace context safe termination with fallback'. Both target the same semantic capability (safely ending trace context with exception handling and cleanup), but the candidate adds only the atexit registration pattern and single-execution guard. The peer candidate 0c6d7ac8 already encapsulates the defensive termination workflow; the candidate should merge into it, with the atexit registration pattern documented as an optional deployment pattern rather than a separate micro_skill.",
+        "parent_skill_id": "cf2aafba-8a0b-5349-96e3-578d8595f10b",
+        "parent_candidate_ids": [
+          "cf2aafba-8a0b-5349-96e3-578d8595f10b"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf",
+        "merged_from_skill_ids": []
+      },
+      "version": "0.1.1",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "f0be83b4-157e-43cb-9e14-c20d0b15033d",
+      "entity_type": "skill",
+      "entity_id": "e3db3ce1-4c46-5250-8cf3-b6d590656c9e",
+      "action": "merge",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "The candidate 'Auto-trace shutdown handler registration' is a specialized wrapper around the core termination logic in 'Trace context safe termination with fallback'. Both target the same semantic capability (safely ending trace context with exception handling and cleanup), but the candidate adds only the atexit registration pattern and single-execution guard. The peer candidate 0c6d7ac8 already encapsulates the defensive termination workflow; the candidate should merge into it, with the atexit registration pattern documented as an optional deployment pattern rather than a separate micro_skill.",
+      "related_entity_ids": [
+        "e3db3ce1-4c46-5250-8cf3-b6d590656c9e"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "e3db3ce1-4c46-5250-8cf3-b6d590656c9e",
+        "doc_ids": [
+          "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "11aa7168-c478-53e8-abe4-48959aee874b"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "e3db3ce1-4c46-5250-8cf3-b6d590656c9e"
+        ]
+      }
+    }
+  ]
+}

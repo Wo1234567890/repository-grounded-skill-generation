@@ -1,0 +1,119 @@
+{
+  "skill_id": "fbfd9d73-ad45-533a-9ead-04ef27019ec3",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate is redundant with peer_candidates. It focuses narrowly on query weighting scheme selection and matching, while peer_candidates (381c3785, 415a5490, 90f29523) already cover the complete vector space scoring pipeline including query vector construction, weighting, and dot-product ranking. The candidate's workflow steps 1–6 are subsumed by the broader, more established peer skills. No unique capability is added.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "fbfd9d73-ad45-533a-9ead-04ef27019ec3",
+    "name": "Query Vector Weighting Strategy Selection",
+    "description": "Select and apply a term weighting scheme for query vectors (binary presence, idf-weighted, or normalized idf) that matches document vector weighting, then compute relevance scores via dot product for ranking.",
+    "skill_body": "When ranking documents against a query in vector space model, select a query weighting strategy that is consistent with document vector weighting. Evaluate available schemes: (1) binary presence (weight 1 if term present, 0 otherwise), (2) idf-weighted (inverse document frequency), or (3) Euclidean normalized idf. Apply the selected scheme to construct the query vector, then compute dot-product scores against document vectors to produce a ranked list.\n\n## Objective\n\nselect and apply consistent query weighting for ranking\n## Applicable Signals\n\n- query submitted for ranking\n- document vectors already weighted and normalized\n- need to select query weighting strategy\n\n## Contraindications\n\n- using non-vector-based ranking methods (e.g., boolean retrieval)\n- query weighting is already fixed by system design\n- no document comparison is needed\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify document vector weighting scheme', 'detail': 'Determine how document vectors were weighted (binary, idf, or normalized idf)'}\n- {'step': 2, 'action': 'Select matching query weighting scheme', 'detail': 'Choose query weighting that aligns with document weighting: binary presence, idf-weighted, or Euclidean normalized idf'}\n- {'step': 3, 'action': 'Construct query vector', 'detail': 'Assign weights to query terms according to selected scheme; terms not in query receive weight 0'}\n- {'step': 4, 'action': 'Normalize query vector if required', 'detail': 'If using normalized idf, apply Euclidean normalization so sum of squared components equals 1'}\n- {'step': 5, 'action': 'Compute dot-product scores', 'detail': 'For each document vector, compute dot product with query vector'}\n- {'step': 6, 'action': 'Rank documents by score', 'detail': 'Sort documents in descending order by computed dot-product score'}\n\n## Constraints\n\n- query weighting scheme must be consistent with document vector weighting for valid dot-product comparison\n- if document vectors are Euclidean normalized, query vector should also be normalized\n- term presence in query must be determined before weighting\n\n## Cautions\n\n- Inconsistent weighting between query and document vectors will produce invalid ranking\n- Binary weighting ignores term frequency and inverse document frequency; use only when term presence is the sole ranking signal\n- Normalized idf requires that document vectors are also normalized; verify normalization before applying\n\n## Output Contract\n\n- Ranked list of documents sorted by computed dot-product scores using the selected query weighting scheme; each document includes its relevance score\n\n## Example Executions\n\n### Example 1\n\n- Input: Query: 'car insurance'; document vectors weighted with Euclidean normalized idf; four terms in vocabulary\n- Output: Query vector constructed with normalized idf weights for 'car' and 'insurance', zero weights for other terms; dot products computed against three document vectors; documents ranked by score\n- Notes: Weighting scheme (normalized idf) must match document vector scheme for valid comparison\n\n### Example 2\n\n- Input: Query: 'car insurance'; document vectors weighted with binary presence; four terms in vocabulary\n- Output: Query vector assigned weight 1 for 'car' and 'insurance', weight 0 for other terms; dot products computed; documents ranked by score\n- Notes: Binary scheme is simpler but may not differentiate documents as effectively as idf-weighted schemes",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "select and apply consistent query weighting for ranking",
+    "domain": "information_retrieval",
+    "task_family": "vector_space_scoring",
+    "method_family": "query_representation",
+    "stage": "query_scoring",
+    "applicable_signals": [
+      "query submitted for ranking",
+      "document vectors already weighted and normalized",
+      "need to select query weighting strategy"
+    ],
+    "contraindications": [
+      "using non-vector-based ranking methods (e.g., boolean retrieval)",
+      "query weighting is already fixed by system design",
+      "no document comparison is needed"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "ranking documents against a query in vector space model",
+      "multiple query weighting schemes are available and must be evaluated",
+      "document vectors have been computed with a specific weighting scheme"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Identify document vector weighting scheme', 'detail': 'Determine how document vectors were weighted (binary, idf, or normalized idf)'}",
+      "{'step': 2, 'action': 'Select matching query weighting scheme', 'detail': 'Choose query weighting that aligns with document weighting: binary presence, idf-weighted, or Euclidean normalized idf'}",
+      "{'step': 3, 'action': 'Construct query vector', 'detail': 'Assign weights to query terms according to selected scheme; terms not in query receive weight 0'}",
+      "{'step': 4, 'action': 'Normalize query vector if required', 'detail': 'If using normalized idf, apply Euclidean normalization so sum of squared components equals 1'}",
+      "{'step': 5, 'action': 'Compute dot-product scores', 'detail': 'For each document vector, compute dot product with query vector'}",
+      "{'step': 6, 'action': 'Rank documents by score', 'detail': 'Sort documents in descending order by computed dot-product score'}"
+    ],
+    "constraints": [
+      "query weighting scheme must be consistent with document vector weighting for valid dot-product comparison",
+      "if document vectors are Euclidean normalized, query vector should also be normalized",
+      "term presence in query must be determined before weighting"
+    ],
+    "cautions": [
+      "Inconsistent weighting between query and document vectors will produce invalid ranking",
+      "Binary weighting ignores term frequency and inverse document frequency; use only when term presence is the sole ranking signal",
+      "Normalized idf requires that document vectors are also normalized; verify normalization before applying"
+    ],
+    "output_contract": [
+      "Ranked list of documents sorted by computed dot-product scores using the selected query weighting scheme; each document includes its relevance score"
+    ],
+    "examples": [
+      {
+        "input": "Query: 'car insurance'; document vectors weighted with Euclidean normalized idf; four terms in vocabulary",
+        "output": "Query vector constructed with normalized idf weights for 'car' and 'insurance', zero weights for other terms; dot products computed against three document vectors; documents ranked by score",
+        "notes": "Weighting scheme (normalized idf) must match document vector scheme for valid comparison"
+      },
+      {
+        "input": "Query: 'car insurance'; document vectors weighted with binary presence; four terms in vocabulary",
+        "output": "Query vector assigned weight 1 for 'car' and 'insurance', weight 0 for other terms; dot products computed; documents ranked by score",
+        "notes": "Binary scheme is simpler but may not differentiate documents as effectively as idf-weighted schemes"
+      }
+    ],
+    "tags": [
+      "vector_space_model",
+      "query_weighting",
+      "term_weighting",
+      "ranking",
+      "information_retrieval",
+      "dot_product_scoring"
+    ],
+    "support_ids": [
+      "86b27fe8-9ce7-5906-bdcf-37a241f69ced"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "6ec95236-42ee-5102-9b16-71f3e6957b33"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|select and apply consistent query weighting for ranking|information_retrieval|vector_space_scoring|query_representation|query_scoring|query vector weighting strategy selection"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 0,
+  "branch": "hits0"
+}

@@ -1,0 +1,108 @@
+{
+  "skill_id": "0c6d7ac8-d8d1-54d8-8cbd-55c5a2dac5ec",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "0c6d7ac8-d8d1-54d8-8cbd-55c5a2dac5ec",
+    "name": "Trace context safe termination with fallback",
+    "description": "Safely terminate an active trace span by verifying tracer initialization and span recording status, then end the trace with exception handling and state cleanup. Designed to prevent dangling trace references and unhandled exceptions during shutdown or session termination.",
+    "skill_body": "Before ending a trace context: (1) Verify the trace context is not None. (2) Check that the tracer is initialized and the span is actively recording. (3) Call tracer.end_trace() with an appropriate end_state parameter. (4) Catch and log any exceptions without re-raising. (5) In the finally block, nullify both the trace context and any legacy wrapper references to prevent reuse.\n\n## Objective\n\nEnd a trace context without raising exceptions or leaving dangling references\n## Applicable Signals\n\n- Trace context exists and is not None\n- Tracer is initialized\n- Span is actively recording\n- Shutdown or session end is triggered\n\n## Contraindications\n\n- Trace context is None\n- Tracer is not initialized\n- Span is already closed or not recording\n- Trace state is unknown or unverified\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if trace context is not None', 'condition': 'Proceed only if context exists'}\n- {'step': 2, 'action': 'Verify tracer.initialized is True and span.is_recording() returns True', 'condition': 'Both conditions must hold before calling end_trace'}\n- {'step': 3, 'action': 'Call tracer.end_trace(context, end_state=<state_label>)', 'condition': \"All checks passed; use appropriate end_state such as 'Shutdown'\"}\n- {'step': 4, 'action': 'Catch Exception and log warning without re-raising', 'condition': 'Any exception during end_trace is caught and logged'}\n- {'step': 5, 'action': 'In finally block, set trace context and legacy wrapper to None', 'condition': 'Always execute to ensure state cleanup regardless of success or failure'}\n\n## Constraints\n\n- Do not re-raise exceptions; log and suppress to prevent cascade failures\n- Always nullify context and legacy wrapper in finally block\n- Do not attempt to end trace if tracer is not initialized\n- Do not attempt to end trace if span is not recording\n\n## Cautions\n\n- If tracer.end_trace() raises an exception, the trace may be partially ended; log the error and proceed with cleanup\n- Ensure end_state parameter is meaningful for downstream analysis (e.g., 'Shutdown', 'Error', 'Complete')\n\n## Output Contract\n\n- Trace context is ended with the specified end_state\n- Both trace context and legacy wrapper are set to None\n- No unhandled exceptions are propagated to the caller",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "End a trace context without raising exceptions or leaving dangling references",
+    "domain": "default",
+    "task_family": "trace_lifecycle_management",
+    "method_family": "defensive_resource_cleanup",
+    "stage": "termination",
+    "applicable_signals": [
+      "Trace context exists and is not None",
+      "Tracer is initialized",
+      "Span is actively recording",
+      "Shutdown or session end is triggered"
+    ],
+    "contraindications": [
+      "Trace context is None",
+      "Tracer is not initialized",
+      "Span is already closed or not recording",
+      "Trace state is unknown or unverified"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "A trace context exists, tracer is available, and the span is actively recording; shutdown or session end is triggered"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Check if trace context is not None', 'condition': 'Proceed only if context exists'}",
+      "{'step': 2, 'action': 'Verify tracer.initialized is True and span.is_recording() returns True', 'condition': 'Both conditions must hold before calling end_trace'}",
+      "{'step': 3, 'action': 'Call tracer.end_trace(context, end_state=<state_label>)', 'condition': \"All checks passed; use appropriate end_state such as 'Shutdown'\"}",
+      "{'step': 4, 'action': 'Catch Exception and log warning without re-raising', 'condition': 'Any exception during end_trace is caught and logged'}",
+      "{'step': 5, 'action': 'In finally block, set trace context and legacy wrapper to None', 'condition': 'Always execute to ensure state cleanup regardless of success or failure'}"
+    ],
+    "constraints": [
+      "Do not re-raise exceptions; log and suppress to prevent cascade failures",
+      "Always nullify context and legacy wrapper in finally block",
+      "Do not attempt to end trace if tracer is not initialized",
+      "Do not attempt to end trace if span is not recording"
+    ],
+    "cautions": [
+      "If tracer.end_trace() raises an exception, the trace may be partially ended; log the error and proceed with cleanup",
+      "Ensure end_state parameter is meaningful for downstream analysis (e.g., 'Shutdown', 'Error', 'Complete')"
+    ],
+    "output_contract": [
+      "Trace context is ended with the specified end_state",
+      "Both trace context and legacy wrapper are set to None",
+      "No unhandled exceptions are propagated to the caller"
+    ],
+    "examples": [],
+    "tags": [
+      "trace_management",
+      "resource_cleanup",
+      "shutdown_handler",
+      "defensive_programming",
+      "exception_handling"
+    ],
+    "support_ids": [
+      "17106275-81ae-5b14-889e-449f26f43ee1"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "22d954e8-b0e5-5eb6-b322-4b81b7258e6e"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.72,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|end a trace context without raising exceptions or leaving dangling references|default|trace_lifecycle_management|defensive_resource_cleanup|termination|trace context safe termination with fallback"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

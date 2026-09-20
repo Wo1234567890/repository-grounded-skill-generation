@@ -1,0 +1,129 @@
+{
+  "skill_id": "5a63d94f-55c3-5860-b386-acd57dbebc38",
+  "name": "Parallel Task Completion Polling",
+  "description": "Wait for a collection of Futures to reach a completion condition (any, first exception, or all done) with optional timeout. Use this session-level skill to coordinate multi-task workflows and decide when to proceed based on task readiness.",
+  "skill_body": "Call concurrent.futures.wait(fs, timeout=None, return_when=ALL_COMPLETED) to block until a completion condition is met. Specify return_when as one of: FIRST_COMPLETED (return when any Future finishes or is cancelled), FIRST_EXCEPTION (return when any Future raises an exception, or ALL_COMPLETED if none raise), or ALL_COMPLETED (return when all Futures finish or are cancelled). Timeout can be an int or float in seconds; None means no limit. The function returns a tuple (done, pending) where done and pending are sets of Futures.\n\n## Objective\n\nBlock and poll a Future collection until a specified completion condition is met, returning a snapshot of done and pending tasks\n## Applicable Signals\n\n- Multiple Futures submitted to an Executor\n- Caller needs to block until a specific completion condition is met\n- Timeout constraint is present or optional\n\n## Contraindications\n\n- Single Future: use Future.result() instead\n- No need to wait for completion: use as_completed() for streaming results\n- Synchronous blocking is unacceptable in the calling context\n- Caller needs results as they arrive rather than a snapshot at a condition\n\n## Workflow Steps\n\n- Collect all Future objects from parallel task submissions\n- Choose return_when condition: FIRST_COMPLETED, FIRST_EXCEPTION, or ALL_COMPLETED\n- Set timeout value (None for no limit, or int/float seconds)\n- Call concurrent.futures.wait(fs, timeout, return_when)\n- Inspect returned (done, pending) tuple to determine next action\n- Handle any Futures in done set; optionally wait again on pending set if needed\n\n## Constraints\n\n- return_when must be one of: FIRST_COMPLETED, FIRST_EXCEPTION, or ALL_COMPLETED\n- timeout must be None, int, or float (seconds)\n- fs must be a collection of Future objects\n- Function blocks the calling thread until condition is met or timeout expires\n\n## Cautions\n\n- If timeout expires before return_when condition is met, function returns with pending Futures still running\n- FIRST_EXCEPTION returns only if a Future raises an exception; if none raise, behaves as ALL_COMPLETED\n- Caller must handle both done and pending sets; pending Futures continue running in background\n\n## Output Contract\n\n- Returns a tuple (done, pending) where done is a set of Futures that have completed (finished or cancelled) and pending is a set of Futures still running. Caller can call Future.result() or Future.exception() on done Futures to retrieve outcomes.",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [
+    "0745223a-841f-51d6-8381-727206ff716f",
+    "40060062-3dbc-5b0d-b4dc-a198affc3fb8",
+    "89af0319-817d-52d3-90b9-ccb19b7a6372",
+    "9d5752c7-0308-5eba-b424-241a7347e150",
+    "e0543d5d-48b2-54e9-bd99-13af454968ef"
+  ],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "parent",
+  "visible_role": "parent",
+  "objective": "Block and poll a Future collection until a specified completion condition is met, returning a snapshot of done and pending tasks",
+  "domain": "default",
+  "task_family": "concurrent_task_management",
+  "method_family": "future_polling",
+  "stage": "task_synchronization",
+  "applicable_signals": [
+    "Multiple Futures submitted to an Executor",
+    "Caller needs to block until a specific completion condition is met",
+    "Timeout constraint is present or optional"
+  ],
+  "contraindications": [
+    "Single Future: use Future.result() instead",
+    "No need to wait for completion: use as_completed() for streaming results",
+    "Synchronous blocking is unacceptable in the calling context",
+    "Caller needs results as they arrive rather than a snapshot at a condition"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Need to wait for multiple parallel tasks and decide next action based on which tasks complete first",
+    "Require timeout-bounded waiting for task completion",
+    "Must inspect which Futures finished and which are still running after wait returns"
+  ],
+  "workflow_steps": [
+    "Collect all Future objects from parallel task submissions",
+    "Choose return_when condition: FIRST_COMPLETED, FIRST_EXCEPTION, or ALL_COMPLETED",
+    "Set timeout value (None for no limit, or int/float seconds)",
+    "Call concurrent.futures.wait(fs, timeout, return_when)",
+    "Inspect returned (done, pending) tuple to determine next action",
+    "Handle any Futures in done set; optionally wait again on pending set if needed"
+  ],
+  "constraints": [
+    "return_when must be one of: FIRST_COMPLETED, FIRST_EXCEPTION, or ALL_COMPLETED",
+    "timeout must be None, int, or float (seconds)",
+    "fs must be a collection of Future objects",
+    "Function blocks the calling thread until condition is met or timeout expires"
+  ],
+  "cautions": [
+    "If timeout expires before return_when condition is met, function returns with pending Futures still running",
+    "FIRST_EXCEPTION returns only if a Future raises an exception; if none raise, behaves as ALL_COMPLETED",
+    "Caller must handle both done and pending sets; pending Futures continue running in background"
+  ],
+  "output_contract": [
+    "Returns a tuple (done, pending) where done is a set of Futures that have completed (finished or cancelled) and pending is a set of Futures still running. Caller can call Future.result() or Future.exception() on done Futures to retrieve outcomes."
+  ],
+  "examples": [],
+  "tags": [
+    "concurrent.futures",
+    "Future",
+    "polling",
+    "synchronization",
+    "timeout",
+    "multi-task coordination"
+  ],
+  "support_ids": [
+    "a6e83dc0-2ffc-5f61-b7a6-4ebe0a0042dd"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "b684c19e-5cc8-53ce-8ad6-5dbff253b81f"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.88,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|block and poll a future collection until a specified completion condition is met, returning a snapshot of done and pending tasks|default|concurrent_task_management|future_polling|task_synchronization|parallel task completion polling",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct session-level skill for Future polling and task synchronization in concurrent workflows. It does not semantically match any existing skill (which cover virtual hub routing, JSON library configuration, and unrelated domains). Peer candidates are complementary parallel execution skills (executor setup/initialization) but operate at different stages (initialization vs. task_synchronization). No merge, split, or revision relationship exists.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "parent",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "0745223a-841f-51d6-8381-727206ff716f",
+      "40060062-3dbc-5b0d-b4dc-a198affc3fb8",
+      "89af0319-817d-52d3-90b9-ccb19b7a6372",
+      "9d5752c7-0308-5eba-b424-241a7347e150",
+      "e0543d5d-48b2-54e9-bd99-13af454968ef"
+    ]
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

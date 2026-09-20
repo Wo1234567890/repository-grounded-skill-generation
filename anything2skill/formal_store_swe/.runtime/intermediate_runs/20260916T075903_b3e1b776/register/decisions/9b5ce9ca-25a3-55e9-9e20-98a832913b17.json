@@ -1,0 +1,118 @@
+{
+  "skill_id": "9b5ce9ca-25a3-55e9-9e20-98a832913b17",
+  "action": "merge",
+  "matched_skill_ids": [
+    "4cf1f416-b910-53e6-9cd4-08ea9a9bf8f0"
+  ],
+  "reason": "Candidate is semantically identical to two existing micro_skills in the same asset layer (micro_skill, granularity micro, asset_node_id micro_skill_node, asset_level 3). All three cover the same capability: terminating an AgentOps session with a status label and finalizing telemetry. The candidate and peer skills c864553d and 7cb8564a are near-duplicates with minor wording differences in workflow steps and cautions. Merging into the most complete existing skill (7cb8564a, which shares the exact name and objective) eliminates redundancy. Peer candidate 7b643d32 (Agent Operation Span Tracking) is a distinct capability (decorator-based operation tracking, not session termination) and should not be merged.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "9b5ce9ca-25a3-55e9-9e20-98a832913b17",
+    "name": "Agent Session Lifecycle Termination",
+    "description": "Explicitly close an AgentOps session with a terminal status label, ensuring all telemetry and logs are flushed and the session record is finalized.",
+    "skill_body": "Call agentops.end_session() with a status string (e.g., 'Success', 'Failure') at the end of your agent execution block. This flushes all collected telemetry, logs, and session metadata to the backend and marks the session as closed.\n\n## Objective\n\nCleanly terminate an agent session and persist its outcome\n## Applicable Signals\n\n- finish_reason == 'stop' or equivalent completion signal\n- Agent response fully accumulated\n- No further interactions expected in this session\n\n## Contraindications\n\n- Do not call during active agent execution\n- Do not call when the session should remain open for further interactions\n- Do not call in error handlers that need to preserve session state for debugging\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Verify agent execution is complete', 'detail': 'Confirm all agent actions, responses, and side effects are finalized'}\n- {'step': 2, 'action': 'Determine terminal status', 'detail': \"Select appropriate status label: 'Success', 'Failure', or custom status string\"}\n- {'step': 3, 'action': 'Call agentops.end_session(status)', 'detail': 'Invoke the termination function with the chosen status label'}\n- {'step': 4, 'action': 'Await backend flush', 'detail': 'Allow telemetry and logs to be persisted to the AgentOps backend'}\n\n## Constraints\n\n- Must be called after all agent actions are complete\n- Status label must be a valid string (e.g., 'Success', 'Failure')\n- Session must have been initialized before termination\n\n## Cautions\n\n- Calling end_session() is irreversible; the session cannot be reopened\n- Ensure all critical telemetry is collected before termination\n- In error scenarios, consider logging the error status before closing\n\n## Output Contract\n\n- AgentOps session is closed with the provided status label recorded. All collected telemetry, logs, and session metadata are persisted to the backend. The session record is finalized and no further events can be added to this session.\n\n## Example Executions\n\n### Example 1\n\n- Input: Agent execution completes successfully with finish_reason='stop'\n- Output: agentops.end_session('Success') called; session closed and telemetry flushed\n- Notes: Standard success path after agent response is fully accumulated\n\n### Example 2\n\n- Input: Agent execution encounters a recoverable error\n- Output: agentops.end_session('Failure') called; session closed with error status recorded\n- Notes: Allows error state to be captured in session record",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Cleanly terminate an agent session and persist its outcome",
+    "domain": "default",
+    "task_family": "agent_session_management",
+    "method_family": "lifecycle_control",
+    "stage": "session_teardown",
+    "applicable_signals": [
+      "finish_reason == 'stop' or equivalent completion signal",
+      "Agent response fully accumulated",
+      "No further interactions expected in this session"
+    ],
+    "contraindications": [
+      "Do not call during active agent execution",
+      "Do not call when the session should remain open for further interactions",
+      "Do not call in error handlers that need to preserve session state for debugging"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Agent execution block completes",
+      "All agent actions and responses are finalized",
+      "Ready to close the session and record final status"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Verify agent execution is complete', 'detail': 'Confirm all agent actions, responses, and side effects are finalized'}",
+      "{'step': 2, 'action': 'Determine terminal status', 'detail': \"Select appropriate status label: 'Success', 'Failure', or custom status string\"}",
+      "{'step': 3, 'action': 'Call agentops.end_session(status)', 'detail': 'Invoke the termination function with the chosen status label'}",
+      "{'step': 4, 'action': 'Await backend flush', 'detail': 'Allow telemetry and logs to be persisted to the AgentOps backend'}"
+    ],
+    "constraints": [
+      "Must be called after all agent actions are complete",
+      "Status label must be a valid string (e.g., 'Success', 'Failure')",
+      "Session must have been initialized before termination"
+    ],
+    "cautions": [
+      "Calling end_session() is irreversible; the session cannot be reopened",
+      "Ensure all critical telemetry is collected before termination",
+      "In error scenarios, consider logging the error status before closing"
+    ],
+    "output_contract": [
+      "AgentOps session is closed with the provided status label recorded. All collected telemetry, logs, and session metadata are persisted to the backend. The session record is finalized and no further events can be added to this session."
+    ],
+    "examples": [
+      {
+        "input": "Agent execution completes successfully with finish_reason='stop'",
+        "output": "agentops.end_session('Success') called; session closed and telemetry flushed",
+        "notes": "Standard success path after agent response is fully accumulated"
+      },
+      {
+        "input": "Agent execution encounters a recoverable error",
+        "output": "agentops.end_session('Failure') called; session closed with error status recorded",
+        "notes": "Allows error state to be captured in session record"
+      }
+    ],
+    "tags": [
+      "agent_lifecycle",
+      "session_management",
+      "telemetry",
+      "agentops",
+      "termination"
+    ],
+    "support_ids": [
+      "d3c240c7-44e1-5e8d-838e-010a00bb51c7"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "adf05517-276c-5ffc-bb54-649b68f13a60"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|cleanly terminate an agent session and persist its outcome|default|agent_session_management|lifecycle_control|session_teardown|agent session lifecycle termination"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

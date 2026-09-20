@@ -1,0 +1,112 @@
+{
+  "skill_id": "8c14e62f-be01-5801-9027-2173d3c2a7ba",
+  "name": "Inverse Document Frequency (IDF) Lookup",
+  "description": "Retrieve or compute the idf value for a term based on its document frequency across a corpus. Use to penalize common terms and boost rare terms in relevance scoring.",
+  "skill_body": "Given a term t and a corpus of N documents, compute or retrieve idf(t) = log(N / df(t)), where df(t) is the number of documents containing term t. The idf value quantifies term rarity: highest for terms appearing in few documents, lowest for terms appearing in many or all documents.\n\n## Objective\n\nquantify_term_rarity\n## Applicable Signals\n\n- need to adjust term weight based on document frequency\n- building or querying a term-document matrix\n- preparing weights for tf-idf composite scoring\n\n## Contraindications\n\n- term appears in all documents (idf approaches 0; use stop word filtering instead)\n- corpus is too small or unstable (insufficient document frequency data)\n- term has not been indexed or does not exist in corpus\n\n## Intervention Moves\n\n- Look up or compute df(t) from corpus index\n- Apply logarithmic scaling: idf(t) = log(N / df(t))\n- Cache or return idf value for downstream tf-idf calculation\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Retrieve corpus size N (total number of documents)'}\n- {'step': 2, 'action': 'Look up or compute document frequency df(t) for term t'}\n- {'step': 3, 'action': 'Apply formula: idf(t) = log(N / df(t))'}\n- {'step': 4, 'action': 'Return or cache idf(t) value for use in tf-idf weighting'}\n\n## Constraints\n\n- corpus size N must be known and stable\n- document frequency df(t) must be precomputed or indexed\n- idf is always finite and non-negative\n\n## Cautions\n\n- idf of a term that occurs in every document is zero; consider stop word lists for such terms\n- idf values should be precomputed and cached for efficiency in large corpora\n\n## Output Contract\n\n- idf(t) value reflecting rarity of term t across corpus; a finite non-negative scalar suitable for multiplication with term frequency in tf-idf composite weighting",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "quantify_term_rarity",
+  "domain": "information_retrieval",
+  "task_family": "term_weighting",
+  "method_family": "statistical_scoring",
+  "stage": "document_scoring",
+  "applicable_signals": [
+    "need to adjust term weight based on document frequency",
+    "building or querying a term-document matrix",
+    "preparing weights for tf-idf composite scoring"
+  ],
+  "contraindications": [
+    "term appears in all documents (idf approaches 0; use stop word filtering instead)",
+    "corpus is too small or unstable (insufficient document frequency data)",
+    "term has not been indexed or does not exist in corpus"
+  ],
+  "intervention_moves": [
+    "Look up or compute df(t) from corpus index",
+    "Apply logarithmic scaling: idf(t) = log(N / df(t))",
+    "Cache or return idf value for downstream tf-idf calculation"
+  ],
+  "triggers": [
+    "need to adjust term weight based on how many documents contain it",
+    "building or querying a term-document matrix"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Retrieve corpus size N (total number of documents)'}",
+    "{'step': 2, 'action': 'Look up or compute document frequency df(t) for term t'}",
+    "{'step': 3, 'action': 'Apply formula: idf(t) = log(N / df(t))'}",
+    "{'step': 4, 'action': 'Return or cache idf(t) value for use in tf-idf weighting'}"
+  ],
+  "constraints": [
+    "corpus size N must be known and stable",
+    "document frequency df(t) must be precomputed or indexed",
+    "idf is always finite and non-negative"
+  ],
+  "cautions": [
+    "idf of a term that occurs in every document is zero; consider stop word lists for such terms",
+    "idf values should be precomputed and cached for efficiency in large corpora"
+  ],
+  "output_contract": [
+    "idf(t) value reflecting rarity of term t across corpus; a finite non-negative scalar suitable for multiplication with term frequency in tf-idf composite weighting"
+  ],
+  "examples": [],
+  "tags": [
+    "term_weighting",
+    "idf",
+    "relevance_scoring",
+    "statistical_weighting"
+  ],
+  "support_ids": [
+    "024ebfd5-02d4-52d2-85fc-4e964f7c6893"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "4ba503db-6fd1-5227-9ca2-c1b1968aaca5"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.88,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|quantify_term_rarity|information_retrieval|term_weighting|statistical_scoring|document_scoring|inverse document frequency (idf) lookup",
+    "change_action": "create",
+    "llm_reason": "IDF Lookup is a distinct micro-skill that isolates the computation/retrieval of inverse document frequency values. While peer candidates (TF-IDF Weight Calculation, TF-IDF Term Weighting) consume IDF as input, this skill focuses specifically on the IDF component in isolation—retrieving corpus statistics, computing document frequency, and applying logarithmic scaling. This separation enables reuse across multiple weighting schemes and supports caching strategies. No redundancy detected with peers; supported by corpus evidence.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

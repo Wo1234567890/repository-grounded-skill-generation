@@ -1,0 +1,121 @@
+{
+  "skill_id": "9d5752c7-0308-5eba-b424-241a7347e150",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill in async_task_completion domain with unique method_family (future_result_access) and stage (result_collection). It does not semantically match any existing skill in the registry, which contains only GRPO loss formulation and custom reward function skills from a different domain (loss_computation, reward_computation). The peer_candidates represent related but separate Future manipulation capabilities (exception inspection, callback registration, executor submission) that do not subsume or conflict with this result retrieval skill.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "9d5752c7-0308-5eba-b424-241a7347e150",
+    "name": "Future Result Retrieval with Timeout",
+    "description": "Retrieve the result of a completed asynchronous task, with optional timeout enforcement and exception propagation. Use when a caller needs the output of a parallel task and must handle timeout or cancellation states.",
+    "skill_body": "Call result(timeout=None) on a Future object to retrieve the return value of the completed task. If timeout is specified (int or float), the method will wait up to that many seconds; if the task has not completed by then, TimeoutError is raised. If the future was cancelled before completion, CancelledError is raised. If the task raised an exception, that same exception is re-raised by this method. If timeout is None or omitted, there is no limit to the wait time.\n\n## Objective\n\nSafely retrieve result from a Future object with timeout and error handling\n## Applicable Signals\n\n- Future object is available and in a completed or running state\n- Caller has a timeout requirement or can tolerate indefinite wait\n- Result value is needed for downstream processing\n\n## Contraindications\n\n- The future has not been submitted to an executor yet\n- The caller does not need the result and can proceed without it\n- The task is still being configured and has not started running\n\n## Workflow Steps\n\n- Obtain a Future object from an executor's submit() or map() call\n- Call future.result(timeout=<seconds>) or future.result() with no timeout\n- Handle TimeoutError if timeout is specified and elapsed\n- Handle CancelledError if the future was cancelled before completion\n- Catch and handle any exception raised by the underlying task\n- Use the returned value for downstream processing\n\n## Constraints\n\n- timeout parameter must be int, float, or None\n- If timeout is specified and elapsed, TimeoutError is raised\n- If future was cancelled before completion, CancelledError is raised\n- If the underlying task raised an exception, that exception is propagated\n\n## Cautions\n\n- Blocking call: result() will block the calling thread until the task completes or timeout expires\n- Exception propagation: any exception raised by the task will be re-raised by result()\n- Timeout precision: timeout is a best-effort limit; actual wait may vary slightly\n\n## Output Contract\n\n- Returns the value returned by the completed call. If the call has not completed within the timeout period, raises TimeoutError. If the future was cancelled, raises CancelledError. If the call raised an exception, that exception is re-raised. If no exception occurred and the call completed, the return value is guaranteed to be available.\n\n## Example Executions\n\n### Example 1\n\n- Input: future = executor.submit(some_function, arg1, arg2); result = future.result(timeout=5)\n- Output: Returns the return value of some_function(arg1, arg2) if it completes within 5 seconds; raises TimeoutError if it does not.\n- Notes: Typical use case with timeout enforcement\n\n### Example 2\n\n- Input: future = executor.submit(failing_function); result = future.result()\n- Output: Re-raises the exception that failing_function raised during execution\n- Notes: Exception propagation from the task",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "leaf",
+    "objective": "Safely retrieve result from a Future object with timeout and error handling",
+    "domain": "default",
+    "task_family": "async_task_completion",
+    "method_family": "future_result_access",
+    "stage": "result_collection",
+    "applicable_signals": [
+      "Future object is available and in a completed or running state",
+      "Caller has a timeout requirement or can tolerate indefinite wait",
+      "Result value is needed for downstream processing"
+    ],
+    "contraindications": [
+      "The future has not been submitted to an executor yet",
+      "The caller does not need the result and can proceed without it",
+      "The task is still being configured and has not started running"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "A parallel task submitted to ThreadPoolExecutor or ProcessPoolExecutor has completed or is expected to complete",
+      "The caller needs the return value of an asynchronous task",
+      "A maximum wait time must be enforced before raising TimeoutError"
+    ],
+    "workflow_steps": [
+      "Obtain a Future object from an executor's submit() or map() call",
+      "Call future.result(timeout=<seconds>) or future.result() with no timeout",
+      "Handle TimeoutError if timeout is specified and elapsed",
+      "Handle CancelledError if the future was cancelled before completion",
+      "Catch and handle any exception raised by the underlying task",
+      "Use the returned value for downstream processing"
+    ],
+    "constraints": [
+      "timeout parameter must be int, float, or None",
+      "If timeout is specified and elapsed, TimeoutError is raised",
+      "If future was cancelled before completion, CancelledError is raised",
+      "If the underlying task raised an exception, that exception is propagated"
+    ],
+    "cautions": [
+      "Blocking call: result() will block the calling thread until the task completes or timeout expires",
+      "Exception propagation: any exception raised by the task will be re-raised by result()",
+      "Timeout precision: timeout is a best-effort limit; actual wait may vary slightly"
+    ],
+    "output_contract": [
+      "Returns the value returned by the completed call. If the call has not completed within the timeout period, raises TimeoutError. If the future was cancelled, raises CancelledError. If the call raised an exception, that exception is re-raised. If no exception occurred and the call completed, the return value is guaranteed to be available."
+    ],
+    "examples": [
+      {
+        "input": "future = executor.submit(some_function, arg1, arg2); result = future.result(timeout=5)",
+        "output": "Returns the return value of some_function(arg1, arg2) if it completes within 5 seconds; raises TimeoutError if it does not.",
+        "notes": "Typical use case with timeout enforcement"
+      },
+      {
+        "input": "future = executor.submit(failing_function); result = future.result()",
+        "output": "Re-raises the exception that failing_function raised during execution",
+        "notes": "Exception propagation from the task"
+      }
+    ],
+    "tags": [
+      "concurrent.futures",
+      "Future",
+      "result_retrieval",
+      "timeout",
+      "exception_handling",
+      "async_task"
+    ],
+    "support_ids": [
+      "2a8c5652-923f-5523-850d-07b349ae1874"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "e577b6fd-b73a-56ea-913a-2f3640ee3388"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.92,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|safely retrieve result from a future object with timeout and error handling|default|async_task_completion|future_result_access|result_collection|future result retrieval with timeout",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

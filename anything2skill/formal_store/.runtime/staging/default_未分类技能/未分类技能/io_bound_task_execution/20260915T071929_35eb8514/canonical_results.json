@@ -1,0 +1,159 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "io_bound_task_execution",
+  "run_id": "20260915T071929_35eb8514",
+  "skills": [
+    {
+      "skill_id": "34a1d5ff-76e8-54d7-96ee-101077a368f6",
+      "name": "URL Fetch with Timeout",
+      "description": "Execute a single URL fetch operation with configurable timeout protection, returning response content as bytes. Designed for concurrent execution via ThreadPoolExecutor in I/O-bound workloads.",
+      "skill_body": "Implement a callable that accepts a URL and timeout value, opens the URL using urllib.request.urlopen with the timeout parameter, and returns the response content as bytes. Use a context manager to ensure proper resource cleanup. This function is intended to be submitted to a ThreadPoolExecutor for parallel execution across multiple URLs.\n\n## Objective\n\nExecute single URL fetch operation with timeout handling in a thread-safe manner\n## Applicable Signals\n\n- Submitting multiple URL fetch tasks to thread pool\n- I/O-bound workload with network latency\n- Need for timeout protection on network requests\n\n## Contraindications\n\n- CPU-bound processing tasks\n- Tasks requiring process isolation (use ProcessPoolExecutor instead)\n- Synchronous single-URL fetch without concurrency\n- Scenarios where timeout exceptions should not be raised\n\n## Intervention Moves\n\n- Define function with url and timeout parameters\n- Use urllib.request.urlopen with timeout argument\n- Wrap connection in context manager for automatic cleanup\n- Return response content via conn.read()\n\n## Constraints\n\n- Function must be importable and picklable if used with ProcessPoolExecutor\n- Timeout parameter must be a positive number or None\n- urllib.request module must be available in execution environment\n\n## Cautions\n\n- Timeout exceptions (urllib.error.URLError) will propagate to caller; handle in executor callback or exception handler\n- Large response content may consume significant memory; consider streaming for large payloads\n- Network errors and DNS failures will raise exceptions; caller must implement retry logic if needed\n\n## Output Contract\n\n- Returns bytes object containing response content from urllib.request.urlopen. Raises urllib.error.URLError or socket.timeout if connection fails or exceeds timeout parameter. Context manager ensures connection is closed regardless of success or failure.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: url='http://example.com/', timeout=5\n- Therapist/Output: bytes object containing HTML response content\n- Notes: Typical successful fetch with 5-second timeout\n\n### Example 2\n\n- Client/Input: url='http://nonexistent-domain.invalid/', timeout=3\n- Therapist/Output: urllib.error.URLError exception raised\n- Notes: DNS or connection failure; exception propagates to executor",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Execute single URL fetch operation with timeout handling in a thread-safe manner",
+      "domain": "default",
+      "task_family": "io_bound_task_execution",
+      "method_family": "http_request_with_timeout",
+      "stage": "execution",
+      "applicable_signals": [
+        "Submitting multiple URL fetch tasks to thread pool",
+        "I/O-bound workload with network latency",
+        "Need for timeout protection on network requests"
+      ],
+      "contraindications": [
+        "CPU-bound processing tasks",
+        "Tasks requiring process isolation (use ProcessPoolExecutor instead)",
+        "Synchronous single-URL fetch without concurrency",
+        "Scenarios where timeout exceptions should not be raised"
+      ],
+      "intervention_moves": [
+        "Define function with url and timeout parameters",
+        "Use urllib.request.urlopen with timeout argument",
+        "Wrap connection in context manager for automatic cleanup",
+        "Return response content via conn.read()"
+      ],
+      "triggers": [
+        "Submitting multiple URL fetch tasks to thread pool",
+        "I/O-bound workload with network latency"
+      ],
+      "workflow_steps": [],
+      "constraints": [
+        "Function must be importable and picklable if used with ProcessPoolExecutor",
+        "Timeout parameter must be a positive number or None",
+        "urllib.request module must be available in execution environment"
+      ],
+      "cautions": [
+        "Timeout exceptions (urllib.error.URLError) will propagate to caller; handle in executor callback or exception handler",
+        "Large response content may consume significant memory; consider streaming for large payloads",
+        "Network errors and DNS failures will raise exceptions; caller must implement retry logic if needed"
+      ],
+      "output_contract": [
+        "Returns bytes object containing response content from urllib.request.urlopen. Raises urllib.error.URLError or socket.timeout if connection fails or exceeds timeout parameter. Context manager ensures connection is closed regardless of success or failure."
+      ],
+      "examples": [
+        {
+          "input": "url='http://example.com/', timeout=5",
+          "output": "bytes object containing HTML response content",
+          "notes": "Typical successful fetch with 5-second timeout"
+        },
+        {
+          "input": "url='http://nonexistent-domain.invalid/', timeout=3",
+          "output": "urllib.error.URLError exception raised",
+          "notes": "DNS or connection failure; exception propagates to executor"
+        }
+      ],
+      "tags": [
+        "concurrent.futures",
+        "ThreadPoolExecutor",
+        "I/O-bound",
+        "network",
+        "timeout",
+        "urllib"
+      ],
+      "support_ids": [
+        "6729e7e0-6ed5-5ef4-b202-37cb9e67eeb7"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "965c9791-c945-5a87-98ec-dc056c78e721"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.78,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|execute single url fetch operation with timeout handling in a thread-safe manner|default|io_bound_task_execution|http_request_with_timeout|execution|url fetch with timeout",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill for single URL fetch with timeout in thread-safe context. It does not semantically match any existing skill (Image Component Optimization and Custom Reward Function Design are unrelated domains). Peer candidates (Future State Polling, Executor Submit, Future Exception Inspection) are complementary concurrent.futures patterns at the same granularity but represent different capabilities in the async task lifecycle. Candidate fills a gap as the actual I/O operation layer that would be submitted via the Executor Submit skill.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "c22151cc-f215-4101-8886-050ee70abd9c",
+      "entity_type": "skill",
+      "entity_id": "34a1d5ff-76e8-54d7-96ee-101077a368f6",
+      "action": "create",
+      "changed_at": "2026-09-14T21:18:39+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill for single URL fetch with timeout in thread-safe context. It does not semantically match any existing skill (Image Component Optimization and Custom Reward Function Design are unrelated domains). Peer candidates (Future State Polling, Executor Submit, Future Exception Inspection) are complementary concurrent.futures patterns at the same granularity but represent different capabilities in the async task lifecycle. Candidate fills a gap as the actual I/O operation layer that would be submitted via the Executor Submit skill.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "34a1d5ff-76e8-54d7-96ee-101077a368f6",
+        "doc_ids": [
+          "771b7202-2a1d-5eea-bda3-df5cd4ea6620"
+        ],
+        "support_added": [
+          "6729e7e0-6ed5-5ef4-b202-37cb9e67eeb7"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "skill_id": "322b96c2-5e0d-5552-8974-b888ea7f374c",
+  "action": "merge",
+  "matched_skill_ids": [
+    "59e2d07f-8b62-5796-bcfb-b3020644e76d"
+  ],
+  "reason": "Candidate skill is semantically identical to peer_candidates[0]: both normalize document vectors to unit length for similarity scoring using Euclidean norm division. The candidate adds minor detail (tf-idf context, verification tolerance) but represents the same micro-skill capability. Peer candidate 5baf1239 should be retained as the canonical skill; candidate should merge into it. Peer candidates 4ade660e (Cosine Similarity) and 316d1204 (Pivoted Length Normalization) are distinct downstream/alternative skills in the vector_space_scoring family and should not be merged.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "322b96c2-5e0d-5552-8974-b888ea7f374c",
+    "name": "Euclidean Vector Normalization for Document Scoring",
+    "description": "Normalize tf-idf weighted document vectors to unit length by dividing each component by the Euclidean norm, enabling consistent similarity scoring across documents of different lengths.",
+    "skill_body": "Given a document vector with tf-idf weighted components, compute the Euclidean norm (square root of the sum of squared components), then divide each component by this norm to produce a unit vector. Verify that the sum of squared components in the result equals 1 (within rounding tolerance).\n\n## Objective\n\nnormalize document vectors to unit vectors for consistent dot-product similarity scoring\n## Applicable Signals\n\n- document vectors have been weighted with tf-idf scores\n- vectors must be compared using dot product similarity\n- vector length varies across documents in the collection\n\n## Contraindications\n\n- raw term frequencies are used without idf weighting\n- sparse vector representations where normalization cost is prohibitive\n- query-only operations that do not require document-to-document comparison\n\n## Workflow Steps\n\n- Receive a document vector with tf-idf weighted components.\n- Compute the Euclidean norm: norm = sqrt(sum of (component_i)^2 for all i).\n- Divide each component by the norm: normalized_component_i = component_i / norm.\n- Verify that sum of (normalized_component_i)^2 ≈ 1 (within floating-point rounding error).\n- Return the normalized vector.\n\n## Constraints\n\n- Input vector must have non-zero norm (all-zero vectors cannot be normalized).\n- Floating-point arithmetic may introduce rounding errors; verification should allow small tolerance (e.g., 1e-6).\n\n## Cautions\n\n- If the input vector is zero or near-zero, normalization will fail or produce undefined results; check for zero norm before division.\n- Normalization changes the magnitude but preserves direction; use only when direction-based similarity is the goal.\n\n## Output Contract\n\n- A unit vector (normalized document vector) where the sum of squared components equals 1 within rounding tolerance, suitable for dot-product-based ranking and similarity computation.\n\n## Example Executions\n\n### Example 1\n\n- Input: Document vector with 4 components: [0.5, 0.3, 0.2, 0.1]\n- Output: Euclidean norm = sqrt(0.25 + 0.09 + 0.04 + 0.01) = sqrt(0.39) ≈ 0.624. Normalized vector ≈ [0.801, 0.481, 0.321, 0.160]. Sum of squares ≈ 1.0.\n- Notes: Verification: 0.801^2 + 0.481^2 + 0.321^2 + 0.160^2 ≈ 0.642 + 0.231 + 0.103 + 0.026 ≈ 1.002 (within rounding tolerance).",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "normalize document vectors to unit vectors for consistent dot-product similarity scoring",
+    "domain": "default",
+    "task_family": "vector_space_scoring",
+    "method_family": "linear_algebra",
+    "stage": "vector_preparation",
+    "applicable_signals": [
+      "document vectors have been weighted with tf-idf scores",
+      "vectors must be compared using dot product similarity",
+      "vector length varies across documents in the collection"
+    ],
+    "contraindications": [
+      "raw term frequencies are used without idf weighting",
+      "sparse vector representations where normalization cost is prohibitive",
+      "query-only operations that do not require document-to-document comparison"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "document vectors have been weighted with tf-idf scores and must be compared using dot product similarity; vector length varies across documents"
+    ],
+    "workflow_steps": [
+      "Receive a document vector with tf-idf weighted components.",
+      "Compute the Euclidean norm: norm = sqrt(sum of (component_i)^2 for all i).",
+      "Divide each component by the norm: normalized_component_i = component_i / norm.",
+      "Verify that sum of (normalized_component_i)^2 ≈ 1 (within floating-point rounding error).",
+      "Return the normalized vector."
+    ],
+    "constraints": [
+      "Input vector must have non-zero norm (all-zero vectors cannot be normalized).",
+      "Floating-point arithmetic may introduce rounding errors; verification should allow small tolerance (e.g., 1e-6)."
+    ],
+    "cautions": [
+      "If the input vector is zero or near-zero, normalization will fail or produce undefined results; check for zero norm before division.",
+      "Normalization changes the magnitude but preserves direction; use only when direction-based similarity is the goal."
+    ],
+    "output_contract": [
+      "A unit vector (normalized document vector) where the sum of squared components equals 1 within rounding tolerance, suitable for dot-product-based ranking and similarity computation."
+    ],
+    "examples": [
+      {
+        "input": "Document vector with 4 components: [0.5, 0.3, 0.2, 0.1]",
+        "output": "Euclidean norm = sqrt(0.25 + 0.09 + 0.04 + 0.01) = sqrt(0.39) ≈ 0.624. Normalized vector ≈ [0.801, 0.481, 0.321, 0.160]. Sum of squares ≈ 1.0.",
+        "notes": "Verification: 0.801^2 + 0.481^2 + 0.321^2 + 0.160^2 ≈ 0.642 + 0.231 + 0.103 + 0.026 ≈ 1.002 (within rounding tolerance)."
+      }
+    ],
+    "tags": [
+      "vector_space_model",
+      "tf-idf",
+      "normalization",
+      "linear_algebra",
+      "information_retrieval",
+      "document_scoring"
+    ],
+    "support_ids": [
+      "8b6d5f88-c7d5-51e2-8f36-fa6bd5d5dfe3"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "7bcfc498-b91e-5f45-9e18-fcab819ce216"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|normalize document vectors to unit vectors for consistent dot-product similarity scoring|default|vector_space_scoring|linear_algebra|vector_preparation|euclidean vector normalization for document scoring"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

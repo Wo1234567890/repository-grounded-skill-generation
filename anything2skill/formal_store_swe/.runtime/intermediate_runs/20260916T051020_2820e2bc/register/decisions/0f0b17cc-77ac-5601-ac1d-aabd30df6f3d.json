@@ -1,0 +1,129 @@
+{
+  "skill_id": "0f0b17cc-77ac-5601-ac1d-aabd30df6f3d",
+  "action": "split",
+  "matched_skill_ids": [
+    "708ae50c-1c51-59c5-9c51-822d1c81dc2e"
+  ],
+  "reason": "Candidate 'Elastic Scaling and Resource Adjustment' is a specialized workflow that orchestrates savepoint creation (step 3) and restoration (implicit in step 5) as substeps within a broader scaling operation. The peer candidate 'Savepoint Creation and Restoration' is the foundational capability. The candidate represents a distinct child workflow (scaling orchestration) that depends on but is semantically separate from savepoint management. This is a split case where the candidate extracts scaling-specific orchestration from the parent savepoint skill's domain.",
+  "split_parent_id": "708ae50c-1c51-59c5-9c51-822d1c81dc2e",
+  "skill": {
+    "skill_id": "0f0b17cc-77ac-5601-ac1d-aabd30df6f3d",
+    "name": "Elastic Scaling and Resource Adjustment",
+    "description": "Dynamically adjust parallelism and resource allocation for running Flink jobs to handle varying workload demands without stopping the application. Maintains state consistency and ensures no data loss during redistribution.",
+    "skill_body": "To scale a running Flink job: (1) Assess current workload and resource utilization metrics. (2) Determine target parallelism level based on demand. (3) Use savepoint to capture consistent state before scaling. (4) Adjust parallelism configuration and resubmit job from savepoint. (5) Monitor state redistribution and verify no data loss. (6) Confirm job continues processing with new resource allocation.\n\n## Objective\n\nScale job resources in response to workload changes while maintaining state consistency\n## Applicable Signals\n\n- Workload increases significantly\n- Workload decreases and resources are underutilized\n- Resource utilization metrics indicate suboptimal allocation\n- Throughput degradation detected\n- Latency increases due to resource constraints\n\n## Contraindications\n\n- Job is in a failed or recovering state\n- Scaling would violate state partitioning constraints\n- No savepoint available for consistent state capture\n- Job has unresolved backpressure conditions\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Assess current state', 'detail': 'Collect workload metrics, resource utilization, and throughput statistics'}\n- {'step': 2, 'action': 'Determine target parallelism', 'detail': 'Calculate new parallelism level based on workload demand and available cluster resources'}\n- {'step': 3, 'action': 'Trigger savepoint', 'detail': 'Create a consistent savepoint to capture current job state before scaling'}\n- {'step': 4, 'action': 'Update configuration', 'detail': 'Modify parallelism setting in job configuration'}\n- {'step': 5, 'action': 'Resubmit job', 'detail': 'Stop current job and restart from savepoint with new parallelism'}\n- {'step': 6, 'action': 'Monitor redistribution', 'detail': 'Verify state redistribution completes and job resumes normal processing'}\n- {'step': 7, 'action': 'Validate success', 'detail': 'Confirm no data loss, state consistency, and expected throughput improvement'}\n\n## Constraints\n\n- State must be captured via savepoint before scaling\n- Job must be resubmitted from savepoint after parallelism change\n- State redistribution must complete without data loss\n- Scaling operations should not exceed cluster resource capacity\n\n## Cautions\n\n- Scaling down may cause temporary processing delays during state redistribution\n- Ensure sufficient cluster resources are available before scaling up\n- Monitor metrics during and after scaling to detect anomalies\n- Verify state consistency after job restart from savepoint\n\n## Output Contract\n\n- Parallelism successfully adjusted\n- Job continues processing with redistributed state\n- No data loss confirmed\n- Metrics confirm improved resource utilization or throughput aligned with scaling objective\n\n## Example Executions\n\n### Example 1\n\n- Input: Workload increases from 1000 to 5000 events/sec; current parallelism is 4; cluster has 16 available task slots\n- Output: Parallelism increased to 12; job restarted from savepoint; state redistributed across new tasks; throughput increases to 4800 events/sec\n- Notes: Scaling up requires savepoint to ensure state consistency during redistribution\n\n### Example 2\n\n- Input: Resource utilization drops to 20%; current parallelism is 16; cost optimization needed\n- Output: Parallelism reduced to 8; job restarted from savepoint; resource allocation optimized; cost reduced by 50%\n- Notes: Scaling down may introduce temporary latency during state consolidation",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Scale job resources in response to workload changes while maintaining state consistency",
+    "domain": "default",
+    "task_family": "cluster_operations",
+    "method_family": "resource_scaling",
+    "stage": "execution_control",
+    "applicable_signals": [
+      "Workload increases significantly",
+      "Workload decreases and resources are underutilized",
+      "Resource utilization metrics indicate suboptimal allocation",
+      "Throughput degradation detected",
+      "Latency increases due to resource constraints"
+    ],
+    "contraindications": [
+      "Job is in a failed or recovering state",
+      "Scaling would violate state partitioning constraints",
+      "No savepoint available for consistent state capture",
+      "Job has unresolved backpressure conditions"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Workload increases or decreases",
+      "Resource utilization is suboptimal"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Assess current state', 'detail': 'Collect workload metrics, resource utilization, and throughput statistics'}",
+      "{'step': 2, 'action': 'Determine target parallelism', 'detail': 'Calculate new parallelism level based on workload demand and available cluster resources'}",
+      "{'step': 3, 'action': 'Trigger savepoint', 'detail': 'Create a consistent savepoint to capture current job state before scaling'}",
+      "{'step': 4, 'action': 'Update configuration', 'detail': 'Modify parallelism setting in job configuration'}",
+      "{'step': 5, 'action': 'Resubmit job', 'detail': 'Stop current job and restart from savepoint with new parallelism'}",
+      "{'step': 6, 'action': 'Monitor redistribution', 'detail': 'Verify state redistribution completes and job resumes normal processing'}",
+      "{'step': 7, 'action': 'Validate success', 'detail': 'Confirm no data loss, state consistency, and expected throughput improvement'}"
+    ],
+    "constraints": [
+      "State must be captured via savepoint before scaling",
+      "Job must be resubmitted from savepoint after parallelism change",
+      "State redistribution must complete without data loss",
+      "Scaling operations should not exceed cluster resource capacity"
+    ],
+    "cautions": [
+      "Scaling down may cause temporary processing delays during state redistribution",
+      "Ensure sufficient cluster resources are available before scaling up",
+      "Monitor metrics during and after scaling to detect anomalies",
+      "Verify state consistency after job restart from savepoint"
+    ],
+    "output_contract": [
+      "Parallelism successfully adjusted",
+      "Job continues processing with redistributed state",
+      "No data loss confirmed",
+      "Metrics confirm improved resource utilization or throughput aligned with scaling objective"
+    ],
+    "examples": [
+      {
+        "input": "Workload increases from 1000 to 5000 events/sec; current parallelism is 4; cluster has 16 available task slots",
+        "output": "Parallelism increased to 12; job restarted from savepoint; state redistributed across new tasks; throughput increases to 4800 events/sec",
+        "notes": "Scaling up requires savepoint to ensure state consistency during redistribution"
+      },
+      {
+        "input": "Resource utilization drops to 20%; current parallelism is 16; cost optimization needed",
+        "output": "Parallelism reduced to 8; job restarted from savepoint; resource allocation optimized; cost reduced by 50%",
+        "notes": "Scaling down may introduce temporary latency during state consolidation"
+      }
+    ],
+    "tags": [
+      "flink",
+      "scaling",
+      "resource_management",
+      "parallelism",
+      "state_redistribution",
+      "operational"
+    ],
+    "support_ids": [
+      "1a6ea6a2-adae-5613-9ba0-bd9e2fe307a4"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "16751ada-3d73-51f3-904e-2cc4772aa5b9"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|scale job resources in response to workload changes while maintaining state consistency|default|cluster_operations|resource_scaling|execution_control|elastic scaling and resource adjustment"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,105 @@
+{
+  "skill_id": "28ab438a-fff6-5446-869f-19fd01601be7",
+  "action": "merge",
+  "matched_skill_ids": [
+    "cb55fb3e-7b22-513e-b682-5f6a4cb952b8"
+  ],
+  "reason": "Candidate is a narrower, specialized subset of the peer 'Development Environment Setup' skill. Both are session_skill initialization tasks in environment_setup/credential_management domain. The candidate focuses exclusively on API key loading via dotenv, while the peer skill bundles this with venv setup and pre-commit hooks. The candidate should merge into the peer as a refined sub-step rather than exist as a separate skill, eliminating duplication and clarifying the hierarchical relationship.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "28ab438a-fff6-5446-869f-19fd01601be7",
+    "name": "API Key Configuration and Environment Setup",
+    "description": "Load and configure API keys (OpenAI, AgentOps) from environment variables using dotenv, ensuring secure credential management before initializing client connections.",
+    "skill_body": "1. Call load_dotenv() to load environment variables from a .env file.\n2. Set OPENAI_API_KEY in os.environ by retrieving it via os.getenv(), with a fallback placeholder if not found.\n3. Set AGENTOPS_API_KEY in os.environ by retrieving it via os.getenv(), with a fallback placeholder if not found.\n4. Verify that both keys are now accessible in os.environ for downstream client initialization.\n5. Do not hardcode keys directly in source code; always use environment variable loading.\n\n## Objective\n\nEstablish secure environment configuration for API authentication\n## Applicable Signals\n\n- Script entry point or session initialization phase\n- Need for multi-service API authentication\n\n## Contraindications\n\n- Credentials are already loaded in memory\n- API keys are hardcoded in source code\n- Production systems using dedicated secrets management (e.g., AWS Secrets Manager, HashiCorp Vault)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Load environment variables from .env file', 'detail': 'Call load_dotenv() to read key-value pairs from a .env file in the current working directory'}\n- {'step': 2, 'action': 'Set OPENAI_API_KEY', 'detail': 'Retrieve OPENAI_API_KEY via os.getenv() and assign to os.environ; use a fallback placeholder only for development'}\n- {'step': 3, 'action': 'Set AGENTOPS_API_KEY', 'detail': 'Retrieve AGENTOPS_API_KEY via os.getenv() and assign to os.environ; use a fallback placeholder only for development'}\n- {'step': 4, 'action': 'Verify configuration', 'detail': 'Confirm both keys are present and non-empty in os.environ before returning control to caller'}\n\n## Constraints\n\n- Requires a .env file in the working directory or environment variables already set in the shell\n- Both OPENAI_API_KEY and AGENTOPS_API_KEY must be configured before client initialization\n- Fallback placeholders should not be used in production; missing keys should raise an error\n\n## Cautions\n\n- Do not commit .env files to version control\n- Ensure .env file has restricted file permissions (e.g., 0600)\n- Validate that keys are non-empty strings before proceeding to client initialization\n\n## Output Contract\n\n- Environment variables OPENAI_API_KEY and AGENTOPS_API_KEY are set and accessible in os.environ for downstream client initialization. Caller may proceed to initialize OpenAI and AgentOps clients.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Establish secure environment configuration for API authentication",
+    "domain": "default",
+    "task_family": "environment_setup",
+    "method_family": "credential_management",
+    "stage": "initialization",
+    "applicable_signals": [
+      "Script entry point or session initialization phase",
+      "Need for multi-service API authentication"
+    ],
+    "contraindications": [
+      "Credentials are already loaded in memory",
+      "API keys are hardcoded in source code",
+      "Production systems using dedicated secrets management (e.g., AWS Secrets Manager, HashiCorp Vault)"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Starting a new agent session or script that requires OpenAI and AgentOps API access",
+      "Before initializing OpenAI or AgentOps client objects"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Load environment variables from .env file', 'detail': 'Call load_dotenv() to read key-value pairs from a .env file in the current working directory'}",
+      "{'step': 2, 'action': 'Set OPENAI_API_KEY', 'detail': 'Retrieve OPENAI_API_KEY via os.getenv() and assign to os.environ; use a fallback placeholder only for development'}",
+      "{'step': 3, 'action': 'Set AGENTOPS_API_KEY', 'detail': 'Retrieve AGENTOPS_API_KEY via os.getenv() and assign to os.environ; use a fallback placeholder only for development'}",
+      "{'step': 4, 'action': 'Verify configuration', 'detail': 'Confirm both keys are present and non-empty in os.environ before returning control to caller'}"
+    ],
+    "constraints": [
+      "Requires a .env file in the working directory or environment variables already set in the shell",
+      "Both OPENAI_API_KEY and AGENTOPS_API_KEY must be configured before client initialization",
+      "Fallback placeholders should not be used in production; missing keys should raise an error"
+    ],
+    "cautions": [
+      "Do not commit .env files to version control",
+      "Ensure .env file has restricted file permissions (e.g., 0600)",
+      "Validate that keys are non-empty strings before proceeding to client initialization"
+    ],
+    "output_contract": [
+      "Environment variables OPENAI_API_KEY and AGENTOPS_API_KEY are set and accessible in os.environ for downstream client initialization. Caller may proceed to initialize OpenAI and AgentOps clients."
+    ],
+    "examples": [],
+    "tags": [
+      "environment_setup",
+      "credential_management",
+      "initialization",
+      "api_configuration",
+      "security"
+    ],
+    "support_ids": [
+      "f1182a70-14e5-56b3-a717-6fad664434f4"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "8bf31bf6-b0be-5a3b-9033-e50347d21073"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|establish secure environment configuration for api authentication|default|environment_setup|credential_management|initialization|api key configuration and environment setup"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,107 @@
+{
+  "skill_id": "bd4cd3e6-58fc-5c42-98b1-d52e1975eecd",
+  "action": "merge",
+  "matched_skill_ids": [
+    "ab334d07-1b79-5de7-878d-8dc51a398bac"
+  ],
+  "reason": "Candidate 'SDK Initialization with Fallback' is a narrower, defensive variant of three existing peer SDK initialization skills. It implements graceful fallback logic (check→warn→init→verify→return None on failure) that should be integrated as a constraint/caution pattern across the broader initialization skills rather than persisted as a separate session_skill. The peer candidates already cover the full initialization lifecycle; this candidate adds error-handling guidance that belongs in the constraints and cautions of the existing skills, not as a distinct capability.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "bd4cd3e6-58fc-5c42-98b1-d52e1975eecd",
+    "name": "SDK Initialization with Fallback",
+    "description": "Initializes the AgentOps SDK with environment variables or defaults when not yet initialized. Handles initialization failures gracefully by logging warnings and errors, returning None if initialization cannot proceed. Use this as a guard before starting traces to ensure SDK readiness.",
+    "skill_body": "Check if tracer.initialized is False. If so, attempt to initialize the SDK using init() with environment variables or defaults. Log a warning before attempting initialization. If initialization fails (either init() raises an exception or tracer.initialized remains False after init()), log an error and return None. Otherwise, return the initialized tracer state.\n\n## Objective\n\nEnsure SDK is ready before starting traces; fail safely if initialization is not possible.\n## Applicable Signals\n\n- tracer.initialized == False\n- start_trace() called without prior init() confirmation\n\n## Contraindications\n\n- SDK is already confirmed initialized (tracer.initialized == True)\n- Explicit init() has already been called and succeeded\n- Caller does not need automatic fallback behavior and prefers explicit initialization only\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if tracer.initialized is False', 'condition': 'tracer.initialized == False'}\n- {'step': 2, 'action': \"Log warning: 'AgentOps SDK not initialized. Attempting to initialize with defaults before starting trace.'\", 'condition': 'Initialization check passed'}\n- {'step': 3, 'action': 'Call init() to initialize with environment variables or defaults', 'condition': 'Warning logged'}\n- {'step': 4, 'action': 'Check if tracer.initialized is True after init()', 'condition': 'init() completed without exception'}\n- {'step': 5, 'action': \"Log error: 'SDK initialization failed. Cannot start trace.' and return None\", 'condition': 'tracer.initialized is still False after init()'}\n- {'step': 6, 'action': 'Catch exception from init(), log error with exception details, and return None', 'condition': 'init() raises an exception'}\n\n## Constraints\n\n- Must check tracer.initialized before attempting init()\n- Must log warning before attempting initialization\n- Must catch and log exceptions from init() without re-raising\n- Must verify tracer.initialized after init() call to confirm success\n\n## Cautions\n\n- Automatic initialization may mask configuration issues; explicit init() is preferred in production\n- Logging warnings and errors should be visible to caller for debugging\n\n## Output Contract\n\n- Returns True (or initialized tracer state) if tracer.initialized becomes True; returns None with error logged if initialization fails or raises an exception. Caller can check return value to determine if SDK is ready for trace operations.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Ensure SDK is ready before starting traces; fail safely if initialization is not possible.",
+    "domain": "default",
+    "task_family": "sdk_setup",
+    "method_family": "initialization_with_fallback",
+    "stage": "setup",
+    "applicable_signals": [
+      "tracer.initialized == False",
+      "start_trace() called without prior init() confirmation"
+    ],
+    "contraindications": [
+      "SDK is already confirmed initialized (tracer.initialized == True)",
+      "Explicit init() has already been called and succeeded",
+      "Caller does not need automatic fallback behavior and prefers explicit initialization only"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "SDK has not been initialized (tracer.initialized is False)",
+      "A trace is about to start and caller needs to verify SDK readiness",
+      "Caller invokes start_trace() without prior explicit init()"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Check if tracer.initialized is False', 'condition': 'tracer.initialized == False'}",
+      "{'step': 2, 'action': \"Log warning: 'AgentOps SDK not initialized. Attempting to initialize with defaults before starting trace.'\", 'condition': 'Initialization check passed'}",
+      "{'step': 3, 'action': 'Call init() to initialize with environment variables or defaults', 'condition': 'Warning logged'}",
+      "{'step': 4, 'action': 'Check if tracer.initialized is True after init()', 'condition': 'init() completed without exception'}",
+      "{'step': 5, 'action': \"Log error: 'SDK initialization failed. Cannot start trace.' and return None\", 'condition': 'tracer.initialized is still False after init()'}",
+      "{'step': 6, 'action': 'Catch exception from init(), log error with exception details, and return None', 'condition': 'init() raises an exception'}"
+    ],
+    "constraints": [
+      "Must check tracer.initialized before attempting init()",
+      "Must log warning before attempting initialization",
+      "Must catch and log exceptions from init() without re-raising",
+      "Must verify tracer.initialized after init() call to confirm success"
+    ],
+    "cautions": [
+      "Automatic initialization may mask configuration issues; explicit init() is preferred in production",
+      "Logging warnings and errors should be visible to caller for debugging"
+    ],
+    "output_contract": [
+      "Returns True (or initialized tracer state) if tracer.initialized becomes True; returns None with error logged if initialization fails or raises an exception. Caller can check return value to determine if SDK is ready for trace operations."
+    ],
+    "examples": [],
+    "tags": [
+      "sdk_initialization",
+      "error_handling",
+      "fallback_logic",
+      "setup_guard"
+    ],
+    "support_ids": [
+      "3ac02d9e-04a0-56e3-b28b-f9dd3022b88e"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "8e8b5add-9279-5d8f-99ab-8a63e82b721a"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|ensure sdk is ready before starting traces; fail safely if initialization is not possible.|default|sdk_setup|initialization_with_fallback|setup|sdk initialization with fallback"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

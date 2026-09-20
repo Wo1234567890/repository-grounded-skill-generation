@@ -1,0 +1,586 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "instrumentation",
+  "run_id": "20260915T093653_a61686ce",
+  "skills": [
+    {
+      "skill_id": "cf066521-44bd-5d3a-ba81-5603ffba695b",
+      "name": "Span Management with Attribute Tracking",
+      "description": "Create and manage instrumentation spans with consistent attribute assignment using SpanAttributeManager and create_span context manager. Use when instrumenting operations that need distributed tracing and attribute metadata.",
+      "skill_body": "To establish a span with consistent attributes:\n1. Import create_span and SpanAttributeManager from agentops.instrumentation.common\n2. Instantiate SpanAttributeManager with service_name\n3. Use create_span as a context manager, passing tracer, operation name, attributes dict, and attribute_manager\n4. Execute operation code within the span context\n5. Span automatically closes on context exit\n\n## Objective\n\nEstablish consistent span creation and attribute management for operation tracing\n## Applicable Signals\n\n- Operation requires distributed tracing instrumentation\n- Custom attribute metadata must be attached to operation span\n- Caller needs to track operation execution with service context\n\n## Contraindications\n\n- Operation does not require tracing or monitoring\n- Span context is already managed by parent instrumentation\n- Tracer is not initialized or available\n\n## Intervention Moves\n\n- Initialize SpanAttributeManager with service identifier\n- Wrap operation code in create_span context manager\n- Pass operation name and attribute dict to create_span\n- Allow span to auto-close on context exit\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Import utilities', 'detail': 'from agentops.instrumentation.common import create_span, SpanAttributeManager'}\n- {'step': 2, 'action': 'Create attribute manager', 'detail': 'attr_manager = SpanAttributeManager(service_name=\"<service-identifier>\")'}\n- {'step': 3, 'action': 'Enter span context', 'detail': 'with create_span(tracer, \"<operation.name>\", attributes={...}, attribute_manager=attr_manager) as span:'}\n- {'step': 4, 'action': 'Execute operation', 'detail': 'Place operation code inside the with block'}\n- {'step': 5, 'action': 'Exit and record', 'detail': 'Span automatically closes and records on context exit'}\n\n## Constraints\n\n- Tracer object must be available and initialized before calling create_span\n- SpanAttributeManager must be instantiated with valid service_name\n- Operation code must execute within the context manager block\n\n## Cautions\n\n- Ensure tracer lifecycle is managed by caller; create_span does not initialize tracer\n- Attributes dict should contain only serializable values\n- Nested spans require separate create_span calls; do not reuse span context across operations\n\n## Output Contract\n\n- Returns active span object with service_name and custom attributes set; operation code executes within span context; span automatically closes and records on context exit\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Instrumenting a database query operation with service context\n- Therapist/Output: Active span named 'db.query' with attributes {service_name: 'my-service', 'db.operation': 'select'} recorded after query execution\n- Notes: Caller provides tracer and operation name; SpanAttributeManager ensures consistent service metadata",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "940d307d-ee0e-5807-8c39-4c5d23259d41",
+        "68d2ebdb-9167-542f-8604-e8b7fac3db57"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Establish consistent span creation and attribute management for operation tracing",
+      "domain": "default",
+      "task_family": "instrumentation",
+      "method_family": "span_management",
+      "stage": "execution",
+      "applicable_signals": [
+        "Operation requires distributed tracing instrumentation",
+        "Custom attribute metadata must be attached to operation span",
+        "Caller needs to track operation execution with service context"
+      ],
+      "contraindications": [
+        "Operation does not require tracing or monitoring",
+        "Span context is already managed by parent instrumentation",
+        "Tracer is not initialized or available"
+      ],
+      "intervention_moves": [
+        "Initialize SpanAttributeManager with service identifier",
+        "Wrap operation code in create_span context manager",
+        "Pass operation name and attribute dict to create_span",
+        "Allow span to auto-close on context exit"
+      ],
+      "triggers": [
+        "Instrumenting a discrete operation or function call that requires distributed tracing and attribute metadata capture"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Import utilities', 'detail': 'from agentops.instrumentation.common import create_span, SpanAttributeManager'}",
+        "{'step': 2, 'action': 'Create attribute manager', 'detail': 'attr_manager = SpanAttributeManager(service_name=\"<service-identifier>\")'}",
+        "{'step': 3, 'action': 'Enter span context', 'detail': 'with create_span(tracer, \"<operation.name>\", attributes={...}, attribute_manager=attr_manager) as span:'}",
+        "{'step': 4, 'action': 'Execute operation', 'detail': 'Place operation code inside the with block'}",
+        "{'step': 5, 'action': 'Exit and record', 'detail': 'Span automatically closes and records on context exit'}"
+      ],
+      "constraints": [
+        "Tracer object must be available and initialized before calling create_span",
+        "SpanAttributeManager must be instantiated with valid service_name",
+        "Operation code must execute within the context manager block"
+      ],
+      "cautions": [
+        "Ensure tracer lifecycle is managed by caller; create_span does not initialize tracer",
+        "Attributes dict should contain only serializable values",
+        "Nested spans require separate create_span calls; do not reuse span context across operations"
+      ],
+      "output_contract": [
+        "Returns active span object with service_name and custom attributes set; operation code executes within span context; span automatically closes and records on context exit"
+      ],
+      "examples": [
+        {
+          "input": "Instrumenting a database query operation with service context",
+          "output": "Active span named 'db.query' with attributes {service_name: 'my-service', 'db.operation': 'select'} recorded after query execution",
+          "notes": "Caller provides tracer and operation name; SpanAttributeManager ensures consistent service metadata"
+        }
+      ],
+      "tags": [
+        "instrumentation",
+        "distributed-tracing",
+        "span-management",
+        "attribute-tracking",
+        "context-manager"
+      ],
+      "support_ids": [
+        "60247652-999e-5994-b702-f82a0c19f018"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "0cdf83fa-0db3-5ae0-81d0-13f0b95f9258"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|establish consistent span creation and attribute management for operation tracing|default|instrumentation|span_management|execution|span management with attribute tracking",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "940d307d-ee0e-5807-8c39-4c5d23259d41",
+          "68d2ebdb-9167-542f-8604-e8b7fac3db57"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "3a5d5495-e130-5d76-915b-5f9fab29f2fa",
+      "name": "Token Usage Extraction and Attribution",
+      "description": "Extract token usage metrics from LLM/API responses and record them as span attributes for observability and cost tracking. Parses response metadata using TokenUsageExtractor and applies prompt/completion token counts to active instrumentation spans.",
+      "skill_body": "When an LLM or API response is received, use TokenUsageExtractor.extract_from_response(response) to parse token counts, then call set_token_usage_attributes(span, response) to record prompt_tokens and completion_tokens as span attributes. This ensures consistent token usage tracking across all instrumented operations.\n\n## Objective\n\nCapture and record token usage from LLM responses into instrumentation spans\n## Applicable Signals\n\n- LLM or API response received\n- Token usage metadata present in response\n- Span context active and ready for attribute assignment\n\n## Contraindications\n\n- Response does not contain token usage metadata\n- Token tracking is not required for the operation\n- No active span context available\n\n## Intervention Moves\n\n- Extract token usage from response using TokenUsageExtractor.extract_from_response()\n- Set extracted token counts on span using set_token_usage_attributes(span, response)\n- Verify span attributes include prompt_tokens and completion_tokens\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Receive LLM or API response object', 'condition': 'Response is available and contains potential token usage data'}\n- {'step': 2, 'action': 'Call TokenUsageExtractor.extract_from_response(response)', 'condition': 'Response object is compatible with extractor'}\n- {'step': 3, 'action': 'Call set_token_usage_attributes(span, response)', 'condition': 'Extraction succeeded and span context is active'}\n- {'step': 4, 'action': 'Verify span attributes contain prompt_tokens and completion_tokens', 'condition': 'Attribute assignment completed'}\n\n## Constraints\n\n- Response object must be compatible with TokenUsageExtractor\n- Span must be active and writable at time of attribute assignment\n- Token values must be numeric and non-negative\n\n## Cautions\n\n- Ensure response object structure matches expected format before extraction\n- Verify span is still in scope before setting attributes\n- Handle cases where token counts may be missing or zero\n\n## Output Contract\n\n- Span attributes updated with prompt_tokens and completion_tokens values extracted from response; token usage is now recorded for downstream observability and billing systems\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: API response object with usage field: {\"choices\": [...], \"usage\": {\"prompt_tokens\": 100, \"completion_tokens\": 50}}\n- Therapist/Output: Span attributes set: span.attributes[\"prompt_tokens\"] = 100, span.attributes[\"completion_tokens\"] = 50\n- Notes: Standard OpenAI-style response format",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "6435e985-8972-565a-a361-da1778a0a79c",
+        "9c94fdb4-079e-5b48-9d89-aa66d04b09e6"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Capture and record token usage from LLM responses into instrumentation spans",
+      "domain": "default",
+      "task_family": "instrumentation",
+      "method_family": "metrics_extraction",
+      "stage": "post_execution",
+      "applicable_signals": [
+        "LLM or API response received",
+        "Token usage metadata present in response",
+        "Span context active and ready for attribute assignment"
+      ],
+      "contraindications": [
+        "Response does not contain token usage metadata",
+        "Token tracking is not required for the operation",
+        "No active span context available"
+      ],
+      "intervention_moves": [
+        "Extract token usage from response using TokenUsageExtractor.extract_from_response()",
+        "Set extracted token counts on span using set_token_usage_attributes(span, response)",
+        "Verify span attributes include prompt_tokens and completion_tokens"
+      ],
+      "triggers": [
+        "LLM or API response is received and token usage must be tracked for observability or billing"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Receive LLM or API response object', 'condition': 'Response is available and contains potential token usage data'}",
+        "{'step': 2, 'action': 'Call TokenUsageExtractor.extract_from_response(response)', 'condition': 'Response object is compatible with extractor'}",
+        "{'step': 3, 'action': 'Call set_token_usage_attributes(span, response)', 'condition': 'Extraction succeeded and span context is active'}",
+        "{'step': 4, 'action': 'Verify span attributes contain prompt_tokens and completion_tokens', 'condition': 'Attribute assignment completed'}"
+      ],
+      "constraints": [
+        "Response object must be compatible with TokenUsageExtractor",
+        "Span must be active and writable at time of attribute assignment",
+        "Token values must be numeric and non-negative"
+      ],
+      "cautions": [
+        "Ensure response object structure matches expected format before extraction",
+        "Verify span is still in scope before setting attributes",
+        "Handle cases where token counts may be missing or zero"
+      ],
+      "output_contract": [
+        "Span attributes updated with prompt_tokens and completion_tokens values extracted from response; token usage is now recorded for downstream observability and billing systems"
+      ],
+      "examples": [
+        {
+          "input": "API response object with usage field: {\"choices\": [...], \"usage\": {\"prompt_tokens\": 100, \"completion_tokens\": 50}}",
+          "output": "Span attributes set: span.attributes[\"prompt_tokens\"] = 100, span.attributes[\"completion_tokens\"] = 50",
+          "notes": "Standard OpenAI-style response format"
+        }
+      ],
+      "tags": [
+        "token_counting",
+        "metrics",
+        "observability",
+        "cost_tracking",
+        "span_attributes"
+      ],
+      "support_ids": [
+        "a1ebf207-5d45-5276-b614-a55d36dda2da"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "58456e7a-2a8f-5da5-9f35-9b9a2f3a3abd"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.82,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|capture and record token usage from llm responses into instrumentation spans|default|instrumentation|metrics_extraction|post_execution|token usage extraction and attribution",
+        "llm_reason": "Candidate is a distinct micro_skill for token usage extraction and attribution in LLM instrumentation spans. It differs semantically from peer candidates (streaming instrumentation, span management, function decoration) and existing skills (observation convention, image optimization). No existing skill captures the specific capability of extracting token metrics from LLM responses and recording them as span attributes. Peer candidates address related but separate instrumentation concerns (streaming wrappers, generic span creation, function decoration). The candidate has support evidence and no conflicts.",
+        "change_action": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "6435e985-8972-565a-a361-da1778a0a79c",
+          "9c94fdb4-079e-5b48-9d89-aa66d04b09e6"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "e97f4cb1-501f-54d3-9e55-96cbd7d70a31",
+      "name": "Streaming Response Instrumentation",
+      "description": "Wrap streaming methods with instrumentation that extracts chunk content and tracks streaming lifecycle. Emits spans for each chunk with extracted content and stream metadata.",
+      "skill_body": "Use create_stream_wrapper_factory to wrap streaming methods. Provide a tracer, operation name, chunk content extractor, and initial attributes. Apply the wrapper to streaming methods using wrap_function_wrapper. Each chunk emission will generate a span with extracted content and stream metadata.\n\n## Objective\n\nInstrument streaming responses with chunk-level tracing and content extraction\n## Applicable Signals\n\n- Method returns streaming or generator-based response\n- Chunk-by-chunk tracing is required\n- Response content extraction is needed for observability\n\n## Contraindications\n\n- Response is non-streaming or synchronous\n- Streaming instrumentation overhead is not justified for the use case\n- Chunk-level tracing is not required\n\n## Intervention Moves\n\n- Import create_stream_wrapper_factory and StreamingResponseHandler from agentops.instrumentation.common\n- Create a stream wrapper factory with tracer, operation name, and chunk content extractor\n- Apply wrapper to streaming methods using wrap_function_wrapper\n- Verify spans are emitted for each chunk with extracted content\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Import streaming utilities', 'detail': 'from agentops.instrumentation.common import create_stream_wrapper_factory, StreamingResponseHandler'}\n- {'step': 2, 'action': 'Create stream wrapper factory', 'detail': \"wrapper = create_stream_wrapper_factory(tracer, 'my.stream', extract_chunk_content=StreamingResponseHandler.extract_generic_chunk_content, initial_attributes={'stream.type': 'text'})\"}\n- {'step': 3, 'action': 'Apply wrapper to streaming method', 'detail': \"wrap_function_wrapper('my_module', 'stream_method', wrapper)\"}\n- {'step': 4, 'action': 'Verify instrumentation', 'detail': 'Confirm spans are emitted for each chunk with extracted content and stream metadata'}\n\n## Constraints\n\n- Tracer must be initialized and available\n- Chunk content extractor must be compatible with response format\n- wrap_function_wrapper must target the correct module and method name\n\n## Output Contract\n\n- Wrapped function that emits spans for each chunk with extracted content and stream metadata\n- Downstream callers receive streaming response with transparent tracing",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "453f771d-10b8-57c4-bb54-b12321a1b7b8",
+        "68d2ebdb-9167-542f-8604-e8b7fac3db57"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Instrument streaming responses with chunk-level tracing and content extraction",
+      "domain": "default",
+      "task_family": "instrumentation",
+      "method_family": "streaming_wrapper",
+      "stage": "execution",
+      "applicable_signals": [
+        "Method returns streaming or generator-based response",
+        "Chunk-by-chunk tracing is required",
+        "Response content extraction is needed for observability"
+      ],
+      "contraindications": [
+        "Response is non-streaming or synchronous",
+        "Streaming instrumentation overhead is not justified for the use case",
+        "Chunk-level tracing is not required"
+      ],
+      "intervention_moves": [
+        "Import create_stream_wrapper_factory and StreamingResponseHandler from agentops.instrumentation.common",
+        "Create a stream wrapper factory with tracer, operation name, and chunk content extractor",
+        "Apply wrapper to streaming methods using wrap_function_wrapper",
+        "Verify spans are emitted for each chunk with extracted content"
+      ],
+      "triggers": [
+        "Method returns streaming or generator-based response that must be traced chunk-by-chunk"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Import streaming utilities', 'detail': 'from agentops.instrumentation.common import create_stream_wrapper_factory, StreamingResponseHandler'}",
+        "{'step': 2, 'action': 'Create stream wrapper factory', 'detail': \"wrapper = create_stream_wrapper_factory(tracer, 'my.stream', extract_chunk_content=StreamingResponseHandler.extract_generic_chunk_content, initial_attributes={'stream.type': 'text'})\"}",
+        "{'step': 3, 'action': 'Apply wrapper to streaming method', 'detail': \"wrap_function_wrapper('my_module', 'stream_method', wrapper)\"}",
+        "{'step': 4, 'action': 'Verify instrumentation', 'detail': 'Confirm spans are emitted for each chunk with extracted content and stream metadata'}"
+      ],
+      "constraints": [
+        "Tracer must be initialized and available",
+        "Chunk content extractor must be compatible with response format",
+        "wrap_function_wrapper must target the correct module and method name"
+      ],
+      "cautions": [],
+      "output_contract": [
+        "Wrapped function that emits spans for each chunk with extracted content and stream metadata",
+        "Downstream callers receive streaming response with transparent tracing"
+      ],
+      "examples": [],
+      "tags": [
+        "streaming",
+        "instrumentation",
+        "tracing",
+        "chunk-tracking",
+        "observability"
+      ],
+      "support_ids": [
+        "607a523c-1061-5cb1-ac68-8df45ffb79e2"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "dfc26c23-836e-5c1b-bbfc-d6811b594c99"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|instrument streaming responses with chunk-level tracing and content extraction|default|instrumentation|streaming_wrapper|execution|streaming response instrumentation",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill for streaming response instrumentation with chunk-level tracing. It differs semantically from peer candidates (span management, async/generator wrapping, token extraction) and existing skills (which cover layout stability and Flink data ingestion—unrelated domains). No existing skill covers streaming wrapper factory creation and chunk content extraction. Support evidence from Debugging Roadmap validates the approach but does not indicate an existing skill should be updated.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "453f771d-10b8-57c4-bb54-b12321a1b7b8",
+          "68d2ebdb-9167-542f-8604-e8b7fac3db57"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "6435e985-8972-565a-a361-da1778a0a79c",
+      "name": "Standard Metrics Recording",
+      "description": "Create and record standard metrics (token usage, duration) using StandardMetrics and MetricsRecorder for consistent observability across instrumentation implementations.",
+      "skill_body": "Use StandardMetrics to create standard metrics from a meter, then use MetricsRecorder to record token usage (prompt_tokens, completion_tokens) and operation duration. This ensures consistent metrics collection across all instrumentations.\n\n## Objective\n\nEstablish consistent metrics recording across instrumentation implementations\n## Applicable Signals\n\n- Token usage data available from LLM response\n- Operation completion with measurable duration\n- Meter instance available for metrics recording\n\n## Contraindications\n\n- Custom metrics schema is required that deviates from standard metrics\n- Metrics recording is not needed for the instrumentation\n\n## Workflow Steps\n\n- Import StandardMetrics and MetricsRecorder from agentops.instrumentation.common\n- Create standard metrics instance: metrics = StandardMetrics.create_standard_metrics(meter)\n- Instantiate MetricsRecorder with the metrics: recorder = MetricsRecorder(metrics)\n- Record token usage: recorder.record_token_usage(prompt_tokens=<count>, completion_tokens=<count>)\n- Record operation duration: recorder.record_duration(<seconds>)\n\n## Constraints\n\n- Meter must be initialized before creating StandardMetrics\n- Token counts (prompt_tokens, completion_tokens) must be available\n- Duration must be measurable in seconds\n\n## Output Contract\n\n- MetricsRecorder instance with token_usage and duration metrics recorded to meter; metrics are available for downstream observability and cost tracking",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Establish consistent metrics recording across instrumentation implementations",
+      "domain": "default",
+      "task_family": "instrumentation",
+      "method_family": "metrics_recording",
+      "stage": "execution",
+      "applicable_signals": [
+        "Token usage data available from LLM response",
+        "Operation completion with measurable duration",
+        "Meter instance available for metrics recording"
+      ],
+      "contraindications": [
+        "Custom metrics schema is required that deviates from standard metrics",
+        "Metrics recording is not needed for the instrumentation"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Instrumentor needs to record token usage and operation duration in a standardized way",
+        "Establishing baseline metrics collection for performance and cost tracking"
+      ],
+      "workflow_steps": [
+        "Import StandardMetrics and MetricsRecorder from agentops.instrumentation.common",
+        "Create standard metrics instance: metrics = StandardMetrics.create_standard_metrics(meter)",
+        "Instantiate MetricsRecorder with the metrics: recorder = MetricsRecorder(metrics)",
+        "Record token usage: recorder.record_token_usage(prompt_tokens=<count>, completion_tokens=<count>)",
+        "Record operation duration: recorder.record_duration(<seconds>)"
+      ],
+      "constraints": [
+        "Meter must be initialized before creating StandardMetrics",
+        "Token counts (prompt_tokens, completion_tokens) must be available",
+        "Duration must be measurable in seconds"
+      ],
+      "cautions": [],
+      "output_contract": [
+        "MetricsRecorder instance with token_usage and duration metrics recorded to meter; metrics are available for downstream observability and cost tracking"
+      ],
+      "examples": [],
+      "tags": [
+        "instrumentation",
+        "metrics",
+        "observability",
+        "token_counting",
+        "performance_tracking"
+      ],
+      "support_ids": [
+        "bd4d75fb-d27f-57cb-b547-552d936d87a9"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "785e2619-b767-5c94-8b18-5824b8fbac4a"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.78,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|establish consistent metrics recording across instrumentation implementations|default|instrumentation|metrics_recording|execution|standard metrics recording",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct session_skill for metrics recording using StandardMetrics and MetricsRecorder. It does not semantically match existing skills: the APM skill focuses on LocalStreamEnvironment/Flink setup (unrelated domain), Spring Boot migration is a different task_family (software_migration vs instrumentation), and peer candidates address agent lifecycle, trace initialization, and pytest fixtures—none of which overlap with metrics recording. The candidate has support evidence and no conflicts, warranting creation as a new capability.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "parent"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "6ce7a08d-3538-493d-8fde-de9829566816",
+      "entity_type": "skill",
+      "entity_id": "cf066521-44bd-5d3a-ba81-5603ffba695b",
+      "action": "create",
+      "changed_at": "2026-09-14T23:32:37+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "create",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "cf066521-44bd-5d3a-ba81-5603ffba695b",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "60247652-999e-5994-b702-f82a0c19f018"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "0fa36dfb-ca99-49c4-a201-1cc351f72272",
+      "entity_type": "skill",
+      "entity_id": "3a5d5495-e130-5d76-915b-5f9fab29f2fa",
+      "action": "create",
+      "changed_at": "2026-09-14T23:32:37+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill for token usage extraction and attribution in LLM instrumentation spans. It differs semantically from peer candidates (streaming instrumentation, span management, function decoration) and existing skills (observation convention, image optimization). No existing skill captures the specific capability of extracting token metrics from LLM responses and recording them as span attributes. Peer candidates address related but separate instrumentation concerns (streaming wrappers, generic span creation, function decoration). The candidate has support evidence and no conflicts.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "3a5d5495-e130-5d76-915b-5f9fab29f2fa",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "a1ebf207-5d45-5276-b614-a55d36dda2da"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "1017fe3e-f150-444d-ba30-7b8085ccb714",
+      "entity_type": "skill",
+      "entity_id": "e97f4cb1-501f-54d3-9e55-96cbd7d70a31",
+      "action": "create",
+      "changed_at": "2026-09-14T23:32:37+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill for streaming response instrumentation with chunk-level tracing. It differs semantically from peer candidates (span management, async/generator wrapping, token extraction) and existing skills (which cover layout stability and Flink data ingestion—unrelated domains). No existing skill covers streaming wrapper factory creation and chunk content extraction. Support evidence from Debugging Roadmap validates the approach but does not indicate an existing skill should be updated.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "e97f4cb1-501f-54d3-9e55-96cbd7d70a31",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "607a523c-1061-5cb1-ac68-8df45ffb79e2"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "fed0616e-0a16-4d55-a5ec-2b65557219b5",
+      "entity_type": "skill",
+      "entity_id": "6435e985-8972-565a-a361-da1778a0a79c",
+      "action": "create",
+      "changed_at": "2026-09-14T23:32:37+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct session_skill for metrics recording using StandardMetrics and MetricsRecorder. It does not semantically match existing skills: the APM skill focuses on LocalStreamEnvironment/Flink setup (unrelated domain), Spring Boot migration is a different task_family (software_migration vs instrumentation), and peer candidates address agent lifecycle, trace initialization, and pytest fixtures—none of which overlap with metrics recording. The candidate has support evidence and no conflicts, warranting creation as a new capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "6435e985-8972-565a-a361-da1778a0a79c",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "bd4d75fb-d27f-57cb-b547-552d936d87a9"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

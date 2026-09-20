@@ -1,0 +1,173 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "data_output",
+  "run_id": "20260916T060701_5d0c58a8",
+  "skills": [
+    {
+      "skill_id": "53c2d99e-669f-543e-951a-f62195b88c0f",
+      "name": "DataStream Sink Output",
+      "description": "Create a custom ServerRequestObservationConvention class by extending DefaultServerRequestObservationConvention or implementing the interface directly to define metric names, trace names, and low-cardinality key-value pairs for Spring Boot 3.0 observation instrumentation.",
+      "skill_body": "Implement a ServerRequestObservationConvention by either extending DefaultServerRequestObservationConvention (to augment default behavior) or implementing the interface directly (for full control). Override getName() for metric name, getContextualName() for trace name, and getLowCardinalityKeyValues() to define custom tags. Register the class as a Spring bean. Verify custom tags appear in metrics output.\n\n## Objective\n\nCode a single observation convention class with metric/trace naming and key-value extraction logic\n## Applicable Signals\n\n- TagProvider or TagContributor classes are deprecated in Spring Boot 3.0\n- Observation support has replaced previous instrumentation filters\n- Custom tags must be migrated from legacy tag infrastructure\n\n## Contraindications\n\n- Default observation behavior is sufficient and no custom metric naming is required\n- No custom tagging or key-value extraction is needed\n- Application does not use HTTP server observations\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Choose extension strategy', 'detail': 'Decide whether to extend DefaultServerRequestObservationConvention (to keep defaults and add custom tags) or implement ServerRequestObservationConvention directly (for full control).'}\n- {'step': 2, 'action': 'Override getName()', 'detail': \"Return the metric name string (e.g., 'http.server.requests') that will be used for the metric name in observations.\"}\n- {'step': 3, 'action': 'Override getContextualName()', 'detail': \"Return a contextual name string (e.g., 'http get') that will be used for the trace name in observations.\"}\n- {'step': 4, 'action': 'Override getLowCardinalityKeyValues()', 'detail': 'Extract and return KeyValues from ServerRequestObservationContext. If extending DefaultServerRequestObservationConvention, call super.getLowCardinalityKeyValues(context).and(custom(context)) to augment defaults.'}\n- {'step': 5, 'action': 'Define custom KeyValue extraction', 'detail': 'Create helper methods (e.g., custom()) to extract specific context fields (method, status, exception) and return as KeyValue objects.'}\n- {'step': 6, 'action': 'Register as Spring bean', 'detail': 'Annotate the class with @Component or define it in a @Configuration class to ensure Spring discovers and registers it.'}\n- {'step': 7, 'action': 'Test and verify', 'detail': 'Deploy and verify that custom metric names, trace names, and tags appear correctly in metrics output.'}\n\n## Constraints\n\n- Class must implement ServerRequestObservationConvention interface or extend DefaultServerRequestObservationConvention\n- Must be registered as a Spring bean for automatic discovery\n- getName() must return a valid metric name string\n- getLowCardinalityKeyValues() must return KeyValues object\n\n## Cautions\n\n- Ensure custom KeyValue names do not conflict with reserved observation keys\n- Low-cardinality keys should have bounded value sets to avoid metric explosion\n- Test that custom tags appear correctly in metrics output before deploying\n\n## Output Contract\n\n- Compiled ServerRequestObservationConvention subclass with overridden methods; bean registered in Spring context; custom metric names, trace names, and tags appear in metrics output and traces.\n\n## Example Executions\n\n### Example 1\n\n- Input: Extend DefaultServerRequestObservationConvention to add a custom 'custom.method' tag\n- Output: Class ExtendedServerRequestObservationConvention extends DefaultServerRequestObservationConvention with overridden getLowCardinalityKeyValues() that calls super and appends KeyValue.of('custom.method', context.getCarrier().getMethod())\n- Notes: Preserves all default tags while adding one custom tag\n\n### Example 2\n\n- Input: Implement ServerRequestObservationConvention directly with full control over metric name, trace name, and tags\n- Output: Class CustomServerRequestObservationConvention implements ServerRequestObservationConvention with getName() returning 'http.server.requests', getContextualName() returning 'http ' + method, and getLowCardinalityKeyValues() returning KeyValues.of(method, status, exception)\n- Notes: Full control; no default tags inherited",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "168e9557-8fc3-577b-8f2b-21fe7a0c6ea5",
+      "parent_candidate_ids": [
+        "168e9557-8fc3-577b-8f2b-21fe7a0c6ea5"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Consume a DataStream and forward it to a sink destination",
+      "domain": "default",
+      "task_family": "data_output",
+      "method_family": "sink_binding",
+      "stage": "sink_setup",
+      "applicable_signals": [
+        "TagProvider or TagContributor classes are deprecated in Spring Boot 3.0",
+        "Observation support has replaced previous instrumentation filters",
+        "Custom tags must be migrated from legacy tag infrastructure"
+      ],
+      "contraindications": [
+        "Default observation behavior is sufficient and no custom metric naming is required",
+        "No custom tagging or key-value extraction is needed",
+        "Application does not use HTTP server observations"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Pipeline transformation is complete",
+        "Results must be persisted or forwarded to external destination",
+        "Output format and destination are defined"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Choose extension strategy', 'detail': 'Decide whether to extend DefaultServerRequestObservationConvention (to keep defaults and add custom tags) or implement ServerRequestObservationConvention directly (for full control).'}",
+        "{'step': 2, 'action': 'Override getName()', 'detail': \"Return the metric name string (e.g., 'http.server.requests') that will be used for the metric name in observations.\"}",
+        "{'step': 3, 'action': 'Override getContextualName()', 'detail': \"Return a contextual name string (e.g., 'http get') that will be used for the trace name in observations.\"}",
+        "{'step': 4, 'action': 'Override getLowCardinalityKeyValues()', 'detail': 'Extract and return KeyValues from ServerRequestObservationContext. If extending DefaultServerRequestObservationConvention, call super.getLowCardinalityKeyValues(context).and(custom(context)) to augment defaults.'}",
+        "{'step': 5, 'action': 'Define custom KeyValue extraction', 'detail': 'Create helper methods (e.g., custom()) to extract specific context fields (method, status, exception) and return as KeyValue objects.'}",
+        "{'step': 6, 'action': 'Register as Spring bean', 'detail': 'Annotate the class with @Component or define it in a @Configuration class to ensure Spring discovers and registers it.'}",
+        "{'step': 7, 'action': 'Test and verify', 'detail': 'Deploy and verify that custom metric names, trace names, and tags appear correctly in metrics output.'}"
+      ],
+      "constraints": [
+        "Class must implement ServerRequestObservationConvention interface or extend DefaultServerRequestObservationConvention",
+        "Must be registered as a Spring bean for automatic discovery",
+        "getName() must return a valid metric name string",
+        "getLowCardinalityKeyValues() must return KeyValues object"
+      ],
+      "cautions": [
+        "Ensure custom KeyValue names do not conflict with reserved observation keys",
+        "Low-cardinality keys should have bounded value sets to avoid metric explosion",
+        "Test that custom tags appear correctly in metrics output before deploying"
+      ],
+      "output_contract": [
+        "Compiled ServerRequestObservationConvention subclass with overridden methods; bean registered in Spring context; custom metric names, trace names, and tags appear in metrics output and traces."
+      ],
+      "examples": [
+        {
+          "input": "Extend DefaultServerRequestObservationConvention to add a custom 'custom.method' tag",
+          "output": "Class ExtendedServerRequestObservationConvention extends DefaultServerRequestObservationConvention with overridden getLowCardinalityKeyValues() that calls super and appends KeyValue.of('custom.method', context.getCarrier().getMethod())",
+          "notes": "Preserves all default tags while adding one custom tag"
+        },
+        {
+          "input": "Implement ServerRequestObservationConvention directly with full control over metric name, trace name, and tags",
+          "output": "Class CustomServerRequestObservationConvention implements ServerRequestObservationConvention with getName() returning 'http.server.requests', getContextualName() returning 'http ' + method, and getLowCardinalityKeyValues() returning KeyValues.of(method, status, exception)",
+          "notes": "Full control; no default tags inherited"
+        }
+      ],
+      "tags": [
+        "spring-boot-3-migration",
+        "observation-instrumentation",
+        "metrics",
+        "custom-convention",
+        "deprecation-handling"
+      ],
+      "support_ids": [
+        "4a6ab068-5c8b-5ea8-8386-13195883ad70",
+        "468e7cf0-a3ab-56fc-9927-9a77a57dfd75"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "9b120c3e-d31c-54a4-8634-23a6f34ec118"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|consume a datastream and forward it to a sink destination|default|data_output|sink_binding|sink_setup|datastream sink output",
+        "change_action": "merge",
+        "llm_reason": "The candidate skill 'Implement Custom ServerRequestObservationConvention' is a narrower, implementation-focused variant of the existing peer skill 'Custom Observation Convention Registration'. Both target the same semantic capability: creating and registering custom ServerRequestObservationConvention beans in Spring Boot 3.0. The candidate focuses on the class coding details (getName, getContextualName, getLowCardinalityKeyValues), while the peer covers the full registration workflow. The candidate should merge into the peer, which already encompasses the broader registration pattern. The peer skill's workflow steps 1–4 align with the candidate's objective and constraints.",
+        "parent_skill_id": "168e9557-8fc3-577b-8f2b-21fe7a0c6ea5",
+        "parent_candidate_ids": [
+          "168e9557-8fc3-577b-8f2b-21fe7a0c6ea5"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf",
+        "merged_from_skill_ids": []
+      },
+      "version": "0.1.1",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "2e506917-a0df-47c5-b3af-9f8dfffd1e89",
+      "entity_type": "skill",
+      "entity_id": "53c2d99e-669f-543e-951a-f62195b88c0f",
+      "action": "merge",
+      "changed_at": "2026-09-15T20:04:50+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "The candidate skill 'Implement Custom ServerRequestObservationConvention' is a narrower, implementation-focused variant of the existing peer skill 'Custom Observation Convention Registration'. Both target the same semantic capability: creating and registering custom ServerRequestObservationConvention beans in Spring Boot 3.0. The candidate focuses on the class coding details (getName, getContextualName, getLowCardinalityKeyValues), while the peer covers the full registration workflow. The candidate should merge into the peer, which already encompasses the broader registration pattern. The peer skill's workflow steps 1–4 align with the candidate's objective and constraints.",
+      "related_entity_ids": [
+        "53c2d99e-669f-543e-951a-f62195b88c0f"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "53c2d99e-669f-543e-951a-f62195b88c0f",
+        "doc_ids": [
+          "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+          "8a0719aa-8715-5b31-81e8-b6b7665dcece"
+        ],
+        "support_added": [
+          "468e7cf0-a3ab-56fc-9927-9a77a57dfd75"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "53c2d99e-669f-543e-951a-f62195b88c0f"
+        ]
+      }
+    }
+  ]
+}

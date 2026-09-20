@@ -1,0 +1,136 @@
+{
+  "skill_id": "8e0637b0-c85d-551f-aaab-509f445d13b3",
+  "name": "Trace-Based Cache Simulation Benchmarking",
+  "description": "Measurement workflow for evaluating algorithm performance across variable warehouse counts and contention levels, tracking throughput degradation and abort rate changes as contention increases.",
+  "skill_body": "Execute a series of performance benchmarks varying warehouse count and contention intensity. For each configuration, measure throughput (million transactions per second), abort rate, and normalized runtime. Record metrics at low, medium, and high contention points. Compare results across algorithm variants to identify performance cliffs and contention sensitivity.\n\n## Objective\n\nAssess algorithm robustness under varying contention conditions\n## Applicable Signals\n\n- Throughput degradation observed in initial runs\n- Abort rate spike at specific warehouse counts\n- Need to validate algorithm stability across load ranges\n\n## Contraindications\n\n- Low-contention scenarios where contention is not a primary concern\n- Single-warehouse deployments with no scaling variation\n- Non-scalability studies focused on fixed configurations\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Configure baseline warehouse count and contention level', 'input': 'Algorithm variant, initial warehouse count, contention intensity setting', 'output': 'Configuration validated and ready for measurement'}\n- {'step': 2, 'action': 'Execute benchmark at current configuration', 'input': 'Configured algorithm and workload parameters', 'output': 'Raw throughput (million txn/s) and abort rate samples'}\n- {'step': 3, 'action': 'Increment warehouse count or contention level', 'input': 'Current configuration metrics', 'output': 'Next configuration parameters'}\n- {'step': 4, 'action': 'Repeat steps 2–3 until all contention levels are covered', 'input': 'Remaining configurations', 'output': 'Complete metric set across contention range'}\n- {'step': 5, 'action': 'Normalize runtime and aggregate abort rate trends', 'input': 'All collected metrics', 'output': 'Normalized runtime and abort rate curves'}\n\n## Constraints\n\n- Warehouse count must vary across at least three distinct levels\n- Contention intensity must be systematically increased\n- Metrics must be collected consistently across all configurations\n\n## Cautions\n\n- Abort rate may spike unpredictably at contention thresholds; allow sufficient warm-up runs\n- Normalized runtime interpretation requires baseline reference; document baseline configuration\n- High contention may cause system instability; monitor resource utilization\n\n## Output Contract\n\n- Performance metrics dataset containing throughput (million txn/s), abort rate (%), and normalized runtime across all tested warehouse counts and contention levels. Output must include at least three contention points and enable identification of performance degradation patterns.",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "45af28b7-7a99-5647-9e84-0b7916ae7ec2",
+  "parent_candidate_ids": [
+    "45af28b7-7a99-5647-9e84-0b7916ae7ec2"
+  ],
+  "child_skill_ids": [
+    "96b4f0bd-4385-5ac7-b23a-5631eac86cc2",
+    "c651de49-0a54-5af6-ac24-547343a892d1"
+  ],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "linked",
+  "visible_role": "parent",
+  "objective": "Execute reproducible cache algorithm performance testing without production latency variability",
+  "domain": "default",
+  "task_family": "cache_benchmarking",
+  "method_family": "simulation_replay",
+  "stage": "testing",
+  "applicable_signals": [
+    "Throughput degradation observed in initial runs",
+    "Abort rate spike at specific warehouse counts",
+    "Need to validate algorithm stability across load ranges"
+  ],
+  "contraindications": [
+    "Low-contention scenarios where contention is not a primary concern",
+    "Single-warehouse deployments with no scaling variation",
+    "Non-scalability studies focused on fixed configurations"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Need to evaluate cache eviction algorithms across multiple workload types",
+    "Require isolation of algorithm behavior from backend latency",
+    "Scale evaluation to large datasets with limited compute resources"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Configure baseline warehouse count and contention level', 'input': 'Algorithm variant, initial warehouse count, contention intensity setting', 'output': 'Configuration validated and ready for measurement'}",
+    "{'step': 2, 'action': 'Execute benchmark at current configuration', 'input': 'Configured algorithm and workload parameters', 'output': 'Raw throughput (million txn/s) and abort rate samples'}",
+    "{'step': 3, 'action': 'Increment warehouse count or contention level', 'input': 'Current configuration metrics', 'output': 'Next configuration parameters'}",
+    "{'step': 4, 'action': 'Repeat steps 2–3 until all contention levels are covered', 'input': 'Remaining configurations', 'output': 'Complete metric set across contention range'}",
+    "{'step': 5, 'action': 'Normalize runtime and aggregate abort rate trends', 'input': 'All collected metrics', 'output': 'Normalized runtime and abort rate curves'}"
+  ],
+  "constraints": [
+    "Warehouse count must vary across at least three distinct levels",
+    "Contention intensity must be systematically increased",
+    "Metrics must be collected consistently across all configurations"
+  ],
+  "cautions": [
+    "Abort rate may spike unpredictably at contention thresholds; allow sufficient warm-up runs",
+    "Normalized runtime interpretation requires baseline reference; document baseline configuration",
+    "High contention may cause system instability; monitor resource utilization"
+  ],
+  "output_contract": [
+    "Performance metrics dataset containing throughput (million txn/s), abort rate (%), and normalized runtime across all tested warehouse counts and contention levels. Output must include at least three contention points and enable identification of performance degradation patterns."
+  ],
+  "examples": [
+    {
+      "input": "Trace dataset (block workload, 1M requests), S3-FIFO algorithm, cache size 1GB, slab allocator pre-configured",
+      "output": "Miss ratio reduction: 14% mean, P90 32% vs. FIFO baseline; trace replay completed, 1M requests processed",
+      "notes": "Closed-loop replay isolates algorithm behavior; no backend latency recorded"
+    },
+    {
+      "input": "Trace dataset (key-value workload, 10M requests), TinyLFU algorithm, cache size 512MB",
+      "output": "Miss ratio reduction: -5% (worse than FIFO on this trace); trace replay completed, 10M requests processed",
+      "notes": "TinyLFU may underperform on certain workloads; relative metrics highlight algorithm sensitivity"
+    }
+  ],
+  "tags": [
+    "performance_measurement",
+    "contention_analysis",
+    "scalability_testing",
+    "throughput_tracking",
+    "abort_rate_monitoring"
+  ],
+  "support_ids": [
+    "3d14f5e7-47e2-5e8a-8c51-629d5b6b2a84",
+    "582b3581-f973-52c2-aba5-7f1d710c981c"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "f8f9c36b-bf93-51ff-8a1a-1eb56b2d1dfa"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.8,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|execute reproducible cache algorithm performance testing without production latency variability|default|cache_benchmarking|simulation_replay|testing|trace-based cache simulation benchmarking",
+    "change_action": "merge",
+    "llm_reason": "Candidate 'Workload Contention Scaling Assessment' is a specialized measurement workflow that focuses on systematic contention variation and throughput/abort rate tracking. This capability is semantically contained within the broader peer candidates: it measures algorithm robustness under contention (peer 08601861), evaluates isolation level impact under variable contention (peer b22fc17b), and executes workload-based benchmarking with variable warehouse counts and contention (peer a573a5cb). The candidate does not introduce a distinct capability; rather, it represents a narrower instantiation of contention-focused measurement already covered by these three existing session_skill peers. Merging into these three existing skills avoids capability fragmentation and maintains coherent workflow organization at the session_skill layer.",
+    "parent_skill_id": "45af28b7-7a99-5647-9e84-0b7916ae7ec2",
+    "parent_candidate_ids": [
+      "45af28b7-7a99-5647-9e84-0b7916ae7ec2"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "linked",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "96b4f0bd-4385-5ac7-b23a-5631eac86cc2",
+      "c651de49-0a54-5af6-ac24-547343a892d1"
+    ],
+    "merged_from_skill_ids": []
+  },
+  "version": "0.1.1",
+  "status": "active"
+}

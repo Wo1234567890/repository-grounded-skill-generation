@@ -1,0 +1,160 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "async_task_error_handling",
+  "run_id": "20260915T071929_7e7d7d5d",
+  "skills": [
+    {
+      "skill_id": "5dd1b2bc-7f4e-5620-b497-1d40d196e251",
+      "name": "Future Exception Inspection with Timeout",
+      "description": "Inspect the exception raised by an asynchronous task without blocking indefinitely. Returns None if the task completed successfully, or raises TimeoutError if the exception is not available within the timeout window.",
+      "skill_body": "Call future.exception(timeout=T) to retrieve the exception object from a completed task. If timeout is None, wait indefinitely. If timeout is a positive number (int or float), wait up to that many seconds. Returns None if the task completed without raising an exception. Raises TimeoutError if the timeout expires before the task completes. Raises CancelledError if the future was cancelled before completion.\n\n## Objective\n\nSafely retrieve exception state from a completed or failed task for error handling and logging\n## Applicable Signals\n\n- Caller needs to determine whether a parallel task raised an exception\n- Exception must be inspected without re-raising it\n- A maximum wait time must be enforced before giving up on exception retrieval\n\n## Contraindications\n\n- The future has not been submitted to an executor\n- The caller wants to propagate the exception immediately to the caller\n- Synchronous blocking is unacceptable in the execution context\n\n## Workflow Steps\n\n- Obtain a Future object from an Executor (e.g., ThreadPoolExecutor or ProcessPoolExecutor)\n- Call future.exception(timeout=T) where T is None or a numeric timeout in seconds\n- Handle the return value: None indicates successful completion, or catch TimeoutError/CancelledError\n\n## Constraints\n\n- timeout parameter must be None, int, or float\n- timeout must be non-negative if specified\n- The future must have been created by an Executor\n\n## Cautions\n\n- If timeout is None, the call will block indefinitely until the task completes\n- If the future was cancelled, CancelledError is raised regardless of timeout\n- Exceptions raised by the task are returned as objects, not re-raised\n\n## Output Contract\n\n- Returns the exception object if the task raised an exception; returns None if the task completed without raising; raises TimeoutError if timeout expires before completion; raises CancelledError if the future was cancelled.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: future.exception(timeout=5)\n- Therapist/Output: Returns exception object if task raised; None if task succeeded; raises TimeoutError if 5 seconds elapsed\n- Notes: Typical use case: check for errors in a background task with a bounded wait\n\n### Example 2\n\n- Client/Input: future.exception(timeout=None)\n- Therapist/Output: Blocks until task completes, then returns exception or None\n- Notes: Use only when indefinite blocking is acceptable",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "7e395db8-c585-5606-af32-0046c573bbc4",
+      "parent_candidate_ids": [
+        "7e395db8-c585-5606-af32-0046c573bbc4"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Safely retrieve exception state from a completed or failed task for error handling and logging",
+      "domain": "default",
+      "task_family": "async_task_error_handling",
+      "method_family": "future_polling",
+      "stage": "error_inspection",
+      "applicable_signals": [
+        "Caller needs to determine whether a parallel task raised an exception",
+        "Exception must be inspected without re-raising it",
+        "A maximum wait time must be enforced before giving up on exception retrieval"
+      ],
+      "contraindications": [
+        "The future has not been submitted to an executor",
+        "The caller wants to propagate the exception immediately to the caller",
+        "Synchronous blocking is unacceptable in the execution context"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Caller needs to determine whether a parallel task raised an exception and must inspect it without re-raising, or must enforce a maximum wait time."
+      ],
+      "workflow_steps": [
+        "Obtain a Future object from an Executor (e.g., ThreadPoolExecutor or ProcessPoolExecutor)",
+        "Call future.exception(timeout=T) where T is None or a numeric timeout in seconds",
+        "Handle the return value: None indicates successful completion, or catch TimeoutError/CancelledError"
+      ],
+      "constraints": [
+        "timeout parameter must be None, int, or float",
+        "timeout must be non-negative if specified",
+        "The future must have been created by an Executor"
+      ],
+      "cautions": [
+        "If timeout is None, the call will block indefinitely until the task completes",
+        "If the future was cancelled, CancelledError is raised regardless of timeout",
+        "Exceptions raised by the task are returned as objects, not re-raised"
+      ],
+      "output_contract": [
+        "Returns the exception object if the task raised an exception; returns None if the task completed without raising; raises TimeoutError if timeout expires before completion; raises CancelledError if the future was cancelled."
+      ],
+      "examples": [
+        {
+          "input": "future.exception(timeout=5)",
+          "output": "Returns exception object if task raised; None if task succeeded; raises TimeoutError if 5 seconds elapsed",
+          "notes": "Typical use case: check for errors in a background task with a bounded wait"
+        },
+        {
+          "input": "future.exception(timeout=None)",
+          "output": "Blocks until task completes, then returns exception or None",
+          "notes": "Use only when indefinite blocking is acceptable"
+        }
+      ],
+      "tags": [
+        "concurrent.futures",
+        "Future",
+        "exception_handling",
+        "async_task",
+        "timeout",
+        "error_inspection"
+      ],
+      "support_ids": [
+        "31a278af-d71e-52f4-b89e-5ed6f8d1ac8b"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "d32771b5-ac20-555f-a89a-71e23d290657"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|safely retrieve exception state from a completed or failed task for error handling and logging|default|async_task_error_handling|future_polling|error_inspection|future exception inspection with timeout",
+        "llm_reason": "Candidate is a distinct micro_skill in the async_task_error_handling family, focused on exception inspection via future.exception(timeout=T). It differs semantically from peer candidates: b1c7e545 covers state polling/cancellation (execution stage), 29ec8d8d covers result retrieval (result_collection stage), and 8223a823 covers terminal state checks (state_check stage). The candidate operates at the error_inspection stage with a specific focus on exception state retrieval with timeout semantics. Existing skills are unrelated (reward function design). No merge, split, or revision applies.",
+        "change_action": "create",
+        "parent_skill_id": "7e395db8-c585-5606-af32-0046c573bbc4",
+        "parent_candidate_ids": [
+          "7e395db8-c585-5606-af32-0046c573bbc4"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "e97e67c4-aa48-44f0-bf20-40f6e23b39f9",
+      "entity_type": "skill",
+      "entity_id": "5dd1b2bc-7f4e-5620-b497-1d40d196e251",
+      "action": "create",
+      "changed_at": "2026-09-14T21:18:39+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill in the async_task_error_handling family, focused on exception inspection via future.exception(timeout=T). It differs semantically from peer candidates: b1c7e545 covers state polling/cancellation (execution stage), 29ec8d8d covers result retrieval (result_collection stage), and 8223a823 covers terminal state checks (state_check stage). The candidate operates at the error_inspection stage with a specific focus on exception state retrieval with timeout semantics. Existing skills are unrelated (reward function design). No merge, split, or revision applies.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "5dd1b2bc-7f4e-5620-b497-1d40d196e251",
+        "doc_ids": [
+          "771b7202-2a1d-5eea-bda3-df5cd4ea6620"
+        ],
+        "support_added": [
+          "31a278af-d71e-52f4-b89e-5ed6f8d1ac8b"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

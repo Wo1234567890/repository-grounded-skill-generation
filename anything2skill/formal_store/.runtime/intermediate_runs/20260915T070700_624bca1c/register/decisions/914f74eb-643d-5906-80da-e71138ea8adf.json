@@ -1,0 +1,117 @@
+{
+  "skill_id": "914f74eb-643d-5906-80da-e71138ea8adf",
+  "action": "split",
+  "matched_skill_ids": [
+    "ab334d07-1b79-5de7-878d-8dc51a398bac"
+  ],
+  "reason": "Candidate 914f74eb is a narrower, execution-focused child of the broader ProcessPoolExecutor initialization skill (ab334d07). The candidate covers the core map-based execution workflow (steps 2-5 of initialization + execution), while ab334d07 covers initialization with per-worker setup. The peer candidates (7e395db8, 14a91775) represent complementary executor patterns at the same granularity. This is a legitimate split: the candidate isolates the embarrassingly-parallel map execution pattern from the more complex initializer setup pattern.",
+  "split_parent_id": "ab334d07-1b79-5de7-878d-8dc51a398bac",
+  "skill": {
+    "skill_id": "914f74eb-643d-5906-80da-e71138ea8adf",
+    "name": "ProcessPoolExecutor Setup and Execution",
+    "description": "Initialize and execute CPU-bound tasks in parallel using ProcessPoolExecutor with worker process lifecycle management. Distributes independent computational work across multiple processes, handling context creation, task mapping, and result collection.",
+    "skill_body": "1. Import concurrent.futures and define your CPU-bound function (e.g., is_prime).\n2. Create a ProcessPoolExecutor context using `with concurrent.futures.ProcessPoolExecutor() as executor:`.\n3. Use `executor.map(function, iterable)` to apply the function to each item in parallel.\n4. Iterate over results as they complete or collect them.\n5. Exit the context to ensure proper cleanup of worker processes.\nNote: Avoid passing mutable shared state or frequent inter-process communication.\n\n## Objective\n\nExecute embarrassingly parallel CPU-bound tasks with process pool\n## Applicable Signals\n\n- Computational bottleneck in single-threaded execution\n- Tasks are embarrassingly parallel\n- System has multiple CPU cores\n\n## Contraindications\n\n- I/O-bound tasks (use ThreadPoolExecutor instead)\n- Shared mutable state across tasks\n- Tasks require frequent inter-process communication\n- Overhead of process creation exceeds task duration\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Define the CPU-bound function', 'detail': 'Create a pure function that takes one argument and returns a result; ensure it is picklable'}\n- {'step': 2, 'action': 'Create ProcessPoolExecutor context', 'detail': 'Use `with concurrent.futures.ProcessPoolExecutor() as executor:` to initialize the pool and ensure cleanup'}\n- {'step': 3, 'action': 'Map function to iterable', 'detail': 'Call `executor.map(function, iterable)` to distribute tasks across worker processes'}\n- {'step': 4, 'action': 'Collect and process results', 'detail': 'Iterate over results or zip with original data; handle any exceptions raised by worker tasks'}\n- {'step': 5, 'action': 'Exit context', 'detail': 'Context manager automatically waits for all tasks to complete and shuts down worker processes'}\n\n## Constraints\n\n- Worker processes must be picklable\n- Avoid passing unpicklable objects (e.g., file handles, locks)\n- Use context manager (`with` statement) for proper resource cleanup\n- Default multiprocessing start method will change from 'fork' in Python 3.14; explicitly specify mp_context if fork is required\n\n## Cautions\n\n- If a worker process terminates abruptly, BrokenProcessPool error is raised (Python 3.3+); previously behavior was undefined and could freeze or deadlock\n- Process creation overhead is significant; use only for tasks with sufficient computational cost\n- Results are returned in the same order as input when using executor.map()\n\n## Output Contract\n\n- All tasks completed without deadlock or BrokenProcessPool error; results collected in order matching input iterable; worker processes cleanly terminated.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: PRIMES = [112272535095293, 112582705942171, ...]; is_prime function defined\n- Therapist/Output: Prints each number with primality result: '112272535095293 is prime: True'\n- Notes: executor.map() returns results in input order; no explicit Future management needed",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Execute embarrassingly parallel CPU-bound tasks with process pool",
+    "domain": "default",
+    "task_family": "parallel_execution",
+    "method_family": "process_pool",
+    "stage": "execution",
+    "applicable_signals": [
+      "Computational bottleneck in single-threaded execution",
+      "Tasks are embarrassingly parallel",
+      "System has multiple CPU cores"
+    ],
+    "contraindications": [
+      "I/O-bound tasks (use ThreadPoolExecutor instead)",
+      "Shared mutable state across tasks",
+      "Tasks require frequent inter-process communication",
+      "Overhead of process creation exceeds task duration"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "CPU-bound workload identified",
+      "Independent tasks with no inter-task dependencies",
+      "Multi-core system available",
+      "Need true parallelism (not GIL-constrained)"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Define the CPU-bound function', 'detail': 'Create a pure function that takes one argument and returns a result; ensure it is picklable'}",
+      "{'step': 2, 'action': 'Create ProcessPoolExecutor context', 'detail': 'Use `with concurrent.futures.ProcessPoolExecutor() as executor:` to initialize the pool and ensure cleanup'}",
+      "{'step': 3, 'action': 'Map function to iterable', 'detail': 'Call `executor.map(function, iterable)` to distribute tasks across worker processes'}",
+      "{'step': 4, 'action': 'Collect and process results', 'detail': 'Iterate over results or zip with original data; handle any exceptions raised by worker tasks'}",
+      "{'step': 5, 'action': 'Exit context', 'detail': 'Context manager automatically waits for all tasks to complete and shuts down worker processes'}"
+    ],
+    "constraints": [
+      "Worker processes must be picklable",
+      "Avoid passing unpicklable objects (e.g., file handles, locks)",
+      "Use context manager (`with` statement) for proper resource cleanup",
+      "Default multiprocessing start method will change from 'fork' in Python 3.14; explicitly specify mp_context if fork is required"
+    ],
+    "cautions": [
+      "If a worker process terminates abruptly, BrokenProcessPool error is raised (Python 3.3+); previously behavior was undefined and could freeze or deadlock",
+      "Process creation overhead is significant; use only for tasks with sufficient computational cost",
+      "Results are returned in the same order as input when using executor.map()"
+    ],
+    "output_contract": [
+      "All tasks completed without deadlock or BrokenProcessPool error; results collected in order matching input iterable; worker processes cleanly terminated."
+    ],
+    "examples": [
+      {
+        "input": "PRIMES = [112272535095293, 112582705942171, ...]; is_prime function defined",
+        "output": "Prints each number with primality result: '112272535095293 is prime: True'",
+        "notes": "executor.map() returns results in input order; no explicit Future management needed"
+      }
+    ],
+    "tags": [
+      "parallelism",
+      "process_pool",
+      "cpu_bound",
+      "concurrent.futures",
+      "python312"
+    ],
+    "support_ids": [
+      "a3bf87df-924f-51cc-be2c-18d28f167040"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "7fe702c7-13c3-54f2-a84e-24e7ca0b96fb"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|execute embarrassingly parallel cpu-bound tasks with process pool|default|parallel_execution|process_pool|execution|processpoolexecutor setup and execution"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

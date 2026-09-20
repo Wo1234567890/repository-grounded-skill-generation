@@ -1,0 +1,466 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "curve_rendering",
+  "run_id": "20260916T034834_a37cd6c6",
+  "skills": [
+    {
+      "skill_id": "a3e2f109-bce4-589c-8d16-668135711221",
+      "name": "Curve Interpolation Selection",
+      "description": "Select and configure an appropriate curve interpolation method based on desired shape continuity and tangent behavior. Supports basis, cardinal, Catmull–Rom, monotone, natural, step, and linear splines with optional tension and alpha parameter tuning.",
+      "skill_body": "Choose a curve interpolation type that matches your shape requirements. Basis splines offer smooth curves with endpoint repetition; cardinal and Catmull–Rom splines provide tunable tension/alpha for control over curvature; monotone splines preserve monotonicity in one axis; natural splines provide smooth cubic interpolation; step functions create piecewise constant transitions; linear produces polylines. Configure tension (cardinal) or alpha (Catmull–Rom) parameters if fine-tuning curvature is needed. Return the configured curve interpolator object ready to process point sequences.\n\n## Objective\n\nChoose curve type and set tension/alpha parameters for smooth shape rendering\n## Applicable Signals\n\n- Input: sequence of discrete points requiring smooth interpolation\n- Input: requirement for closed vs. open curve\n- Input: need to preserve monotonicity in x or y axis\n- Input: desired curvature tension or smoothness level\n\n## Contraindications\n\n- Working with discrete point markers only (no interpolation needed)\n- Rendering straight line segments without shape continuity\n- No shape continuity or smoothing required\n- Real-time performance constraints where simpler linear interpolation suffices\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Assess shape requirements', 'detail': 'Determine if closed loop, open curve, or piecewise constant behavior is needed'}\n- {'step': 2, 'action': 'Evaluate continuity and tangent constraints', 'detail': 'Decide if horizontal/vertical tangents (Bump), monotonicity preservation (Monotone), or general smoothness (Basis, Cardinal, Catmull–Rom, Natural) is required'}\n- {'step': 3, 'action': 'Select curve type', 'detail': 'Choose from d3.curveBasis, d3.curveCardinal, d3.curveCatmullRom, d3.curveMonotoneX, d3.curveMonotoneY, d3.curveNatural, d3.curveStep, d3.curveLinear, or their Closed/Open variants'}\n- {'step': 4, 'action': 'Configure optional parameters', 'detail': 'If cardinal spline, set tension via cardinal.tension(value); if Catmull–Rom, set alpha via catmullRom.alpha(value)'}\n- {'step': 5, 'action': 'Return configured interpolator', 'detail': 'Pass the curve object to downstream point-addition or rendering operations'}\n\n## Constraints\n\n- Tension parameter (cardinal splines) typically ranges 0–1\n- Alpha parameter (Catmull–Rom) typically ranges 0–1\n- Closed variants require matching start and end points\n- Monotone splines require input points to be monotonic in the specified axis\n\n## Cautions\n\n- Closed curve variants require input points to form a closed loop; open variants do not repeat endpoints\n- Monotone splines enforce monotonicity; non-monotonic input may produce unexpected results\n- Tension and alpha values outside typical ranges (0–1) may produce extreme curvature or instability\n\n## Output Contract\n\n- Curve interpolator object configured with selected method and tension/alpha parameters, ready to accept point sequences via lineStart, lineEnd, point, areaStart, areaEnd methods",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Choose curve type and set tension/alpha parameters for smooth shape rendering",
+      "domain": "default",
+      "task_family": "curve_rendering",
+      "method_family": "spline_selection",
+      "stage": "interpolation_setup",
+      "applicable_signals": [
+        "Input: sequence of discrete points requiring smooth interpolation",
+        "Input: requirement for closed vs. open curve",
+        "Input: need to preserve monotonicity in x or y axis",
+        "Input: desired curvature tension or smoothness level"
+      ],
+      "contraindications": [
+        "Working with discrete point markers only (no interpolation needed)",
+        "Rendering straight line segments without shape continuity",
+        "No shape continuity or smoothing required",
+        "Real-time performance constraints where simpler linear interpolation suffices"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Preparing to render a continuous curve or path from discrete points",
+        "Need to balance smoothness, monotonicity preservation, or closed-loop behavior",
+        "Configuring shape interpolation before point addition"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Assess shape requirements', 'detail': 'Determine if closed loop, open curve, or piecewise constant behavior is needed'}",
+        "{'step': 2, 'action': 'Evaluate continuity and tangent constraints', 'detail': 'Decide if horizontal/vertical tangents (Bump), monotonicity preservation (Monotone), or general smoothness (Basis, Cardinal, Catmull–Rom, Natural) is required'}",
+        "{'step': 3, 'action': 'Select curve type', 'detail': 'Choose from d3.curveBasis, d3.curveCardinal, d3.curveCatmullRom, d3.curveMonotoneX, d3.curveMonotoneY, d3.curveNatural, d3.curveStep, d3.curveLinear, or their Closed/Open variants'}",
+        "{'step': 4, 'action': 'Configure optional parameters', 'detail': 'If cardinal spline, set tension via cardinal.tension(value); if Catmull–Rom, set alpha via catmullRom.alpha(value)'}",
+        "{'step': 5, 'action': 'Return configured interpolator', 'detail': 'Pass the curve object to downstream point-addition or rendering operations'}"
+      ],
+      "constraints": [
+        "Tension parameter (cardinal splines) typically ranges 0–1",
+        "Alpha parameter (Catmull–Rom) typically ranges 0–1",
+        "Closed variants require matching start and end points",
+        "Monotone splines require input points to be monotonic in the specified axis"
+      ],
+      "cautions": [
+        "Closed curve variants require input points to form a closed loop; open variants do not repeat endpoints",
+        "Monotone splines enforce monotonicity; non-monotonic input may produce unexpected results",
+        "Tension and alpha values outside typical ranges (0–1) may produce extreme curvature or instability"
+      ],
+      "output_contract": [
+        "Curve interpolator object configured with selected method and tension/alpha parameters, ready to accept point sequences via lineStart, lineEnd, point, areaStart, areaEnd methods"
+      ],
+      "examples": [],
+      "tags": [
+        "d3",
+        "curve",
+        "interpolation",
+        "spline",
+        "shape_rendering",
+        "path_generation"
+      ],
+      "support_ids": [
+        "a4d7ec4c-848a-59f1-afbb-4be801bfab9f"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "3c1bdd4f-10a3-5844-9b2e-b261c3cbcd61"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|choose curve type and set tension/alpha parameters for smooth shape rendering|default|curve_rendering|spline_selection|interpolation_setup|curve interpolation selection",
+        "change_action": "create",
+        "llm_reason": "Distinct capability for curve interpolation method selection and parameter tuning. No redundancy with peer candidates (module selection, scale configuration, shape rendering are upstream/parallel concerns). Supported by API documentation. No conflicts detected.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "parent"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "9374a068-0fbf-50f1-b860-65362f46ce8a",
+      "name": "Curve Segment Lifecycle Management",
+      "description": "Manage the lifecycle of line and area segments by starting, adding points, and ending segments in the correct sequence. This micro-skill ensures proper state transitions when rendering continuous shapes with explicit segment boundaries.",
+      "skill_body": "Execute the segment lifecycle in order: call lineStart() or areaStart() to initialize, add one or more points via point(x, y), then call lineEnd() or areaEnd() to close the segment. Do not interleave segment starts/ends or omit boundary markers.\n\n## Objective\n\nExecute point-addition sequence with proper segment boundary markers\n## Applicable Signals\n\n- Rendering a line or area shape\n- Need to add multiple points in sequence\n- Explicit segment boundaries required\n- Using d3 curve API for shape interpolation\n\n## Contraindications\n\n- Single isolated point rendering without segment structure\n- No segment boundaries required\n- Rendering complete pre-computed paths\n- Using alternative rendering methods that do not require explicit lifecycle calls\n\n## Intervention Moves\n\n- Call lineStart() to begin a new line segment\n- Call areaStart() to begin a new area segment\n- Call point(x, y) to add a coordinate to the current segment\n- Call lineEnd() to finalize the current line segment\n- Call areaEnd() to finalize the current area segment\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Initialize segment', 'detail': 'Call curve.lineStart() for line segments or curve.areaStart() for filled area segments'}\n- {'step': 2, 'action': 'Add points', 'detail': 'Call curve.point(x, y) for each coordinate in sequence'}\n- {'step': 3, 'action': 'Finalize segment', 'detail': 'Call curve.lineEnd() or curve.areaEnd() to close the segment'}\n\n## Constraints\n\n- lineStart/areaStart must be called before any point() calls\n- lineEnd/areaEnd must be called after all point() calls for that segment\n- Do not call lineStart and areaStart in the same segment\n- Do not call lineEnd and areaEnd in the same segment\n- At least one point() must be added between start and end\n\n## Cautions\n\n- Omitting start or end calls will result in incomplete or malformed shapes\n- Interleaving multiple segments without proper end markers may cause rendering errors\n- Ensure coordinate values are valid numbers before passing to point()\n\n## Output Contract\n\n- Sequence of lineStart → point(x,y) → point(x,y) → ... → lineEnd (or areaStart/areaEnd for filled regions) executed without error; segment is ready for rendering or handoff to downstream shape consumer\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Curve object and array of points: [(10, 20), (30, 40), (50, 60)]\n- Therapist/Output: curve.lineStart(); curve.point(10, 20); curve.point(30, 40); curve.point(50, 60); curve.lineEnd();\n- Notes: Line segment with three points rendered in sequence\n\n### Example 2\n\n- Client/Input: Curve object and array of points for filled area: [(0, 0), (100, 50), (200, 0)]\n- Therapist/Output: curve.areaStart(); curve.point(0, 0); curve.point(100, 50); curve.point(200, 0); curve.areaEnd();\n- Notes: Area segment with three points for filled shape rendering",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "22d2c5e0-7764-54f9-8a29-c939f45cc0d5",
+        "a3e2f109-bce4-589c-8d16-668135711221"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Execute point-addition sequence with proper segment boundary markers",
+      "domain": "default",
+      "task_family": "curve_rendering",
+      "method_family": "segment_control",
+      "stage": "point_rendering",
+      "applicable_signals": [
+        "Rendering a line or area shape",
+        "Need to add multiple points in sequence",
+        "Explicit segment boundaries required",
+        "Using d3 curve API for shape interpolation"
+      ],
+      "contraindications": [
+        "Single isolated point rendering without segment structure",
+        "No segment boundaries required",
+        "Rendering complete pre-computed paths",
+        "Using alternative rendering methods that do not require explicit lifecycle calls"
+      ],
+      "intervention_moves": [
+        "Call lineStart() to begin a new line segment",
+        "Call areaStart() to begin a new area segment",
+        "Call point(x, y) to add a coordinate to the current segment",
+        "Call lineEnd() to finalize the current line segment",
+        "Call areaEnd() to finalize the current area segment"
+      ],
+      "triggers": [
+        "Rendering a line or area shape; need to add multiple points in sequence with explicit segment boundaries"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Initialize segment', 'detail': 'Call curve.lineStart() for line segments or curve.areaStart() for filled area segments'}",
+        "{'step': 2, 'action': 'Add points', 'detail': 'Call curve.point(x, y) for each coordinate in sequence'}",
+        "{'step': 3, 'action': 'Finalize segment', 'detail': 'Call curve.lineEnd() or curve.areaEnd() to close the segment'}"
+      ],
+      "constraints": [
+        "lineStart/areaStart must be called before any point() calls",
+        "lineEnd/areaEnd must be called after all point() calls for that segment",
+        "Do not call lineStart and areaStart in the same segment",
+        "Do not call lineEnd and areaEnd in the same segment",
+        "At least one point() must be added between start and end"
+      ],
+      "cautions": [
+        "Omitting start or end calls will result in incomplete or malformed shapes",
+        "Interleaving multiple segments without proper end markers may cause rendering errors",
+        "Ensure coordinate values are valid numbers before passing to point()"
+      ],
+      "output_contract": [
+        "Sequence of lineStart → point(x,y) → point(x,y) → ... → lineEnd (or areaStart/areaEnd for filled regions) executed without error; segment is ready for rendering or handoff to downstream shape consumer"
+      ],
+      "examples": [
+        {
+          "input": "Curve object and array of points: [(10, 20), (30, 40), (50, 60)]",
+          "output": "curve.lineStart(); curve.point(10, 20); curve.point(30, 40); curve.point(50, 60); curve.lineEnd();",
+          "notes": "Line segment with three points rendered in sequence"
+        },
+        {
+          "input": "Curve object and array of points for filled area: [(0, 0), (100, 50), (200, 0)]",
+          "output": "curve.areaStart(); curve.point(0, 0); curve.point(100, 50); curve.point(200, 0); curve.areaEnd();",
+          "notes": "Area segment with three points for filled shape rendering"
+        }
+      ],
+      "tags": [
+        "curve",
+        "segment",
+        "lifecycle",
+        "rendering",
+        "state_management"
+      ],
+      "support_ids": [
+        "3055b33e-3716-5d4c-9dc6-061667f04558"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "6446c144-73e9-51e4-a838-365b7c8d1d3d"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.9,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|execute point-addition sequence with proper segment boundary markers|default|curve_rendering|segment_control|point_rendering|curve segment lifecycle management",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro-skill focused on curve segment lifecycle (lineStart/areaStart → point → lineEnd/areaEnd) within D3 curve rendering. Peer candidates address different domains: Path Command Execution (generic path drawing primitives), and timer scheduling (animation). No redundancy detected. Support evidence confirms the skill's relevance to curve interpolation APIs.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "22d2c5e0-7764-54f9-8a29-c939f45cc0d5",
+          "a3e2f109-bce4-589c-8d16-668135711221"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "cde8290a-5028-5b00-a8de-2e29cd699933",
+      "name": "Curve Type Selection Reference",
+      "description": "Canonical reference for selecting appropriate D3 curve interpolation methods based on shape requirements. Provides lookup of curve type properties (closure, continuity, tangent behavior, monotonicity, parameters) to inform curve selection decisions during planning phase.",
+      "skill_body": "Use this reference to compare and select appropriate curve interpolation methods. Each curve type has distinct mathematical properties: basis splines repeat endpoints; cardinal and Catmull–Rom splines use tension/alpha parameters; monotone curves preserve monotonicity in one axis; step curves produce piecewise constant functions; natural splines use cubic interpolation without parameters. Consult this catalog when evaluating shape requirements before rendering.\n\n## Objective\n\nProvide lookup and comparison of curve types for informed selection decision\n## Applicable Signals\n\n- Evaluating which curve type best fits shape requirements\n- Comparing monotonicity, closure, or tangent behavior\n- Documenting curve selection rationale\n- Selecting between basis, cardinal, Catmull–Rom, monotone, step, or natural curves\n\n## Contraindications\n\n- Do not use when actively rendering curves or executing point sequences\n- Do not use when curve type is already determined and execution is underway\n- Not applicable for real-time curve rendering without prior selection phase\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify shape requirements', 'detail': 'Determine closure (open/closed), tangent behavior (horizontal/vertical/natural), and monotonicity constraints'}\n- {'step': 2, 'action': 'Consult curve catalog', 'detail': 'Review available curve types: Basis (curveBasis, curveBasisClosed, curveBasisOpen), Cardinal (curveCardinal, curveCardinalClosed, curveCardinalOpen), Catmull–Rom (curveCatmullRom, curveCatmullRomClosed, curveCatmullRomOpen), Bump (curveBumpX, curveBumpY), Monotone (curveMonotoneX, curveMonotoneY), Step (curveStep, curveStepAfter, curveStepBefore), Linear (curveLinear, curveLinearClosed), Natural (curveNatural)'}\n- {'step': 3, 'action': 'Match properties to requirements', 'detail': 'Cross-reference closure, continuity, tangent behavior, and parameter availability against shape needs'}\n- {'step': 4, 'action': 'Document selection rationale', 'detail': 'Record chosen curve type and justification for traceability'}\n\n## Constraints\n\n- This is a reference asset; it does not execute curve rendering\n- Lookup and comparison only; parameter tuning requires separate execution skill\n- Assumes caller has basic understanding of spline mathematics\n\n## Cautions\n\n- Cardinal and Catmull–Rom splines require tension/alpha parameter tuning; default values may not suit all shapes\n- Monotone curves preserve monotonicity in one axis only; verify axis alignment matches data\n- Step curves produce discontinuous derivatives; use only for piecewise constant requirements\n- Basis splines repeat endpoints; verify this behavior is acceptable for your shape\n\n## Output Contract\n\n- Clear understanding of curve type properties, parameter ranges, and applicability constraints sufficient for informed curve selection decision\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Shape requirement: smooth closed curve with natural continuity\n- Therapist/Output: Select curveCatmullRomClosed or curveBasisClosed; curveCatmullRomClosed offers alpha parameter for control, curveBasisClosed repeats endpoints\n- Notes: Both are closed; choose based on whether endpoint repetition is desired\n\n### Example 2\n\n- Client/Input: Shape requirement: preserve monotonicity in x-axis while interpolating y values\n- Therapist/Output: Select curveMonotoneX; this cubic spline preserves x-monotonicity in y output\n- Notes: Verify data is monotonic in x before selection\n\n### Example 3\n\n- Client/Input: Shape requirement: piecewise constant function with step transitions\n- Therapist/Output: Select curveStep, curveStepAfter, or curveStepBefore depending on step timing preference\n- Notes: All three are piecewise constant; differ only in when the step occurs relative to points",
+      "asset_type": "knowledge_reference",
+      "granularity": "session",
+      "asset_node_id": "knowledge_reference_node",
+      "asset_path": "family_root/knowledge_reference_node",
+      "asset_level": 1,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 1.0,
+      "hierarchy_status": "root",
+      "visible_role": "leaf",
+      "objective": "Provide lookup and comparison of curve types for informed selection decision",
+      "domain": "default",
+      "task_family": "curve_rendering",
+      "method_family": "interpolation_taxonomy",
+      "stage": "planning",
+      "applicable_signals": [
+        "Evaluating which curve type best fits shape requirements",
+        "Comparing monotonicity, closure, or tangent behavior",
+        "Documenting curve selection rationale",
+        "Selecting between basis, cardinal, Catmull–Rom, monotone, step, or natural curves"
+      ],
+      "contraindications": [
+        "Do not use when actively rendering curves or executing point sequences",
+        "Do not use when curve type is already determined and execution is underway",
+        "Not applicable for real-time curve rendering without prior selection phase"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Evaluating which curve type best fits shape requirements",
+        "Comparing monotonicity, closure, or tangent behavior",
+        "Documenting curve selection rationale"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Identify shape requirements', 'detail': 'Determine closure (open/closed), tangent behavior (horizontal/vertical/natural), and monotonicity constraints'}",
+        "{'step': 2, 'action': 'Consult curve catalog', 'detail': 'Review available curve types: Basis (curveBasis, curveBasisClosed, curveBasisOpen), Cardinal (curveCardinal, curveCardinalClosed, curveCardinalOpen), Catmull–Rom (curveCatmullRom, curveCatmullRomClosed, curveCatmullRomOpen), Bump (curveBumpX, curveBumpY), Monotone (curveMonotoneX, curveMonotoneY), Step (curveStep, curveStepAfter, curveStepBefore), Linear (curveLinear, curveLinearClosed), Natural (curveNatural)'}",
+        "{'step': 3, 'action': 'Match properties to requirements', 'detail': 'Cross-reference closure, continuity, tangent behavior, and parameter availability against shape needs'}",
+        "{'step': 4, 'action': 'Document selection rationale', 'detail': 'Record chosen curve type and justification for traceability'}"
+      ],
+      "constraints": [
+        "This is a reference asset; it does not execute curve rendering",
+        "Lookup and comparison only; parameter tuning requires separate execution skill",
+        "Assumes caller has basic understanding of spline mathematics"
+      ],
+      "cautions": [
+        "Cardinal and Catmull–Rom splines require tension/alpha parameter tuning; default values may not suit all shapes",
+        "Monotone curves preserve monotonicity in one axis only; verify axis alignment matches data",
+        "Step curves produce discontinuous derivatives; use only for piecewise constant requirements",
+        "Basis splines repeat endpoints; verify this behavior is acceptable for your shape"
+      ],
+      "output_contract": [
+        "Clear understanding of curve type properties, parameter ranges, and applicability constraints sufficient for informed curve selection decision"
+      ],
+      "examples": [
+        {
+          "input": "Shape requirement: smooth closed curve with natural continuity",
+          "output": "Select curveCatmullRomClosed or curveBasisClosed; curveCatmullRomClosed offers alpha parameter for control, curveBasisClosed repeats endpoints",
+          "notes": "Both are closed; choose based on whether endpoint repetition is desired"
+        },
+        {
+          "input": "Shape requirement: preserve monotonicity in x-axis while interpolating y values",
+          "output": "Select curveMonotoneX; this cubic spline preserves x-monotonicity in y output",
+          "notes": "Verify data is monotonic in x before selection"
+        },
+        {
+          "input": "Shape requirement: piecewise constant function with step transitions",
+          "output": "Select curveStep, curveStepAfter, or curveStepBefore depending on step timing preference",
+          "notes": "All three are piecewise constant; differ only in when the step occurs relative to points"
+        }
+      ],
+      "tags": [
+        "d3",
+        "curve_interpolation",
+        "spline",
+        "reference",
+        "shape_rendering"
+      ],
+      "support_ids": [
+        "b580789d-86de-5816-b62d-b0b674dc72da"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "9def270b-136c-57e0-bb4f-9eae668de2a7"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.88,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||knowledge_reference|session|knowledge_reference_node|provide lookup and comparison of curve types for informed selection decision|default|curve_rendering|interpolation_taxonomy|planning|curve type selection reference",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct, well-scoped knowledge_reference asset for D3 curve interpolation selection. It addresses a specific task_family (curve_rendering) and method_family (interpolation_taxonomy) not covered by peer_candidates. Peer candidates address axis API, selection/events, and color schemes—orthogonal domains. No redundancy detected. Support evidence validates curve type taxonomy. No conflicts present.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 1.0,
+        "hierarchy_status": "root",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "24fa1cce-f0a9-492a-afc0-4154da04be92",
+      "entity_type": "skill",
+      "entity_id": "a3e2f109-bce4-589c-8d16-668135711221",
+      "action": "create",
+      "changed_at": "2026-09-15T17:45:51+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Distinct capability for curve interpolation method selection and parameter tuning. No redundancy with peer candidates (module selection, scale configuration, shape rendering are upstream/parallel concerns). Supported by API documentation. No conflicts detected.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "a3e2f109-bce4-589c-8d16-668135711221",
+        "doc_ids": [
+          "6cdc3f25-9cd8-59fc-987c-27814dbcdcb1"
+        ],
+        "support_added": [
+          "a4d7ec4c-848a-59f1-afbb-4be801bfab9f"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "be8c0e3d-11d7-4f6c-9fd8-7900a812f867",
+      "entity_type": "skill",
+      "entity_id": "9374a068-0fbf-50f1-b860-65362f46ce8a",
+      "action": "create",
+      "changed_at": "2026-09-15T17:45:51+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro-skill focused on curve segment lifecycle (lineStart/areaStart → point → lineEnd/areaEnd) within D3 curve rendering. Peer candidates address different domains: Path Command Execution (generic path drawing primitives), and timer scheduling (animation). No redundancy detected. Support evidence confirms the skill's relevance to curve interpolation APIs.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "9374a068-0fbf-50f1-b860-65362f46ce8a",
+        "doc_ids": [
+          "6cdc3f25-9cd8-59fc-987c-27814dbcdcb1"
+        ],
+        "support_added": [
+          "3055b33e-3716-5d4c-9dc6-061667f04558"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "1f92204f-d589-46ea-8b78-97071405aa16",
+      "entity_type": "skill",
+      "entity_id": "cde8290a-5028-5b00-a8de-2e29cd699933",
+      "action": "create",
+      "changed_at": "2026-09-15T17:45:51+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct, well-scoped knowledge_reference asset for D3 curve interpolation selection. It addresses a specific task_family (curve_rendering) and method_family (interpolation_taxonomy) not covered by peer_candidates. Peer candidates address axis API, selection/events, and color schemes—orthogonal domains. No redundancy detected. Support evidence validates curve type taxonomy. No conflicts present.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "cde8290a-5028-5b00-a8de-2e29cd699933",
+        "doc_ids": [
+          "6cdc3f25-9cd8-59fc-987c-27814dbcdcb1"
+        ],
+        "support_added": [
+          "b580789d-86de-5816-b62d-b0b674dc72da"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

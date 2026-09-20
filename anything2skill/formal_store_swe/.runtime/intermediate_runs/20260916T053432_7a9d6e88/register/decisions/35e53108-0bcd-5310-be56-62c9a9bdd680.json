@@ -1,0 +1,126 @@
+{
+  "skill_id": "35e53108-0bcd-5310-be56-62c9a9bdd680",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for static queue size selection in two-queue cache systems. It addresses parameter initialization for staged-queue algorithms (e.g., S3-FIFO, 2Q) with specific workflow (characterize → baseline → validate → assess → adjust → deploy). No existing skill covers this semantic capability. Peer candidates (trace filtering, demotion efficiency assessment, demotion speed/precision measurement) are complementary analysis skills at different stages, not overlapping. Existing skills are unrelated (Flink DataStream sinks). Candidate has clear constraints, cautions, and support evidence from cache literature (ARC/2Q reference). Should be persisted as new capability.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "35e53108-0bcd-5310-be56-62c9a9bdd680",
+    "name": "Static Queue Size Selection for Two-Queue Cache",
+    "description": "Select an initial FIFO queue size as a percentage of total cache capacity to balance quick demotion speed and precision, minimizing miss ratio across diverse workloads. Validates selection against representative traces before deployment.",
+    "skill_body": "Determine the queue size S as a percentage of cache capacity. Start with 10% of cache size as a baseline. Verify the choice against representative traces to confirm miss ratio reduction compared to baseline (e.g., FIFO). Adjust within the range 5–20% if needed based on workload characteristics (e.g., scan intensity, object reuse patterns). Document the final percentage and expected miss ratio improvement.\n\n## Objective\n\nselect queue size that generalizes across diverse traces and workloads\n## Applicable Signals\n\n- Workload scan intensity known or measurable\n- Representative traces available for validation\n- Baseline cache algorithm (e.g., FIFO, LRU) performance available for comparison\n\n## Contraindications\n\n- Using adaptive queue sizing (e.g., S3-FIFO-d) that adjusts size at runtime\n- Queue size is externally mandated or fixed by system constraints\n- Workload is highly dynamic and requires continuous rebalancing\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Characterize workload', 'detail': 'Identify scan intensity, object reuse patterns, and whether the workload is scan-heavy or reuse-heavy'}\n- {'step': 2, 'action': 'Start with baseline', 'detail': 'Set queue size S to 10% of cache capacity as initial choice'}\n- {'step': 3, 'action': 'Validate on representative traces', 'detail': 'Run cache simulation with selected S size on representative traces; measure miss ratio and compare to baseline (e.g., FIFO)'}\n- {'step': 4, 'action': 'Assess demotion speed and precision', 'detail': 'Measure how quickly objects are evicted from S and how many evicted objects are not reused soon; confirm precision is acceptable'}\n- {'step': 5, 'action': 'Adjust if needed', 'detail': 'If miss ratio is not satisfactory, adjust S within 5–20% range and re-validate; prioritize smaller S for scan-heavy workloads'}\n- {'step': 6, 'action': 'Document and deploy', 'detail': 'Record final queue size percentage and expected miss ratio improvement; use this value for production deployment'}\n\n## Constraints\n\n- Queue size must be expressed as a percentage of total cache capacity\n- Selection should be validated against at least representative traces before deployment\n- Typical effective range is 5–20% of cache size for most workloads\n\n## Cautions\n\n- Very small queue sizes (< 5%) lead to faster demotion but lower precision; popular objects may be evicted before accumulating hits\n- Very large queue sizes (> 20%) reduce demotion speed and precision; unpopular objects accumulate in the queue, increasing miss ratio\n- Optimal size depends on workload properties (e.g., object reuse frequency, scan request intensity); empirical validation is essential\n\n## Output Contract\n\n- Queue size percentage (e.g., 10% of cache) is selected and documented\n- Miss ratio reduction compared to baseline is verified on representative traces\n- The selection is stable across the test trace set and generalizes to similar workloads\n\n## Example Executions\n\n### Example 1\n\n- Input: Cache size = 1000 objects; workload has moderate scan intensity; representative traces available\n- Output: Queue size S = 100 objects (10% of cache); miss ratio reduction of 15–25% compared to FIFO baseline verified on test traces\n- Notes: Baseline choice; suitable for balanced workloads with mixed scan and reuse patterns\n\n### Example 2\n\n- Input: Cache size = 1000 objects; workload is scan-heavy (many one-time requests); traces show high miss ratio with S=10%\n- Output: Queue size S = 50 objects (5% of cache); faster demotion reduces miss ratio by 20–30% compared to FIFO\n- Notes: Smaller S improves precision for scan-heavy workloads; trade-off is slightly lower precision on reuse-heavy traces\n\n### Example 3\n\n- Input: Cache size = 1000 objects; workload is reuse-heavy (objects requested multiple times); traces show low precision with S=10%\n- Output: Queue size S = 150 objects (15% of cache); higher precision allows popular objects to accumulate hits; miss ratio reduction of 10–20%\n- Notes: Larger S within safe range improves precision for reuse-heavy workloads",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "select queue size that generalizes across diverse traces and workloads",
+    "domain": "default",
+    "task_family": "cache_configuration",
+    "method_family": "parameter_selection",
+    "stage": "initialization",
+    "applicable_signals": [
+      "Workload scan intensity known or measurable",
+      "Representative traces available for validation",
+      "Baseline cache algorithm (e.g., FIFO, LRU) performance available for comparison"
+    ],
+    "contraindications": [
+      "Using adaptive queue sizing (e.g., S3-FIFO-d) that adjusts size at runtime",
+      "Queue size is externally mandated or fixed by system constraints",
+      "Workload is highly dynamic and requires continuous rebalancing"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Setting up a two-queue cache system (e.g., S3-FIFO) for the first time",
+      "Have access to representative trace data or workload characterization",
+      "Need to establish a static queue size before deployment"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Characterize workload', 'detail': 'Identify scan intensity, object reuse patterns, and whether the workload is scan-heavy or reuse-heavy'}",
+      "{'step': 2, 'action': 'Start with baseline', 'detail': 'Set queue size S to 10% of cache capacity as initial choice'}",
+      "{'step': 3, 'action': 'Validate on representative traces', 'detail': 'Run cache simulation with selected S size on representative traces; measure miss ratio and compare to baseline (e.g., FIFO)'}",
+      "{'step': 4, 'action': 'Assess demotion speed and precision', 'detail': 'Measure how quickly objects are evicted from S and how many evicted objects are not reused soon; confirm precision is acceptable'}",
+      "{'step': 5, 'action': 'Adjust if needed', 'detail': 'If miss ratio is not satisfactory, adjust S within 5–20% range and re-validate; prioritize smaller S for scan-heavy workloads'}",
+      "{'step': 6, 'action': 'Document and deploy', 'detail': 'Record final queue size percentage and expected miss ratio improvement; use this value for production deployment'}"
+    ],
+    "constraints": [
+      "Queue size must be expressed as a percentage of total cache capacity",
+      "Selection should be validated against at least representative traces before deployment",
+      "Typical effective range is 5–20% of cache size for most workloads"
+    ],
+    "cautions": [
+      "Very small queue sizes (< 5%) lead to faster demotion but lower precision; popular objects may be evicted before accumulating hits",
+      "Very large queue sizes (> 20%) reduce demotion speed and precision; unpopular objects accumulate in the queue, increasing miss ratio",
+      "Optimal size depends on workload properties (e.g., object reuse frequency, scan request intensity); empirical validation is essential"
+    ],
+    "output_contract": [
+      "Queue size percentage (e.g., 10% of cache) is selected and documented",
+      "Miss ratio reduction compared to baseline is verified on representative traces",
+      "The selection is stable across the test trace set and generalizes to similar workloads"
+    ],
+    "examples": [
+      {
+        "input": "Cache size = 1000 objects; workload has moderate scan intensity; representative traces available",
+        "output": "Queue size S = 100 objects (10% of cache); miss ratio reduction of 15–25% compared to FIFO baseline verified on test traces",
+        "notes": "Baseline choice; suitable for balanced workloads with mixed scan and reuse patterns"
+      },
+      {
+        "input": "Cache size = 1000 objects; workload is scan-heavy (many one-time requests); traces show high miss ratio with S=10%",
+        "output": "Queue size S = 50 objects (5% of cache); faster demotion reduces miss ratio by 20–30% compared to FIFO",
+        "notes": "Smaller S improves precision for scan-heavy workloads; trade-off is slightly lower precision on reuse-heavy traces"
+      },
+      {
+        "input": "Cache size = 1000 objects; workload is reuse-heavy (objects requested multiple times); traces show low precision with S=10%",
+        "output": "Queue size S = 150 objects (15% of cache); higher precision allows popular objects to accumulate hits; miss ratio reduction of 10–20%",
+        "notes": "Larger S within safe range improves precision for reuse-heavy workloads"
+      }
+    ],
+    "tags": [
+      "cache_eviction",
+      "queue_sizing",
+      "parameter_tuning",
+      "two_queue_cache",
+      "s3_fifo",
+      "initialization"
+    ],
+    "support_ids": [
+      "4ee7056c-75e6-57b6-8820-eaa622bfcd59"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "d1731782-1053-5bbd-ab4c-f34a01fb98c3"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|select queue size that generalizes across diverse traces and workloads|default|cache_configuration|parameter_selection|initialization|static queue size selection for two-queue cache"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

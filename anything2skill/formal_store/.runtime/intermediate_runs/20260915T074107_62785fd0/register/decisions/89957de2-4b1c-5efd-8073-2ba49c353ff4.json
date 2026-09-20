@@ -1,0 +1,125 @@
+{
+  "skill_id": "89957de2-4b1c-5efd-8073-2ba49c353ff4",
+  "action": "split",
+  "matched_skill_ids": [
+    "f83a5625-f756-5405-b2a6-f2296b185081"
+  ],
+  "reason": "Candidate skill represents a narrower, specialized child workflow extracted from the broader peer skill 'Custom ServerRequestObservationConvention Implementation'. The candidate focuses specifically on extending an existing convention (preserving defaults via super call and chaining), while the peer covers full implementation from scratch. Both are distinct semantic capabilities within the same task_family and stage, and the candidate's constraint to 'extend DefaultServerRequestObservationConvention' and 'call super.getLowCardinalityKeyValues()' indicates a split relationship where the peer is the parent.",
+  "split_parent_id": "f83a5625-f756-5405-b2a6-f2296b185081",
+  "skill": {
+    "skill_id": "89957de2-4b1c-5efd-8073-2ba49c353ff4",
+    "name": "Extend DefaultServerRequestObservationConvention for Custom Metrics",
+    "description": "Extend DefaultServerRequestObservationConvention to add custom KeyValue pairs to server request observations while preserving default values. Use when migrating from deprecated TagProvider/TagContributor patterns to the new Observation API in Spring Boot 3.0.",
+    "skill_body": "Create a custom class extending DefaultServerRequestObservationConvention. Override getLowCardinalityKeyValues() to call super.getLowCardinalityKeyValues(context) and chain .and(custom(context)) to append your custom KeyValue. Define a protected custom() method that returns KeyValue.of(\"key\", value) extracted from the ServerRequestObservationContext. This pattern preserves all default observation tags while injecting your custom metric dimensions.\n\n## Objective\n\nadd_custom_observation_tags\n## Applicable Signals\n\n- Deprecated TagProvider or TagContributor classes in codebase\n- Spring Boot 3.0 upgrade in progress\n- Custom metrics required beyond default observation tags\n- ServerRequestObservationContext available in handler\n\n## Contraindications\n\n- Fully replacing observation convention (implement ServerRequestObservationConvention directly instead)\n- Adding high-cardinality tags that risk metric cardinality explosion\n- Overriding metric or trace names (use full convention implementation)\n- Removing or filtering default observation tags\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Create a new class extending DefaultServerRequestObservationConvention', 'detail': 'public class ExtendedServerRequestObservationConvention extends DefaultServerRequestObservationConvention'}\n- {'step': 2, 'action': 'Override getLowCardinalityKeyValues() method', 'detail': 'Call super.getLowCardinalityKeyValues(context) and chain .and(custom(context))'}\n- {'step': 3, 'action': 'Define protected custom() method', 'detail': 'Extract context data and return KeyValue.of(\"custom.key\", value)'}\n- {'step': 4, 'action': 'Register custom convention bean', 'detail': 'Ensure Spring Boot detects and applies the custom convention to RestTemplateBuilder or server request handling'}\n\n## Constraints\n\n- Must extend DefaultServerRequestObservationConvention, not implement from scratch\n- Custom KeyValue must be extracted from ServerRequestObservationContext\n- Call super.getLowCardinalityKeyValues(context) to preserve defaults\n- Use .and() to chain custom KeyValue to default KeyValues\n\n## Cautions\n\n- High-cardinality custom tags can cause metric explosion; validate tag values are bounded\n- Ensure custom KeyValue key names do not conflict with default observation keys\n- Test that metric and trace names are generated correctly with extended tags\n\n## Output Contract\n\n- Custom KeyValue successfully appended to observation context\n- Metric name and trace name generated correctly with extended tags\n- Default observation tags preserved and not overridden\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Spring Boot 2.x codebase with custom TagContributor adding 'custom.method' tag to metrics\n- Therapist/Output: ExtendedServerRequestObservationConvention class that overrides getLowCardinalityKeyValues() to append KeyValue.of(\"custom.method\", context.getCarrier().getMethod())\n- Notes: Preserves all default observation tags while injecting custom dimension\n\n### Example 2\n\n- Client/Input: Need to add application-specific request context (e.g., tenant ID) to observations\n- Therapist/Output: Custom convention extracting tenant ID from ServerRequestObservationContext and returning KeyValue.of(\"tenant.id\", tenantId)\n- Notes: Ensure tenant ID is bounded cardinality to avoid metric explosion",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "add_custom_observation_tags",
+    "domain": "default",
+    "task_family": "metrics_instrumentation",
+    "method_family": "observation_convention_override",
+    "stage": "migration",
+    "applicable_signals": [
+      "Deprecated TagProvider or TagContributor classes in codebase",
+      "Spring Boot 3.0 upgrade in progress",
+      "Custom metrics required beyond default observation tags",
+      "ServerRequestObservationContext available in handler"
+    ],
+    "contraindications": [
+      "Fully replacing observation convention (implement ServerRequestObservationConvention directly instead)",
+      "Adding high-cardinality tags that risk metric cardinality explosion",
+      "Overriding metric or trace names (use full convention implementation)",
+      "Removing or filtering default observation tags"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Migrating Spring Boot 2.x TagContributor implementations to Spring Boot 3.0",
+      "Migrating Spring Boot 2.x TagProvider implementations to Spring Boot 3.0",
+      "Need to inject custom KeyValue pairs into low-cardinality observation context",
+      "Extending server request observation with application-specific metric dimensions"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Create a new class extending DefaultServerRequestObservationConvention', 'detail': 'public class ExtendedServerRequestObservationConvention extends DefaultServerRequestObservationConvention'}",
+      "{'step': 2, 'action': 'Override getLowCardinalityKeyValues() method', 'detail': 'Call super.getLowCardinalityKeyValues(context) and chain .and(custom(context))'}",
+      "{'step': 3, 'action': 'Define protected custom() method', 'detail': 'Extract context data and return KeyValue.of(\"custom.key\", value)'}",
+      "{'step': 4, 'action': 'Register custom convention bean', 'detail': 'Ensure Spring Boot detects and applies the custom convention to RestTemplateBuilder or server request handling'}"
+    ],
+    "constraints": [
+      "Must extend DefaultServerRequestObservationConvention, not implement from scratch",
+      "Custom KeyValue must be extracted from ServerRequestObservationContext",
+      "Call super.getLowCardinalityKeyValues(context) to preserve defaults",
+      "Use .and() to chain custom KeyValue to default KeyValues"
+    ],
+    "cautions": [
+      "High-cardinality custom tags can cause metric explosion; validate tag values are bounded",
+      "Ensure custom KeyValue key names do not conflict with default observation keys",
+      "Test that metric and trace names are generated correctly with extended tags"
+    ],
+    "output_contract": [
+      "Custom KeyValue successfully appended to observation context",
+      "Metric name and trace name generated correctly with extended tags",
+      "Default observation tags preserved and not overridden"
+    ],
+    "examples": [
+      {
+        "input": "Spring Boot 2.x codebase with custom TagContributor adding 'custom.method' tag to metrics",
+        "output": "ExtendedServerRequestObservationConvention class that overrides getLowCardinalityKeyValues() to append KeyValue.of(\"custom.method\", context.getCarrier().getMethod())",
+        "notes": "Preserves all default observation tags while injecting custom dimension"
+      },
+      {
+        "input": "Need to add application-specific request context (e.g., tenant ID) to observations",
+        "output": "Custom convention extracting tenant ID from ServerRequestObservationContext and returning KeyValue.of(\"tenant.id\", tenantId)",
+        "notes": "Ensure tenant ID is bounded cardinality to avoid metric explosion"
+      }
+    ],
+    "tags": [
+      "spring-boot-3-migration",
+      "observation-api",
+      "metrics",
+      "instrumentation",
+      "deprecation-handling",
+      "custom-tags"
+    ],
+    "support_ids": [
+      "4af2de6f-d08d-5ce0-b49f-fab234007629"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "f80bcaa5-ea3b-52f5-98e5-3b61df4c4312"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|add_custom_observation_tags|default|metrics_instrumentation|observation_convention_override|migration|extend defaultserverrequestobservationconvention for custom metrics"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

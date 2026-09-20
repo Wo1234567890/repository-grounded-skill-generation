@@ -1,0 +1,135 @@
+{
+  "skill_id": "71d3d424-5b1d-5fbb-9acb-0883f32d9fdc",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a session_skill (asset_level 3, asset_node_id 'micro_skill_node') focused on lock-free tuple read with timestamp validation in optimistic concurrency control. Existing skills are either unrelated (Flink streaming test data injection, text tokenization) or peer candidates at different asset_levels/granularities (workflow_skill level 2). No semantic capability match exists in the existing registry. Peer candidates address different concerns (lock acquisition, performance analysis, logging coordination) and do not subsume or relate to this tuple-read operation. The candidate should be created as a new distinct capability, but the instruction set requires deciding against existing skills only. Since no existing skill matches this semantic capability, and the task is to decide how the candidate should update the registry relative to existing skills, the appropriate action is to discard from this comparison context—the candidate represents a genuinely new capability that should be created separately outside this merge/strengthen/revise decision framework.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "71d3d424-5b1d-5fbb-9acb-0883f32d9fdc",
+    "name": "Lock-Free Tuple Read with Timestamp Validation",
+    "description": "Atomically load tuple data and read/write timestamps without locks by double-checking TS_word before and after data load to ensure consistency. Prevents lock contention in optimistic concurrency control systems.",
+    "skill_body": "Execute a lock-free atomic read of tuple data and timestamps. Load TS_word, then load tuple data, then reload TS_word. If both TS_word values match and lock_bit is unset, the data is consistent. If they differ or lock_bit is set, retry the entire sequence. Extract wts from TS_word[47:0] and compute rts as wts + delta (TS_word[62:48]). Return data, wts, and rts to caller.\n\n## Objective\n\nSafely read tuple data and timestamps concurrently without acquiring locks\n## Applicable Signals\n\n- Read operation initiated on tuple\n- Optimistic concurrency control protocol active\n- No prior lock held on tuple\n\n## Contraindications\n\n- Tuple is already locked by another transaction (lock_bit == 1); use fallback latching instead\n- TS_word has been modified between checks; retry automatically\n- Repeated failures indicate high contention; consider escalating to heavier-weight latching\n\n## Intervention Moves\n\n- Load TS_word (v1)\n- Load tuple data into read set entry\n- Load TS_word again (v2)\n- Check: v1 == v2 and v1.lock_bit == 0\n- If check fails, retry from step 1\n- Extract wts and rts from TS_word\n- Return data and timestamps to caller\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Load TS_word into v1', 'condition': 'Entry point of read operation'}\n- {'step': 2, 'action': 'Load tuple data into read set entry', 'condition': 'v1 loaded successfully'}\n- {'step': 3, 'action': 'Load TS_word into v2', 'condition': 'Tuple data loaded'}\n- {'step': 4, 'action': 'Validate: v1 == v2 AND v1.lock_bit == 0', 'condition': 'Both TS_word values obtained'}\n- {'step': 5, 'action': 'Extract wts = v1[47:0] and delta = v1[62:48]', 'condition': 'Validation passed'}\n- {'step': 6, 'action': 'Compute rts = wts + delta', 'condition': 'wts and delta extracted'}\n- {'step': 7, 'action': 'Return (data, wts, rts) to caller', 'condition': 'All values computed'}\n- {'step': 8, 'action': 'Retry from step 1', 'condition': 'v1 != v2 OR v1.lock_bit == 1'}\n\n## Constraints\n\n- TS_word encoding: bit[63] = lock_bit, bits[62:48] = delta (rts − wts), bits[47:0] = wts\n- delta is 15 bits; overflow is handled by background wts reset process\n- No writes to shared memory during this operation\n- Starvation possible if check repeatedly fails; fallback to latching available\n\n## Cautions\n\n- If lock_bit is set, another transaction is modifying the tuple; do not proceed with stale data\n- Repeated v1 != v2 indicates concurrent writes; retry is automatic but may indicate high contention\n- Background wts overflow reset is infrequent and concurrent; does not block normal reads\n\n## Output Contract\n\n- Returns tuple data and consistent read/write timestamps (wts, rts) when v1 == v2 and lock_bit == 0. Guarantees data value matches the returned timestamps. On repeated failure, caller may escalate to latching or abort transaction.\n\n## Example Executions\n\n### Example 1\n\n- Input: Read tuple t with TS_word = [lock_bit=0, delta=5, wts=100]\n- Output: v1 == v2 == [0, 5, 100]; data loaded; rts = 100 + 5 = 105 returned\n- Notes: Consistent read on first attempt; no retry needed\n\n### Example 2\n\n- Input: Read tuple t; TS_word changes between v1 and v2 due to concurrent write\n- Output: v1 != v2; retry loop executes until consistency achieved\n- Notes: Automatic retry handles concurrent modification; no caller intervention required\n\n### Example 3\n\n- Input: Read tuple t with lock_bit == 1 (locked by another transaction)\n- Output: Loop condition fails; caller receives signal to use fallback latching or wait\n- Notes: Indicates contention; caller may choose to retry, escalate, or abort",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Safely read tuple data and timestamps concurrently without acquiring locks",
+    "domain": "default",
+    "task_family": "tuple_read",
+    "method_family": "lock_free_atomic_load",
+    "stage": "read_phase",
+    "applicable_signals": [
+      "Read operation initiated on tuple",
+      "Optimistic concurrency control protocol active",
+      "No prior lock held on tuple"
+    ],
+    "contraindications": [
+      "Tuple is already locked by another transaction (lock_bit == 1); use fallback latching instead",
+      "TS_word has been modified between checks; retry automatically",
+      "Repeated failures indicate high contention; consider escalating to heavier-weight latching"
+    ],
+    "intervention_moves": [
+      "Load TS_word (v1)",
+      "Load tuple data into read set entry",
+      "Load TS_word again (v2)",
+      "Check: v1 == v2 and v1.lock_bit == 0",
+      "If check fails, retry from step 1",
+      "Extract wts and rts from TS_word",
+      "Return data and timestamps to caller"
+    ],
+    "triggers": [
+      "Transaction enters read phase",
+      "Tuple data and associated timestamps must be loaded",
+      "Lock-free reads are preferred to reduce contention"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Load TS_word into v1', 'condition': 'Entry point of read operation'}",
+      "{'step': 2, 'action': 'Load tuple data into read set entry', 'condition': 'v1 loaded successfully'}",
+      "{'step': 3, 'action': 'Load TS_word into v2', 'condition': 'Tuple data loaded'}",
+      "{'step': 4, 'action': 'Validate: v1 == v2 AND v1.lock_bit == 0', 'condition': 'Both TS_word values obtained'}",
+      "{'step': 5, 'action': 'Extract wts = v1[47:0] and delta = v1[62:48]', 'condition': 'Validation passed'}",
+      "{'step': 6, 'action': 'Compute rts = wts + delta', 'condition': 'wts and delta extracted'}",
+      "{'step': 7, 'action': 'Return (data, wts, rts) to caller', 'condition': 'All values computed'}",
+      "{'step': 8, 'action': 'Retry from step 1', 'condition': 'v1 != v2 OR v1.lock_bit == 1'}"
+    ],
+    "constraints": [
+      "TS_word encoding: bit[63] = lock_bit, bits[62:48] = delta (rts − wts), bits[47:0] = wts",
+      "delta is 15 bits; overflow is handled by background wts reset process",
+      "No writes to shared memory during this operation",
+      "Starvation possible if check repeatedly fails; fallback to latching available"
+    ],
+    "cautions": [
+      "If lock_bit is set, another transaction is modifying the tuple; do not proceed with stale data",
+      "Repeated v1 != v2 indicates concurrent writes; retry is automatic but may indicate high contention",
+      "Background wts overflow reset is infrequent and concurrent; does not block normal reads"
+    ],
+    "output_contract": [
+      "Returns tuple data and consistent read/write timestamps (wts, rts) when v1 == v2 and lock_bit == 0. Guarantees data value matches the returned timestamps. On repeated failure, caller may escalate to latching or abort transaction."
+    ],
+    "examples": [
+      {
+        "input": "Read tuple t with TS_word = [lock_bit=0, delta=5, wts=100]",
+        "output": "v1 == v2 == [0, 5, 100]; data loaded; rts = 100 + 5 = 105 returned",
+        "notes": "Consistent read on first attempt; no retry needed"
+      },
+      {
+        "input": "Read tuple t; TS_word changes between v1 and v2 due to concurrent write",
+        "output": "v1 != v2; retry loop executes until consistency achieved",
+        "notes": "Automatic retry handles concurrent modification; no caller intervention required"
+      },
+      {
+        "input": "Read tuple t with lock_bit == 1 (locked by another transaction)",
+        "output": "Loop condition fails; caller receives signal to use fallback latching or wait",
+        "notes": "Indicates contention; caller may choose to retry, escalate, or abort"
+      }
+    ],
+    "tags": [
+      "lock_free",
+      "atomic_read",
+      "timestamp_validation",
+      "optimistic_concurrency_control",
+      "tuple_operation",
+      "read_phase"
+    ],
+    "support_ids": [
+      "de65d1d8-5967-54ad-b080-24f1fc5f9644"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "a8dd4655-4fa4-50a1-a9f6-b321730aec13"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.92,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|micro_skill_node|safely read tuple data and timestamps concurrently without acquiring locks|default|tuple_read|lock_free_atomic_load|read_phase|lock-free tuple read with timestamp validation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,113 @@
+{
+  "skill_id": "52956153-19be-543e-882e-ea4d44eb1b9c",
+  "name": "Resolve Active Span from OpenTelemetry Context",
+  "description": "Retrieve and validate the current span from OpenTelemetry context, then locate the root trace span if the current span is a child span. Use this when instrumenting distributed tracing and need to attach operations to the correct parent trace.",
+  "skill_body": "1. Call get_current_span() to retrieve the active span from OpenTelemetry context.\n2. Validate that the span exists and is recording (check hasattr(current_span, 'is_recording') and current_span.is_recording()).\n3. Inspect the span name to determine if it is a session/trace span (ends with '.SESSION') or a child span.\n4. If it is a session/trace span, use it directly as the target span.\n5. If it is a child span, retrieve all active traces using tracer.get_active_traces().\n6. Match the current span's trace_id (via current_span.get_span_context().trace_id) to find the parent trace.\n7. If no parent trace is found or no active traces exist, fall back to the current span.\n8. Return the resolved span object ready for operation attachment.\n\n## Objective\n\nLocate the correct parent trace span for operation instrumentation\n## Applicable Signals\n\n- Instrumenting an operation within an active OpenTelemetry trace\n- Need to attach operation to root session span rather than child span\n- Span recording is active and valid\n\n## Contraindications\n\n- No active OpenTelemetry context exists\n- Span recording is disabled (is_recording() returns false)\n- Operating outside a traced session\n- Current span is null or invalid\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Retrieve current span', 'detail': 'Call get_current_span() from OpenTelemetry context'}\n- {'step': 2, 'action': 'Validate span state', 'detail': 'Check span exists, has is_recording method, and is_recording() returns true'}\n- {'step': 3, 'action': 'Classify span type', 'detail': \"Inspect span name; if ends with '.SESSION', it is a root trace span; otherwise it is a child span\"}\n- {'step': 4, 'action': 'Resolve to root span', 'detail': \"If child span, retrieve active traces and match current span's trace_id to find parent; if no match or no active traces, use current span\"}\n- {'step': 5, 'action': 'Return resolved span', 'detail': 'Return the valid, recording span object ready for operation attachment'}\n\n## Constraints\n\n- Span must be recording (is_recording() must return true)\n- OpenTelemetry context must be active\n- Span object must have name and get_span_context() methods\n\n## Cautions\n\n- If parent trace lookup fails, the skill falls back to the current span; verify this is acceptable for your use case\n- Span name inspection relies on naming convention (ends with '.SESSION'); ensure your instrumentation follows this convention\n\n## Output Contract\n\n- Returns a valid, recording span object (either the current session span or the resolved root trace span) ready for operation attachment. If no valid span can be resolved, returns the current span as fallback. Caller can immediately use the returned span for attaching operations or child spans.",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "2fefe2f0-790d-5e47-99c5-c441046648cf",
+  "parent_candidate_ids": [
+    "2fefe2f0-790d-5e47-99c5-c441046648cf"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "linked",
+  "visible_role": "leaf",
+  "objective": "Locate the correct parent trace span for operation instrumentation",
+  "domain": "default",
+  "task_family": "distributed_tracing",
+  "method_family": "span_resolution",
+  "stage": "instrumentation_setup",
+  "applicable_signals": [
+    "Instrumenting an operation within an active OpenTelemetry trace",
+    "Need to attach operation to root session span rather than child span",
+    "Span recording is active and valid"
+  ],
+  "contraindications": [
+    "No active OpenTelemetry context exists",
+    "Span recording is disabled (is_recording() returns false)",
+    "Operating outside a traced session",
+    "Current span is null or invalid"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Instrumenting an operation within an active OpenTelemetry trace and need to attach to the root session span rather than a child span"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Retrieve current span', 'detail': 'Call get_current_span() from OpenTelemetry context'}",
+    "{'step': 2, 'action': 'Validate span state', 'detail': 'Check span exists, has is_recording method, and is_recording() returns true'}",
+    "{'step': 3, 'action': 'Classify span type', 'detail': \"Inspect span name; if ends with '.SESSION', it is a root trace span; otherwise it is a child span\"}",
+    "{'step': 4, 'action': 'Resolve to root span', 'detail': \"If child span, retrieve active traces and match current span's trace_id to find parent; if no match or no active traces, use current span\"}",
+    "{'step': 5, 'action': 'Return resolved span', 'detail': 'Return the valid, recording span object ready for operation attachment'}"
+  ],
+  "constraints": [
+    "Span must be recording (is_recording() must return true)",
+    "OpenTelemetry context must be active",
+    "Span object must have name and get_span_context() methods"
+  ],
+  "cautions": [
+    "If parent trace lookup fails, the skill falls back to the current span; verify this is acceptable for your use case",
+    "Span name inspection relies on naming convention (ends with '.SESSION'); ensure your instrumentation follows this convention"
+  ],
+  "output_contract": [
+    "Returns a valid, recording span object (either the current session span or the resolved root trace span) ready for operation attachment. If no valid span can be resolved, returns the current span as fallback. Caller can immediately use the returned span for attaching operations or child spans."
+  ],
+  "examples": [],
+  "tags": [
+    "opentelemetry",
+    "distributed_tracing",
+    "span_resolution",
+    "trace_instrumentation"
+  ],
+  "support_ids": [
+    "eade89ce-ede9-57e2-aabe-6dbb4ba49574"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "4087c2e1-059e-5971-af9b-3229837b7467"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.75,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|locate the correct parent trace span for operation instrumentation|default|distributed_tracing|span_resolution|instrumentation_setup|resolve active span from opentelemetry context",
+    "change_action": "create",
+    "llm_reason": "create",
+    "parent_skill_id": "2fefe2f0-790d-5e47-99c5-c441046648cf",
+    "parent_candidate_ids": [
+      "2fefe2f0-790d-5e47-99c5-c441046648cf"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "linked",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

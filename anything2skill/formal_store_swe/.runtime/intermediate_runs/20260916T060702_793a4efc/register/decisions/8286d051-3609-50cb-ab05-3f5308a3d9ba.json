@@ -1,0 +1,122 @@
+{
+  "skill_id": "8286d051-3609-50cb-ab05-3f5308a3d9ba",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate skill 'Parallel Logging Batch Coordination with Minimum Timestamp Enforcement' is a DBMS-specific logging durability protocol (asset_type: session_skill, task_family: logging_durability, stage: commit_and_durability). Existing skills are unrelated: Spring Batch job configuration (batch_job_management), ProcessPoolExecutor setup (parallel_execution), and peer candidates address transaction validation, lock acquisition, and benchmarking—none of which overlap with log batch coordination semantics. No semantic capability match exists across different domains and task families. Candidate should be persisted in a DBMS/transaction processing registry, not merged or strengthened here.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "8286d051-3609-50cb-ab05-3f5308a3d9ba",
+    "name": "Parallel Logging Batch Coordination with Minimum Timestamp Enforcement",
+    "description": "Coordinates worker threads to compute and enforce minimum commit timestamps for new log batches, ensuring inter-batch ordering while allowing intra-batch parallelism. Enables scalable crash recovery in multi-core DBMS by batching log writes across multiple files while maintaining correct transaction ordering.",
+    "skill_body": "When starting a new log batch: (1) coordinate all worker threads to compute the minimum commit timestamp that is strictly greater than all commit timestamps in the previous batch; (2) enforce this minimum timestamp for all transactions in the new batch; (3) write logs from the new batch to multiple files in parallel; (4) mark the batch as durable only after all log files have been written. Timestamps only increase in this process, so correctness is preserved.\n\n## Objective\n\nEstablish durable batch boundaries with correct timestamp ordering across parallel log files\n## Applicable Signals\n\n- Previous batch has completed and all logs are durable\n- New transactions are ready to enter a new batch\n- Multi-core system requires parallel logging for bandwidth\n\n## Contraindications\n\n- Single-log ARIES approach is sufficient for the workload\n- Bandwidth constraints do not require parallel logging\n- System does not support multi-file concurrent writes\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Coordinate all worker threads', 'detail': 'Each worker thread reports the maximum commit timestamp of transactions in the previous batch'}\n- {'step': 2, 'action': 'Compute minimum commit timestamp for new batch', 'detail': 'Set minimum_ts to a value strictly greater than the maximum commit timestamp from the previous batch'}\n- {'step': 3, 'action': 'Enforce minimum timestamp', 'detail': 'Assign all transactions in the new batch a commit timestamp >= minimum_ts'}\n- {'step': 4, 'action': 'Write logs in parallel', 'detail': 'Distribute log entries from the new batch across multiple log files and write concurrently'}\n- {'step': 5, 'action': 'Verify durability', 'detail': 'Confirm that all log files have been written; mark batch as durable only after all writes complete'}\n\n## Constraints\n\n- All transactions in a later batch must have commit timestamps strictly greater than all transactions in the previous batch\n- Relative ordering among transactions within the same batch can be arbitrary\n- A batch is durable only after all logs within that batch have been written to all files\n- Each worker thread must participate in minimum timestamp computation\n\n## Cautions\n\n- Ensure all worker threads coordinate before computing minimum timestamp; missing coordination can violate inter-batch ordering\n- Do not allow transactions to commit with timestamps less than or equal to the batch minimum; this breaks the ordering guarantee\n- Verify that all log files have been written before marking a batch as durable\n\n## Output Contract\n\n- New batch minimum timestamp is computed and enforced\n- All transactions in the batch have commit_ts > previous batch maximum commit_ts\n- Logs are written to multiple files in parallel\n- Batch is marked durable only after all log files are persisted\n\n## Example Executions\n\n### Example 1\n\n- Input: Previous batch completed with max commit_ts = 1000; 4 worker threads ready to start new batch\n- Output: Minimum timestamp for new batch set to 1001; all new transactions assigned commit_ts >= 1001; logs written to 4 parallel files; batch marked durable after all files persist\n- Notes: Ensures strict ordering: all transactions in new batch have higher timestamps than previous batch\n\n### Example 2\n\n- Input: Worker threads report previous batch max timestamps: 1000, 998, 1002, 999\n- Output: Global maximum is 1002; new batch minimum_ts set to 1003; all worker threads enforce this minimum for their transactions\n- Notes: Coordination step ensures no transaction in new batch can have timestamp <= 1002",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Establish durable batch boundaries with correct timestamp ordering across parallel log files",
+    "domain": "default",
+    "task_family": "logging_durability",
+    "method_family": "batch_coordination",
+    "stage": "commit_and_durability",
+    "applicable_signals": [
+      "Previous batch has completed and all logs are durable",
+      "New transactions are ready to enter a new batch",
+      "Multi-core system requires parallel logging for bandwidth"
+    ],
+    "contraindications": [
+      "Single-log ARIES approach is sufficient for the workload",
+      "Bandwidth constraints do not require parallel logging",
+      "System does not support multi-file concurrent writes"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Transitioning from one log batch to the next",
+      "Multiple worker threads must synchronize on batch boundaries",
+      "Crash recovery must preserve commit order across batches"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Coordinate all worker threads', 'detail': 'Each worker thread reports the maximum commit timestamp of transactions in the previous batch'}",
+      "{'step': 2, 'action': 'Compute minimum commit timestamp for new batch', 'detail': 'Set minimum_ts to a value strictly greater than the maximum commit timestamp from the previous batch'}",
+      "{'step': 3, 'action': 'Enforce minimum timestamp', 'detail': 'Assign all transactions in the new batch a commit timestamp >= minimum_ts'}",
+      "{'step': 4, 'action': 'Write logs in parallel', 'detail': 'Distribute log entries from the new batch across multiple log files and write concurrently'}",
+      "{'step': 5, 'action': 'Verify durability', 'detail': 'Confirm that all log files have been written; mark batch as durable only after all writes complete'}"
+    ],
+    "constraints": [
+      "All transactions in a later batch must have commit timestamps strictly greater than all transactions in the previous batch",
+      "Relative ordering among transactions within the same batch can be arbitrary",
+      "A batch is durable only after all logs within that batch have been written to all files",
+      "Each worker thread must participate in minimum timestamp computation"
+    ],
+    "cautions": [
+      "Ensure all worker threads coordinate before computing minimum timestamp; missing coordination can violate inter-batch ordering",
+      "Do not allow transactions to commit with timestamps less than or equal to the batch minimum; this breaks the ordering guarantee",
+      "Verify that all log files have been written before marking a batch as durable"
+    ],
+    "output_contract": [
+      "New batch minimum timestamp is computed and enforced",
+      "All transactions in the batch have commit_ts > previous batch maximum commit_ts",
+      "Logs are written to multiple files in parallel",
+      "Batch is marked durable only after all log files are persisted"
+    ],
+    "examples": [
+      {
+        "input": "Previous batch completed with max commit_ts = 1000; 4 worker threads ready to start new batch",
+        "output": "Minimum timestamp for new batch set to 1001; all new transactions assigned commit_ts >= 1001; logs written to 4 parallel files; batch marked durable after all files persist",
+        "notes": "Ensures strict ordering: all transactions in new batch have higher timestamps than previous batch"
+      },
+      {
+        "input": "Worker threads report previous batch max timestamps: 1000, 998, 1002, 999",
+        "output": "Global maximum is 1002; new batch minimum_ts set to 1003; all worker threads enforce this minimum for their transactions",
+        "notes": "Coordination step ensures no transaction in new batch can have timestamp <= 1002"
+      }
+    ],
+    "tags": [
+      "logging",
+      "durability",
+      "batch_coordination",
+      "parallel_logging",
+      "crash_recovery",
+      "timestamp_ordering"
+    ],
+    "support_ids": [
+      "14cd4ad2-3080-52fc-a5a6-ab78dd60a942"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "8b4d49da-5bb6-5eea-81da-59c26d9c9586"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.78,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|establish durable batch boundaries with correct timestamp ordering across parallel log files|default|logging_durability|batch_coordination|commit_and_durability|parallel logging batch coordination with minimum timestamp enforcement"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

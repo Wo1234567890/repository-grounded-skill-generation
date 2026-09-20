@@ -1,0 +1,117 @@
+{
+  "skill_id": "36d9b519-83c7-57a1-9bbc-fa41a0213aaf",
+  "name": "Register atexit cleanup handler",
+  "description": "Register a single atexit handler to ensure trace cleanup runs at process exit, guarding against duplicate registrations via idempotent flag check.",
+  "skill_body": "Check if the atexit handler has already been registered using the _atexit_registered flag. If not registered (flag is False), call atexit.register() with the _end_init_trace_atexit callback and set the flag to True. This ensures the cleanup handler runs exactly once at process termination.\n\n## Objective\n\nEnsure trace cleanup on process termination\n## Applicable Signals\n\n- Client initialization phase\n- _atexit_registered flag is False\n- Process lifecycle management required\n\n## Contraindications\n\n- Handler already registered (_atexit_registered is True)\n- Process cleanup not required or disabled\n- Multiple concurrent initialization attempts\n\n## Intervention Moves\n\n- Check _atexit_registered global state\n- Call atexit.register(_end_init_trace_atexit)\n- Set _atexit_registered to True\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check global _atexit_registered flag', 'condition': 'Flag must be False to proceed'}\n- {'step': 2, 'action': 'Call atexit.register(_end_init_trace_atexit)', 'condition': 'Only if flag is False'}\n- {'step': 3, 'action': 'Set _atexit_registered to True', 'condition': 'After successful registration'}\n\n## Constraints\n\n- Must check flag before registration to prevent duplicates\n- Registration must occur exactly once per process\n- Callback function _end_init_trace_atexit must be defined and callable\n\n## Cautions\n\n- Atexit handlers run in reverse registration order; ensure no circular dependencies with other handlers\n- Exceptions in the cleanup callback may prevent subsequent handlers from running\n\n## Output Contract\n\n- _atexit_registered flag set to True; atexit.register() called exactly once with _end_init_trace_atexit callback; cleanup handler guaranteed to execute at process exit",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [
+    "cd376aff-27f0-551f-be8f-d2eb384c145a",
+    "db7d6c09-b85e-5ef5-b1cc-54656bec2509"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "Ensure trace cleanup on process termination",
+  "domain": "default",
+  "task_family": "resource_cleanup",
+  "method_family": "atexit_registration",
+  "stage": "initialization",
+  "applicable_signals": [
+    "Client initialization phase",
+    "_atexit_registered flag is False",
+    "Process lifecycle management required"
+  ],
+  "contraindications": [
+    "Handler already registered (_atexit_registered is True)",
+    "Process cleanup not required or disabled",
+    "Multiple concurrent initialization attempts"
+  ],
+  "intervention_moves": [
+    "Check _atexit_registered global state",
+    "Call atexit.register(_end_init_trace_atexit)",
+    "Set _atexit_registered to True"
+  ],
+  "triggers": [
+    "Client initialization; atexit handler not yet registered (_atexit_registered is False)"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Check global _atexit_registered flag', 'condition': 'Flag must be False to proceed'}",
+    "{'step': 2, 'action': 'Call atexit.register(_end_init_trace_atexit)', 'condition': 'Only if flag is False'}",
+    "{'step': 3, 'action': 'Set _atexit_registered to True', 'condition': 'After successful registration'}"
+  ],
+  "constraints": [
+    "Must check flag before registration to prevent duplicates",
+    "Registration must occur exactly once per process",
+    "Callback function _end_init_trace_atexit must be defined and callable"
+  ],
+  "cautions": [
+    "Atexit handlers run in reverse registration order; ensure no circular dependencies with other handlers",
+    "Exceptions in the cleanup callback may prevent subsequent handlers from running"
+  ],
+  "output_contract": [
+    "_atexit_registered flag set to True; atexit.register() called exactly once with _end_init_trace_atexit callback; cleanup handler guaranteed to execute at process exit"
+  ],
+  "examples": [],
+  "tags": [
+    "cleanup",
+    "atexit",
+    "idempotent",
+    "initialization",
+    "resource_management"
+  ],
+  "support_ids": [
+    "eb425725-44b0-5409-88e4-bc10b2517938"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "bbd3e559-2244-52e3-b0fd-afd28736af86"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.82,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|ensure trace cleanup on process termination|default|resource_cleanup|atexit_registration|initialization|register atexit cleanup handler",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct micro_skill for atexit handler registration in process initialization. It has no semantic overlap with existing skills (ProcessPoolExecutor worker lifecycle, DOM event listeners) or peer candidates (Jupyter detection, singleton client init, LangChain callback handler). The atexit registration pattern is a unique resource cleanup capability at the initialization stage with its own workflow, constraints, and cautions. No merge, split, or revision relationship exists.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [
+      "cd376aff-27f0-551f-be8f-d2eb384c145a",
+      "db7d6c09-b85e-5ef5-b1cc-54656bec2509"
+    ],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

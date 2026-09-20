@@ -1,0 +1,121 @@
+{
+  "skill_id": "349bba6e-84a4-5c14-9203-5a926dfbe7a0",
+  "name": "Streaming Response Instrumentation",
+  "description": "Wrap streaming methods to capture and trace chunk-by-chunk responses with consistent content extraction. Use when instrumenting APIs that return streaming or chunked responses.",
+  "skill_body": "Apply streaming utilities to instrument a method that returns streaming or iterable responses. Use create_stream_wrapper_factory to create a wrapper that extracts chunk content and records attributes on each chunk. Apply the wrapper to the target streaming method using wrap_function_wrapper. Ensure stream.type and chunk content attributes are recorded for each chunk event.\n\n## Objective\n\nInstrument a streaming method to extract and trace individual chunks\n## Applicable Signals\n\n- streaming_response_detected\n- iterable_response_type\n- chunk_based_output\n\n## Contraindications\n\n- Response is non-streaming or fully buffered\n- Chunk content extraction is custom and incompatible with StreamingResponseHandler\n- Streaming is handled by client library without need for additional instrumentation\n\n## Workflow Steps\n\n- Import create_stream_wrapper_factory and StreamingResponseHandler from agentops.instrumentation.common\n- Create a stream wrapper factory with tracer, operation name, chunk content extractor, and initial attributes\n- Apply the wrapper to the target streaming method using wrap_function_wrapper with module name and method name\n- Verify that stream.type and chunk content attributes are recorded for each chunk event\n\n## Constraints\n\n- StreamingResponseHandler.extract_generic_chunk_content must be compatible with response format\n- Tracer must be available and initialized\n- Target module and method name must be correctly specified for wrap_function_wrapper\n\n## Cautions\n\n- Ensure the chunk content extractor is compatible with the response format\n- Verify tracer is properly initialized before wrapping\n- Test with actual streaming responses to confirm chunk extraction works as expected\n\n## Output Contract\n\n- Wrapped streaming method that emits span events or child spans for each chunk; stream.type and chunk content attributes recorded on each chunk\n\n## Example Executions\n\n### Example 1\n\n- Input: Streaming method in module 'my_module' named 'stream_method' that yields text chunks\n- Output: Wrapped method that creates child spans for each chunk with stream.type='text' and chunk content attributes\n- Notes: Uses StreamingResponseHandler.extract_generic_chunk_content for content extraction",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "f51af5de-39df-59d7-a895-20bfd95920c7",
+  "parent_candidate_ids": [
+    "f51af5de-39df-59d7-a895-20bfd95920c7"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "linked",
+  "visible_role": "leaf",
+  "objective": "Instrument a streaming method to extract and trace individual chunks",
+  "domain": "default",
+  "task_family": "instrumentation",
+  "method_family": "stream_wrapping",
+  "stage": "execution",
+  "applicable_signals": [
+    "streaming_response_detected",
+    "iterable_response_type",
+    "chunk_based_output"
+  ],
+  "contraindications": [
+    "Response is non-streaming or fully buffered",
+    "Chunk content extraction is custom and incompatible with StreamingResponseHandler",
+    "Streaming is handled by client library without need for additional instrumentation"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Method returns a streaming or iterable response",
+    "Per-chunk tracing and content extraction is required",
+    "Using wrap_function_wrapper pattern for instrumentation"
+  ],
+  "workflow_steps": [
+    "Import create_stream_wrapper_factory and StreamingResponseHandler from agentops.instrumentation.common",
+    "Create a stream wrapper factory with tracer, operation name, chunk content extractor, and initial attributes",
+    "Apply the wrapper to the target streaming method using wrap_function_wrapper with module name and method name",
+    "Verify that stream.type and chunk content attributes are recorded for each chunk event"
+  ],
+  "constraints": [
+    "StreamingResponseHandler.extract_generic_chunk_content must be compatible with response format",
+    "Tracer must be available and initialized",
+    "Target module and method name must be correctly specified for wrap_function_wrapper"
+  ],
+  "cautions": [
+    "Ensure the chunk content extractor is compatible with the response format",
+    "Verify tracer is properly initialized before wrapping",
+    "Test with actual streaming responses to confirm chunk extraction works as expected"
+  ],
+  "output_contract": [
+    "Wrapped streaming method that emits span events or child spans for each chunk; stream.type and chunk content attributes recorded on each chunk"
+  ],
+  "examples": [
+    {
+      "input": "Streaming method in module 'my_module' named 'stream_method' that yields text chunks",
+      "output": "Wrapped method that creates child spans for each chunk with stream.type='text' and chunk content attributes",
+      "notes": "Uses StreamingResponseHandler.extract_generic_chunk_content for content extraction"
+    }
+  ],
+  "tags": [
+    "instrumentation",
+    "streaming",
+    "tracing",
+    "chunk-handling",
+    "span-management"
+  ],
+  "support_ids": [
+    "607a523c-1061-5cb1-ac68-8df45ffb79e2"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "2dc1db12-e479-5efb-aef2-219ca6289e8a"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.8,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|instrument a streaming method to extract and trace individual chunks|default|instrumentation|stream_wrapping|execution|streaming response instrumentation",
+    "change_action": "create",
+    "llm_reason": "Candidate skill 'Streaming Response Instrumentation' is semantically distinct from existing skills. It addresses a specific instrumentation pattern for streaming/chunked responses using stream wrapper factories and chunk content extraction. Peer candidates (Span Management, Nested Operations, Token Usage) are complementary but operate at different abstraction levels or address different concerns. Existing skills are unrelated (offscreen content loading, array transforms). No merge, split, or revision relationship exists.",
+    "parent_skill_id": "f51af5de-39df-59d7-a895-20bfd95920c7",
+    "parent_candidate_ids": [
+      "f51af5de-39df-59d7-a895-20bfd95920c7"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "linked",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

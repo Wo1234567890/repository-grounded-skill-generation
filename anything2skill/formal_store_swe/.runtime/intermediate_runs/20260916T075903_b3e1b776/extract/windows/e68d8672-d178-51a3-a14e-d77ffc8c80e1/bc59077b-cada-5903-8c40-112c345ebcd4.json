@@ -1,0 +1,533 @@
+{
+  "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+  "title": "agentops-docs.txt",
+  "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+  "window_id": "bc59077b-cada-5903-8c40-112c345ebcd4",
+  "section_heading": "Debugging Roadmap",
+  "strategy": "strict",
+  "supports": [
+    {
+      "support_id": "9eccb6d5-3c54-5f00-a0b0-26d65297401e",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 115165,
+        "end": 119390
+      },
+      "excerpt": "from opentelemetry.metrics import Meter\n\n_instruments = (\"openai >= 0.27.0\",)\n\nclass OpenaiInstrumentor(CommonInstrumentor):\n    \"\"\"An instrumentor for OpenAI's client library with comprehensive coverage.\"\"\"\n\n# Create instrumentor config\n        config = InstrumentorConfig(\n            library_name=LIBRARY_NAME,\n            library_version=LIBRARY_VERSION,\n            wrapped_methods=self._get_wrapped_methods(),\n            metrics_enabled=True,\n            dependencies=_instruments,\n        )\n\nsuper().__init__(config)\n\ndef _initialize(self, **kwargs):\n        \"\"\"Handle version-specific initialization.\"\"\"\n        if not is_openai_v1():\n            # For v0, use the legacy instrumentor\n            OpenAIV0Instrumentor().instrument(**kwargs)\n            # Skip normal instrumentation\n            self.config.wrapped_methods = []\n\ndef _custom_wrap(self, **kwargs):\n        \"\"\"Add custom wrappers for streaming functionality.\"\"\"\n        if is_openai_v1() and self._tracer:\n            # from wrapt import wrap_function_wrapper\n            # # Add streaming wrappers for v1\n            try:\n                # Chat completion streaming wrappers\n\nwrap_function_wrapper(\n                    \"openai.resources.chat.completions\",\n                    \"Completions.create\",\n                    chat_completion_stream_wrapper(self._tracer),\n                )\n\nwrap_function_wrapper(\n                    \"openai.resources.chat.completions\",\n                    \"AsyncCompletions.create\",\n                    async_chat_completion_stream_wrapper(self._tracer),\n                )\n\n# Beta chat completion streaming wrappers\n                wrap_function_wrapper(\n                    \"openai.resources.beta.chat.completions\",\n                    \"Completions.parse\",\n                    chat_completion_stream_wrapper(self._tracer),\n                )\n\nwrap_function_wrapper(\n                    \"openai.resources.beta.chat.completions\",\n                    \"AsyncCompletions.parse\",\n                    async_chat_completion_stream_wrapper(self._tracer),\n                )\n\n# Responses API streaming wrappers\n                wrap_function_wrapper(\n                    \"openai.resources.responses\",\n                    \"Responses.create\",\n                    responses_stream_wrapper(self._tracer),\n                )",
+      "relation_type": "support",
+      "confidence": 0.85,
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "OpenAI Library Instrumentation Setup",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "Set up comprehensive observability instrumentation for OpenAI API calls with version compatibility and streaming support",
+        "task_family": "instrumentation_setup",
+        "method_family": "opentelemetry_configuration",
+        "stage": "initialization",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "bc59077b-cada-5903-8c40-112c345ebcd4",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 13,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      },
+      "created_at": "2026-09-15T22:33:28+00:00"
+    },
+    {
+      "support_id": "dd882379-cd9c-5791-b685-dfb72fe096ff",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 115165,
+        "end": 119390
+      },
+      "excerpt": "from opentelemetry.metrics import Meter\n\n_instruments = (\"openai >= 0.27.0\",)\n\nclass OpenaiInstrumentor(CommonInstrumentor):\n    \"\"\"An instrumentor for OpenAI's client library with comprehensive coverage.\"\"\"\n\n# Create instrumentor config\n        config = InstrumentorConfig(\n            library_name=LIBRARY_NAME,\n            library_version=LIBRARY_VERSION,\n            wrapped_methods=self._get_wrapped_methods(),\n            metrics_enabled=True,\n            dependencies=_instruments,\n        )\n\nsuper().__init__(config)\n\ndef _initialize(self, **kwargs):\n        \"\"\"Handle version-specific initialization.\"\"\"\n        if not is_openai_v1():\n            # For v0, use the legacy instrumentor\n            OpenAIV0Instrumentor().instrument(**kwargs)\n            # Skip normal instrumentation\n            self.config.wrapped_methods = []\n\ndef _custom_wrap(self, **kwargs):\n        \"\"\"Add custom wrappers for streaming functionality.\"\"\"\n        if is_openai_v1() and self._tracer:\n            # from wrapt import wrap_function_wrapper\n            # # Add streaming wrappers for v1\n            try:\n                # Chat completion streaming wrappers\n\nwrap_function_wrapper(\n                    \"openai.resources.chat.completions\",\n                    \"Completions.create\",\n                    chat_completion_stream_wrapper(self._tracer),\n                )\n\nwrap_function_wrapper(\n                    \"openai.resources.chat.completions\",\n                    \"AsyncCompletions.create\",\n                    async_chat_completion_stream_wrapper(self._tracer),\n                )\n\n# Beta chat completion streaming wrappers\n                wrap_function_wrapper(\n                    \"openai.resources.beta.chat.completions\",\n                    \"Completions.parse\",\n                    chat_completion_stream_wrapper(self._tracer),\n                )\n\nwrap_function_wrapper(\n                    \"openai.resources.beta.chat.completions\",\n                    \"AsyncCompletions.parse\",\n                    async_chat_completion_stream_wrapper(self._tracer),\n                )\n\n# Responses API streaming wrappers\n                wrap_function_wrapper(\n                    \"openai.resources.responses\",\n                    \"Responses.create\",\n                    responses_stream_wrapper(self._tracer),\n                )",
+      "relation_type": "support",
+      "confidence": 0.8,
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Version-Specific OpenAI Instrumentor Initialization",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Route instrumentation logic based on OpenAI library version",
+        "task_family": "version_routing",
+        "method_family": "conditional_initialization",
+        "stage": "pre_instrumentation",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "bc59077b-cada-5903-8c40-112c345ebcd4",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 13,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      },
+      "created_at": "2026-09-15T22:33:28+00:00"
+    },
+    {
+      "support_id": "0660d00e-a6ea-511f-b1df-485a4fb976a2",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 115165,
+        "end": 119390
+      },
+      "excerpt": "from opentelemetry.metrics import Meter\n\n_instruments = (\"openai >= 0.27.0\",)\n\nclass OpenaiInstrumentor(CommonInstrumentor):\n    \"\"\"An instrumentor for OpenAI's client library with comprehensive coverage.\"\"\"\n\n# Create instrumentor config\n        config = InstrumentorConfig(\n            library_name=LIBRARY_NAME,\n            library_version=LIBRARY_VERSION,\n            wrapped_methods=self._get_wrapped_methods(),\n            metrics_enabled=True,\n            dependencies=_instruments,\n        )\n\nsuper().__init__(config)\n\ndef _initialize(self, **kwargs):\n        \"\"\"Handle version-specific initialization.\"\"\"\n        if not is_openai_v1():\n            # For v0, use the legacy instrumentor\n            OpenAIV0Instrumentor().instrument(**kwargs)\n            # Skip normal instrumentation\n            self.config.wrapped_methods = []\n\ndef _custom_wrap(self, **kwargs):\n        \"\"\"Add custom wrappers for streaming functionality.\"\"\"\n        if is_openai_v1() and self._tracer:\n            # from wrapt import wrap_function_wrapper\n            # # Add streaming wrappers for v1\n            try:\n                # Chat completion streaming wrappers\n\nwrap_function_wrapper(\n                    \"openai.resources.chat.completions\",\n                    \"Completions.create\",\n                    chat_completion_stream_wrapper(self._tracer),\n                )\n\nwrap_function_wrapper(\n                    \"openai.resources.chat.completions\",\n                    \"AsyncCompletions.create\",\n                    async_chat_completion_stream_wrapper(self._tracer),\n                )\n\n# Beta chat completion streaming wrappers\n                wrap_function_wrapper(\n                    \"openai.resources.beta.chat.completions\",\n                    \"Completions.parse\",\n                    chat_completion_stream_wrapper(self._tracer),\n                )\n\nwrap_function_wrapper(\n                    \"openai.resources.beta.chat.completions\",\n                    \"AsyncCompletions.parse\",\n                    async_chat_completion_stream_wrapper(self._tracer),\n                )\n\n# Responses API streaming wrappers\n                wrap_function_wrapper(\n                    \"openai.resources.responses\",\n                    \"Responses.create\",\n                    responses_stream_wrapper(self._tracer),\n                )",
+      "relation_type": "support",
+      "confidence": 0.82,
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Streaming API Wrapper Registration",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Attach tracing wrappers to streaming method entry points",
+        "task_family": "wrapper_registration",
+        "method_family": "function_wrapping",
+        "stage": "instrumentation",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 3,
+        "window_id": "bc59077b-cada-5903-8c40-112c345ebcd4",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 13,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      },
+      "created_at": "2026-09-15T22:33:28+00:00"
+    }
+  ],
+  "skill_drafts": [
+    {
+      "draft_id": "947a35b5-379c-575f-83f3-83d424b70a9c",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "name": "OpenAI Library Instrumentation Setup",
+      "description": "Configure and initialize OpenTelemetry instrumentation for OpenAI client library with version-specific handling and streaming wrapper registration. Establishes comprehensive observability for OpenAI API calls including chat completions, beta endpoints, and responses APIs.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Set up comprehensive observability instrumentation for OpenAI API calls with version compatibility and streaming support",
+      "domain": "default",
+      "task_family": "instrumentation_setup",
+      "method_family": "opentelemetry_configuration",
+      "stage": "initialization",
+      "applicable_signals": [
+        "openai library version >= 0.27.0 detected",
+        "instrumentation framework initialized",
+        "metrics collection enabled in configuration"
+      ],
+      "contraindications": [
+        "OpenAI library is not a project dependency",
+        "Instrumentation is already active for OpenAI",
+        "Telemetry collection is explicitly disabled",
+        "Application does not require distributed tracing"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Create InstrumentorConfig', 'details': 'Instantiate InstrumentorConfig with library_name, library_version, wrapped_methods from _get_wrapped_methods(), metrics_enabled=True, and dependencies=[\"openai >= 0.27.0\"]'}",
+        "{'step': 2, 'action': 'Call parent __init__', 'details': 'Pass config to super().__init__(config) to initialize CommonInstrumentor base'}",
+        "{'step': 3, 'action': 'Detect OpenAI version', 'details': 'In _initialize(), call is_openai_v1() to determine library version'}",
+        "{'step': 4, 'action': 'Apply version-specific initialization', 'details': 'If not v1 (legacy v0): instantiate OpenAIV0Instrumentor, call instrument(**kwargs), and clear wrapped_methods list. Otherwise, proceed to custom wrapping.'}",
+        "{'step': 5, 'action': 'Register streaming wrappers', 'details': 'In _custom_wrap(), if is_openai_v1() and self._tracer exists, use wrap_function_wrapper to register wrappers for: (a) openai.resources.chat.completions.Completions.create (sync), (b) openai.resources.chat.completions.AsyncCompletions.create (async), (c) openai.resources.beta.chat.completions.Completions.parse (beta sync), (d) openai.resources.beta.chat.completions.AsyncCompletions.parse (beta async), (e) openai.resources.responses.Responses.create (responses API)'}",
+        "{'step': 6, 'action': 'Verify instrumentation complete', 'details': 'Confirm all wrapped methods are registered and tracer is active'}"
+      ],
+      "triggers": [
+        "OpenAI client library is added as a project dependency",
+        "Agent or application requires telemetry collection and distributed tracing",
+        "Integration with observability platform (e.g., AgentOps) is initiated"
+      ],
+      "constraints": [
+        "OpenAI library version must be >= 0.27.0",
+        "CommonInstrumentor base class must be available",
+        "wrapt library must be available for function wrapping",
+        "Tracer instance must be initialized before custom wrapping"
+      ],
+      "cautions": [
+        "Version detection (is_openai_v1) must execute before initialization to avoid wrapping legacy endpoints incorrectly",
+        "For OpenAI v0, skip normal instrumentation and delegate to OpenAIV0Instrumentor to prevent double-wrapping",
+        "Streaming wrappers require tracer to be non-null; check self._tracer before attempting custom wraps"
+      ],
+      "output_contract": [
+        "Instrumentor instance fully configured with: (1) InstrumentorConfig containing library metadata and wrapped method list; (2) version-specific initialization applied (legacy fallback or v1 standard); (3) all streaming wrappers registered for chat completions, beta endpoints, and responses APIs; (4) metrics collection enabled; (5) ready for downstream telemetry collection and tracing of OpenAI API calls"
+      ],
+      "examples": [
+        {
+          "input": "OpenAI library v1.0+ installed; agent requires distributed tracing",
+          "output": "OpenaiInstrumentor instance with v1 streaming wrappers registered for Completions.create, AsyncCompletions.create, beta Completions.parse, AsyncCompletions.parse, and Responses.create; metrics enabled",
+          "notes": "Standard path for modern OpenAI library"
+        },
+        {
+          "input": "OpenAI library v0.x installed; legacy support required",
+          "output": "OpenaiInstrumentor delegates to OpenAIV0Instrumentor; wrapped_methods cleared to prevent double-wrapping",
+          "notes": "Fallback path for older OpenAI versions"
+        }
+      ],
+      "risk_class": "medium",
+      "confidence": 0.85,
+      "support_ids": [
+        "9eccb6d5-3c54-5f00-a0b0-26d65297401e"
+      ],
+      "metadata": {
+        "prompt": "Initialize an OpenaiInstrumentor instance by: (1) creating an InstrumentorConfig with library metadata, wrapped methods, and metrics enabled; (2) detecting OpenAI library version and applying version-specific initialization (legacy v0 fallback or v1 standard); (3) registering custom streaming wrappers for chat completion, async chat completion, beta chat completion parse, and responses APIs using wrap_function_wrapper. Ensure all wrapped methods are configured before instrumentation completes.",
+        "tags": [
+          "observability",
+          "instrumentation",
+          "opentelemetry",
+          "openai",
+          "telemetry",
+          "tracing"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "Debugging Roadmap"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "candidate_slot": 1,
+        "window_id": "bc59077b-cada-5903-8c40-112c345ebcd4",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 13,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    },
+    {
+      "draft_id": "8e2780bd-001a-57fe-b735-f0517845fadc",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "name": "Version-Specific OpenAI Instrumentor Initialization",
+      "description": "Detect OpenAI library version at runtime and apply the appropriate instrumentation strategy: delegate to legacy instrumentor for v0, or skip method wrapping for v1 fallback. Ensures instrumentation compatibility across library versions.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Route instrumentation logic based on OpenAI library version",
+      "domain": "default",
+      "task_family": "version_routing",
+      "method_family": "conditional_initialization",
+      "stage": "pre_instrumentation",
+      "applicable_signals": [
+        "is_openai_v1() returns False (legacy v0 detected)",
+        "is_openai_v1() returns True (current v1 detected)",
+        "InstrumentorConfig is instantiated and ready for version-specific adjustment"
+      ],
+      "contraindications": [
+        "Library version is guaranteed to be v1 only; version detection is unnecessary",
+        "Legacy v0 support is not required or deprecated",
+        "Instrumentation must not branch on version; single-version setup is enforced"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check OpenAI library version', 'detail': 'Call is_openai_v1() to determine if the library is v0 or v1'}",
+        "{'step': 2, 'action': 'Route to legacy instrumentor if v0', 'detail': 'If is_openai_v1() returns False, instantiate OpenAIV0Instrumentor() and call .instrument(**kwargs)'}",
+        "{'step': 3, 'action': 'Clear wrapped methods for v0 path', 'detail': 'Set self.config.wrapped_methods = [] to skip normal v1 wrapping after legacy instrumentation'}",
+        "{'step': 4, 'action': 'Proceed with v1 initialization if v1 detected', 'detail': 'If is_openai_v1() returns True, continue with normal initialization flow'}"
+      ],
+      "triggers": [
+        "OpenAI library version is unknown or mixed (v0 and v1 coexist)",
+        "Initialization phase begins and library version must be detected",
+        "Runtime environment requires adaptive instrumentation strategy"
+      ],
+      "constraints": [
+        "is_openai_v1() function must be available and reliable",
+        "OpenAIV0Instrumentor class must be importable and functional if v0 is detected",
+        "wrapped_methods list must be cleared after legacy instrumentor invocation to prevent duplicate wrapping",
+        "kwargs passed to _initialize must be forwarded to legacy instrumentor without modification"
+      ],
+      "cautions": [
+        "If legacy instrumentor fails, the entire initialization may fail; ensure v0 support is tested",
+        "Clearing wrapped_methods after v0 instrumentation prevents normal v1 wrapping; confirm this is the intended behavior",
+        "Version detection must occur before custom wrapping (_custom_wrap) to avoid conflicts"
+      ],
+      "output_contract": [
+        "Correct instrumentor selected and initialized; wrapped_methods list populated or cleared based on version; no instrumentation errors on legacy or current versions; initialization state is consistent with detected library version"
+      ],
+      "examples": [
+        {
+          "input": "is_openai_v1() returns False; kwargs={'tracer': <tracer_instance>}",
+          "output": "OpenAIV0Instrumentor().instrument(tracer=<tracer_instance>) is called; self.config.wrapped_methods = []",
+          "notes": "Legacy v0 path: delegate to v0-specific instrumentor and suppress v1 wrapping"
+        },
+        {
+          "input": "is_openai_v1() returns True; kwargs={'tracer': <tracer_instance>}",
+          "output": "Normal initialization continues; wrapped_methods list is populated by parent class; no legacy instrumentor invoked",
+          "notes": "Current v1 path: proceed with standard instrumentation flow"
+        }
+      ],
+      "risk_class": "medium",
+      "confidence": 0.8,
+      "support_ids": [
+        "dd882379-cd9c-5791-b685-dfb72fe096ff"
+      ],
+      "metadata": {
+        "prompt": "Check the OpenAI library version using is_openai_v1(). If v0 is detected, instantiate and invoke OpenAIV0Instrumentor().instrument() with the provided kwargs, then clear the wrapped_methods list to prevent double instrumentation. If v1 is detected, proceed with normal initialization. This micro-step runs during the _initialize phase before custom wrapping is applied.",
+        "tags": [
+          "openai",
+          "instrumentation",
+          "version_detection",
+          "initialization",
+          "conditional_routing",
+          "compatibility"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "Debugging Roadmap"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 2,
+        "window_id": "bc59077b-cada-5903-8c40-112c345ebcd4",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 13,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    },
+    {
+      "draft_id": "d28f08b2-a05c-5d1d-8950-bdb9178bb75b",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "name": "Streaming API Wrapper Registration",
+      "description": "Register function wrappers for OpenAI streaming endpoints to capture telemetry for sync and async calls. Attaches tracing wrappers to chat completions, beta completions, and responses API entry points.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Attach tracing wrappers to streaming method entry points",
+      "domain": "default",
+      "task_family": "wrapper_registration",
+      "method_family": "function_wrapping",
+      "stage": "instrumentation",
+      "applicable_signals": [
+        "is_openai_v1() returns True",
+        "self._tracer is not None",
+        "Custom wrapping phase is entered"
+      ],
+      "contraindications": [
+        "Streaming is not used in the application",
+        "Tracer is None or uninitialized",
+        "OpenAI v0 is active (use legacy instrumentor instead)",
+        "wrap_function_wrapper is not available"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check tracer availability', 'detail': 'Verify self._tracer is not None before proceeding'}",
+        "{'step': 2, 'action': 'Register chat completions sync wrapper', 'detail': \"wrap_function_wrapper('openai.resources.chat.completions', 'Completions.create', chat_completion_stream_wrapper(self._tracer))\"}",
+        "{'step': 3, 'action': 'Register chat completions async wrapper', 'detail': \"wrap_function_wrapper('openai.resources.chat.completions', 'AsyncCompletions.create', async_chat_completion_stream_wrapper(self._tracer))\"}",
+        "{'step': 4, 'action': 'Register beta completions sync wrapper', 'detail': \"wrap_function_wrapper('openai.resources.beta.chat.completions', 'Completions.parse', chat_completion_stream_wrapper(self._tracer))\"}",
+        "{'step': 5, 'action': 'Register beta completions async wrapper', 'detail': \"wrap_function_wrapper('openai.resources.beta.chat.completions', 'AsyncCompletions.parse', async_chat_completion_stream_wrapper(self._tracer))\"}",
+        "{'step': 6, 'action': 'Register responses API wrapper', 'detail': \"wrap_function_wrapper('openai.resources.responses', 'Responses.create', responses_stream_wrapper(self._tracer))\"}"
+      ],
+      "triggers": [
+        "OpenAI v1 is detected",
+        "Streaming telemetry is required",
+        "Tracer instance is available and initialized"
+      ],
+      "constraints": [
+        "Must execute after version detection confirms OpenAI v1",
+        "Tracer instance must be initialized before wrapper registration",
+        "All four endpoint paths must be wrapped in sequence to ensure complete coverage"
+      ],
+      "cautions": [
+        "Wrapping errors should be caught and logged; do not silently fail",
+        "Ensure wrapper functions (chat_completion_stream_wrapper, async_chat_completion_stream_wrapper, responses_stream_wrapper) are defined before registration"
+      ],
+      "output_contract": [
+        "All four streaming endpoints wrapped with corresponding stream wrapper functions; no import or wrapping errors; tracer is passed to each wrapper for telemetry capture."
+      ],
+      "examples": [],
+      "risk_class": "medium",
+      "confidence": 0.82,
+      "support_ids": [
+        "0660d00e-a6ea-511f-b1df-485a4fb976a2"
+      ],
+      "metadata": {
+        "prompt": "Use wrap_function_wrapper to attach stream wrapper functions to OpenAI v1 streaming method entry points. Register wrappers for: (1) openai.resources.chat.completions.Completions.create and AsyncCompletions.create, (2) openai.resources.beta.chat.completions.Completions.parse and AsyncCompletions.parse, (3) openai.resources.responses.Responses.create. Each wrapper call passes the tracer instance to enable telemetry capture.",
+        "tags": [
+          "openai",
+          "instrumentation",
+          "streaming",
+          "telemetry",
+          "wrapper",
+          "tracing"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "Debugging Roadmap"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 3,
+        "window_id": "bc59077b-cada-5903-8c40-112c345ebcd4",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 13,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    }
+  ],
+  "failed": false,
+  "complete": true,
+  "error": {}
+}

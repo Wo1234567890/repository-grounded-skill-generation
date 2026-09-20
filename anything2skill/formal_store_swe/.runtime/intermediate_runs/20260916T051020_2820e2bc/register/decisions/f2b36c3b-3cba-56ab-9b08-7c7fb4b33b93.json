@@ -1,0 +1,117 @@
+{
+  "skill_id": "f2b36c3b-3cba-56ab-9b08-7c7fb4b33b93",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill in the job_execution task_family at the execute stage. It addresses job submission and result retrieval—a capability not present in existing_skills (which cover thread pool execution and Future state inspection, orthogonal domains). Peer candidates cover environment initialization and result collection via Iterator sink, but neither directly addresses StreamExecutionEnvironment.execute()/executeAsync() submission and JobExecutionResult retrieval. The candidate is semantically unique, well-scoped, and supported by DataStream API evidence.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "f2b36c3b-3cba-56ab-9b08-7c7fb4b33b93",
+    "name": "Execute Flink Job and Retrieve Results",
+    "description": "Trigger job execution on the configured StreamExecutionEnvironment and optionally wait for completion to retrieve execution metrics and accumulator results.",
+    "skill_body": "Call execute() on the StreamExecutionEnvironment to submit the job synchronously and block until completion, returning a JobExecutionResult. Alternatively, call executeAsync() to submit asynchronously and obtain a JobClient, then call getJobExecutionResult().get() on the client to retrieve results when ready. The JobExecutionResult contains execution times and accumulator values.\n\n## Objective\n\nSubmit and monitor job execution\n## Applicable Signals\n\n- Pipeline definition complete\n- Caller requires execution results or job handle\n- Synchronous or asynchronous execution mode selected\n\n## Contraindications\n\n- Job definition is incomplete\n- Still adding sources or sinks to the pipeline\n- Testing without actual execution required\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Verify pipeline is complete with sources, transformations, and sinks', 'condition': 'All DataStream operations defined'}\n- {'step': 2, 'action': 'Choose execution mode: synchronous via execute() or asynchronous via executeAsync()', 'condition': 'Caller determines blocking vs. non-blocking requirement'}\n- {'step': 3, 'action': 'Call execute() on StreamExecutionEnvironment to submit and wait for completion', 'condition': 'Synchronous execution desired; returns JobExecutionResult'}\n- {'step': 4, 'action': 'Alternatively, call executeAsync() to submit without blocking', 'condition': 'Asynchronous execution desired; returns JobClient'}\n- {'step': 5, 'action': 'Retrieve results via JobExecutionResult (synchronous) or jobClient.getJobExecutionResult().get() (asynchronous)', 'condition': 'Job execution complete or results needed'}\n\n## Constraints\n\n- StreamExecutionEnvironment must be configured before calling execute() or executeAsync()\n- All DataStream transformations and sinks must be defined\n- Execution will block (synchronous) or return immediately with a JobClient (asynchronous)\n\n## Cautions\n\n- execute() blocks until job completion; use executeAsync() for non-blocking submission\n- JobExecutionResult is only available after job completion\n- Accumulator results are populated only if accumulators were registered in the job\n\n## Output Contract\n\n- Returns JobExecutionResult containing execution times and accumulator results (synchronous mode), or JobClient handle for asynchronous monitoring and later result retrieval\n\n## Example Executions\n\n### Example 1\n\n- Input: StreamExecutionEnvironment with complete pipeline (sources, map transformation, text sink)\n- Output: JobExecutionResult with execution duration and any registered accumulator values\n- Notes: Synchronous execution; caller blocks until job finishes\n\n### Example 2\n\n- Input: StreamExecutionEnvironment with complete pipeline; caller needs non-blocking submission\n- Output: JobClient; caller later calls getJobExecutionResult().get() to retrieve JobExecutionResult\n- Notes: Asynchronous execution; caller can perform other work while job runs",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Submit and monitor job execution",
+    "domain": "default",
+    "task_family": "job_execution",
+    "method_family": "execution_control",
+    "stage": "execute",
+    "applicable_signals": [
+      "Pipeline definition complete",
+      "Caller requires execution results or job handle",
+      "Synchronous or asynchronous execution mode selected"
+    ],
+    "contraindications": [
+      "Job definition is incomplete",
+      "Still adding sources or sinks to the pipeline",
+      "Testing without actual execution required"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "All sources, transformations, and sinks are defined in the DataStream pipeline",
+      "Ready to run the job and need execution metrics",
+      "Need to obtain a JobClient for asynchronous monitoring"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Verify pipeline is complete with sources, transformations, and sinks', 'condition': 'All DataStream operations defined'}",
+      "{'step': 2, 'action': 'Choose execution mode: synchronous via execute() or asynchronous via executeAsync()', 'condition': 'Caller determines blocking vs. non-blocking requirement'}",
+      "{'step': 3, 'action': 'Call execute() on StreamExecutionEnvironment to submit and wait for completion', 'condition': 'Synchronous execution desired; returns JobExecutionResult'}",
+      "{'step': 4, 'action': 'Alternatively, call executeAsync() to submit without blocking', 'condition': 'Asynchronous execution desired; returns JobClient'}",
+      "{'step': 5, 'action': 'Retrieve results via JobExecutionResult (synchronous) or jobClient.getJobExecutionResult().get() (asynchronous)', 'condition': 'Job execution complete or results needed'}"
+    ],
+    "constraints": [
+      "StreamExecutionEnvironment must be configured before calling execute() or executeAsync()",
+      "All DataStream transformations and sinks must be defined",
+      "Execution will block (synchronous) or return immediately with a JobClient (asynchronous)"
+    ],
+    "cautions": [
+      "execute() blocks until job completion; use executeAsync() for non-blocking submission",
+      "JobExecutionResult is only available after job completion",
+      "Accumulator results are populated only if accumulators were registered in the job"
+    ],
+    "output_contract": [
+      "Returns JobExecutionResult containing execution times and accumulator results (synchronous mode), or JobClient handle for asynchronous monitoring and later result retrieval"
+    ],
+    "examples": [
+      {
+        "input": "StreamExecutionEnvironment with complete pipeline (sources, map transformation, text sink)",
+        "output": "JobExecutionResult with execution duration and any registered accumulator values",
+        "notes": "Synchronous execution; caller blocks until job finishes"
+      },
+      {
+        "input": "StreamExecutionEnvironment with complete pipeline; caller needs non-blocking submission",
+        "output": "JobClient; caller later calls getJobExecutionResult().get() to retrieve JobExecutionResult",
+        "notes": "Asynchronous execution; caller can perform other work while job runs"
+      }
+    ],
+    "tags": [
+      "flink",
+      "datastream",
+      "job_execution",
+      "execution_control",
+      "async_execution"
+    ],
+    "support_ids": [
+      "2edb7bcf-2fa0-5741-8ccc-33d869aa3c7a"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "995a5275-c267-5ca3-89b0-d1f9a69b1152"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.9,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|submit and monitor job execution|default|job_execution|execution_control|execute|execute flink job and retrieve results"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

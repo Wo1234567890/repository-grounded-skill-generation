@@ -1,0 +1,291 @@
+{
+  "task_id": "grafana-dashboards",
+  "model": "claude-haiku-4-5-20251001",
+  "raw_plan": {
+    "requirements": [
+      {
+        "id": "R1",
+        "requirement": "Dashboard JSON file must exist at devenv/dev-dashboards/infra/service_metrics.json",
+        "primitive": "FILE_EXISTS",
+        "args": {
+          "path": "devenv/dev-dashboards/infra/service_metrics.json"
+        },
+        "reason": "Task explicitly names this exact file path as a required file to create"
+      },
+      {
+        "id": "R2",
+        "requirement": "Dashboard provisioning YAML file must exist at devenv/provisioning/dashboards/infra.yaml",
+        "primitive": "FILE_EXISTS",
+        "args": {
+          "path": "devenv/provisioning/dashboards/infra.yaml"
+        },
+        "reason": "Task explicitly names this exact file path as a required file to create"
+      },
+      {
+        "id": "R3",
+        "requirement": "Datasource provisioning YAML file must exist at devenv/provisioning/datasources/prometheus.yaml",
+        "primitive": "FILE_EXISTS",
+        "args": {
+          "path": "devenv/provisioning/datasources/prometheus.yaml"
+        },
+        "reason": "Task explicitly names this exact file path as a required file to create"
+      },
+      {
+        "id": "R4",
+        "requirement": "service_metrics.json must contain title and uid fields",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Task requires specific fields in a JSON file, but JSON structure cannot be statically verified without parsing or regex. Fields are semantic properties that require runtime validation."
+      },
+      {
+        "id": "R5",
+        "requirement": "service_metrics.json must contain panels array with at least 4 panel definitions",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires counting array elements and verifying semantic structure of panel objects. This is runtime behavior that cannot be verified through static file inspection alone."
+      },
+      {
+        "id": "R6",
+        "requirement": "Dashboard must contain Graph, Stat, Histogram, and Table panel types",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires identifying specific panel type values within JSON objects. This is semantic content verification requiring parsing, not static text matching."
+      },
+      {
+        "id": "R7",
+        "requirement": "service_metrics.json must include variable templating with $namespace and $service",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires verification of variables object structure and specific variable definitions. This is semantic JSON structure validation, not static literal matching."
+      },
+      {
+        "id": "R8",
+        "requirement": "service_metrics.json must include time range configuration with default last 1 hour",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires verifying nested time range configuration object and duration values. This is semantic JSON structure validation."
+      },
+      {
+        "id": "R9",
+        "requirement": "service_metrics.json must include Prometheus queries for all panels",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires verifying that each panel contains valid Prometheus query syntax. This is semantic validation of query content and structure."
+      },
+      {
+        "id": "R10",
+        "requirement": "infra.yaml must contain disableDeletion: false",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "devenv/provisioning/dashboards/infra.yaml",
+          "value": "disableDeletion: false"
+        },
+        "reason": "Task explicitly requires this exact YAML key-value pair in the explicitly named file. This is partial evidence as YAML parsing could affect interpretation."
+      },
+      {
+        "id": "R11",
+        "requirement": "infra.yaml must contain updateIntervalSeconds: 10",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "devenv/provisioning/dashboards/infra.yaml",
+          "value": "updateIntervalSeconds: 10"
+        },
+        "reason": "Task explicitly requires this exact YAML key-value pair in the explicitly named file. This is partial evidence as YAML parsing could affect interpretation."
+      },
+      {
+        "id": "R12",
+        "requirement": "infra.yaml must point dashboard provider to devenv/dev-dashboards/infra/",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "devenv/provisioning/dashboards/infra.yaml",
+          "value": "devenv/dev-dashboards/infra/"
+        },
+        "reason": "Task explicitly requires this path string in the explicitly named file. This is partial evidence as full provider configuration context is not verified."
+      },
+      {
+        "id": "R13",
+        "requirement": "prometheus.yaml must contain Prometheus datasource URL http://localhost:9090",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "devenv/provisioning/datasources/prometheus.yaml",
+          "value": "http://localhost:9090"
+        },
+        "reason": "Task explicitly requires this exact URL in the explicitly named file. This is partial evidence as datasource configuration context is not fully verified."
+      },
+      {
+        "id": "R14",
+        "requirement": "prometheus.yaml must contain access mode proxy",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "devenv/provisioning/datasources/prometheus.yaml",
+          "value": "proxy"
+        },
+        "reason": "Task explicitly requires 'proxy' access mode in the explicitly named file. This is partial evidence as context within datasource configuration is not fully verified."
+      },
+      {
+        "id": "R15",
+        "requirement": "go build ./... must compile without errors",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires actual Go compilation. Dashboard JSON files do not affect Go build, so this is a general repository health check that cannot be statically verified."
+      },
+      {
+        "id": "R16",
+        "requirement": "Dashboard JSON must be valid and parseable",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires JSON parsing to verify validity. This is runtime behavior that cannot be verified through static text inspection."
+      },
+      {
+        "id": "R17",
+        "requirement": "Provisioning YAML files must be valid and contain provider configuration",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires YAML parsing and semantic structure validation. This is runtime behavior that cannot be verified through static text inspection alone."
+      }
+    ]
+  },
+  "sanitized_requirements": [
+    {
+      "id": "R1",
+      "requirement": "Dashboard JSON file must exist at devenv/dev-dashboards/infra/service_metrics.json",
+      "primitive": "FILE_EXISTS",
+      "args": {
+        "path": "devenv/dev-dashboards/infra/service_metrics.json"
+      },
+      "reason": "Task explicitly names this exact file path as a required file to create"
+    },
+    {
+      "id": "R2",
+      "requirement": "Dashboard provisioning YAML file must exist at devenv/provisioning/dashboards/infra.yaml",
+      "primitive": "FILE_EXISTS",
+      "args": {
+        "path": "devenv/provisioning/dashboards/infra.yaml"
+      },
+      "reason": "Task explicitly names this exact file path as a required file to create"
+    },
+    {
+      "id": "R3",
+      "requirement": "Datasource provisioning YAML file must exist at devenv/provisioning/datasources/prometheus.yaml",
+      "primitive": "FILE_EXISTS",
+      "args": {
+        "path": "devenv/provisioning/datasources/prometheus.yaml"
+      },
+      "reason": "Task explicitly names this exact file path as a required file to create"
+    },
+    {
+      "id": "R4",
+      "requirement": "service_metrics.json must contain title and uid fields",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Task requires specific fields in a JSON file, but JSON structure cannot be statically verified without parsing or regex. Fields are semantic properties that require runtime validation."
+    },
+    {
+      "id": "R5",
+      "requirement": "service_metrics.json must contain panels array with at least 4 panel definitions",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires counting array elements and verifying semantic structure of panel objects. This is runtime behavior that cannot be verified through static file inspection alone."
+    },
+    {
+      "id": "R6",
+      "requirement": "Dashboard must contain Graph, Stat, Histogram, and Table panel types",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires identifying specific panel type values within JSON objects. This is semantic content verification requiring parsing, not static text matching."
+    },
+    {
+      "id": "R7",
+      "requirement": "service_metrics.json must include variable templating with $namespace and $service",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires verification of variables object structure and specific variable definitions. This is semantic JSON structure validation, not static literal matching."
+    },
+    {
+      "id": "R8",
+      "requirement": "service_metrics.json must include time range configuration with default last 1 hour",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires verifying nested time range configuration object and duration values. This is semantic JSON structure validation."
+    },
+    {
+      "id": "R9",
+      "requirement": "service_metrics.json must include Prometheus queries for all panels",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires verifying that each panel contains valid Prometheus query syntax. This is semantic validation of query content and structure."
+    },
+    {
+      "id": "R10",
+      "requirement": "infra.yaml must contain disableDeletion: false",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "devenv/provisioning/dashboards/infra.yaml",
+        "value": "disableDeletion: false"
+      },
+      "reason": "Task explicitly requires this exact YAML key-value pair in the explicitly named file. This is partial evidence as YAML parsing could affect interpretation."
+    },
+    {
+      "id": "R11",
+      "requirement": "infra.yaml must contain updateIntervalSeconds: 10",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "devenv/provisioning/dashboards/infra.yaml",
+        "value": "updateIntervalSeconds: 10"
+      },
+      "reason": "Task explicitly requires this exact YAML key-value pair in the explicitly named file. This is partial evidence as YAML parsing could affect interpretation."
+    },
+    {
+      "id": "R12",
+      "requirement": "infra.yaml must point dashboard provider to devenv/dev-dashboards/infra/",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "devenv/provisioning/dashboards/infra.yaml",
+        "value": "devenv/dev-dashboards/infra/"
+      },
+      "reason": "Task explicitly requires this path string in the explicitly named file. This is partial evidence as full provider configuration context is not verified."
+    },
+    {
+      "id": "R13",
+      "requirement": "prometheus.yaml must contain Prometheus datasource URL http://localhost:9090",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "devenv/provisioning/datasources/prometheus.yaml",
+        "value": "http://localhost:9090"
+      },
+      "reason": "Task explicitly requires this exact URL in the explicitly named file. This is partial evidence as datasource configuration context is not fully verified."
+    },
+    {
+      "id": "R14",
+      "requirement": "prometheus.yaml must contain access mode proxy",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "devenv/provisioning/datasources/prometheus.yaml",
+        "value": "proxy"
+      },
+      "reason": "Task explicitly requires 'proxy' access mode in the explicitly named file. This is partial evidence as context within datasource configuration is not fully verified."
+    },
+    {
+      "id": "R15",
+      "requirement": "go build ./... must compile without errors",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires actual Go compilation. Dashboard JSON files do not affect Go build, so this is a general repository health check that cannot be statically verified."
+    },
+    {
+      "id": "R16",
+      "requirement": "Dashboard JSON must be valid and parseable",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires JSON parsing to verify validity. This is runtime behavior that cannot be verified through static text inspection."
+    },
+    {
+      "id": "R17",
+      "requirement": "Provisioning YAML files must be valid and contain provider configuration",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires YAML parsing and semantic structure validation. This is runtime behavior that cannot be verified through static text inspection alone."
+    }
+  ],
+  "warnings": []
+}

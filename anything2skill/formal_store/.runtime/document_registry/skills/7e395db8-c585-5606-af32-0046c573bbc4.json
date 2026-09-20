@@ -1,0 +1,132 @@
+{
+  "skill_id": "7e395db8-c585-5606-af32-0046c573bbc4",
+  "name": "Executor Map for Concurrent Iteration",
+  "description": "Apply a function to multiple iterables concurrently using Executor.map(), with optional timeout and chunksize control. Returns results in order, with timeout and exception handling.",
+  "skill_body": "Use Executor.map(fn, *iterables, timeout=None, chunksize=1) to execute fn asynchronously over multiple iterables. Results are collected immediately and returned in order. Set timeout to limit wait time per result; set chunksize to batch items for processing. Handle TimeoutError if a result is not available within the timeout window. Any exception raised by fn will be re-raised when that result is retrieved from the iterator.\n\n## Objective\n\nExecute a function over multiple iterables concurrently and retrieve results in order with timeout and exception handling\n## Applicable Signals\n\n- Batch processing workload\n- Concurrent execution desired\n- Ordered result collection required\n\n## Contraindications\n\n- Lazy evaluation is required (use iterator without immediate collection)\n- Results must be processed as they complete rather than in order (use as_completed instead)\n- Fine-grained per-item exception handling is needed\n\n## Workflow Steps\n\n- Create or obtain an Executor instance (ThreadPoolExecutor or ProcessPoolExecutor)\n- Call executor.map(fn, *iterables, timeout=timeout_value, chunksize=chunksize_value)\n- Iterate over the returned iterator to retrieve results\n- Handle TimeoutError if result is not available within timeout window\n- Handle any exception raised by fn when result is retrieved\n- Ensure executor is properly shut down after use\n\n## Constraints\n\n- Iterables are collected immediately, not lazily\n- Results are returned in input order regardless of completion order\n- timeout applies to the wait for each result, not the entire operation\n- chunksize batches items for concurrent execution (default 1)\n\n## Cautions\n\n- TimeoutError is raised when __next__() is called and result is not available after timeout seconds\n- Any exception from fn is re-raised when its result is retrieved, not at submission time\n- Executor must not be shut down before iteration completes\n\n## Output Contract\n\n- Iterator that yields results in the same order as input iterables. Raises TimeoutError if __next__() is called and result is not available after timeout seconds from the original map() call. Raises any exception from fn when that result is retrieved from the iterator.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: executor.map(pow, [2, 3, 4], [10, 20, 30], timeout=5, chunksize=2)\n- Therapist/Output: Iterator yielding [1024, 3486784401, 1099511627776] in order\n- Notes: Three concurrent pow() calls with 5-second timeout per result; chunksize=2 batches items",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [
+    "03e5c804-cb85-5bec-acea-42783de9c0c8",
+    "1f041f26-abdc-5690-b6ab-4f4aaf6f5336",
+    "29ec8d8d-732f-5e8e-ad78-36f69f56d8d7",
+    "5dd1b2bc-7f4e-5620-b497-1d40d196e251"
+  ],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "parent",
+  "visible_role": "parent",
+  "objective": "Execute a function over multiple iterables concurrently and retrieve results in order with timeout and exception handling",
+  "domain": "default",
+  "task_family": "parallel_execution",
+  "method_family": "executor_pattern",
+  "stage": "bulk_task_processing",
+  "applicable_signals": [
+    "Batch processing workload",
+    "Concurrent execution desired",
+    "Ordered result collection required"
+  ],
+  "contraindications": [
+    "Lazy evaluation is required (use iterator without immediate collection)",
+    "Results must be processed as they complete rather than in order (use as_completed instead)",
+    "Fine-grained per-item exception handling is needed"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Multiple items need processing with the same function",
+    "Results must be collected in the same order as input iterables",
+    "Timeout protection is required for result retrieval"
+  ],
+  "workflow_steps": [
+    "Create or obtain an Executor instance (ThreadPoolExecutor or ProcessPoolExecutor)",
+    "Call executor.map(fn, *iterables, timeout=timeout_value, chunksize=chunksize_value)",
+    "Iterate over the returned iterator to retrieve results",
+    "Handle TimeoutError if result is not available within timeout window",
+    "Handle any exception raised by fn when result is retrieved",
+    "Ensure executor is properly shut down after use"
+  ],
+  "constraints": [
+    "Iterables are collected immediately, not lazily",
+    "Results are returned in input order regardless of completion order",
+    "timeout applies to the wait for each result, not the entire operation",
+    "chunksize batches items for concurrent execution (default 1)"
+  ],
+  "cautions": [
+    "TimeoutError is raised when __next__() is called and result is not available after timeout seconds",
+    "Any exception from fn is re-raised when its result is retrieved, not at submission time",
+    "Executor must not be shut down before iteration completes"
+  ],
+  "output_contract": [
+    "Iterator that yields results in the same order as input iterables. Raises TimeoutError if __next__() is called and result is not available after timeout seconds from the original map() call. Raises any exception from fn when that result is retrieved from the iterator."
+  ],
+  "examples": [
+    {
+      "input": "executor.map(pow, [2, 3, 4], [10, 20, 30], timeout=5, chunksize=2)",
+      "output": "Iterator yielding [1024, 3486784401, 1099511627776] in order",
+      "notes": "Three concurrent pow() calls with 5-second timeout per result; chunksize=2 batches items"
+    }
+  ],
+  "tags": [
+    "concurrent.futures",
+    "parallel_execution",
+    "executor",
+    "map",
+    "timeout",
+    "batch_processing"
+  ],
+  "support_ids": [
+    "37e476f8-0283-5d43-aced-3f79e0670dd5"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "91a93fd2-d49d-5f2d-95cc-353cf1ae5bf7"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.92,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|execute a function over multiple iterables concurrently and retrieve results in order with timeout and exception handling|default|parallel_execution|executor_pattern|bulk_task_processing|executor map for concurrent iteration",
+    "llm_reason": "Candidate is a distinct session_skill for concurrent iteration using Executor.map() with timeout and exception handling. It differs semantically from peer candidates (ProcessPoolExecutor setup, ProcessPoolExecutor initialization, ThreadPoolExecutor configuration) which focus on executor instantiation and worker lifecycle. The candidate addresses the execution pattern of mapping functions over multiple iterables concurrently with result ordering and timeout semantics—a capability not covered by existing skills. No existing skill in the registry matches this semantic identity.",
+    "change_action": "create",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "parent",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "03e5c804-cb85-5bec-acea-42783de9c0c8",
+      "1f041f26-abdc-5690-b6ab-4f4aaf6f5336",
+      "29ec8d8d-732f-5e8e-ad78-36f69f56d8d7",
+      "5dd1b2bc-7f4e-5620-b497-1d40d196e251"
+    ]
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

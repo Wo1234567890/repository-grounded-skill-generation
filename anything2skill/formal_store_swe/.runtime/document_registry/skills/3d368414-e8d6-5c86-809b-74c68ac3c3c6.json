@@ -1,0 +1,122 @@
+{
+  "skill_id": "3d368414-e8d6-5c86-809b-74c68ac3c3c6",
+  "name": "Executor Lifecycle Management",
+  "description": "Signal executor to release resources after pending futures complete, optionally cancelling unstarted futures. Prevents new submissions after shutdown.",
+  "skill_body": "Call shutdown() on the executor when work is complete or the context manager is exiting. Set wait=True to block until pending futures finish; set cancel_futures=True to cancel unstarted tasks. After shutdown, any submit() or map() calls will raise RuntimeError.\n\n## Objective\n\nCleanly shut down executor and manage resource release\n## Applicable Signals\n\n- All submitted tasks have been processed\n- No new tasks will be submitted\n- Resource cleanup is required\n\n## Contraindications\n\n- Executor already shut down\n- Futures are actively running and must not be cancelled\n- New tasks need to be submitted (shutdown blocks new submissions)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Determine shutdown parameters', 'detail': 'Decide whether to wait for pending futures (wait=True/False) and whether to cancel unstarted futures (cancel_futures=True/False)'}\n- {'step': 2, 'action': 'Call executor.shutdown()', 'detail': 'Invoke shutdown(wait=True, cancel_futures=False) or with appropriate parameter values'}\n- {'step': 3, 'action': 'Verify no new submissions', 'detail': 'Ensure no code attempts to call submit() or map() after shutdown; such calls will raise RuntimeError'}\n\n## Constraints\n\n- shutdown() must be called on a concrete Executor subclass (ThreadPoolExecutor or ProcessPoolExecutor), not the abstract Executor class\n- After shutdown is called, submit() and map() will raise RuntimeError\n- If cancel_futures=True, only unstarted futures are cancelled; running or completed futures are unaffected\n\n## Cautions\n\n- Setting wait=False will return immediately without waiting for pending futures to complete\n- Setting cancel_futures=True may discard work; use only when safe to abandon pending tasks\n\n## Output Contract\n\n- Executor resources are freed; pending futures are completed (if wait=True) or allowed to finish asynchronously (if wait=False); unstarted futures are cancelled (if cancel_futures=True); any post-shutdown submit() or map() calls raise RuntimeError\n\n## Example Executions\n\n### Example 1\n\n- Input: ThreadPoolExecutor with pending futures; work is complete\n- Output: executor.shutdown(wait=True) blocks until all futures finish, then releases thread pool resources\n- Notes: Typical cleanup pattern when exiting a context or finishing batch processing\n\n### Example 2\n\n- Input: ProcessPoolExecutor with unstarted futures; need to abandon pending work\n- Output: executor.shutdown(wait=False, cancel_futures=True) cancels unstarted futures and returns immediately\n- Notes: Use when time-sensitive or when pending work is no longer needed",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "parent",
+  "objective": "Cleanly shut down executor and manage resource release",
+  "domain": "default",
+  "task_family": "async_execution",
+  "method_family": "executor_lifecycle",
+  "stage": "cleanup",
+  "applicable_signals": [
+    "All submitted tasks have been processed",
+    "No new tasks will be submitted",
+    "Resource cleanup is required"
+  ],
+  "contraindications": [
+    "Executor already shut down",
+    "Futures are actively running and must not be cancelled",
+    "New tasks need to be submitted (shutdown blocks new submissions)"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Executor work is complete",
+    "Context manager is exiting",
+    "Need to free thread or process pool resources",
+    "Optionally cancel pending tasks before shutdown"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Determine shutdown parameters', 'detail': 'Decide whether to wait for pending futures (wait=True/False) and whether to cancel unstarted futures (cancel_futures=True/False)'}",
+    "{'step': 2, 'action': 'Call executor.shutdown()', 'detail': 'Invoke shutdown(wait=True, cancel_futures=False) or with appropriate parameter values'}",
+    "{'step': 3, 'action': 'Verify no new submissions', 'detail': 'Ensure no code attempts to call submit() or map() after shutdown; such calls will raise RuntimeError'}"
+  ],
+  "constraints": [
+    "shutdown() must be called on a concrete Executor subclass (ThreadPoolExecutor or ProcessPoolExecutor), not the abstract Executor class",
+    "After shutdown is called, submit() and map() will raise RuntimeError",
+    "If cancel_futures=True, only unstarted futures are cancelled; running or completed futures are unaffected"
+  ],
+  "cautions": [
+    "Setting wait=False will return immediately without waiting for pending futures to complete",
+    "Setting cancel_futures=True may discard work; use only when safe to abandon pending tasks"
+  ],
+  "output_contract": [
+    "Executor resources are freed; pending futures are completed (if wait=True) or allowed to finish asynchronously (if wait=False); unstarted futures are cancelled (if cancel_futures=True); any post-shutdown submit() or map() calls raise RuntimeError"
+  ],
+  "examples": [
+    {
+      "input": "ThreadPoolExecutor with pending futures; work is complete",
+      "output": "executor.shutdown(wait=True) blocks until all futures finish, then releases thread pool resources",
+      "notes": "Typical cleanup pattern when exiting a context or finishing batch processing"
+    },
+    {
+      "input": "ProcessPoolExecutor with unstarted futures; need to abandon pending work",
+      "output": "executor.shutdown(wait=False, cancel_futures=True) cancels unstarted futures and returns immediately",
+      "notes": "Use when time-sensitive or when pending work is no longer needed"
+    }
+  ],
+  "tags": [
+    "executor",
+    "concurrent.futures",
+    "resource_management",
+    "cleanup",
+    "thread_pool",
+    "process_pool"
+  ],
+  "support_ids": [
+    "54d6b8a1-fc8f-52bf-89df-538fd583f315"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "ec302c63-f6ce-5f5c-a32b-4337cc259b85"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.9,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|cleanly shut down executor and manage resource release|default|async_execution|executor_lifecycle|cleanup|executor lifecycle management",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct session_skill for explicit executor lifecycle management (shutdown, resource release, cancellation control). Peer candidates address initialization and context manager patterns, which are complementary but separate capabilities. No existing skill in the registry matches this semantic identity (executor shutdown lifecycle). The three peer candidates cover initialization and automatic cleanup via context managers, but not explicit manual shutdown with granular control over wait and cancel_futures parameters. This is a new, non-overlapping capability.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

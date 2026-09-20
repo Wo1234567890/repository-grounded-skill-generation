@@ -1,0 +1,170 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "virtual_wan_routing",
+  "run_id": "20260916T051020_bc0af2d4",
+  "skills": [
+    {
+      "skill_id": "05a1fa80-ae1b-56f6-8fde-d087fb1185a7",
+      "name": "Enforce Virtual WAN Branch Connection Routing Consistency",
+      "description": "Detect and recover from abrupt worker process termination in ProcessPoolExecutor by catching BrokenProcessPool exception, logging the failure, discarding the broken executor, and implementing recovery or escalation logic to prevent freeze or deadlock.",
+      "skill_body": "When using ProcessPoolExecutor, wrap executor operations (executor.map(), executor.submit(), future.result()) in a try-except block to catch BrokenProcessPool. Upon exception: (1) log the error with worker context and pending task count, (2) discard the current executor instance via shutdown(wait=False) or context manager exit, (3) either recreate the executor and retry or escalate to caller. Do not suppress the exception silently or attempt to reuse futures from the broken executor.\n\n## Objective\n\nPrevent undefined behavior (freeze, deadlock) when worker processes crash unexpectedly in ProcessPoolExecutor.\n## Applicable Signals\n\n- BrokenProcessPool exception raised during executor.map(), executor.submit(), or future.result() calls\n- Executor or futures operations would otherwise freeze or deadlock\n- Worker process terminates abnormally without explicit shutdown\n\n## Contraindications\n\n- Using ThreadPoolExecutor (does not raise BrokenProcessPool)\n- Process termination is expected and already handled by application logic\n- Executor is used in a context where recreation is not feasible\n- Catching generic Exception instead of BrokenProcessPool specifically\n\n## Intervention Moves\n\n- Wrap ProcessPoolExecutor operations in try-except block targeting BrokenProcessPool\n- Log exception with worker process context and pending task state\n- Discard executor instance via shutdown(wait=False) or context manager exit\n- Implement recovery path: recreate executor with backoff strategy or escalate to caller\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Wrap ProcessPoolExecutor operations in try-except block', 'detail': 'Enclose executor.map(), executor.submit(), or future.result() calls'}\n- {'step': 2, 'action': 'Catch BrokenProcessPool exception', 'detail': 'Catch concurrent.futures.BrokenProcessPool specifically; do not catch generic Exception'}\n- {'step': 3, 'action': 'Log exception with context', 'detail': 'Record worker process failure, executor state, and pending tasks'}\n- {'step': 4, 'action': 'Discard executor instance', 'detail': 'Exit context manager or call executor.shutdown(wait=False)'}\n- {'step': 5, 'action': 'Decide recovery path', 'detail': 'Either recreate executor with backoff strategy and retry, or escalate to caller'}\n\n## Constraints\n\n- Must catch BrokenProcessPool explicitly; do not catch generic Exception\n- Executor instance must be discarded after exception is caught\n- Caller must be prepared to retry or handle escalation\n- Do not attempt to reuse futures from a broken executor\n\n## Cautions\n\n- BrokenProcessPool behavior changed in Python 3.3; earlier versions had undefined behavior\n- Recreating executor may be expensive; consider backoff or escalation strategy\n- Do not attempt to reuse futures from a broken executor\n- Ensure no frozen or deadlocked threads remain after executor discard\n\n## Output Contract\n\n- BrokenProcessPool exception is caught and logged with worker context; executor is discarded; no frozen or deadlocked threads remain; caller receives either a new executor instance, a retry signal, or an escalation signal.\n\n## Example Executions\n\n### Example 1\n\n- Input: ProcessPoolExecutor with 4 workers; one worker process crashes during executor.map(is_prime, PRIMES)\n- Output: BrokenProcessPool caught; executor discarded; exception logged with worker PID and task count; caller receives exception or retry signal\n- Notes: Prevents silent freeze; allows graceful degradation or retry",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Enforce consistent branch routing configuration to prevent routing inconsistencies and unreachability",
+      "domain": "default",
+      "task_family": "virtual_wan_routing",
+      "method_family": "routing_policy_enforcement",
+      "stage": "configuration",
+      "applicable_signals": [
+        "BrokenProcessPool exception raised during executor.map(), executor.submit(), or future.result() calls",
+        "Executor or futures operations would otherwise freeze or deadlock",
+        "Worker process terminates abnormally without explicit shutdown"
+      ],
+      "contraindications": [
+        "Using ThreadPoolExecutor (does not raise BrokenProcessPool)",
+        "Process termination is expected and already handled by application logic",
+        "Executor is used in a context where recreation is not feasible",
+        "Catching generic Exception instead of BrokenProcessPool specifically"
+      ],
+      "intervention_moves": [
+        "Wrap ProcessPoolExecutor operations in try-except block targeting BrokenProcessPool",
+        "Log exception with worker process context and pending task state",
+        "Discard executor instance via shutdown(wait=False) or context manager exit",
+        "Implement recovery path: recreate executor with backoff strategy or escalate to caller"
+      ],
+      "triggers": [
+        "Configuring branch connections in Virtual WAN",
+        "Adding or modifying Point-to-site, Site-to-site, or ExpressRoute connections",
+        "Reviewing existing branch routing configuration"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Wrap ProcessPoolExecutor operations in try-except block', 'detail': 'Enclose executor.map(), executor.submit(), or future.result() calls'}",
+        "{'step': 2, 'action': 'Catch BrokenProcessPool exception', 'detail': 'Catch concurrent.futures.BrokenProcessPool specifically; do not catch generic Exception'}",
+        "{'step': 3, 'action': 'Log exception with context', 'detail': 'Record worker process failure, executor state, and pending tasks'}",
+        "{'step': 4, 'action': 'Discard executor instance', 'detail': 'Exit context manager or call executor.shutdown(wait=False)'}",
+        "{'step': 5, 'action': 'Decide recovery path', 'detail': 'Either recreate executor with backoff strategy and retry, or escalate to caller'}"
+      ],
+      "constraints": [
+        "Must catch BrokenProcessPool explicitly; do not catch generic Exception",
+        "Executor instance must be discarded after exception is caught",
+        "Caller must be prepared to retry or handle escalation",
+        "Do not attempt to reuse futures from a broken executor"
+      ],
+      "cautions": [
+        "BrokenProcessPool behavior changed in Python 3.3; earlier versions had undefined behavior",
+        "Recreating executor may be expensive; consider backoff or escalation strategy",
+        "Do not attempt to reuse futures from a broken executor",
+        "Ensure no frozen or deadlocked threads remain after executor discard"
+      ],
+      "output_contract": [
+        "BrokenProcessPool exception is caught and logged with worker context; executor is discarded; no frozen or deadlocked threads remain; caller receives either a new executor instance, a retry signal, or an escalation signal."
+      ],
+      "examples": [
+        {
+          "input": "ProcessPoolExecutor with 4 workers; one worker process crashes during executor.map(is_prime, PRIMES)",
+          "output": "BrokenProcessPool caught; executor discarded; exception logged with worker PID and task count; caller receives exception or retry signal",
+          "notes": "Prevents silent freeze; allows graceful degradation or retry"
+        }
+      ],
+      "tags": [
+        "concurrent.futures",
+        "ProcessPoolExecutor",
+        "exception_handling",
+        "worker_process",
+        "deadlock_prevention",
+        "safety_guardrail"
+      ],
+      "support_ids": [
+        "e1bf6b85-178e-5954-9199-8d4448849f5f",
+        "337840e7-9198-598a-ba19-2bac011c91bc"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "26d5a4aa-08c0-5bcf-84ce-997a78c35adf"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.92,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|enforce consistent branch routing configuration to prevent routing inconsistencies and unreachability|default|virtual_wan_routing|routing_policy_enforcement|configuration|enforce virtual wan branch connection routing consistency",
+        "change_action": "merge",
+        "llm_reason": "Candidate skill 41105c9d-6a2c-58d0-a4bc-26e978ee1553 is semantically identical to existing skill 07979eac-f1a1-5bda-8fb4-e448888f946c: both address catching BrokenProcessPool exceptions from ProcessPoolExecutor worker termination, logging failures, discarding the executor, and implementing recovery or escalation. The candidate adds minor workflow detail (explicit try-except wrapping, backoff strategy mention) but does not materially change the core capability. The existing skill already covers the full scope. Peer candidate 97b85b8a-5007-5e99-830e-58b6d29dd6e3 addresses initializer-time failures (different stage: initialization vs. execution), and 14f81fa3-e5cd-5b13-88aa-32621a04cbe3 addresses ThreadPoolExecutor (different executor type), so they are distinct and should not be merged.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf",
+        "merged_from_skill_ids": []
+      },
+      "version": "0.1.1",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "89ff26e7-1617-42f4-a796-cb4887960850",
+      "entity_type": "skill",
+      "entity_id": "05a1fa80-ae1b-56f6-8fde-d087fb1185a7",
+      "action": "merge",
+      "changed_at": "2026-09-15T19:09:35+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "Candidate skill 41105c9d-6a2c-58d0-a4bc-26e978ee1553 is semantically identical to existing skill 07979eac-f1a1-5bda-8fb4-e448888f946c: both address catching BrokenProcessPool exceptions from ProcessPoolExecutor worker termination, logging failures, discarding the executor, and implementing recovery or escalation. The candidate adds minor workflow detail (explicit try-except wrapping, backoff strategy mention) but does not materially change the core capability. The existing skill already covers the full scope. Peer candidate 97b85b8a-5007-5e99-830e-58b6d29dd6e3 addresses initializer-time failures (different stage: initialization vs. execution), and 14f81fa3-e5cd-5b13-88aa-32621a04cbe3 addresses ThreadPoolExecutor (different executor type), so they are distinct and should not be merged.",
+      "related_entity_ids": [
+        "05a1fa80-ae1b-56f6-8fde-d087fb1185a7"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "05a1fa80-ae1b-56f6-8fde-d087fb1185a7",
+        "doc_ids": [
+          "3937f901-1162-503e-8dde-3cd1a710796b",
+          "771b7202-2a1d-5eea-bda3-df5cd4ea6620"
+        ],
+        "support_added": [
+          "337840e7-9198-598a-ba19-2bac011c91bc"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "05a1fa80-ae1b-56f6-8fde-d087fb1185a7"
+        ]
+      }
+    }
+  ]
+}

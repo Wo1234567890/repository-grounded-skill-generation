@@ -1,0 +1,119 @@
+{
+  "skill_id": "30d72c77-fba4-5b7c-b89a-1ff0a77a8cc1",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill focused on IDF computation as a standalone operation. It differs semantically from peer TF-IDF composites (which multiply TF×IDF) and from TF normalization. The peer candidates represent higher-level workflows that consume IDF as input, not the IDF lookup itself. Existing skills are unrelated (DataStream collection, thread pools). No semantic overlap with existing registry.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "30d72c77-fba4-5b7c-b89a-1ff0a77a8cc1",
+    "name": "Inverse Document Frequency (IDF) Lookup",
+    "description": "Retrieve or compute the idf value for a term based on its document frequency in a collection. Use when preparing term weights or understanding term discriminative power in scoring workflows.",
+    "skill_body": "Given a term t and collection statistics (total documents N and document frequency df_t), compute or retrieve idf_t. The idf reflects how rare or discriminative a term is across the collection. Higher idf indicates the term appears in fewer documents and carries stronger signal.\n\n## Objective\n\nObtain idf value for a term given collection statistics\n## Applicable Signals\n\n- Building tf-idf composite weights for document ranking\n- Analyzing term rarity or discriminative power across document collection\n- Preparing term weights for vector space model scoring\n\n## Contraindications\n\n- Term appears in all documents (df_t = N; idf approaches zero or is undefined)\n- No collection statistics available (N or df_t unknown)\n- Collection size N is zero or invalid\n\n## Intervention Moves\n\n- Compute idf_t = log(N / df_t) or equivalent inverse frequency formula\n- Validate that idf is finite and non-negative\n- Return idf value for downstream tf-idf multiplication\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Retrieve or confirm collection size N (total number of documents)'}\n- {'step': 2, 'action': 'Retrieve document frequency df_t (number of documents containing term t)'}\n- {'step': 3, 'action': 'Validate that df_t > 0 and df_t ≤ N'}\n- {'step': 4, 'action': 'Compute idf_t using inverse frequency formula (e.g., log(N / df_t))'}\n- {'step': 5, 'action': 'Return idf_t as finite, non-negative scalar value'}\n\n## Constraints\n\n- idf must be finite and non-negative\n- Collection statistics (N, df_t) must be accurate and current\n- Term must be well-defined and consistently tokenized across collection\n\n## Cautions\n\n- idf of a term that occurs in every document is zero or undefined; such terms offer no discriminating power and are often treated as stop words\n- idf is collection-dependent; same term may have different idf in different collections\n\n## Output Contract\n\n- IDF value for term t: a finite, non-negative scalar reflecting the inverse of the term's document frequency. Value is highest when term appears in few documents, lowest when term appears in many or all documents.\n\n## Example Executions\n\n### Example 1\n\n- Input: term='gossip', N=806791 documents, df_t=100\n- Output: idf_t ≈ log(806791/100) ≈ 8.99 (high discriminative power)\n- Notes: Rare term in collection; high idf indicates strong relevance signal\n\n### Example 2\n\n- Input: term='the', N=806791 documents, df_t=806791\n- Output: idf_t = log(806791/806791) = 0 (undefined or zero)\n- Notes: Stop word appearing in all documents; no discriminating power",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Obtain idf value for a term given collection statistics",
+    "domain": "default",
+    "task_family": "term_weighting",
+    "method_family": "statistical_scoring",
+    "stage": "scoring",
+    "applicable_signals": [
+      "Building tf-idf composite weights for document ranking",
+      "Analyzing term rarity or discriminative power across document collection",
+      "Preparing term weights for vector space model scoring"
+    ],
+    "contraindications": [
+      "Term appears in all documents (df_t = N; idf approaches zero or is undefined)",
+      "No collection statistics available (N or df_t unknown)",
+      "Collection size N is zero or invalid"
+    ],
+    "intervention_moves": [
+      "Compute idf_t = log(N / df_t) or equivalent inverse frequency formula",
+      "Validate that idf is finite and non-negative",
+      "Return idf value for downstream tf-idf multiplication"
+    ],
+    "triggers": [
+      "Building tf-idf weights",
+      "Analyzing term rarity or discriminative power across document collection"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Retrieve or confirm collection size N (total number of documents)'}",
+      "{'step': 2, 'action': 'Retrieve document frequency df_t (number of documents containing term t)'}",
+      "{'step': 3, 'action': 'Validate that df_t > 0 and df_t ≤ N'}",
+      "{'step': 4, 'action': 'Compute idf_t using inverse frequency formula (e.g., log(N / df_t))'}",
+      "{'step': 5, 'action': 'Return idf_t as finite, non-negative scalar value'}"
+    ],
+    "constraints": [
+      "idf must be finite and non-negative",
+      "Collection statistics (N, df_t) must be accurate and current",
+      "Term must be well-defined and consistently tokenized across collection"
+    ],
+    "cautions": [
+      "idf of a term that occurs in every document is zero or undefined; such terms offer no discriminating power and are often treated as stop words",
+      "idf is collection-dependent; same term may have different idf in different collections"
+    ],
+    "output_contract": [
+      "IDF value for term t: a finite, non-negative scalar reflecting the inverse of the term's document frequency. Value is highest when term appears in few documents, lowest when term appears in many or all documents."
+    ],
+    "examples": [
+      {
+        "input": "term='gossip', N=806791 documents, df_t=100",
+        "output": "idf_t ≈ log(806791/100) ≈ 8.99 (high discriminative power)",
+        "notes": "Rare term in collection; high idf indicates strong relevance signal"
+      },
+      {
+        "input": "term='the', N=806791 documents, df_t=806791",
+        "output": "idf_t = log(806791/806791) = 0 (undefined or zero)",
+        "notes": "Stop word appearing in all documents; no discriminating power"
+      }
+    ],
+    "tags": [
+      "tf-idf",
+      "term_weighting",
+      "information_retrieval",
+      "scoring",
+      "statistical_weighting"
+    ],
+    "support_ids": [
+      "024ebfd5-02d4-52d2-85fc-4e964f7c6893"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "4b8228f4-008e-57ea-9ad5-b3b8ae236fe9"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.88,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|obtain idf value for a term given collection statistics|default|term_weighting|statistical_scoring|scoring|inverse document frequency (idf) lookup"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

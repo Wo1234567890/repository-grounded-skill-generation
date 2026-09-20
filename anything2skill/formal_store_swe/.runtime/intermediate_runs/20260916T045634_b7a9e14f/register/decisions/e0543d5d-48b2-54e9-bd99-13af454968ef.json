@@ -1,0 +1,105 @@
+{
+  "skill_id": "e0543d5d-48b2-54e9-bd99-13af454968ef",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill in async_task_completion domain addressing Future callback registration (non-blocking completion notification), semantically different from peer candidates (result retrieval, exception inspection, task submission) and existing skills (reward function compliance, route leak analysis). No semantic overlap with existing registry. Supported by concurrent.futures documentation.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "e0543d5d-48b2-54e9-bd99-13af454968ef",
+    "name": "Future Completion Callback Registration",
+    "description": "Attach a callable to be invoked when a Future completes or is cancelled. Use when a caller needs to trigger side effects (logging, cleanup, chaining) upon task completion without blocking.",
+    "skill_body": "Call add_done_callback(fn) on a Future object to register a callable fn. The callable will be invoked exactly once when the Future is cancelled or finishes running, with the Future as its only argument. Callables are invoked in the order they were added, always in a thread belonging to the process that added them. If the Future has already completed or been cancelled, fn will be called immediately. Exceptions raised by the callable are logged and ignored; BaseException subclasses have undefined behavior.\n\n## Objective\n\nRegister a non-blocking callback to execute when a Future transitions to done or cancelled state\n## Applicable Signals\n\n- A parallel task has been submitted and wrapped in a Future\n- The caller needs to perform an action upon task completion without synchronous blocking\n- Side effects such as logging, state updates, or chaining to the next task are required\n\n## Contraindications\n\n- Do not use if the caller needs the result value; use result() or exception() instead\n- Do not use if the callback must raise exceptions and have them propagated; exceptions are logged and ignored\n- Do not use if the callback must execute in a specific thread other than the submitting process thread\n\n## Intervention Moves\n\n- Define a callable fn that accepts a single Future argument\n- Call future.add_done_callback(fn) to register the callback\n- Verify the callback is invoked after the Future completes or is cancelled\n\n## Constraints\n\n- The callback receives only the Future object as its argument\n- Exceptions raised by the callable are logged and ignored; BaseException subclasses have undefined behavior\n- Callables are always executed in a thread belonging to the process that added them\n- If the Future is already completed or cancelled when add_done_callback is called, fn is invoked immediately\n\n## Cautions\n\n- Do not rely on exception propagation from the callback; use logging or side effects instead\n- Ensure the callback is lightweight to avoid blocking other callbacks or the executor thread\n- If multiple callbacks are registered, they execute in registration order\n\n## Output Contract\n\n- The callback is registered and will be invoked with the Future as its sole argument upon completion or cancellation. add_done_callback itself returns None and does not block.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "leaf",
+    "objective": "Register a non-blocking callback to execute when a Future transitions to done or cancelled state",
+    "domain": "default",
+    "task_family": "async_task_completion",
+    "method_family": "future_callback_attachment",
+    "stage": "completion_notification",
+    "applicable_signals": [
+      "A parallel task has been submitted and wrapped in a Future",
+      "The caller needs to perform an action upon task completion without synchronous blocking",
+      "Side effects such as logging, state updates, or chaining to the next task are required"
+    ],
+    "contraindications": [
+      "Do not use if the caller needs the result value; use result() or exception() instead",
+      "Do not use if the callback must raise exceptions and have them propagated; exceptions are logged and ignored",
+      "Do not use if the callback must execute in a specific thread other than the submitting process thread"
+    ],
+    "intervention_moves": [
+      "Define a callable fn that accepts a single Future argument",
+      "Call future.add_done_callback(fn) to register the callback",
+      "Verify the callback is invoked after the Future completes or is cancelled"
+    ],
+    "triggers": [
+      "A parallel task is submitted and the caller needs to perform an action (e.g., log, update state, trigger next task) as soon as it completes, without waiting synchronously"
+    ],
+    "workflow_steps": [],
+    "constraints": [
+      "The callback receives only the Future object as its argument",
+      "Exceptions raised by the callable are logged and ignored; BaseException subclasses have undefined behavior",
+      "Callables are always executed in a thread belonging to the process that added them",
+      "If the Future is already completed or cancelled when add_done_callback is called, fn is invoked immediately"
+    ],
+    "cautions": [
+      "Do not rely on exception propagation from the callback; use logging or side effects instead",
+      "Ensure the callback is lightweight to avoid blocking other callbacks or the executor thread",
+      "If multiple callbacks are registered, they execute in registration order"
+    ],
+    "output_contract": [
+      "The callback is registered and will be invoked with the Future as its sole argument upon completion or cancellation. add_done_callback itself returns None and does not block."
+    ],
+    "examples": [],
+    "tags": [
+      "concurrent.futures",
+      "Future",
+      "callback",
+      "async",
+      "completion_notification",
+      "non-blocking"
+    ],
+    "support_ids": [
+      "e9f6200e-1325-53f5-b833-8765d6614bb2"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "d8a09a05-173c-522b-bb10-f37530833084"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.88,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|register a non-blocking callback to execute when a future transitions to done or cancelled state|default|async_task_completion|future_callback_attachment|completion_notification|future completion callback registration",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

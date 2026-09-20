@@ -1,0 +1,106 @@
+{
+  "skill_id": "e63667bd-2d54-5e5c-afa1-a566d7cccf56",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "e63667bd-2d54-5e5c-afa1-a566d7cccf56",
+    "name": "Package Instrumentation Eligibility Check",
+    "description": "Determine whether a package should be instrumented by AgentOps by verifying it is not already instrumented and is in the target allowlist (AGENTIC_LIBRARIES or PROVIDERS). Prevents duplicate instrumentation and filters non-target packages.",
+    "skill_body": "Check if a package is eligible for AgentOps instrumentation by verifying: (1) the package is not already instrumented via _is_package_instrumented(), (2) the package is in the AGENTIC_LIBRARIES or PROVIDERS allowlist. Return False (skip) if the package is already instrumented or not in either allowlist; return True (proceed) only if the package is not yet instrumented AND is in at least one allowlist.\n\n## Objective\n\ndecide_instrumentation_eligibility\n## Applicable Signals\n\n- package_name available\n- AGENTIC_LIBRARIES and PROVIDERS lists populated\n- instrumentation state queryable via _is_package_instrumented()\n\n## Contraindications\n\n- Package is already fully instrumented by AgentOps\n- Package is not in AGENTIC_LIBRARIES or PROVIDERS allowlists\n- Instrumentation is disabled globally\n- Package name is null or empty\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if package is already instrumented', 'condition': '_is_package_instrumented(package_name) returns True', 'outcome': 'Log debug message and return False (skip instrumentation)'}\n- {'step': 2, 'action': 'Check if package is in target agentic libraries', 'condition': 'package_name in AGENTIC_LIBRARIES', 'outcome': 'Set is_target_agentic = True'}\n- {'step': 3, 'action': 'Check if package is in target providers', 'condition': 'package_name in PROVIDERS', 'outcome': 'Set is_target_provider = True'}\n- {'step': 4, 'action': 'Evaluate membership', 'condition': 'is_target_agentic OR is_target_provider', 'outcome': 'Return True (proceed with instrumentation)'}\n- {'step': 5, 'action': 'Default decision', 'condition': 'Neither agentic nor provider check passed', 'outcome': 'Log debug message and return False (skip instrumentation)'}\n\n## Constraints\n\n- Must check prior instrumentation state before evaluating target membership\n- Must reference AGENTIC_LIBRARIES and PROVIDERS as authoritative allowlists\n- Decision must be logged with rationale for debugging\n\n## Cautions\n\n- Duplicate instrumentation can cause performance degradation or conflicts; verify _is_package_instrumented() is reliable\n- Allowlist membership must be kept in sync with supported integrations\n\n## Output Contract\n\n- Boolean decision (True to instrument, False to skip) with debug log entry confirming the decision rationale. Caller receives clear signal for downstream instrumentation routing.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "decide_instrumentation_eligibility",
+    "domain": "default",
+    "task_family": "package_instrumentation",
+    "method_family": "conditional_check",
+    "stage": "pre_instrumentation",
+    "applicable_signals": [
+      "package_name available",
+      "AGENTIC_LIBRARIES and PROVIDERS lists populated",
+      "instrumentation state queryable via _is_package_instrumented()"
+    ],
+    "contraindications": [
+      "Package is already fully instrumented by AgentOps",
+      "Package is not in AGENTIC_LIBRARIES or PROVIDERS allowlists",
+      "Instrumentation is disabled globally",
+      "Package name is null or empty"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Package discovery or initialization phase begins",
+      "A new package is encountered during dependency scanning",
+      "Instrumentation decision is required before applying AgentOps hooks"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Check if package is already instrumented', 'condition': '_is_package_instrumented(package_name) returns True', 'outcome': 'Log debug message and return False (skip instrumentation)'}",
+      "{'step': 2, 'action': 'Check if package is in target agentic libraries', 'condition': 'package_name in AGENTIC_LIBRARIES', 'outcome': 'Set is_target_agentic = True'}",
+      "{'step': 3, 'action': 'Check if package is in target providers', 'condition': 'package_name in PROVIDERS', 'outcome': 'Set is_target_provider = True'}",
+      "{'step': 4, 'action': 'Evaluate membership', 'condition': 'is_target_agentic OR is_target_provider', 'outcome': 'Return True (proceed with instrumentation)'}",
+      "{'step': 5, 'action': 'Default decision', 'condition': 'Neither agentic nor provider check passed', 'outcome': 'Log debug message and return False (skip instrumentation)'}"
+    ],
+    "constraints": [
+      "Must check prior instrumentation state before evaluating target membership",
+      "Must reference AGENTIC_LIBRARIES and PROVIDERS as authoritative allowlists",
+      "Decision must be logged with rationale for debugging"
+    ],
+    "cautions": [
+      "Duplicate instrumentation can cause performance degradation or conflicts; verify _is_package_instrumented() is reliable",
+      "Allowlist membership must be kept in sync with supported integrations"
+    ],
+    "output_contract": [
+      "Boolean decision (True to instrument, False to skip) with debug log entry confirming the decision rationale. Caller receives clear signal for downstream instrumentation routing."
+    ],
+    "examples": [],
+    "tags": [
+      "instrumentation",
+      "package_discovery",
+      "conditional_gate",
+      "agentops",
+      "integration_filtering"
+    ],
+    "support_ids": [
+      "5107090a-7b8d-56cc-8820-1b4d93b36dbc"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "dcb2e4a8-dfca-562a-810c-432756c9beb2"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|micro_skill_node|decide_instrumentation_eligibility|default|package_instrumentation|conditional_check|pre_instrumentation|package instrumentation eligibility check"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

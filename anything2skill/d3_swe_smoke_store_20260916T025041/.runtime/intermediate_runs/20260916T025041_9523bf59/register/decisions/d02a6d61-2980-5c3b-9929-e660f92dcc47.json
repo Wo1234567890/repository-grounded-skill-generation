@@ -1,0 +1,124 @@
+{
+  "skill_id": "d02a6d61-2980-5c3b-9929-e660f92dcc47",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "D3 Transform Manipulation is a distinct micro-skill focused on 2D affine transform operations (scale, translate, invert, rescale) for coordinate system conversions. It does not overlap with peer candidates: Path Command Execution (path drawing primitives), Array Transform Operations (array restructuring), or Locale-Specific Time Formatter Creation (time formatting). The skill is well-defined, supported by D3 API documentation, has no conflicts, and addresses a specific coordinate transformation need in the transform_execution stage.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "d02a6d61-2980-5c3b-9929-e660f92dcc47",
+    "name": "D3 Transform Manipulation",
+    "description": "Execute atomic 2D affine transform operations (scale, translate, apply, invert, rescale) on coordinates and scale domains. Use for coordinate system conversions and scale domain adjustments in response to zoom or pan events.",
+    "skill_body": "Execute single transform operations: scale a transform by a specified amount; translate a transform by a specified amount; apply the transform to points or coordinates; invert the transform to unapply it; rescale x or y scale domains by applying the transform. Each operation is atomic and reusable across zoom, pan, or custom coordinate conversion workflows.\n\n## Objective\n\nExecute single transform operations (scale, translate, invert, rescale) on coordinates or scales\n## Applicable Signals\n\n- zoom.transform() returns a transform object\n- User interaction (zoom, pan) updates transform state\n- Scale domain adjustment required after viewport change\n\n## Contraindications\n\n- 3D transforms or perspective projections\n- Non-affine transformations (e.g., curved warping)\n- Transform state is unavailable or null\n- Coordinate system is not Cartesian\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Obtain or create a transform object (e.g., via d3.zoomTransform(element) or d3.zoomIdentity)', 'input': 'Element reference or identity transform'}\n- {'step': 2, 'action': 'Select the operation: scale, translate, apply, invert, rescaleX, or rescaleY', 'input': 'Transform object and operation parameters (scale factor, translation vector, point, or scale)'}\n- {'step': 3, 'action': 'Execute the operation and capture the result', 'output': 'Transformed coordinate, inverted coordinate, rescaled domain, or modified transform'}\n- {'step': 4, 'action': 'Validate output (check for NaN, verify coordinate is in expected range)', 'validation': 'Output is numeric and within expected bounds'}\n\n## Constraints\n\n- Transform must be a valid 2D affine transform object\n- Input coordinates must be numeric (x, y) pairs or scale domain values\n- Operations assume left-to-right, top-to-bottom screen orientation\n\n## Cautions\n\n- Invert operations may fail or produce NaN if transform is singular (determinant = 0)\n- Rescale operations modify scale domain; ensure scale is mutable before applying\n- Chaining multiple transforms can accumulate floating-point error; consider recomputing from source when precision is critical\n\n## Output Contract\n\n- Returns a transformed coordinate (point or x/y value), an inverted coordinate, a rescaled scale domain, or a new transform object. The output is guaranteed to be a valid numeric value or object that can be used immediately by downstream rendering or scale operations.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: transform object with scale=2, translate=[10, 20]; point [5, 5]\n- Therapist/Output: [20, 30]\n- Notes: Point is scaled by 2 and translated by [10, 20]\n\n### Example 2\n\n- Client/Input: transform object; x-scale with domain [0, 100]\n- Therapist/Output: New x-scale with domain adjusted to account for zoom transform\n- Notes: Rescaled domain is ready for axis redraw\n\n### Example 3\n\n- Client/Input: transform object with scale=2, translate=[10, 20]; point [20, 30]\n- Therapist/Output: [5, 5]\n- Notes: Inverted point maps back to original data space",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Execute single transform operations (scale, translate, invert, rescale) on coordinates or scales",
+    "domain": "default",
+    "task_family": "coordinate_transformation",
+    "method_family": "affine_transform",
+    "stage": "transform_execution",
+    "applicable_signals": [
+      "zoom.transform() returns a transform object",
+      "User interaction (zoom, pan) updates transform state",
+      "Scale domain adjustment required after viewport change"
+    ],
+    "contraindications": [
+      "3D transforms or perspective projections",
+      "Non-affine transformations (e.g., curved warping)",
+      "Transform state is unavailable or null",
+      "Coordinate system is not Cartesian"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Need to convert screen coordinates to data coordinates",
+      "Rescale axis domains after zoom or pan event",
+      "Apply translation or scaling to individual points",
+      "Invert a transform to map data space back to screen space"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Obtain or create a transform object (e.g., via d3.zoomTransform(element) or d3.zoomIdentity)', 'input': 'Element reference or identity transform'}",
+      "{'step': 2, 'action': 'Select the operation: scale, translate, apply, invert, rescaleX, or rescaleY', 'input': 'Transform object and operation parameters (scale factor, translation vector, point, or scale)'}",
+      "{'step': 3, 'action': 'Execute the operation and capture the result', 'output': 'Transformed coordinate, inverted coordinate, rescaled domain, or modified transform'}",
+      "{'step': 4, 'action': 'Validate output (check for NaN, verify coordinate is in expected range)', 'validation': 'Output is numeric and within expected bounds'}"
+    ],
+    "constraints": [
+      "Transform must be a valid 2D affine transform object",
+      "Input coordinates must be numeric (x, y) pairs or scale domain values",
+      "Operations assume left-to-right, top-to-bottom screen orientation"
+    ],
+    "cautions": [
+      "Invert operations may fail or produce NaN if transform is singular (determinant = 0)",
+      "Rescale operations modify scale domain; ensure scale is mutable before applying",
+      "Chaining multiple transforms can accumulate floating-point error; consider recomputing from source when precision is critical"
+    ],
+    "output_contract": [
+      "Returns a transformed coordinate (point or x/y value), an inverted coordinate, a rescaled scale domain, or a new transform object. The output is guaranteed to be a valid numeric value or object that can be used immediately by downstream rendering or scale operations."
+    ],
+    "examples": [
+      {
+        "input": "transform object with scale=2, translate=[10, 20]; point [5, 5]",
+        "output": "[20, 30]",
+        "notes": "Point is scaled by 2 and translated by [10, 20]"
+      },
+      {
+        "input": "transform object; x-scale with domain [0, 100]",
+        "output": "New x-scale with domain adjusted to account for zoom transform",
+        "notes": "Rescaled domain is ready for axis redraw"
+      },
+      {
+        "input": "transform object with scale=2, translate=[10, 20]; point [20, 30]",
+        "output": "[5, 5]",
+        "notes": "Inverted point maps back to original data space"
+      }
+    ],
+    "tags": [
+      "d3",
+      "transform",
+      "coordinate-conversion",
+      "zoom",
+      "pan",
+      "affine"
+    ],
+    "support_ids": [
+      "51ec9bd5-aee9-5658-a747-a9d592f3082c"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "530ec62c-6053-5f75-8dff-1570f1aaad3c"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.88,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|execute single transform operations (scale, translate, invert, rescale) on coordinates or scales|default|coordinate_transformation|affine_transform|transform_execution|d3 transform manipulation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 0,
+  "branch": "hits0"
+}

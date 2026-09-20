@@ -1,0 +1,127 @@
+{
+  "skill_id": "789fedcd-9fe4-55d3-94e0-837ff175d715",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct session_skill for collection-based DataStream initialization in Flink, with unique objective, task_family (data_source_setup), method_family (collection_input_configuration), and workflow. No existing skill covers this capability. Peer candidates (file-based sources, local debugging, savepoints) operate in different task families or stages. Existing skills are unrelated (executor lifecycle, process pool execution). Candidate has valid support evidence and no conflicts.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "789fedcd-9fe4-55d3-94e0-837ff175d715",
+    "name": "Collection-based Data Source Creation",
+    "description": "Create DataStream objects from in-memory Java collections, iterators, or element sequences with type consistency enforcement. Use this skill to initialize streaming data from local collections or programmatically generated sequences for testing, reference datasets, or small homogeneous data sources.",
+    "skill_body": "To create a DataStream from a collection-based source:\n1. Choose the appropriate method based on your data structure:\n   - fromCollection(Collection): Pass a Java Collection; all elements must be the same type.\n   - fromCollection(Iterator, Class): Pass an Iterator and specify the element type class.\n   - fromElements(T ...): Pass a varargs sequence of objects; all must be the same type.\n   - fromParallelCollection(SplittableIterator, Class): Pass a SplittableIterator for parallel creation.\n   - generateSequence(from, to): Generate a numeric sequence in parallel.\n2. Ensure type homogeneity: all elements in the collection or sequence must be of the same type.\n3. Invoke the method on StreamExecutionEnvironment to obtain a DataStream object.\n4. The returned DataStream is ready for downstream operators (map, filter, window, etc.).\n\n## Objective\n\nInitialize streaming data from local collections or sequences\n## Applicable Signals\n\n- Test data or small reference datasets need to be streamed\n- Programmatically generated sequences or in-memory collections are available\n- All elements are homogeneous type\n- Local initialization phase before streaming operators\n\n## Contraindications\n\n- Data volume is large or unbounded\n- Source is external (files, sockets, message queues, Kafka)\n- Runtime data generation or continuous streaming from external systems is required\n- Elements are heterogeneous types\n\n## Intervention Moves\n\n- Select collection-based source method matching data structure (Collection, Iterator, varargs, or sequence)\n- Validate type consistency across all elements\n- Invoke method on StreamExecutionEnvironment\n- Capture returned DataStream for downstream use\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify data source type', 'detail': 'Determine whether data is a Collection, Iterator, varargs sequence, or numeric range'}\n- {'step': 2, 'action': 'Select appropriate method', 'detail': 'Choose fromCollection(Collection), fromCollection(Iterator, Class), fromElements(T ...), fromParallelCollection(SplittableIterator, Class), or generateSequence(from, to)'}\n- {'step': 3, 'action': 'Verify type homogeneity', 'detail': 'Ensure all elements are of the same type; specify type class if using Iterator variant'}\n- {'step': 4, 'action': 'Invoke on StreamExecutionEnvironment', 'detail': 'Call the selected method to create DataStream'}\n- {'step': 5, 'action': 'Validate output', 'detail': 'Confirm DataStream is populated and ready for downstream operators'}\n\n## Constraints\n\n- All elements in the collection or sequence must be of the same type\n- Collection must be fully materialized in memory\n- Iterator-based sources require explicit type class specification\n\n## Cautions\n\n- Collection-based sources are suitable for testing and small datasets only; avoid for production large-scale data\n- Type mismatch will cause runtime errors; verify type consistency before invocation\n\n## Output Contract\n\n- DataStream object populated with collection or iterator elements, type-safe and ready for downstream operators (map, filter, window, sink, etc.)\n\n## Example Executions\n\n### Example 1\n\n- Input: Java Collection of integers: [1, 2, 3, 4, 5]\n- Output: DataStream<Integer> with 5 elements, ready for map/filter operations\n- Notes: Use fromCollection(Collection) for standard Java collections\n\n### Example 2\n\n- Input: Iterator over strings with type class String.class\n- Output: DataStream<String> populated from iterator elements\n- Notes: Use fromCollection(Iterator, Class) when data is iterator-based\n\n### Example 3\n\n- Input: Numeric range: generateSequence(1, 100)\n- Output: DataStream<Long> with sequence 1 to 100 generated in parallel\n- Notes: Use generateSequence for numeric sequences; parallel execution by default",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Initialize streaming data from local collections or sequences",
+    "domain": "default",
+    "task_family": "data_source_setup",
+    "method_family": "collection_input_configuration",
+    "stage": "initialization",
+    "applicable_signals": [
+      "Test data or small reference datasets need to be streamed",
+      "Programmatically generated sequences or in-memory collections are available",
+      "All elements are homogeneous type",
+      "Local initialization phase before streaming operators"
+    ],
+    "contraindications": [
+      "Data volume is large or unbounded",
+      "Source is external (files, sockets, message queues, Kafka)",
+      "Runtime data generation or continuous streaming from external systems is required",
+      "Elements are heterogeneous types"
+    ],
+    "intervention_moves": [
+      "Select collection-based source method matching data structure (Collection, Iterator, varargs, or sequence)",
+      "Validate type consistency across all elements",
+      "Invoke method on StreamExecutionEnvironment",
+      "Capture returned DataStream for downstream use"
+    ],
+    "triggers": [
+      "Test data, small reference datasets, or programmatically generated sequences need to be streamed; all elements are homogeneous type"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Identify data source type', 'detail': 'Determine whether data is a Collection, Iterator, varargs sequence, or numeric range'}",
+      "{'step': 2, 'action': 'Select appropriate method', 'detail': 'Choose fromCollection(Collection), fromCollection(Iterator, Class), fromElements(T ...), fromParallelCollection(SplittableIterator, Class), or generateSequence(from, to)'}",
+      "{'step': 3, 'action': 'Verify type homogeneity', 'detail': 'Ensure all elements are of the same type; specify type class if using Iterator variant'}",
+      "{'step': 4, 'action': 'Invoke on StreamExecutionEnvironment', 'detail': 'Call the selected method to create DataStream'}",
+      "{'step': 5, 'action': 'Validate output', 'detail': 'Confirm DataStream is populated and ready for downstream operators'}"
+    ],
+    "constraints": [
+      "All elements in the collection or sequence must be of the same type",
+      "Collection must be fully materialized in memory",
+      "Iterator-based sources require explicit type class specification"
+    ],
+    "cautions": [
+      "Collection-based sources are suitable for testing and small datasets only; avoid for production large-scale data",
+      "Type mismatch will cause runtime errors; verify type consistency before invocation"
+    ],
+    "output_contract": [
+      "DataStream object populated with collection or iterator elements, type-safe and ready for downstream operators (map, filter, window, sink, etc.)"
+    ],
+    "examples": [
+      {
+        "input": "Java Collection of integers: [1, 2, 3, 4, 5]",
+        "output": "DataStream<Integer> with 5 elements, ready for map/filter operations",
+        "notes": "Use fromCollection(Collection) for standard Java collections"
+      },
+      {
+        "input": "Iterator over strings with type class String.class",
+        "output": "DataStream<String> populated from iterator elements",
+        "notes": "Use fromCollection(Iterator, Class) when data is iterator-based"
+      },
+      {
+        "input": "Numeric range: generateSequence(1, 100)",
+        "output": "DataStream<Long> with sequence 1 to 100 generated in parallel",
+        "notes": "Use generateSequence for numeric sequences; parallel execution by default"
+      }
+    ],
+    "tags": [
+      "data_source",
+      "initialization",
+      "collection",
+      "iterator",
+      "sequence",
+      "type_safety"
+    ],
+    "support_ids": [
+      "6bc1210a-5b45-520a-9279-168423f7c20f"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "e80b3f8c-b5b0-5709-92a2-653162419410"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.82,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|initialize streaming data from local collections or sequences|default|data_source_setup|collection_input_configuration|initialization|collection-based data source creation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,127 @@
+{
+  "skill_id": "89af0319-817d-52d3-90b9-ccb19b7a6372",
+  "name": "Future State Transition Control",
+  "description": "Atomically assign a Future's terminal state (result or exception) exactly once. Use this micro-operation when implementing custom Executor backends or in unit tests that need to manually resolve Future outcomes.",
+  "skill_body": "Call either set_result(result) or set_exception(exception) on a Future object exactly once. Do not call both methods on the same Future, and do not call either method after the Future is already done. If the Future is already done, the call will raise InvalidStateError.\n\n## Objective\n\nAtomically assign a Future's terminal state (result or exception)\n## Applicable Signals\n\n- Implementing custom Executor.submit() or similar task submission\n- Writing unit tests that manually resolve Future outcomes\n- Need to finalize a Future's outcome exactly once\n\n## Contraindications\n\n- Future is already done (result or exception already set)\n- Calling after Future.set_result() or Future.set_exception() has been invoked\n- Attempting to call both set_result() and set_exception() on the same Future\n\n## Intervention Moves\n\n- Call set_result(result) to assign the successful outcome\n- Call set_exception(exception) to assign an exception outcome\n- Ensure only one of these two methods is called per Future\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check that the Future is not already done', 'detail': 'Verify the Future has not had set_result() or set_exception() called previously'}\n- {'step': 2, 'action': 'Choose outcome type: result or exception', 'detail': 'Determine whether the task completed successfully or raised an exception'}\n- {'step': 3, 'action': 'Call set_result(result) or set_exception(exception)', 'detail': 'Invoke exactly one of these methods with the appropriate outcome'}\n- {'step': 4, 'action': 'Verify Future transitions to done state', 'detail': 'Confirm the Future is now done and subsequent calls will raise InvalidStateError'}\n\n## Constraints\n\n- Method can only be called once per Future\n- Cannot be called after the Future is already done\n- Intended only for Executor implementations and unit tests\n\n## Cautions\n\n- Raises concurrent.futures.InvalidStateError if the Future is already done (Python 3.8+)\n- Misuse can leave Futures in inconsistent states if not properly guarded\n\n## Output Contract\n\n- Future transitions to done state with result or exception set; subsequent calls to set_result() or set_exception() raise InvalidStateError; downstream callers can now retrieve the outcome via result() or exception()\n\n## Example Executions\n\n### Example 1\n\n- Input: Custom Executor implementation needs to resolve a Future after task completion\n- Output: Call future.set_result(task_output) to mark the Future as done with the result\n- Notes: Typical use in Executor.submit() implementation\n\n### Example 2\n\n- Input: Unit test needs to manually set an exception on a Future\n- Output: Call future.set_exception(ValueError('test error')) to mark the Future as done with an exception\n- Notes: Typical use in testing Future exception handling",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "5a63d94f-55c3-5860-b386-acd57dbebc38",
+  "parent_candidate_ids": [
+    "5a63d94f-55c3-5860-b386-acd57dbebc38"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "linked",
+  "visible_role": "leaf",
+  "objective": "Atomically assign a Future's terminal state (result or exception)",
+  "domain": "default",
+  "task_family": "concurrent_task_management",
+  "method_family": "future_state_mutation",
+  "stage": "task_completion",
+  "applicable_signals": [
+    "Implementing custom Executor.submit() or similar task submission",
+    "Writing unit tests that manually resolve Future outcomes",
+    "Need to finalize a Future's outcome exactly once"
+  ],
+  "contraindications": [
+    "Future is already done (result or exception already set)",
+    "Calling after Future.set_result() or Future.set_exception() has been invoked",
+    "Attempting to call both set_result() and set_exception() on the same Future"
+  ],
+  "intervention_moves": [
+    "Call set_result(result) to assign the successful outcome",
+    "Call set_exception(exception) to assign an exception outcome",
+    "Ensure only one of these two methods is called per Future"
+  ],
+  "triggers": [
+    "Implementing Executor.submit() or testing Future resolution; need to finalize a Future's outcome exactly once"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Check that the Future is not already done', 'detail': 'Verify the Future has not had set_result() or set_exception() called previously'}",
+    "{'step': 2, 'action': 'Choose outcome type: result or exception', 'detail': 'Determine whether the task completed successfully or raised an exception'}",
+    "{'step': 3, 'action': 'Call set_result(result) or set_exception(exception)', 'detail': 'Invoke exactly one of these methods with the appropriate outcome'}",
+    "{'step': 4, 'action': 'Verify Future transitions to done state', 'detail': 'Confirm the Future is now done and subsequent calls will raise InvalidStateError'}"
+  ],
+  "constraints": [
+    "Method can only be called once per Future",
+    "Cannot be called after the Future is already done",
+    "Intended only for Executor implementations and unit tests"
+  ],
+  "cautions": [
+    "Raises concurrent.futures.InvalidStateError if the Future is already done (Python 3.8+)",
+    "Misuse can leave Futures in inconsistent states if not properly guarded"
+  ],
+  "output_contract": [
+    "Future transitions to done state with result or exception set; subsequent calls to set_result() or set_exception() raise InvalidStateError; downstream callers can now retrieve the outcome via result() or exception()"
+  ],
+  "examples": [
+    {
+      "input": "Custom Executor implementation needs to resolve a Future after task completion",
+      "output": "Call future.set_result(task_output) to mark the Future as done with the result",
+      "notes": "Typical use in Executor.submit() implementation"
+    },
+    {
+      "input": "Unit test needs to manually set an exception on a Future",
+      "output": "Call future.set_exception(ValueError('test error')) to mark the Future as done with an exception",
+      "notes": "Typical use in testing Future exception handling"
+    }
+  ],
+  "tags": [
+    "futures",
+    "concurrent.futures",
+    "executor",
+    "state_mutation",
+    "python312"
+  ],
+  "support_ids": [
+    "f9d2b5ea-9a06-5a1e-9c10-fc43ef656889"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "a30122d8-1262-51c3-ac3a-032676067d72"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.85,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|atomically assign a future's terminal state (result or exception)|default|concurrent_task_management|future_state_mutation|task_completion|future state transition control",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct micro_skill in the future_state_mutation method family at the task_completion stage. It addresses atomic terminal state assignment (set_result/set_exception), which is semantically different from the peer candidates' concerns: state inspection (40060062), cancellation control (40060062, f629166f), and callback registration (e0543d5d). The existing_skills are unrelated (reward function integration). No merge, split, or revision relationship exists. Candidate is well-supported by concurrent.futures documentation and introduces a new capability not covered by existing registry.",
+    "parent_skill_id": "5a63d94f-55c3-5860-b386-acd57dbebc38",
+    "parent_candidate_ids": [
+      "5a63d94f-55c3-5860-b386-acd57dbebc38"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "linked",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

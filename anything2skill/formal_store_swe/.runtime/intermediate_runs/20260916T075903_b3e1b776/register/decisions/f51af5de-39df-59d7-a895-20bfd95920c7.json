@@ -1,0 +1,121 @@
+{
+  "skill_id": "f51af5de-39df-59d7-a895-20bfd95920c7",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct OpenAI-specific instrumentation setup skill (session_skill, instrumentation_setup task_family) with no semantic overlap to existing skills which cover Jakarta EE/Spring Framework migration and Spring Boot dependency management. Peer candidates (Initialize Package Instrumentation, LiteLLM Integration Setup, Cohere SDK Integration Setup) are related but represent different instrumentation layers and provider integrations, not the same capability. Candidate has clear support evidence and no conflicts.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "f51af5de-39df-59d7-a895-20bfd95920c7",
+    "name": "OpenAI Library Instrumentation Setup",
+    "description": "Configure and initialize OpenTelemetry instrumentation for OpenAI client library with version-specific handling and streaming wrapper registration. Establishes comprehensive observability for OpenAI API calls including chat completions, beta endpoints, and responses APIs.",
+    "skill_body": "Initialize an OpenaiInstrumentor instance by: (1) creating an InstrumentorConfig with library metadata, wrapped methods, and metrics enabled; (2) detecting OpenAI library version and applying version-specific initialization (legacy v0 fallback or v1 standard); (3) registering custom streaming wrappers for chat completion, async chat completion, beta chat completion parse, and responses APIs using wrap_function_wrapper. Ensure all wrapped methods are configured before instrumentation completes.\n\n## Objective\n\nSet up comprehensive observability instrumentation for OpenAI API calls with version compatibility and streaming support\n## Applicable Signals\n\n- openai library version >= 0.27.0 detected\n- instrumentation framework initialized\n- metrics collection enabled in configuration\n\n## Contraindications\n\n- OpenAI library is not a project dependency\n- Instrumentation is already active for OpenAI\n- Telemetry collection is explicitly disabled\n- Application does not require distributed tracing\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Create InstrumentorConfig', 'details': 'Instantiate InstrumentorConfig with library_name, library_version, wrapped_methods from _get_wrapped_methods(), metrics_enabled=True, and dependencies=[\"openai >= 0.27.0\"]'}\n- {'step': 2, 'action': 'Call parent __init__', 'details': 'Pass config to super().__init__(config) to initialize CommonInstrumentor base'}\n- {'step': 3, 'action': 'Detect OpenAI version', 'details': 'In _initialize(), call is_openai_v1() to determine library version'}\n- {'step': 4, 'action': 'Apply version-specific initialization', 'details': 'If not v1 (legacy v0): instantiate OpenAIV0Instrumentor, call instrument(**kwargs), and clear wrapped_methods list. Otherwise, proceed to custom wrapping.'}\n- {'step': 5, 'action': 'Register streaming wrappers', 'details': 'In _custom_wrap(), if is_openai_v1() and self._tracer exists, use wrap_function_wrapper to register wrappers for: (a) openai.resources.chat.completions.Completions.create (sync), (b) openai.resources.chat.completions.AsyncCompletions.create (async), (c) openai.resources.beta.chat.completions.Completions.parse (beta sync), (d) openai.resources.beta.chat.completions.AsyncCompletions.parse (beta async), (e) openai.resources.responses.Responses.create (responses API)'}\n- {'step': 6, 'action': 'Verify instrumentation complete', 'details': 'Confirm all wrapped methods are registered and tracer is active'}\n\n## Constraints\n\n- OpenAI library version must be >= 0.27.0\n- CommonInstrumentor base class must be available\n- wrapt library must be available for function wrapping\n- Tracer instance must be initialized before custom wrapping\n\n## Cautions\n\n- Version detection (is_openai_v1) must execute before initialization to avoid wrapping legacy endpoints incorrectly\n- For OpenAI v0, skip normal instrumentation and delegate to OpenAIV0Instrumentor to prevent double-wrapping\n- Streaming wrappers require tracer to be non-null; check self._tracer before attempting custom wraps\n\n## Output Contract\n\n- Instrumentor instance fully configured with: (1) InstrumentorConfig containing library metadata and wrapped method list; (2) version-specific initialization applied (legacy fallback or v1 standard); (3) all streaming wrappers registered for chat completions, beta endpoints, and responses APIs; (4) metrics collection enabled; (5) ready for downstream telemetry collection and tracing of OpenAI API calls\n\n## Example Executions\n\n### Example 1\n\n- Input: OpenAI library v1.0+ installed; agent requires distributed tracing\n- Output: OpenaiInstrumentor instance with v1 streaming wrappers registered for Completions.create, AsyncCompletions.create, beta Completions.parse, AsyncCompletions.parse, and Responses.create; metrics enabled\n- Notes: Standard path for modern OpenAI library\n\n### Example 2\n\n- Input: OpenAI library v0.x installed; legacy support required\n- Output: OpenaiInstrumentor delegates to OpenAIV0Instrumentor; wrapped_methods cleared to prevent double-wrapping\n- Notes: Fallback path for older OpenAI versions",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Set up comprehensive observability instrumentation for OpenAI API calls with version compatibility and streaming support",
+    "domain": "default",
+    "task_family": "instrumentation_setup",
+    "method_family": "opentelemetry_configuration",
+    "stage": "initialization",
+    "applicable_signals": [
+      "openai library version >= 0.27.0 detected",
+      "instrumentation framework initialized",
+      "metrics collection enabled in configuration"
+    ],
+    "contraindications": [
+      "OpenAI library is not a project dependency",
+      "Instrumentation is already active for OpenAI",
+      "Telemetry collection is explicitly disabled",
+      "Application does not require distributed tracing"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "OpenAI client library is added as a project dependency",
+      "Agent or application requires telemetry collection and distributed tracing",
+      "Integration with observability platform (e.g., AgentOps) is initiated"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Create InstrumentorConfig', 'details': 'Instantiate InstrumentorConfig with library_name, library_version, wrapped_methods from _get_wrapped_methods(), metrics_enabled=True, and dependencies=[\"openai >= 0.27.0\"]'}",
+      "{'step': 2, 'action': 'Call parent __init__', 'details': 'Pass config to super().__init__(config) to initialize CommonInstrumentor base'}",
+      "{'step': 3, 'action': 'Detect OpenAI version', 'details': 'In _initialize(), call is_openai_v1() to determine library version'}",
+      "{'step': 4, 'action': 'Apply version-specific initialization', 'details': 'If not v1 (legacy v0): instantiate OpenAIV0Instrumentor, call instrument(**kwargs), and clear wrapped_methods list. Otherwise, proceed to custom wrapping.'}",
+      "{'step': 5, 'action': 'Register streaming wrappers', 'details': 'In _custom_wrap(), if is_openai_v1() and self._tracer exists, use wrap_function_wrapper to register wrappers for: (a) openai.resources.chat.completions.Completions.create (sync), (b) openai.resources.chat.completions.AsyncCompletions.create (async), (c) openai.resources.beta.chat.completions.Completions.parse (beta sync), (d) openai.resources.beta.chat.completions.AsyncCompletions.parse (beta async), (e) openai.resources.responses.Responses.create (responses API)'}",
+      "{'step': 6, 'action': 'Verify instrumentation complete', 'details': 'Confirm all wrapped methods are registered and tracer is active'}"
+    ],
+    "constraints": [
+      "OpenAI library version must be >= 0.27.0",
+      "CommonInstrumentor base class must be available",
+      "wrapt library must be available for function wrapping",
+      "Tracer instance must be initialized before custom wrapping"
+    ],
+    "cautions": [
+      "Version detection (is_openai_v1) must execute before initialization to avoid wrapping legacy endpoints incorrectly",
+      "For OpenAI v0, skip normal instrumentation and delegate to OpenAIV0Instrumentor to prevent double-wrapping",
+      "Streaming wrappers require tracer to be non-null; check self._tracer before attempting custom wraps"
+    ],
+    "output_contract": [
+      "Instrumentor instance fully configured with: (1) InstrumentorConfig containing library metadata and wrapped method list; (2) version-specific initialization applied (legacy fallback or v1 standard); (3) all streaming wrappers registered for chat completions, beta endpoints, and responses APIs; (4) metrics collection enabled; (5) ready for downstream telemetry collection and tracing of OpenAI API calls"
+    ],
+    "examples": [
+      {
+        "input": "OpenAI library v1.0+ installed; agent requires distributed tracing",
+        "output": "OpenaiInstrumentor instance with v1 streaming wrappers registered for Completions.create, AsyncCompletions.create, beta Completions.parse, AsyncCompletions.parse, and Responses.create; metrics enabled",
+        "notes": "Standard path for modern OpenAI library"
+      },
+      {
+        "input": "OpenAI library v0.x installed; legacy support required",
+        "output": "OpenaiInstrumentor delegates to OpenAIV0Instrumentor; wrapped_methods cleared to prevent double-wrapping",
+        "notes": "Fallback path for older OpenAI versions"
+      }
+    ],
+    "tags": [
+      "observability",
+      "instrumentation",
+      "opentelemetry",
+      "openai",
+      "telemetry",
+      "tracing"
+    ],
+    "support_ids": [
+      "9eccb6d5-3c54-5f00-a0b0-26d65297401e"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "947a35b5-379c-575f-83f3-83d424b70a9c"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|set up comprehensive observability instrumentation for openai api calls with version compatibility and streaming support|default|instrumentation_setup|opentelemetry_configuration|initialization|openai library instrumentation setup"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

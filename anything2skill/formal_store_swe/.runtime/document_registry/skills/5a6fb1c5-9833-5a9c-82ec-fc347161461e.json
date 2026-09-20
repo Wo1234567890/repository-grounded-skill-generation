@@ -1,0 +1,132 @@
+{
+  "skill_id": "5a6fb1c5-9833-5a9c-82ec-fc347161461e",
+  "name": "Merge and Normalize Tag Collections",
+  "description": "Combine user-provided tags with default tags into a single deduplicated collection. Handles cases where one or both tag sources are present, absent, or null. Prepares normalized tag input for downstream session initialization.",
+  "skill_body": "Merge two optional tag lists (tags and default_tags) into a single deduplicated collection. If both are provided, combine and remove duplicates. If only one is provided, use it. If neither is provided, return None. The result is ready for downstream configuration.\n\n## Objective\n\nNormalize tag input for downstream initialization\n## Applicable Signals\n\n- tags parameter is provided\n- default_tags parameter is provided\n- Either or both parameters are None\n\n## Contraindications\n\n- Tags are already merged\n- Tag deduplication is not required\n- Tags are immutable or order-sensitive\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if both tags and default_tags are provided and non-empty', 'condition': 'tags is not None and default_tags is not None'}\n- {'step': 2, 'action': 'If both present, concatenate and deduplicate using set conversion', 'condition': 'Both inputs are truthy', 'operation': 'merged_tags = list(set(tags + default_tags))'}\n- {'step': 3, 'action': 'If only tags is provided, assign it directly', 'condition': 'tags is not None and default_tags is None', 'operation': 'merged_tags = tags'}\n- {'step': 4, 'action': 'If only default_tags is provided, assign it directly', 'condition': 'tags is None and default_tags is not None', 'operation': 'merged_tags = default_tags'}\n- {'step': 5, 'action': 'If neither is provided, set to None', 'condition': 'tags is None and default_tags is None', 'operation': 'merged_tags = None'}\n\n## Constraints\n\n- Input tags must be iterable (list or None)\n- Input default_tags must be iterable (list or None)\n- Output must be a list or None, never an empty list when both inputs are absent\n\n## Cautions\n\n- Set conversion removes order; if tag order is significant, preserve original order during merge\n- Empty lists are treated as falsy; verify intended behavior for empty input lists\n\n## Output Contract\n\n- A single merged_tags list (or None if both inputs are absent) with duplicates removed and ready for downstream configuration. Output is always either a deduplicated list or None.\n\n## Example Executions\n\n### Example 1\n\n- Input: {'tags': ['user_tag_1', 'user_tag_2'], 'default_tags': ['default_tag_1', 'user_tag_1']}\n- Output: {'merged_tags': ['user_tag_1', 'user_tag_2', 'default_tag_1']}\n- Notes: Duplicates removed; order may vary due to set conversion\n\n### Example 2\n\n- Input: {'tags': ['user_tag_1'], 'default_tags': None}\n- Output: {'merged_tags': ['user_tag_1']}\n- Notes: Only user tags provided\n\n### Example 3\n\n- Input: {'tags': None, 'default_tags': None}\n- Output: {'merged_tags': None}\n- Notes: No tags provided; returns None",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [
+    "d8ea0a6a-2ee7-5ade-872e-dde9abd80350",
+    "2fefe2f0-790d-5e47-99c5-c441046648cf"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "Normalize tag input for downstream initialization",
+  "domain": "default",
+  "task_family": "data_preparation",
+  "method_family": "collection_merge",
+  "stage": "initialization",
+  "applicable_signals": [
+    "tags parameter is provided",
+    "default_tags parameter is provided",
+    "Either or both parameters are None"
+  ],
+  "contraindications": [
+    "Tags are already merged",
+    "Tag deduplication is not required",
+    "Tags are immutable or order-sensitive"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Initializing a tracing or monitoring session with optional user tags and system default tags",
+    "Both tag sources may be None, one, or both present"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Check if both tags and default_tags are provided and non-empty', 'condition': 'tags is not None and default_tags is not None'}",
+    "{'step': 2, 'action': 'If both present, concatenate and deduplicate using set conversion', 'condition': 'Both inputs are truthy', 'operation': 'merged_tags = list(set(tags + default_tags))'}",
+    "{'step': 3, 'action': 'If only tags is provided, assign it directly', 'condition': 'tags is not None and default_tags is None', 'operation': 'merged_tags = tags'}",
+    "{'step': 4, 'action': 'If only default_tags is provided, assign it directly', 'condition': 'tags is None and default_tags is not None', 'operation': 'merged_tags = default_tags'}",
+    "{'step': 5, 'action': 'If neither is provided, set to None', 'condition': 'tags is None and default_tags is None', 'operation': 'merged_tags = None'}"
+  ],
+  "constraints": [
+    "Input tags must be iterable (list or None)",
+    "Input default_tags must be iterable (list or None)",
+    "Output must be a list or None, never an empty list when both inputs are absent"
+  ],
+  "cautions": [
+    "Set conversion removes order; if tag order is significant, preserve original order during merge",
+    "Empty lists are treated as falsy; verify intended behavior for empty input lists"
+  ],
+  "output_contract": [
+    "A single merged_tags list (or None if both inputs are absent) with duplicates removed and ready for downstream configuration. Output is always either a deduplicated list or None."
+  ],
+  "examples": [
+    {
+      "input": "{'tags': ['user_tag_1', 'user_tag_2'], 'default_tags': ['default_tag_1', 'user_tag_1']}",
+      "output": "{'merged_tags': ['user_tag_1', 'user_tag_2', 'default_tag_1']}",
+      "notes": "Duplicates removed; order may vary due to set conversion"
+    },
+    {
+      "input": "{'tags': ['user_tag_1'], 'default_tags': None}",
+      "output": "{'merged_tags': ['user_tag_1']}",
+      "notes": "Only user tags provided"
+    },
+    {
+      "input": "{'tags': None, 'default_tags': None}",
+      "output": "{'merged_tags': None}",
+      "notes": "No tags provided; returns None"
+    }
+  ],
+  "tags": [
+    "initialization",
+    "data_preparation",
+    "collection_merge",
+    "deduplication",
+    "configuration"
+  ],
+  "support_ids": [
+    "afc9ce48-8c2e-525a-84f9-1ee07fadc3ba"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "a755149b-8b4e-5b91-a135-abb94d74a41e"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.85,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|normalize tag input for downstream initialization|default|data_preparation|collection_merge|initialization|merge and normalize tag collections",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct micro_skill for tag collection normalization in the initialization stage. It does not semantically match any existing skill (which cover reward transforms, async exception inspection, and observability/client patterns). Peer candidates are initialization-stage skills but operate on different domains (observability, client lifecycle, agent setup) with no overlap in capability. The candidate addresses a specific data preparation concern (tag deduplication and null-handling) that is orthogonal to existing skills.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [
+      "d8ea0a6a-2ee7-5ade-872e-dde9abd80350",
+      "2fefe2f0-790d-5e47-99c5-c441046648cf"
+    ],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

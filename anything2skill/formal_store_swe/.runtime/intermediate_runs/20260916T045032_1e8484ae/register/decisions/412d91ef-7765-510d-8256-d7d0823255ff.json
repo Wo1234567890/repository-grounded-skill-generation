@@ -1,0 +1,117 @@
+{
+  "skill_id": "412d91ef-7765-510d-8256-d7d0823255ff",
+  "action": "split",
+  "matched_skill_ids": [
+    "0aa5626c-5ed7-50e1-87ed-4d879e19901d"
+  ],
+  "reason": "Candidate 412d91ef represents the core reward computation logic (scoring completions), while peer 0aa5626c focuses on signature compliance for GRPO trainer integration. These are distinct workflow stages: definition (candidate) precedes validation/adaptation (peer). The candidate should split out as the foundational micro-skill, with the peer as a downstream integration step. Peer 6f7e5bc6 is a near-duplicate of the candidate with minor wording differences and should be merged into the candidate. Peer 77301bc9 is unrelated (generation, not reward).",
+  "split_parent_id": "0aa5626c-5ed7-50e1-87ed-4d879e19901d",
+  "skill": {
+    "skill_id": "412d91ef-7765-510d-8256-d7d0823255ff",
+    "name": "Custom Reward Function Definition",
+    "description": "Define a callable reward function that scores model completions based on custom criteria such as length, format, or semantic properties, returning a list of scalar rewards. Use this micro-skill when you need to specify custom reward criteria beyond default metrics and the reward function will be validated for trainer compatibility in a downstream step.",
+    "skill_body": "Implement a reward function that:\n1. Accepts a list of completions (strings) and optional keyword arguments\n2. Computes a scalar reward for each completion based on your custom criteria\n3. Returns a list of scalar rewards in the same order as input completions\n4. Ensures the function signature matches: reward_func(completions, **kwargs) -> List[float]\n\nCommon patterns:\n- Length-based: penalize or reward based on completion length\n- Format-based: check for specific patterns, keywords, or structure\n- Simple heuristics: count occurrences, check presence of markers\n\nKeep the logic deterministic and avoid external API calls or stateful operations.\n\n## Objective\n\nImplement a single reward scoring operation\n## Applicable Signals\n\n- Need to specify custom reward criteria beyond default metrics\n- Reward logic is simple and deterministic\n- Preparing for GRPO trainer initialization with custom reward function\n\n## Contraindications\n\n- Reward requires external API calls or network I/O\n- Reward logic requires complex multi-step inference or model calls\n- Reward is non-differentiable or requires gradient computation\n- Reward requires stateful context or maintains internal state across calls\n\n## Intervention Moves\n\n- Define reward function with signature: reward_func(completions, **kwargs)\n- Compute scalar score for each completion\n- Return list of rewards matching completion count and order\n\n## Constraints\n\n- Function must be callable and accept completions list as first argument\n- Must return list of scalar values (float or int) with length equal to input completions\n- Reward computation must be deterministic for reproducibility\n- Function must complete execution within reasonable time per batch\n\n## Cautions\n\n- Ensure reward values are on a consistent scale to avoid training instability\n- Test reward function with sample completions before passing to trainer\n- Avoid reward functions that always return the same value (no signal for optimization)\n\n## Output Contract\n\n- Callable reward function object that accepts a list of completions and returns a list of scalar rewards; function is ready to pass to GRPOTrainer via reward_funcs parameter\n\n## Example Executions\n\n### Example 1\n\n- Input: completions = ['hello world', 'hi', 'this is a longer completion']\n- Output: reward_len(completions) returns [-abs(20 - 11), -abs(20 - 2), -abs(20 - 32)] = [-9, -18, -12]\n- Notes: Length-based reward penalizes deviations from target length of 20 characters\n\n### Example 2\n\n- Input: completions = ['The answer is 42', 'No answer provided', 'The answer is correct']\n- Output: reward_format(completions) returns [1.0, 0.0, 1.0]\n- Notes: Format-based reward checks for presence of 'The answer is' pattern",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "leaf",
+    "objective": "Implement a single reward scoring operation",
+    "domain": "default",
+    "task_family": "reward_engineering",
+    "method_family": "scoring",
+    "stage": "reward_definition",
+    "applicable_signals": [
+      "Need to specify custom reward criteria beyond default metrics",
+      "Reward logic is simple and deterministic",
+      "Preparing for GRPO trainer initialization with custom reward function"
+    ],
+    "contraindications": [
+      "Reward requires external API calls or network I/O",
+      "Reward logic requires complex multi-step inference or model calls",
+      "Reward is non-differentiable or requires gradient computation",
+      "Reward requires stateful context or maintains internal state across calls"
+    ],
+    "intervention_moves": [
+      "Define reward function with signature: reward_func(completions, **kwargs)",
+      "Compute scalar score for each completion",
+      "Return list of rewards matching completion count and order"
+    ],
+    "triggers": [
+      "Need to specify custom reward criteria beyond default metrics; reward logic is simple and deterministic (e.g., length penalty, format matching, keyword presence)"
+    ],
+    "workflow_steps": [],
+    "constraints": [
+      "Function must be callable and accept completions list as first argument",
+      "Must return list of scalar values (float or int) with length equal to input completions",
+      "Reward computation must be deterministic for reproducibility",
+      "Function must complete execution within reasonable time per batch"
+    ],
+    "cautions": [
+      "Ensure reward values are on a consistent scale to avoid training instability",
+      "Test reward function with sample completions before passing to trainer",
+      "Avoid reward functions that always return the same value (no signal for optimization)"
+    ],
+    "output_contract": [
+      "Callable reward function object that accepts a list of completions and returns a list of scalar rewards; function is ready to pass to GRPOTrainer via reward_funcs parameter"
+    ],
+    "examples": [
+      {
+        "input": "completions = ['hello world', 'hi', 'this is a longer completion']",
+        "output": "reward_len(completions) returns [-abs(20 - 11), -abs(20 - 2), -abs(20 - 32)] = [-9, -18, -12]",
+        "notes": "Length-based reward penalizes deviations from target length of 20 characters"
+      },
+      {
+        "input": "completions = ['The answer is 42', 'No answer provided', 'The answer is correct']",
+        "output": "reward_format(completions) returns [1.0, 0.0, 1.0]",
+        "notes": "Format-based reward checks for presence of 'The answer is' pattern"
+      }
+    ],
+    "tags": [
+      "reward_engineering",
+      "grpo_training",
+      "custom_scoring",
+      "reinforcement_learning"
+    ],
+    "support_ids": [
+      "787c014b-4e11-5f48-a3d0-de9a49d36bdf"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "74dbda9b-818f-531d-8c0d-2319694ea523"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.88,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|implement a single reward scoring operation|default|reward_engineering|scoring|reward_definition|custom reward function definition",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,125 @@
+{
+  "skill_id": "812e7026-499e-5857-812c-08f5685e456e",
+  "name": "Standard Metrics Recording",
+  "description": "Create and record standard metrics (token usage, duration) using StandardMetrics and MetricsRecorder for consistent observability across instrumented operations.",
+  "skill_body": "Initialize StandardMetrics from an OpenTelemetry meter, then use MetricsRecorder to populate token usage and duration metrics. Call record_token_usage with prompt_tokens and completion_tokens counts, and record_duration with elapsed time in seconds. Export metrics to the configured meter for downstream collection.\n\n## Objective\n\nInitialize and populate standard metrics for an instrumentation session\n## Applicable Signals\n\n- Multiple instrumented operations completing\n- Token counts available from LLM responses\n- Operation duration measurable\n\n## Contraindications\n\n- Metrics are custom or non-standard\n- Using a different metrics framework (not OpenTelemetry)\n- Metrics are recorded directly on spans without aggregation\n\n## Workflow Steps\n\n- Import StandardMetrics and MetricsRecorder from agentops.instrumentation.common\n- Create standard metrics by calling StandardMetrics.create_standard_metrics(meter)\n- Instantiate MetricsRecorder with the created metrics\n- Call recorder.record_token_usage(prompt_tokens=<count>, completion_tokens=<count>)\n- Call recorder.record_duration(<elapsed_seconds>)\n- Metrics are automatically exported to the configured meter\n\n## Constraints\n\n- Meter must be initialized and passed to StandardMetrics.create_standard_metrics\n- Token counts (prompt_tokens, completion_tokens) must be available\n- Duration must be measured in seconds\n\n## Output Contract\n\n- MetricsRecorder instance with token_usage and duration metrics populated and exported to the configured OpenTelemetry meter; metrics available for downstream collection and analysis\n\n## Example Executions\n\n### Example 1\n\n- Input: meter=MeterProvider().get_meter('my-service'), prompt_tokens=100, completion_tokens=50, duration=1.5\n- Output: MetricsRecorder with token_usage metric set to 150 total tokens and duration metric set to 1.5 seconds\n- Notes: Typical LLM operation metrics aggregation",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "5cb1141a-bd9a-5686-a22e-969b744a44a8",
+  "parent_candidate_ids": [
+    "5cb1141a-bd9a-5686-a22e-969b744a44a8"
+  ],
+  "child_skill_ids": [
+    "ce876721-97f3-53be-9f13-b151f476dbe4"
+  ],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "parent",
+  "visible_role": "parent",
+  "objective": "Initialize and populate standard metrics for an instrumentation session",
+  "domain": "default",
+  "task_family": "instrumentation",
+  "method_family": "metrics_recording",
+  "stage": "aggregation",
+  "applicable_signals": [
+    "Multiple instrumented operations completing",
+    "Token counts available from LLM responses",
+    "Operation duration measurable"
+  ],
+  "contraindications": [
+    "Metrics are custom or non-standard",
+    "Using a different metrics framework (not OpenTelemetry)",
+    "Metrics are recorded directly on spans without aggregation"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Need to record token usage and duration metrics across multiple operations",
+    "Using OpenTelemetry meter for observability",
+    "Want standardized metric names and types across instrumentations"
+  ],
+  "workflow_steps": [
+    "Import StandardMetrics and MetricsRecorder from agentops.instrumentation.common",
+    "Create standard metrics by calling StandardMetrics.create_standard_metrics(meter)",
+    "Instantiate MetricsRecorder with the created metrics",
+    "Call recorder.record_token_usage(prompt_tokens=<count>, completion_tokens=<count>)",
+    "Call recorder.record_duration(<elapsed_seconds>)",
+    "Metrics are automatically exported to the configured meter"
+  ],
+  "constraints": [
+    "Meter must be initialized and passed to StandardMetrics.create_standard_metrics",
+    "Token counts (prompt_tokens, completion_tokens) must be available",
+    "Duration must be measured in seconds"
+  ],
+  "cautions": [],
+  "output_contract": [
+    "MetricsRecorder instance with token_usage and duration metrics populated and exported to the configured OpenTelemetry meter; metrics available for downstream collection and analysis"
+  ],
+  "examples": [
+    {
+      "input": "meter=MeterProvider().get_meter('my-service'), prompt_tokens=100, completion_tokens=50, duration=1.5",
+      "output": "MetricsRecorder with token_usage metric set to 150 total tokens and duration metric set to 1.5 seconds",
+      "notes": "Typical LLM operation metrics aggregation"
+    }
+  ],
+  "tags": [
+    "observability",
+    "metrics",
+    "opentelemetry",
+    "instrumentation",
+    "token-counting",
+    "performance-monitoring"
+  ],
+  "support_ids": [
+    "bd4d75fb-d27f-57cb-b547-552d936d87a9"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "cf94f7f8-8703-5a6a-ad27-324706c12843"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.78,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|initialize and populate standard metrics for an instrumentation session|default|instrumentation|metrics_recording|aggregation|standard metrics recording",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct session_skill for metrics recording (StandardMetrics/MetricsRecorder) in the instrumentation task_family. It does not semantically match any existing skill: the macro_protocol is about OpenTelemetry APM setup (different layer and scope), and the other session_skill is about CLS/d3 area charts (completely different domain). Peer candidates are also distinct (package instrumentation, session replay init, SDK module init). No merge, split, or revision relationship exists.",
+    "parent_skill_id": "5cb1141a-bd9a-5686-a22e-969b744a44a8",
+    "parent_candidate_ids": [
+      "5cb1141a-bd9a-5686-a22e-969b744a44a8"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "parent",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "ce876721-97f3-53be-9f13-b151f476dbe4"
+    ]
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

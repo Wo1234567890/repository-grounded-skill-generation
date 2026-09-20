@@ -1,0 +1,117 @@
+{
+  "skill_id": "27ac5968-5d6f-5ef7-b50d-ee2aceca1e10",
+  "name": "Static Route Next Hop Validation",
+  "description": "Validates that static route next hop IP addresses do not match hub router IPs in Virtual WAN configurations. Prevents routing loops and misconfigurations by rejecting routes that use hub router IPs as next hop addresses.",
+  "skill_body": "When defining static routes in Virtual WAN, validate that next hop IP addresses do not match hub router IPs. Reject any static route configuration where the next hop is identified as a hub router IP and suggest alternative next hop addresses (e.g., spoke virtual appliance IPs).\n\n## Objective\n\nprevent_hub_router_ip_next_hop_misconfigurations\n## Applicable Signals\n\n- static route definition initiated\n- next hop IP address specified\n\n## Contraindications\n\n- dynamic routing only (no static routes defined)\n- hub router IPs are intentionally required as next hop (architectural exception)\n\n## Intervention Moves\n\n- Reject static route if hub router IP detected in next hop field\n- Suggest alternative next hop (e.g., spoke virtual appliance IP)\n- Provide validation checklist confirming next hop is not hub router IP\n\n## Workflow Steps\n\n- Capture next hop IP address from static route definition\n- Identify hub router IPs in the Virtual WAN configuration\n- Compare next hop IP against hub router IP list\n- If match found, reject configuration with violation reason\n- If no match, approve next hop selection\n\n## Constraints\n\n- hub router IPs must never be used as next hop in static routes\n- validation must occur before route activation\n\n## Cautions\n\n- violation of this constraint causes routing loops and potential outages\n- hub router IP validation must be performed on all next hop addresses in the route definition\n\n## Output Contract\n\n- Route next hop configuration validated. If hub router IP is detected in next hop field, configuration is rejected with specific violation reason and alternative next hop suggestion provided. If validation passes, route is approved for deployment with hub router IP absence confirmed.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Static route definition: destination 10.2.0.0/16, next hop 10.0.0.1 (hub router IP)\n- Therapist/Output: Configuration rejected. Hub router IP 10.0.0.1 cannot be used as next hop. Specify spoke virtual appliance IP instead.\n- Notes: Prevents routing loop and misconfiguration.",
+  "asset_type": "safety_rule",
+  "granularity": "session",
+  "asset_node_id": "safety_rule_node",
+  "asset_path": "family_root/safety_module/safety_rule_node",
+  "asset_level": 2,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "prevent_hub_router_ip_next_hop_misconfigurations",
+  "domain": "default",
+  "task_family": "virtual_wan_static_routing",
+  "method_family": "configuration_validation_rule",
+  "stage": "static_route_configuration",
+  "applicable_signals": [
+    "static route definition initiated",
+    "next hop IP address specified"
+  ],
+  "contraindications": [
+    "dynamic routing only (no static routes defined)",
+    "hub router IPs are intentionally required as next hop (architectural exception)"
+  ],
+  "intervention_moves": [
+    "Reject static route if hub router IP detected in next hop field",
+    "Suggest alternative next hop (e.g., spoke virtual appliance IP)",
+    "Provide validation checklist confirming next hop is not hub router IP"
+  ],
+  "triggers": [
+    "defining static routes in Virtual WAN",
+    "configuring next hop addresses"
+  ],
+  "workflow_steps": [
+    "Capture next hop IP address from static route definition",
+    "Identify hub router IPs in the Virtual WAN configuration",
+    "Compare next hop IP against hub router IP list",
+    "If match found, reject configuration with violation reason",
+    "If no match, approve next hop selection"
+  ],
+  "constraints": [
+    "hub router IPs must never be used as next hop in static routes",
+    "validation must occur before route activation"
+  ],
+  "cautions": [
+    "violation of this constraint causes routing loops and potential outages",
+    "hub router IP validation must be performed on all next hop addresses in the route definition"
+  ],
+  "output_contract": [
+    "Route next hop configuration validated. If hub router IP is detected in next hop field, configuration is rejected with specific violation reason and alternative next hop suggestion provided. If validation passes, route is approved for deployment with hub router IP absence confirmed."
+  ],
+  "examples": [
+    {
+      "input": "Static route definition: destination 10.2.0.0/16, next hop 10.0.0.1 (hub router IP)",
+      "output": "Configuration rejected. Hub router IP 10.0.0.1 cannot be used as next hop. Specify spoke virtual appliance IP instead.",
+      "notes": "Prevents routing loop and misconfiguration."
+    }
+  ],
+  "tags": [
+    "virtual_wan",
+    "static_routing",
+    "configuration_validation",
+    "next_hop_validation",
+    "routing_safety"
+  ],
+  "support_ids": [
+    "1eda28dd-5dac-5ad8-9807-9ca193e31028"
+  ],
+  "metadata": {
+    "risk_class": "high",
+    "source_draft_ids": [
+      "3419f116-f94c-59fe-879f-90820348e251"
+    ],
+    "support_summary": {
+      "support": 0,
+      "constraint": 1,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.85,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||safety_rule|session|safety_rule_node|prevent_hub_router_ip_next_hop_misconfigurations|default|virtual_wan_static_routing|configuration_validation_rule|static_route_configuration|static route next hop validation",
+    "change_action": "create",
+    "llm_reason": "Distinct safety rule addressing a specific routing misconfiguration risk (hub router IP as next hop) that is not redundant with peer candidates. Peer candidates address BGP community re-advertisement, conflicting next hop IPs across appliances, and route prefix specificity—all different validation concerns. This skill fills a necessary gap in Virtual WAN static routing validation.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

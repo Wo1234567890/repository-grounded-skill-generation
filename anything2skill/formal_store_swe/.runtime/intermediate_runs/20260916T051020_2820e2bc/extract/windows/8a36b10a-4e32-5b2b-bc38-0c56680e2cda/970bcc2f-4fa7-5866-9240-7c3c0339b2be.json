@@ -1,0 +1,483 @@
+{
+  "doc_id": "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+  "title": "flink-118-datastream.md",
+  "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/flink-118-datastream.md",
+  "window_id": "970bcc2f-4fa7-5866-9240-7c3c0339b2be",
+  "section_heading": "DataStream API▾",
+  "strategy": "strict",
+  "supports": [
+    {
+      "support_id": "ef15010a-2090-5c47-8b2e-6d1eeca8a4dc",
+      "doc_id": "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/flink-118-datastream.md",
+      "section": "DataStream API▾",
+      "span": {
+        "start": 21051,
+        "end": 25928
+      },
+      "excerpt": "The lazy evaluation lets you construct sophisticated programs that Flink\nexecutes as one holistically planned unit.\n\nBack to top\n\n## \n Example Program\n #\n\nThe following program is a complete, working example of streaming window word count application, that counts the\nwords coming from a web socket in 5 second windows. You can copy & paste the code to run it locally.\n\nJava\n\npublic class WindowWordCount {\n\npublic static void main(String[] args) throws Exception {\n\nStreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();\n\nDataStream<Tuple2<String, Integer>> dataStream = env\n                .socketTextStream(\"localhost\", 9999)\n                .flatMap(new Splitter())\n                .keyBy(value -> value.f0)\n                .window(TumblingProcessingTimeWindows.of(Time.seconds(5)))\n                .sum(1);\n\ndataStream.print();\n\nenv.execute(\"Window WordCount\");\n    }\n\n}\n\n```\n\nScala\n\n```\n\nimport org.apache.flink.streaming.api.scala._\nimport org.apache.flink.streaming.api.windowing.time.Time\n\nobject WindowWordCount {\n  def main(args: Array[String]) {\n\nval env = StreamExecutionEnvironment.getExecutionEnvironment\n    val text = env.socketTextStream(\"localhost\", 9999)\n\nval counts = text.flatMap { _.toLowerCase.split(\"\\\\W+\") filter { _.nonEmpty } }\n      .map { (_, 1) }\n      .keyBy(_._1)\n      .window(TumblingProcessingTimeWindows.of(Time.seconds(5)))\n      .sum(1)\n\ncounts.print()\n\nenv.execute(\"Window Stream WordCount\")\n  }\n}\n\n```\n\nTo run the example program, start the input stream with netcat first from a terminal:\n\n```\nnc -lk 9999\n\n```\n\nJust type some words hitting return for a new word. These will be the input to the\nword count program. If you want to see counts greater than 1, type the same word again and again within\n5 seconds (increase the window size from 5 seconds if you cannot type that fast ☺).\n\nBack to top\n\n## \n Data Sources\n #\n\nJava\n\nThere are several predefined stream sources accessible from the `StreamExecutionEnvironment`:\n\nFile-based:\n\n-\n\n`readTextFile(path)` - Reads text files, i.e. files that respect the `TextInputFormat` specification, line-by-line and returns them as Strings.\n\n-\n\n`readFile(fileInputFormat, path)` - Reads (once) files as dictated by the specified file input format.\n\n-\n\nIMPLEMENTATION:\n\nIMPORTANT NOTES:\n\n-",
+      "relation_type": "support",
+      "confidence": 0.85,
+      "metadata": {
+        "document_title": "flink-118-datastream.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Flink Streaming Window Word Count Setup",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "Build and execute a complete streaming word-count application with windowed aggregation",
+        "task_family": "streaming_aggregation",
+        "method_family": "window_based_counting",
+        "stage": "pipeline_construction",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "970bcc2f-4fa7-5866-9240-7c3c0339b2be",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 43,
+        "heading_path": [
+          "DataStream API▾"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "flink-118-datastream.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Execution Mode (Batch/Streaming)",
+          "Event Time▾",
+          "Generating Watermarks",
+          "Builtin Watermark Generators",
+          "State & Fault Tolerance▾",
+          "Working with State",
+          "The Broadcast State Pattern",
+          "Checkpointing",
+          "State Backends",
+          "Data Types & Serialization▾",
+          "State Schema Evolution",
+          "Custom State Serialization",
+          "3rd Party Serializers",
+          "User-Defined Functions",
+          "Operators▾",
+          "Windows",
+          "Joining",
+          "Process Function",
+          "Async I/O",
+          "Data Sources",
+          "Side Outputs",
+          "Handling Application Parameters",
+          "Testing",
+          "Experimental Features",
+          "Scala API Extensions",
+          "Java Lambda Expressions",
+          "Managing Execution▾",
+          "Execution Configuration",
+          "Program Packaging"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "-"
+      },
+      "created_at": "2026-09-15T19:14:27+00:00"
+    },
+    {
+      "support_id": "e58ee62a-edcf-5e1a-bab1-a6f4d2471b6d",
+      "doc_id": "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/flink-118-datastream.md",
+      "section": "DataStream API▾",
+      "span": {
+        "start": 21051,
+        "end": 25928
+      },
+      "excerpt": "The lazy evaluation lets you construct sophisticated programs that Flink\nexecutes as one holistically planned unit.\n\nBack to top\n\n## \n Example Program\n #\n\nThe following program is a complete, working example of streaming window word count application, that counts the\nwords coming from a web socket in 5 second windows. You can copy & paste the code to run it locally.\n\nJava\n\npublic class WindowWordCount {\n\npublic static void main(String[] args) throws Exception {\n\nStreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();\n\nDataStream<Tuple2<String, Integer>> dataStream = env\n                .socketTextStream(\"localhost\", 9999)\n                .flatMap(new Splitter())\n                .keyBy(value -> value.f0)\n                .window(TumblingProcessingTimeWindows.of(Time.seconds(5)))\n                .sum(1);\n\ndataStream.print();\n\nenv.execute(\"Window WordCount\");\n    }\n\n}\n\n```\n\nScala\n\n```\n\nimport org.apache.flink.streaming.api.scala._\nimport org.apache.flink.streaming.api.windowing.time.Time\n\nobject WindowWordCount {\n  def main(args: Array[String]) {\n\nval env = StreamExecutionEnvironment.getExecutionEnvironment\n    val text = env.socketTextStream(\"localhost\", 9999)\n\nval counts = text.flatMap { _.toLowerCase.split(\"\\\\W+\") filter { _.nonEmpty } }\n      .map { (_, 1) }\n      .keyBy(_._1)\n      .window(TumblingProcessingTimeWindows.of(Time.seconds(5)))\n      .sum(1)\n\ncounts.print()\n\nenv.execute(\"Window Stream WordCount\")\n  }\n}\n\n```\n\nTo run the example program, start the input stream with netcat first from a terminal:\n\n```\nnc -lk 9999\n\n```\n\nJust type some words hitting return for a new word. These will be the input to the\nword count program. If you want to see counts greater than 1, type the same word again and again within\n5 seconds (increase the window size from 5 seconds if you cannot type that fast ☺).\n\nBack to top\n\n## \n Data Sources\n #\n\nJava\n\nThere are several predefined stream sources accessible from the `StreamExecutionEnvironment`:\n\nFile-based:\n\n-\n\n`readTextFile(path)` - Reads text files, i.e. files that respect the `TextInputFormat` specification, line-by-line and returns them as Strings.\n\n-\n\n`readFile(fileInputFormat, path)` - Reads (once) files as dictated by the specified file input format.\n\n-\n\nIMPLEMENTATION:\n\nIMPORTANT NOTES:\n\n-",
+      "relation_type": "support",
+      "confidence": 0.8,
+      "metadata": {
+        "document_title": "flink-118-datastream.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Flink Text Stream Tokenization and Mapping",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Transform raw text stream into structured (key, value) tuples suitable for keying and windowing",
+        "task_family": "text_preprocessing",
+        "method_family": "tokenization_and_mapping",
+        "stage": "data_transformation",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "970bcc2f-4fa7-5866-9240-7c3c0339b2be",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 43,
+        "heading_path": [
+          "DataStream API▾"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "flink-118-datastream.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Execution Mode (Batch/Streaming)",
+          "Event Time▾",
+          "Generating Watermarks",
+          "Builtin Watermark Generators",
+          "State & Fault Tolerance▾",
+          "Working with State",
+          "The Broadcast State Pattern",
+          "Checkpointing",
+          "State Backends",
+          "Data Types & Serialization▾",
+          "State Schema Evolution",
+          "Custom State Serialization",
+          "3rd Party Serializers",
+          "User-Defined Functions",
+          "Operators▾",
+          "Windows",
+          "Joining",
+          "Process Function",
+          "Async I/O",
+          "Data Sources",
+          "Side Outputs",
+          "Handling Application Parameters",
+          "Testing",
+          "Experimental Features",
+          "Scala API Extensions",
+          "Java Lambda Expressions",
+          "Managing Execution▾",
+          "Execution Configuration",
+          "Program Packaging"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "-"
+      },
+      "created_at": "2026-09-15T19:14:27+00:00"
+    }
+  ],
+  "skill_drafts": [
+    {
+      "draft_id": "c0ebbf14-7f0a-5117-8c57-ffd8fb1bf1a1",
+      "doc_id": "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+      "name": "Flink Streaming Window Word Count Setup",
+      "description": "Initialize a Flink StreamExecutionEnvironment, ingest text from a socket source, apply flatMap tokenization, key by word, apply tumbling processing-time windows, and aggregate word counts. Use this to build basic streaming aggregation pipelines with fixed time windows.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Build and execute a complete streaming word-count application with windowed aggregation",
+      "domain": "default",
+      "task_family": "streaming_aggregation",
+      "method_family": "window_based_counting",
+      "stage": "pipeline_construction",
+      "applicable_signals": [
+        "Need to count or aggregate streaming events over fixed time intervals",
+        "Have text or tokenizable input from a socket or file source",
+        "Want to group results by a key field",
+        "Require processing-time semantics (not event-time)"
+      ],
+      "contraindications": [
+        "Require event-time semantics or watermarks",
+        "Need session windows or sliding windows",
+        "Input is not naturally tokenizable or keyed",
+        "Require custom aggregation logic beyond sum"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "Create StreamExecutionEnvironment via getExecutionEnvironment()",
+        "Attach socketTextStream source with host and port",
+        "Apply flatMap to tokenize input (split on non-word characters, filter empty)",
+        "Map each token to (word, 1) tuple",
+        "Key the stream by word (f0 field)",
+        "Apply TumblingProcessingTimeWindows with configured duration (e.g., 5 seconds)",
+        "Aggregate using sum(1) on the count field",
+        "Attach print() sink or custom sink",
+        "Execute job with env.execute(jobName)"
+      ],
+      "triggers": [
+        "Need to count or aggregate streaming events over fixed time intervals; have text or tokenizable input from a socket or file source; want to group results by a key field."
+      ],
+      "constraints": [
+        "Socket source must be available and listening on specified host:port",
+        "Window duration must be positive",
+        "Input must be line-delimited text",
+        "Processing-time windows do not require watermarks"
+      ],
+      "cautions": [
+        "Ensure netcat or equivalent is running on the socket before starting the job",
+        "Window size affects latency; smaller windows produce more frequent output",
+        "Tokenization logic (split pattern) must match input format",
+        "Job runs indefinitely until manually stopped"
+      ],
+      "output_contract": [
+        "Executable Flink job that prints aggregated word counts every configured window duration (e.g., 5 seconds) to stdout or sink, with format (word, count)."
+      ],
+      "examples": [
+        {
+          "input": "Socket stream: 'hello world\\nhello flink\\nworld'",
+          "output": "(hello, 1)\n(world, 1)\n(hello, 2)\n(world, 2)",
+          "notes": "Within a 5-second window, repeated words accumulate; new window resets counts"
+        },
+        {
+          "input": "Continuous socket input over 10 seconds with window size 5s",
+          "output": "Two separate aggregation outputs, one per window period",
+          "notes": "Each tumbling window is independent; no overlap"
+        }
+      ],
+      "risk_class": "low",
+      "confidence": 0.85,
+      "support_ids": [
+        "ef15010a-2090-5c47-8b2e-6d1eeca8a4dc"
+      ],
+      "metadata": {
+        "prompt": "Set up a complete Flink streaming job that reads text from a socket, tokenizes it, groups by word, applies a tumbling processing-time window, and outputs aggregated counts. Follow the pattern: create StreamExecutionEnvironment → socketTextStream → flatMap (tokenize) → keyBy (word) → window(TumblingProcessingTimeWindows) → sum(1) → print/sink → env.execute().",
+        "tags": [
+          "flink",
+          "streaming",
+          "windowing",
+          "aggregation",
+          "word-count",
+          "socket-source"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "DataStream API▾"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "candidate_slot": 1,
+        "window_id": "970bcc2f-4fa7-5866-9240-7c3c0339b2be",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 43,
+        "heading_path": [
+          "DataStream API▾"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "flink-118-datastream.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Execution Mode (Batch/Streaming)",
+          "Event Time▾",
+          "Generating Watermarks",
+          "Builtin Watermark Generators",
+          "State & Fault Tolerance▾",
+          "Working with State",
+          "The Broadcast State Pattern",
+          "Checkpointing",
+          "State Backends",
+          "Data Types & Serialization▾",
+          "State Schema Evolution",
+          "Custom State Serialization",
+          "3rd Party Serializers",
+          "User-Defined Functions",
+          "Operators▾",
+          "Windows",
+          "Joining",
+          "Process Function",
+          "Async I/O",
+          "Data Sources",
+          "Side Outputs",
+          "Handling Application Parameters",
+          "Testing",
+          "Experimental Features",
+          "Scala API Extensions",
+          "Java Lambda Expressions",
+          "Managing Execution▾",
+          "Execution Configuration",
+          "Program Packaging"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "-"
+      }
+    },
+    {
+      "draft_id": "949e988b-8ef3-560b-bfd7-f2604b29be18",
+      "doc_id": "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+      "name": "Flink Text Stream Tokenization and Mapping",
+      "description": "Apply flatMap to split incoming text by word boundaries (non-word characters), filter empty tokens, and map each word to a (word, count) tuple. Use this micro-operation to normalize and structure raw text input for downstream aggregation in streaming pipelines.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Transform raw text stream into structured (key, value) tuples suitable for keying and windowing",
+      "domain": "default",
+      "task_family": "text_preprocessing",
+      "method_family": "tokenization_and_mapping",
+      "stage": "data_transformation",
+      "applicable_signals": [
+        "Receive unstructured text from socket or file source",
+        "Need to extract individual words or tokens from raw text",
+        "Must prepare data for key-based grouping and windowing",
+        "Input is line-delimited text requiring word-level decomposition"
+      ],
+      "contraindications": [
+        "Input is already tokenized or structured as tuples",
+        "Require custom tokenization logic beyond word-boundary splitting",
+        "Need to preserve whitespace, punctuation, or case sensitivity",
+        "Processing binary or non-text data streams"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Apply flatMap to incoming text stream', 'detail': 'For each line, split by non-word character boundary (\\\\W+)'}",
+        "{'step': 2, 'action': 'Filter empty tokens', 'detail': 'Remove zero-length strings resulting from consecutive delimiters'}",
+        "{'step': 3, 'action': 'Normalize case', 'detail': 'Convert each token to lowercase for consistent grouping'}",
+        "{'step': 4, 'action': 'Map to tuple', 'detail': 'Emit (word, 1) tuple for each token'}"
+      ],
+      "triggers": [
+        "Receive unstructured text from a socket or file source; need to extract individual words or tokens; must prepare data for key-based grouping."
+      ],
+      "constraints": [
+        "Input must be text-based (String or line-delimited format)",
+        "Output tuple structure is fixed as (String, Integer)",
+        "Tokenization uses standard regex word boundary; custom delimiters require separate skill",
+        "Operates on individual lines; does not preserve cross-line context"
+      ],
+      "cautions": [
+        "Large vocabularies may cause memory pressure in downstream keying; consider vocabulary pruning for high-cardinality streams",
+        "Case normalization is applied; preserve original case if needed by using a separate variant",
+        "Empty input lines produce no output tuples; verify source does not rely on line-count preservation"
+      ],
+      "output_contract": [
+        "DataStream<Tuple2<String, Integer>> where each tuple is (word, 1), ready for keyBy and windowed aggregation operations"
+      ],
+      "examples": [
+        {
+          "input": "\"hello world\"",
+          "output": "[(\"hello\", 1), (\"world\", 1)]",
+          "notes": "Single line split into two word tuples"
+        },
+        {
+          "input": "\"hello, world! hello.\"",
+          "output": "[(\"hello\", 1), (\"world\", 1), (\"hello\", 1)]",
+          "notes": "Punctuation removed by \\W+ boundary; duplicate words emit separate tuples"
+        },
+        {
+          "input": "\"\"",
+          "output": "[]",
+          "notes": "Empty line produces no output after filtering"
+        }
+      ],
+      "risk_class": "low",
+      "confidence": 0.8,
+      "support_ids": [
+        "e58ee62a-edcf-5e1a-bab1-a6f4d2471b6d"
+      ],
+      "metadata": {
+        "prompt": "Split each incoming text line by non-word character boundaries (\\W+), filter out empty strings, convert to lowercase, and emit (word, 1) tuples. This prepares raw text for keying and windowed aggregation.",
+        "tags": [
+          "text_processing",
+          "tokenization",
+          "flatmap",
+          "stream_transformation",
+          "data_normalization"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "DataStream API▾"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 2,
+        "window_id": "970bcc2f-4fa7-5866-9240-7c3c0339b2be",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 43,
+        "heading_path": [
+          "DataStream API▾"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "flink-118-datastream.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Execution Mode (Batch/Streaming)",
+          "Event Time▾",
+          "Generating Watermarks",
+          "Builtin Watermark Generators",
+          "State & Fault Tolerance▾",
+          "Working with State",
+          "The Broadcast State Pattern",
+          "Checkpointing",
+          "State Backends",
+          "Data Types & Serialization▾",
+          "State Schema Evolution",
+          "Custom State Serialization",
+          "3rd Party Serializers",
+          "User-Defined Functions",
+          "Operators▾",
+          "Windows",
+          "Joining",
+          "Process Function",
+          "Async I/O",
+          "Data Sources",
+          "Side Outputs",
+          "Handling Application Parameters",
+          "Testing",
+          "Experimental Features",
+          "Scala API Extensions",
+          "Java Lambda Expressions",
+          "Managing Execution▾",
+          "Execution Configuration",
+          "Program Packaging"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "-"
+      }
+    }
+  ],
+  "failed": false,
+  "complete": true,
+  "error": {}
+}

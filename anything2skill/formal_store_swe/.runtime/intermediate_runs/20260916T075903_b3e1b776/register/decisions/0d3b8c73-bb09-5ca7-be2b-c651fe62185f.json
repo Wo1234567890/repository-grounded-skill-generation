@@ -1,0 +1,116 @@
+{
+  "skill_id": "0d3b8c73-bb09-5ca7-be2b-c651fe62185f",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "0d3b8c73-bb09-5ca7-be2b-c651fe62185f",
+    "name": "Initialize AgentOps Client with API Keys",
+    "description": "Load environment variables for API authentication and initialize the AgentOps client with session configuration, trace naming, and metadata tags. This skill sets up an authenticated AgentOps session for agent tracing and monitoring before any agent execution begins.",
+    "skill_body": "1. Load environment variables using dotenv or equivalent mechanism.\n2. Set OPENAI_API_KEY and AGENTOPS_API_KEY in os.environ from loaded variables or defaults.\n3. Call agentops.init() with auto_start_session=True, providing a trace_name and tags for session metadata.\n4. Create a tracer object using agentops.start_trace() with matching trace_name and tags.\n5. Instantiate OpenAI client.\n6. Verify that client and tracer are ready for downstream agent operations.\n\n## Objective\n\nSet up authenticated AgentOps session for agent tracing and monitoring\n## Applicable Signals\n\n- Application startup phase\n- Agent framework initialization requested\n- API credentials available in environment or configuration\n\n## Contraindications\n\n- API keys are already loaded in memory\n- AgentOps session is already initialized\n- Running in a context where environment variables cannot be safely modified\n- Credentials are not available or invalid\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Load environment variables', 'detail': 'Call load_dotenv() to load variables from .env file or equivalent'}\n- {'step': 2, 'action': 'Set OPENAI_API_KEY', 'detail': 'os.environ[\"OPENAI_API_KEY\"] = os.getenv(\"OPENAI_API_KEY\", \"your_openai_api_key_here\")'}\n- {'step': 3, 'action': 'Set AGENTOPS_API_KEY', 'detail': 'os.environ[\"AGENTOPS_API_KEY\"] = os.getenv(\"AGENTOPS_API_KEY\", \"your_api_key_here\")'}\n- {'step': 4, 'action': 'Initialize AgentOps client', 'detail': 'agentops.init(auto_start_session=True, trace_name=\"<descriptive_name>\", tags=[<relevant_tags>])'}\n- {'step': 5, 'action': 'Create tracer object', 'detail': 'tracer = agentops.start_trace(trace_name=\"<descriptive_name>\", tags=[<relevant_tags>])'}\n- {'step': 6, 'action': 'Instantiate OpenAI client', 'detail': 'client = OpenAI()'}\n\n## Constraints\n\n- OPENAI_API_KEY and AGENTOPS_API_KEY must be accessible via environment or dotenv\n- dotenv or equivalent environment loading mechanism must be available\n- agentops and openai packages must be installed and importable\n- Session initialization must complete before any tracing or agent execution\n\n## Cautions\n\n- Do not hardcode API keys in source code; use environment variables or secure vaults\n- Ensure trace_name and tags are descriptive for debugging and monitoring\n- Verify that auto_start_session=True is appropriate for your use case; disable if manual session control is needed\n\n## Output Contract\n\n- AgentOps client initialized with active session, tracer object created and ready for use, and OpenAI client instantiated. Downstream caller receives (client, tracer) tuple or equivalent objects ready for agent execution and tracing.\n\n## Example Executions\n\n### Example 1\n\n- Input: Environment variables OPENAI_API_KEY and AGENTOPS_API_KEY are set in .env file\n- Output: client (OpenAI instance) and tracer (AgentOps tracer) are ready; session is active with trace_name and tags recorded\n- Notes: Typical startup scenario for a new agent application",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Set up authenticated AgentOps session for agent tracing and monitoring",
+    "domain": "default",
+    "task_family": "agent_initialization",
+    "method_family": "configuration_and_auth",
+    "stage": "setup",
+    "applicable_signals": [
+      "Application startup phase",
+      "Agent framework initialization requested",
+      "API credentials available in environment or configuration"
+    ],
+    "contraindications": [
+      "API keys are already loaded in memory",
+      "AgentOps session is already initialized",
+      "Running in a context where environment variables cannot be safely modified",
+      "Credentials are not available or invalid"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Starting a new agent application that requires OpenAI and AgentOps integration",
+      "Before any agent execution or tracing begins",
+      "When environment variables are available and session is not yet initialized"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Load environment variables', 'detail': 'Call load_dotenv() to load variables from .env file or equivalent'}",
+      "{'step': 2, 'action': 'Set OPENAI_API_KEY', 'detail': 'os.environ[\"OPENAI_API_KEY\"] = os.getenv(\"OPENAI_API_KEY\", \"your_openai_api_key_here\")'}",
+      "{'step': 3, 'action': 'Set AGENTOPS_API_KEY', 'detail': 'os.environ[\"AGENTOPS_API_KEY\"] = os.getenv(\"AGENTOPS_API_KEY\", \"your_api_key_here\")'}",
+      "{'step': 4, 'action': 'Initialize AgentOps client', 'detail': 'agentops.init(auto_start_session=True, trace_name=\"<descriptive_name>\", tags=[<relevant_tags>])'}",
+      "{'step': 5, 'action': 'Create tracer object', 'detail': 'tracer = agentops.start_trace(trace_name=\"<descriptive_name>\", tags=[<relevant_tags>])'}",
+      "{'step': 6, 'action': 'Instantiate OpenAI client', 'detail': 'client = OpenAI()'}"
+    ],
+    "constraints": [
+      "OPENAI_API_KEY and AGENTOPS_API_KEY must be accessible via environment or dotenv",
+      "dotenv or equivalent environment loading mechanism must be available",
+      "agentops and openai packages must be installed and importable",
+      "Session initialization must complete before any tracing or agent execution"
+    ],
+    "cautions": [
+      "Do not hardcode API keys in source code; use environment variables or secure vaults",
+      "Ensure trace_name and tags are descriptive for debugging and monitoring",
+      "Verify that auto_start_session=True is appropriate for your use case; disable if manual session control is needed"
+    ],
+    "output_contract": [
+      "AgentOps client initialized with active session, tracer object created and ready for use, and OpenAI client instantiated. Downstream caller receives (client, tracer) tuple or equivalent objects ready for agent execution and tracing."
+    ],
+    "examples": [
+      {
+        "input": "Environment variables OPENAI_API_KEY and AGENTOPS_API_KEY are set in .env file",
+        "output": "client (OpenAI instance) and tracer (AgentOps tracer) are ready; session is active with trace_name and tags recorded",
+        "notes": "Typical startup scenario for a new agent application"
+      }
+    ],
+    "tags": [
+      "initialization",
+      "authentication",
+      "agentops",
+      "openai",
+      "session_setup",
+      "configuration"
+    ],
+    "support_ids": [
+      "83c93129-defa-5c24-a4fb-9f8f237f6fda"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "28c4da58-5f24-5df2-be64-7e333aad5129"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|set up authenticated agentops session for agent tracing and monitoring|default|agent_initialization|configuration_and_auth|setup|initialize agentops client with api keys"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

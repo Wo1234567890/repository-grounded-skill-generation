@@ -1,0 +1,123 @@
+{
+  "skill_id": "f83a5625-f756-5405-b2a6-f2296b185081",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate skill implements ServerRequestObservationConvention from scratch (complete interface implementation), which is semantically distinct from the peer candidate that extends DefaultServerRequestObservationConvention (preserves defaults + adds custom tags). The candidate addresses a different use case (complete replacement of deprecated instrumentation) and has distinct workflow, constraints, and cautions. No existing skills in the registry match this semantic capability. Peer candidates address different objectives (add_custom_observation_tags vs implement_custom_observation_convention) and different migration patterns (extension vs implementation). The other peer candidates are unrelated (MongoDB test setup, SAML2 configuration). Existing skills in registry are unrelated (cache eviction precision, reward function validation, network connection routing).",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "f83a5625-f756-5405-b2a6-f2296b185081",
+    "name": "Custom ServerRequestObservationConvention Implementation",
+    "description": "Implement ServerRequestObservationConvention to define metric name, trace name, and low-cardinality KeyValues for HTTP server request observations in Spring Boot 3.0. Use when completely replacing deprecated instrumentation filters with custom observation logic.",
+    "skill_body": "Create a class implementing ServerRequestObservationConvention with three required methods:\n1. getName() - returns the metric name (e.g., \"http.server.requests\")\n2. getContextualName(ServerRequestObservationContext context) - returns the trace name based on request context\n3. getLowCardinalityKeyValues(ServerRequestObservationContext context) - returns KeyValues for observation tagging\n\nExtract values from context.getCarrier() (the HTTP request) and build KeyValues using KeyValues.of() or KeyValue.of().\n\n## Objective\n\nimplement_custom_observation_convention\n## Applicable Signals\n\n- Observation support integrated into Spring Boot 3.0\n- Previous TagProvider, TagContributor, or Tags classes deprecated\n- ServerHttpObservationFilter available as replacement\n\n## Contraindications\n\n- Only adding supplementary tags to default behavior (use DefaultServerRequestObservationConvention extension instead)\n- Observation instrumentation is disabled or not required\n- No custom naming or tagging logic needed\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Create a new class implementing ServerRequestObservationConvention interface'}\n- {'step': 2, 'action': 'Implement getName() method returning the metric name string'}\n- {'step': 3, 'action': 'Implement getContextualName(ServerRequestObservationContext context) method extracting request method and returning trace name'}\n- {'step': 4, 'action': 'Implement getLowCardinalityKeyValues(ServerRequestObservationContext context) method building and returning KeyValues from context'}\n- {'step': 5, 'action': 'Register the implementation as a Spring bean (via @Component, @Bean, or configuration)'}\n- {'step': 6, 'action': 'Verify observation is applied by checking metric exports and trace output'}\n\n## Constraints\n\n- Must implement all three required methods: getName(), getContextualName(), getLowCardinalityKeyValues()\n- Context parameter provides access to ServerRequestObservationContext\n- KeyValues must be low-cardinality to avoid metric explosion\n- Bean must be registered in Spring context for automatic application\n\n## Cautions\n\n- High-cardinality KeyValues (e.g., user IDs, request IDs) can cause memory and performance issues; use only low-cardinality dimensions\n- Ensure metric and trace names are stable and do not vary per request\n- Test observation output to verify metric names and tags are generated correctly\n\n## Output Contract\n\n- ServerRequestObservationConvention bean is registered and active\n- HTTP server requests generate observations with metric name, trace name, and KeyValues as defined by the convention\n- Observations are exported to configured metrics and tracing backends\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: HTTP GET request to /api/users with Spring Boot 3.0 observation support enabled\n- Therapist/Output: Metric name: 'http.server.requests'; Trace name: 'http get'; KeyValues include method=GET, status=200, exception=none\n- Notes: Custom convention fully replaces deprecated WebMvcMetricsFilter behavior\n\n### Example 2\n\n- Client/Input: Extending DefaultServerRequestObservationConvention to add custom KeyValue\n- Therapist/Output: Default KeyValues preserved plus custom KeyValue (e.g., custom.method=GET) appended\n- Notes: Use extension pattern when only supplementary tags are needed, not full convention replacement",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "implement_custom_observation_convention",
+    "domain": "default",
+    "task_family": "metrics_instrumentation",
+    "method_family": "observation_convention_implementation",
+    "stage": "migration",
+    "applicable_signals": [
+      "Observation support integrated into Spring Boot 3.0",
+      "Previous TagProvider, TagContributor, or Tags classes deprecated",
+      "ServerHttpObservationFilter available as replacement"
+    ],
+    "contraindications": [
+      "Only adding supplementary tags to default behavior (use DefaultServerRequestObservationConvention extension instead)",
+      "Observation instrumentation is disabled or not required",
+      "No custom naming or tagging logic needed"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Spring Boot 3.0 migration initiated",
+      "WebMvcMetricsFilter or MetricsRestTemplateCustomizer deprecated and removed",
+      "Full control over HTTP observation naming and tagging required",
+      "Custom metric or trace naming strategy needed"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Create a new class implementing ServerRequestObservationConvention interface'}",
+      "{'step': 2, 'action': 'Implement getName() method returning the metric name string'}",
+      "{'step': 3, 'action': 'Implement getContextualName(ServerRequestObservationContext context) method extracting request method and returning trace name'}",
+      "{'step': 4, 'action': 'Implement getLowCardinalityKeyValues(ServerRequestObservationContext context) method building and returning KeyValues from context'}",
+      "{'step': 5, 'action': 'Register the implementation as a Spring bean (via @Component, @Bean, or configuration)'}",
+      "{'step': 6, 'action': 'Verify observation is applied by checking metric exports and trace output'}"
+    ],
+    "constraints": [
+      "Must implement all three required methods: getName(), getContextualName(), getLowCardinalityKeyValues()",
+      "Context parameter provides access to ServerRequestObservationContext",
+      "KeyValues must be low-cardinality to avoid metric explosion",
+      "Bean must be registered in Spring context for automatic application"
+    ],
+    "cautions": [
+      "High-cardinality KeyValues (e.g., user IDs, request IDs) can cause memory and performance issues; use only low-cardinality dimensions",
+      "Ensure metric and trace names are stable and do not vary per request",
+      "Test observation output to verify metric names and tags are generated correctly"
+    ],
+    "output_contract": [
+      "ServerRequestObservationConvention bean is registered and active",
+      "HTTP server requests generate observations with metric name, trace name, and KeyValues as defined by the convention",
+      "Observations are exported to configured metrics and tracing backends"
+    ],
+    "examples": [
+      {
+        "input": "HTTP GET request to /api/users with Spring Boot 3.0 observation support enabled",
+        "output": "Metric name: 'http.server.requests'; Trace name: 'http get'; KeyValues include method=GET, status=200, exception=none",
+        "notes": "Custom convention fully replaces deprecated WebMvcMetricsFilter behavior"
+      },
+      {
+        "input": "Extending DefaultServerRequestObservationConvention to add custom KeyValue",
+        "output": "Default KeyValues preserved plus custom KeyValue (e.g., custom.method=GET) appended",
+        "notes": "Use extension pattern when only supplementary tags are needed, not full convention replacement"
+      }
+    ],
+    "tags": [
+      "spring-boot-3-migration",
+      "metrics",
+      "observation",
+      "instrumentation",
+      "deprecation-handling",
+      "custom-convention"
+    ],
+    "support_ids": [
+      "aded535b-0a08-5e96-8eb9-33e2583730d6"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "ecb36ed1-39f7-5007-adce-16c351c4b6bb"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.82,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|implement_custom_observation_convention|default|metrics_instrumentation|observation_convention_implementation|migration|custom serverrequestobservationconvention implementation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

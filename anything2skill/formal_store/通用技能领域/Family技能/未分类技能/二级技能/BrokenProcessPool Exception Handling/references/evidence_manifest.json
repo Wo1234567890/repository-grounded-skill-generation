@@ -1,0 +1,125 @@
+{
+  "schema": "autoskill.document.evidence_manifest.v1",
+  "generated_at": "2026-09-14T23:36:53+00:00",
+  "family_name": "未分类技能",
+  "skill_id": "d2d734a8-0322-51e2-a503-f256a0d31d5c",
+  "skill_name": "BrokenProcessPool Exception Handling",
+  "support_count": 2,
+  "supports": [
+    {
+      "support_id": "337840e7-9198-598a-ba19-2bac011c91bc",
+      "doc_id": "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+      "document_title": "python312-parallelism.md",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/python312-parallelism.md",
+      "section": "`concurrent.futures` — Launching parallel tasks¶",
+      "span": {
+        "start": 11065,
+        "end": 13779
+      },
+      "relation_type": "constraint",
+      "confidence": 0.82,
+      "quote": "Changed in version 3.3: When one of the worker processes terminates abruptly, a\n`BrokenProcessPool` error is now raised.\nPreviously, behaviour\nwas undefined but operations on the executor or its futures would often\nfreeze or deadlock.\n\nChanged in version 3.7: The mp_context argument was added to allow users to control the\nstart_method for worker processes created by the pool.\n\nAdded the initializer and initargs arguments.\n\nNote\n\nThe default `multiprocessing` start method\n(see Contexts and start methods) will change away from\nfork in Python 3.14. Code that requires fork be used for their\n`ProcessPoolExecutor` should explicitly specify that by\npassing a `mp_context=multiprocessing.get_context(\"fork\")`\nparameter.\n\nChanged in version 3.11: The max_tasks_per_child argument was added to allow users to\ncontrol the lifetime of workers in the pool.\n\nProcessPoolExecutor Example¶\n```\nimport concurrent.futures\nimport math\n\nPRIMES = [\n    112272535095293,\n    112582705942171,\n    112272535095293,\n    115280095190773,\n    115797848077099,\n    1099726899285419]\n\ndef is_prime(n):\n    if n < 2:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n\nsqrt_n = int(math.floor(math.sqrt(n)))\n    for i in range(3, sqrt_n + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n\ndef main():\n    with concurrent.futures.ProcessPoolExecutor() as executor:\n        for number, prime in zip(PRIMES, executor.map(is_prime, PRIMES)):\n            print('%d is prime: %s' % (number, prime))\n\nif __name__ == '__main__':\n    main()\n\n```\n\nFuture Objects¶\nThe `Future` class encapsulates the asynchronous execution of a callable.\n`Future` instances are created by `Executor.submit()`.\n\nclass concurrent.futures.Future¶\n\nEncapsulates the asynchronous execution of a callable. `Future`\ninstances are created by `Executor.submit()` and should not be created\ndirectly except for testing.\n\ncancel()¶\n\nAttempt to cancel the call. If the call is currently being executed or\nfinished running and cannot be cancelled then the method will return\n`False`, otherwise the call will be cancelled and the method will\nreturn `True`.\n\ncancelled()¶\n\nReturn `True` if the call was successfully cancelled.\n\nrunning()¶\n\nReturn `True` if the call is currently being executed and cannot be\ncancelled.\n\ndone()¶",
+      "metadata": {
+        "document_title": "python312-parallelism.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "BrokenProcessPool Error Handling",
+        "asset_type": "safety_rule",
+        "granularity": "session",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "objective": "Catch and respond to worker process failure in ProcessPoolExecutor",
+        "task_family": "error_handling",
+        "method_family": "exception_escalation",
+        "stage": "execution",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 4,
+        "window_id": "0c557d65-dc3c-5357-9531-b354a312ff0d",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 1,
+        "paragraph_end": 24,
+        "heading_path": [
+          "`concurrent.futures` — Launching parallel tasks¶"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "python312-parallelism.md"
+        ],
+        "subsection_headings": [
+          "## Executor Objects¶",
+          "ThreadPoolExecutor¶",
+          "ThreadPoolExecutor Example¶",
+          "ProcessPoolExecutor¶",
+          "ProcessPoolExecutor Example¶",
+          "Future Objects¶",
+          "Module Functions¶",
+          "Exception classes¶"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Added in version 3.2."
+      }
+    },
+    {
+      "support_id": "54b5adbc-fdfc-5106-b050-821142ab5ed4",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "document_title": "agentops-docs.txt",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 50324,
+        "end": 53091
+      },
+      "relation_type": "constraint",
+      "confidence": 0.85,
+      "quote": "api: ApiClient\n\ndef __new__(cls, *args: Any, **kwargs: Any) -> \"Client\":\n        if cls.__instance is None:\n            cls.__instance = super(Client, cls).__new__(cls)\n            # Initialize instance variables that should only be set once per instance\n            cls.__instance._init_trace_context = None\n            cls.__instance._legacy_session_for_init_trace = None\n        return cls.__instance\n\ndef __init__(self):\n        # Initialization of attributes like config, _initialized should happen here if they are instance-specific\n        # and not shared via __new__ for a true singleton that can be re-configured.\n        # However, the current pattern re-initializes config in init().\n        if (\n            not hasattr(self, \"_initialized\") or not self._initialized\n        ):  # Ensure init logic runs only once per actual initialization intent\n            self.config = Config()  # Initialize config here for the instance\n            self._initialized = False\n            # self._init_trace_context = None # Already done in __new__\n            # self._legacy_session_for_init_trace = None # Already done in __new__\n\n# Only treat as re-initialization if a different non-None API key is explicitly provided\n        provided_api_key = kwargs.get(\"api_key\")\n        if self.initialized and provided_api_key is not None and provided_api_key != self.config.api_key:\n            logger.warning(\"AgentOps Client being re-initialized with a different API key. This is unusual.\")\n            # Reset initialization status to allow re-init with new key/config\n            self._initialized = False\n            if self._init_trace_context and self._init_trace_context.span.is_recording():\n                logger.warning(\"Ending previously auto-started trace due to re-initialization.\")\n                tracer.end_trace(self._init_trace_context, \"Reinitialized\")\n            self._init_trace_context = None\n            self._legacy_session_for_init_trace = None\n\nif self.initialized:\n            logger.debug(\"AgentOps Client already initialized.\")\n            # If auto_start_session was true, return the existing legacy session wrapper\n            if self.config.auto_start_session:\n                return self._legacy_session_for_init_trace\n            return None  # If not auto-starting, and already initialized, return None\n\nif not self.config.api_key:\n            raise NoApiKeyException",
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "API Key Validation and NoApiKeyException Escalation",
+        "asset_type": "safety_rule",
+        "granularity": "session",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "objective": "Prevent uninitialized client operation due to missing credentials",
+        "task_family": "credential_validation",
+        "method_family": "mandatory_field_check_with_exception",
+        "stage": "initialization",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "42e21879-cd4b-5cf6-9337-bed40b31d433",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "session"
+        ],
+        "paragraph_start": 17,
+        "paragraph_end": 23,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    }
+  ]
+}

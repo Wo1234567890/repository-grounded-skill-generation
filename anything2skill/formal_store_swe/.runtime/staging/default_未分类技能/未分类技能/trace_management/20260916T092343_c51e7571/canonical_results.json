@@ -1,0 +1,580 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "trace_management",
+  "run_id": "20260916T092343_c51e7571",
+  "skills": [
+    {
+      "skill_id": "2fefe2f0-790d-5e47-99c5-c441046648cf",
+      "name": "Start Managed Trace with Context",
+      "description": "Create a new root span (trace) with optional name and tags, returning a TraceContext object for concurrent user-managed tracing sessions. Includes precondition validation and automatic initialization fallback.",
+      "skill_body": "Call start_trace(trace_name, tags) to initiate a named trace session. If SDK is not initialized, the function attempts auto-initialization with environment defaults before creating the trace. Returns a TraceContext object on success, or None if initialization fails. Use this to establish independent, concurrent trace sessions with custom metadata.\n\n## Objective\n\nEstablish a named trace session with optional metadata and return its context for downstream span operations\n## Applicable Signals\n\n- User initiates a new task or session boundary\n- Caller needs to track a named workflow or user interaction\n- Multiple concurrent traces must be managed independently\n\n## Contraindications\n\n- Tracing is not enabled or SDK is not initialized\n- User does not need trace context or span management\n- Caller cannot handle None return value (initialization failure)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if tracer is initialized', 'condition': 'if not tracer.initialized'}\n- {'step': 2, 'action': 'Log warning and attempt auto-initialization', 'condition': 'SDK not initialized', 'detail': 'Call init() with environment variables and defaults'}\n- {'step': 3, 'action': 'Verify initialization success', 'condition': 'After init() call', 'detail': 'Check tracer.initialized; log error and return None if still False'}\n- {'step': 4, 'action': 'Catch and log initialization exceptions', 'condition': 'If init() raises exception', 'detail': 'Log error with exception details and return None'}\n- {'step': 5, 'action': 'Invoke tracer.start_trace()', 'condition': 'tracer.initialized is True', 'detail': 'Pass trace_name and tags; return TraceContext object'}\n\n## Constraints\n\n- SDK must be initialized before or during start_trace call\n- trace_name should be a non-empty string (default: 'session')\n- tags must be either a list of strings or a dict; other types are rejected\n\n## Cautions\n\n- If SDK auto-initialization fails, function returns None; caller must handle gracefully\n- Concurrent traces require caller to manage context tokens separately\n- Trace context is valid only if tracer.initialized is True after initialization attempt\n\n## Output Contract\n\n- Returns a TraceContext object containing the span and context token on success. Returns None if SDK initialization fails or is not available. Caller must check for None before using the returned context.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "5b89c0b3-be95-5d38-bd12-c76c956f8ce5",
+      "parent_candidate_ids": [
+        "5b89c0b3-be95-5d38-bd12-c76c956f8ce5"
+      ],
+      "child_skill_ids": [
+        "2bc6e1f0-1a41-5924-96e3-a05d149f1f9e",
+        "52956153-19be-543e-882e-ea4d44eb1b9c",
+        "65c4f3e1-5962-5d47-9d5f-d9524126ed9a",
+        "92ed35c6-913a-5714-a07d-66723714d806",
+        "c9cf6cff-970b-5e93-8e61-f543e257085e"
+      ],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Establish a named trace session with optional metadata and return its context for downstream span operations",
+      "domain": "default",
+      "task_family": "trace_management",
+      "method_family": "trace_lifecycle",
+      "stage": "trace_initiation",
+      "applicable_signals": [
+        "User initiates a new task or session boundary",
+        "Caller needs to track a named workflow or user interaction",
+        "Multiple concurrent traces must be managed independently"
+      ],
+      "contraindications": [
+        "Tracing is not enabled or SDK is not initialized",
+        "User does not need trace context or span management",
+        "Caller cannot handle None return value (initialization failure)"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Starting a new logical trace or session",
+        "Need to attach tags or custom trace names to a trace",
+        "Require concurrent independent traces managed by caller"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check if tracer is initialized', 'condition': 'if not tracer.initialized'}",
+        "{'step': 2, 'action': 'Log warning and attempt auto-initialization', 'condition': 'SDK not initialized', 'detail': 'Call init() with environment variables and defaults'}",
+        "{'step': 3, 'action': 'Verify initialization success', 'condition': 'After init() call', 'detail': 'Check tracer.initialized; log error and return None if still False'}",
+        "{'step': 4, 'action': 'Catch and log initialization exceptions', 'condition': 'If init() raises exception', 'detail': 'Log error with exception details and return None'}",
+        "{'step': 5, 'action': 'Invoke tracer.start_trace()', 'condition': 'tracer.initialized is True', 'detail': 'Pass trace_name and tags; return TraceContext object'}"
+      ],
+      "constraints": [
+        "SDK must be initialized before or during start_trace call",
+        "trace_name should be a non-empty string (default: 'session')",
+        "tags must be either a list of strings or a dict; other types are rejected"
+      ],
+      "cautions": [
+        "If SDK auto-initialization fails, function returns None; caller must handle gracefully",
+        "Concurrent traces require caller to manage context tokens separately",
+        "Trace context is valid only if tracer.initialized is True after initialization attempt"
+      ],
+      "output_contract": [
+        "Returns a TraceContext object containing the span and context token on success. Returns None if SDK initialization fails or is not available. Caller must check for None before using the returned context."
+      ],
+      "examples": [],
+      "tags": [
+        "trace_management",
+        "session_lifecycle",
+        "span_creation",
+        "concurrent_tracing",
+        "context_management"
+      ],
+      "support_ids": [
+        "4b8ade7f-4aa7-5d20-b197-26ff4c427db8"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "0d50cf97-bdd3-5e71-9240-88f03d4d6d1c"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.88,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|establish a named trace session with optional metadata and return its context for downstream span operations|default|trace_management|trace_lifecycle|trace_initiation|start managed trace with context",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "5b89c0b3-be95-5d38-bd12-c76c956f8ce5",
+        "parent_candidate_ids": [
+          "5b89c0b3-be95-5d38-bd12-c76c956f8ce5"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "child_skill_ids": [
+          "2bc6e1f0-1a41-5924-96e3-a05d149f1f9e",
+          "52956153-19be-543e-882e-ea4d44eb1b9c",
+          "65c4f3e1-5962-5d47-9d5f-d9524126ed9a",
+          "92ed35c6-913a-5714-a07d-66723714d806",
+          "c9cf6cff-970b-5e93-8e61-f543e257085e"
+        ]
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "65c4f3e1-5962-5d47-9d5f-d9524126ed9a",
+      "name": "Start Trace Session",
+      "description": "Initiates a named trace with optional tags and returns a trace context for subsequent span operations. Use when beginning a new debugging or monitoring session.",
+      "skill_body": "Call tracer.start_trace() with a trace_name and optional tags to initialize a new trace session. The returned TraceContext object is required for all subsequent span operations within this trace.\n\n## Objective\n\ninitialize trace context\n## Applicable Signals\n\n- new session initiated\n- debugging workflow started\n- agent operation begins\n\n## Contraindications\n\n- a trace is already active in the current session\n- only updating existing trace metadata\n\n## Workflow Steps\n\n- Prepare trace_name (string identifier for the trace)\n- Optionally prepare tags (dict or list for categorization)\n- Call tracer.start_trace(trace_name=trace_name, tags=tags)\n- Capture and store returned TraceContext object\n- Proceed with span operations using the TraceContext\n\n## Constraints\n\n- trace_name must be provided\n- tags parameter is optional but recommended for filtering\n\n## Output Contract\n\n- Returns a TraceContext object that is active and ready for span operations. The caller must retain this context for use in subsequent trace operations (span creation, metadata updates, trace termination).",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "2fefe2f0-790d-5e47-99c5-c441046648cf",
+      "parent_candidate_ids": [
+        "2fefe2f0-790d-5e47-99c5-c441046648cf"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "initialize trace context",
+      "domain": "default",
+      "task_family": "trace_management",
+      "method_family": "trace_initialization",
+      "stage": "setup",
+      "applicable_signals": [
+        "new session initiated",
+        "debugging workflow started",
+        "agent operation begins"
+      ],
+      "contraindications": [
+        "a trace is already active in the current session",
+        "only updating existing trace metadata"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "starting a new trace session",
+        "beginning a debugging workflow",
+        "initializing monitoring for an agent operation"
+      ],
+      "workflow_steps": [
+        "Prepare trace_name (string identifier for the trace)",
+        "Optionally prepare tags (dict or list for categorization)",
+        "Call tracer.start_trace(trace_name=trace_name, tags=tags)",
+        "Capture and store returned TraceContext object",
+        "Proceed with span operations using the TraceContext"
+      ],
+      "constraints": [
+        "trace_name must be provided",
+        "tags parameter is optional but recommended for filtering"
+      ],
+      "cautions": [],
+      "output_contract": [
+        "Returns a TraceContext object that is active and ready for span operations. The caller must retain this context for use in subsequent trace operations (span creation, metadata updates, trace termination)."
+      ],
+      "examples": [],
+      "tags": [
+        "trace_lifecycle",
+        "debugging",
+        "monitoring",
+        "initialization"
+      ],
+      "support_ids": [
+        "a0e840a6-5ab6-54a6-ae05-23f9c8f57c5f"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "83afff37-7b92-5725-bc9b-d971a93719a5"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|initialize trace context|default|trace_management|trace_initialization|setup|start trace session",
+        "change_action": "create",
+        "llm_reason": "Candidate 'Start Trace Session' is a distinct micro_skill for initializing trace context with tracer.start_trace(). It differs semantically and operationally from peer candidates (AgentOps SDK initialization, manual session control, auto-init fallback) which target agent instrumentation and SDK lifecycle. Existing skills address data preparation and scoring, not trace initialization. No semantic overlap, conflict, or split relationship detected. Supported by Debugging Roadmap evidence.",
+        "parent_skill_id": "2fefe2f0-790d-5e47-99c5-c441046648cf",
+        "parent_candidate_ids": [
+          "2fefe2f0-790d-5e47-99c5-c441046648cf"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "2bc6e1f0-1a41-5924-96e3-a05d149f1f9e",
+      "name": "End Trace and Finalize",
+      "description": "Terminates the current trace (root span) and finalizes its state. If no trace context is provided, closes all active session spans. Use when completing a debugging session or marking trace completion status.",
+      "skill_body": "Call end_trace() to finalize the current trace with a specified end state. Provide an optional trace_context to target a specific trace; if omitted, all active session spans are closed. Set end_state to TraceState.SUCCESS, TraceState.FAILURE, a custom StatusCode, or a string status. The trace and all its spans are marked complete and no longer accept new events.\n\n## Objective\n\nfinalize trace lifecycle\n## Applicable Signals\n\n- Agent task completion\n- Debugging session end\n- Explicit trace closure request\n\n## Contraindications\n\n- Trace has already been ended\n- Only updating metadata without closing the session\n\n## Workflow Steps\n\n- Verify trace is still active (not already ended)\n- Resolve trace_context: use provided context or default to all active session spans\n- Set end_state to specified value (default: TraceState.SUCCESS)\n- Finalize trace and close all associated spans\n- Return confirmation of finalization\n\n## Constraints\n\n- trace_context must be Optional[TraceContext] or None\n- end_state must be TraceState, StatusCode, or string\n- Once end_trace() is called, the trace cannot accept new spans or events\n\n## Cautions\n\n- Calling end_trace() on an already-ended trace may raise an error or be silently ignored depending on implementation.\n- If trace_context is None, all active session spans are terminated; ensure this is the intended behavior.\n\n## Output Contract\n\n- Trace finalized with specified end state (SUCCESS, FAILURE, or custom StatusCode); all spans closed and trace marked complete.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "2fefe2f0-790d-5e47-99c5-c441046648cf",
+      "parent_candidate_ids": [
+        "2fefe2f0-790d-5e47-99c5-c441046648cf"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "finalize trace lifecycle",
+      "domain": "default",
+      "task_family": "trace_management",
+      "method_family": "trace_termination",
+      "stage": "teardown",
+      "applicable_signals": [
+        "Agent task completion",
+        "Debugging session end",
+        "Explicit trace closure request"
+      ],
+      "contraindications": [
+        "Trace has already been ended",
+        "Only updating metadata without closing the session"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Completing a trace session",
+        "Finalizing agent operation monitoring",
+        "Closing all active spans"
+      ],
+      "workflow_steps": [
+        "Verify trace is still active (not already ended)",
+        "Resolve trace_context: use provided context or default to all active session spans",
+        "Set end_state to specified value (default: TraceState.SUCCESS)",
+        "Finalize trace and close all associated spans",
+        "Return confirmation of finalization"
+      ],
+      "constraints": [
+        "trace_context must be Optional[TraceContext] or None",
+        "end_state must be TraceState, StatusCode, or string",
+        "Once end_trace() is called, the trace cannot accept new spans or events"
+      ],
+      "cautions": [
+        "Calling end_trace() on an already-ended trace may raise an error or be silently ignored depending on implementation.",
+        "If trace_context is None, all active session spans are terminated; ensure this is the intended behavior."
+      ],
+      "output_contract": [
+        "Trace finalized with specified end state (SUCCESS, FAILURE, or custom StatusCode); all spans closed and trace marked complete."
+      ],
+      "examples": [],
+      "tags": [
+        "trace_lifecycle",
+        "debugging",
+        "session_management",
+        "span_termination"
+      ],
+      "support_ids": [
+        "96fc7819-b6d4-5237-b047-262491037017"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "ae1a2d77-b009-5232-9da6-347af8232f4f"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|finalize trace lifecycle|default|trace_management|trace_termination|teardown|end trace and finalize",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct trace lifecycle termination micro_skill with no semantic overlap to existing skills. Existing skills cover data preparation (dataset filtering), UI interaction safety (control disabling), and trace metadata updates—none address trace finalization. Peer candidates (Trace Context Cleanup, Trace Metadata Update, Start Trace Session) are complementary trace management skills at the same layer but different methods (cleanup, metadata, initialization vs. termination). Candidate has clear support evidence from Debugging Roadmap and well-defined constraints/cautions for safe trace closure.",
+        "parent_skill_id": "2fefe2f0-790d-5e47-99c5-c441046648cf",
+        "parent_candidate_ids": [
+          "2fefe2f0-790d-5e47-99c5-c441046648cf"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "c204c15c-15eb-5cb6-a367-0177d593379a",
+      "name": "Trace Context Cleanup on Re-initialization",
+      "description": "Ends any active trace recording and clears trace context when Client is re-initialized with a different API key, preventing orphaned or misattributed traces.",
+      "skill_body": "When the Client detects re-initialization with a different API key and an active trace context exists, end the trace with reason 'Reinitialized' and clear both _init_trace_context and _legacy_session_for_init_trace to None.\n\n## Objective\n\nClean up active trace state during Client re-initialization\n## Applicable Signals\n\n- provided_api_key differs from self.config.api_key\n- self.initialized is True\n- Active trace span in recording state\n\n## Contraindications\n\n- Trace context is None\n- Trace span is not recording\n- Client is not being re-initialized\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if _init_trace_context is not None and span is recording', 'condition': 'self._init_trace_context and self._init_trace_context.span.is_recording()'}\n- {'step': 2, 'action': 'Log warning about ending previously auto-started trace', 'condition': 'Always log before cleanup'}\n- {'step': 3, 'action': \"Call tracer.end_trace() with context and 'Reinitialized' reason\", 'condition': 'Trace is active'}\n- {'step': 4, 'action': 'Set _init_trace_context to None', 'condition': 'After trace end'}\n- {'step': 5, 'action': 'Set _legacy_session_for_init_trace to None', 'condition': 'After trace end'}\n\n## Constraints\n\n- Only execute when re-initialization with a different API key is confirmed\n- Verify trace context exists and is actively recording before calling tracer.end_trace()\n\n## Cautions\n\n- Ending a trace prematurely may lose recorded events; ensure re-initialization intent is genuine\n- Log warning before cleanup to alert operators of trace interruption\n\n## Output Contract\n\n- Active trace is ended with 'Reinitialized' reason\n- _init_trace_context is set to None\n- _legacy_session_for_init_trace is set to None\n- No further trace recording occurs under the old context",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "cf2aafba-8a0b-5349-96e3-578d8595f10b",
+      "parent_candidate_ids": [
+        "cf2aafba-8a0b-5349-96e3-578d8595f10b",
+        "2fefe2f0-790d-5e47-99c5-c441046648cf"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.55,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Clean up active trace state during Client re-initialization",
+      "domain": "default",
+      "task_family": "trace_management",
+      "method_family": "state_cleanup",
+      "stage": "teardown",
+      "applicable_signals": [
+        "provided_api_key differs from self.config.api_key",
+        "self.initialized is True",
+        "Active trace span in recording state"
+      ],
+      "contraindications": [
+        "Trace context is None",
+        "Trace span is not recording",
+        "Client is not being re-initialized"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Client re-initialization detected with a different API key",
+        "_init_trace_context is not None",
+        "_init_trace_context.span.is_recording() returns True"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check if _init_trace_context is not None and span is recording', 'condition': 'self._init_trace_context and self._init_trace_context.span.is_recording()'}",
+        "{'step': 2, 'action': 'Log warning about ending previously auto-started trace', 'condition': 'Always log before cleanup'}",
+        "{'step': 3, 'action': \"Call tracer.end_trace() with context and 'Reinitialized' reason\", 'condition': 'Trace is active'}",
+        "{'step': 4, 'action': 'Set _init_trace_context to None', 'condition': 'After trace end'}",
+        "{'step': 5, 'action': 'Set _legacy_session_for_init_trace to None', 'condition': 'After trace end'}"
+      ],
+      "constraints": [
+        "Only execute when re-initialization with a different API key is confirmed",
+        "Verify trace context exists and is actively recording before calling tracer.end_trace()"
+      ],
+      "cautions": [
+        "Ending a trace prematurely may lose recorded events; ensure re-initialization intent is genuine",
+        "Log warning before cleanup to alert operators of trace interruption"
+      ],
+      "output_contract": [
+        "Active trace is ended with 'Reinitialized' reason",
+        "_init_trace_context is set to None",
+        "_legacy_session_for_init_trace is set to None",
+        "No further trace recording occurs under the old context"
+      ],
+      "examples": [],
+      "tags": [
+        "trace_cleanup",
+        "re-initialization",
+        "state_management",
+        "api_key_rotation"
+      ],
+      "support_ids": [
+        "d238f079-b555-59a3-8472-b233cdc077a3"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "297e2aeb-a335-57ef-b3f9-014556396433"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|clean up active trace state during client re-initialization|default|trace_management|state_cleanup|teardown|trace context cleanup on re-initialization",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill addressing trace context cleanup during Client re-initialization—a specific teardown operation triggered by API key change. It does not semantically match any existing skill: it is narrower and more specialized than 'End Trace and Finalize' (which is general-purpose trace termination), orthogonal to 'Start Trace Session' and 'Update Trace Metadata' (which are setup/execution stage), and unrelated to dataset filtering or async result retrieval. The peer candidates represent the broader trace_management task_family but none capture the re-initialization-specific cleanup logic, constraints, or cautions. No conflict evidence exists. This warrants a new distinct capability.",
+        "parent_skill_id": "cf2aafba-8a0b-5349-96e3-578d8595f10b",
+        "parent_candidate_ids": [
+          "cf2aafba-8a0b-5349-96e3-578d8595f10b",
+          "2fefe2f0-790d-5e47-99c5-c441046648cf"
+        ],
+        "hierarchy_confidence": 0.55,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "ed336663-6651-4666-8f5d-c3b4e27af267",
+      "entity_type": "skill",
+      "entity_id": "2fefe2f0-790d-5e47-99c5-c441046648cf",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "create",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "2fefe2f0-790d-5e47-99c5-c441046648cf",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "4b8ade7f-4aa7-5d20-b197-26ff4c427db8"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "6f85c151-f9f3-4b6b-a3ff-f2d60f5809e8",
+      "entity_type": "skill",
+      "entity_id": "65c4f3e1-5962-5d47-9d5f-d9524126ed9a",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate 'Start Trace Session' is a distinct micro_skill for initializing trace context with tracer.start_trace(). It differs semantically and operationally from peer candidates (AgentOps SDK initialization, manual session control, auto-init fallback) which target agent instrumentation and SDK lifecycle. Existing skills address data preparation and scoring, not trace initialization. No semantic overlap, conflict, or split relationship detected. Supported by Debugging Roadmap evidence.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "65c4f3e1-5962-5d47-9d5f-d9524126ed9a",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "a0e840a6-5ab6-54a6-ae05-23f9c8f57c5f"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "2bf4fa7a-78c3-45d6-b009-5ae747b0a5d6",
+      "entity_type": "skill",
+      "entity_id": "2bc6e1f0-1a41-5924-96e3-a05d149f1f9e",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct trace lifecycle termination micro_skill with no semantic overlap to existing skills. Existing skills cover data preparation (dataset filtering), UI interaction safety (control disabling), and trace metadata updates—none address trace finalization. Peer candidates (Trace Context Cleanup, Trace Metadata Update, Start Trace Session) are complementary trace management skills at the same layer but different methods (cleanup, metadata, initialization vs. termination). Candidate has clear support evidence from Debugging Roadmap and well-defined constraints/cautions for safe trace closure.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "2bc6e1f0-1a41-5924-96e3-a05d149f1f9e",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "96fc7819-b6d4-5237-b047-262491037017"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "3598dd58-34ee-4a31-9fe4-3204e9863206",
+      "entity_type": "skill",
+      "entity_id": "c204c15c-15eb-5cb6-a367-0177d593379a",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill addressing trace context cleanup during Client re-initialization—a specific teardown operation triggered by API key change. It does not semantically match any existing skill: it is narrower and more specialized than 'End Trace and Finalize' (which is general-purpose trace termination), orthogonal to 'Start Trace Session' and 'Update Trace Metadata' (which are setup/execution stage), and unrelated to dataset filtering or async result retrieval. The peer candidates represent the broader trace_management task_family but none capture the re-initialization-specific cleanup logic, constraints, or cautions. No conflict evidence exists. This warrants a new distinct capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "c204c15c-15eb-5cb6-a367-0177d593379a",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "d238f079-b555-59a3-8472-b233cdc077a3"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

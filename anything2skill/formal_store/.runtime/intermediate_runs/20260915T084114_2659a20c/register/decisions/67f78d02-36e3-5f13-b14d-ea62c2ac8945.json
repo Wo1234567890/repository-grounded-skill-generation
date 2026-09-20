@@ -1,0 +1,104 @@
+{
+  "skill_id": "67f78d02-36e3-5f13-b14d-ea62c2ac8945",
+  "action": "merge",
+  "matched_skill_ids": [
+    "157ba223-e016-562c-b401-649bc2bf7959"
+  ],
+  "reason": "The candidate skill 'Legacy Module State Synchronization' and peer skill 'Legacy Session Compatibility Bridge' (a4c43354-1375-5e17-95ae-4b8c2b113dff) both address the same semantic capability: synchronizing session and trace context state to legacy module references for backward compatibility. The candidate focuses on importing and assigning to agentops.legacy module globals, while the peer focuses on assigning to module-level globals (_client_init_trace_context, _client_legacy_session_for_init_trace). These are complementary steps in the same workflow. The peer skill is more complete (includes verification and logging), so the candidate should merge into it. Both are micro_skills at the same asset_level in the initialization stage with overlapping task_family (state_management/compatibility_maintenance) and method_family (module_global_sync/state_synchronization).",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "67f78d02-36e3-5f13-b14d-ea62c2ac8945",
+    "name": "Legacy Module State Synchronization",
+    "description": "Synchronize current session and trace context state to legacy module globals for backward compatibility. Handles ImportError gracefully when legacy module is unavailable.",
+    "skill_body": "After client initialization completes with auto_start_session=True, update the legacy module's _current_session and _current_trace_context globals to match the client's internal state. Wrap the import and assignment in a try-except block to gracefully handle cases where the legacy module is not available.\n\n## Objective\n\nEnsure legacy code paths access consistent session state\n## Applicable Signals\n\n- Initialization phase entry with backward compatibility flag enabled\n- Presence of legacy code paths in the codebase\n\n## Contraindications\n\n- Legacy module is not imported or not available\n- Backward compatibility is not needed\n- Direct session passing is preferred over global state mutation\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Attempt to import agentops.legacy module', 'condition': 'Within try block'}\n- {'step': 2, 'action': 'Assign self._legacy_session_for_init_trace to agentops.legacy._current_session', 'condition': 'Import succeeds'}\n- {'step': 3, 'action': 'Assign self._init_trace_context to agentops.legacy._current_trace_context', 'condition': 'Import succeeds'}\n- {'step': 4, 'action': 'Catch ImportError and pass silently', 'condition': 'Legacy module not available'}\n\n## Constraints\n\n- Must execute after internal _legacy_session_for_init_trace and _init_trace_context are set\n- ImportError must be caught and suppressed (legacy module absence is acceptable)\n- State assignment must occur before returning from initialization\n\n## Cautions\n\n- Direct access to another module's globals is not ideal; prefer explicit calls if possible\n- ImportError suppression should be logged at debug level for troubleshooting\n\n## Output Contract\n\n- agentops.legacy._current_session and agentops.legacy._current_trace_context are set to match client's internal state when legacy module is available; ImportError is caught and execution continues without failure",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Ensure legacy code paths access consistent session state",
+    "domain": "default",
+    "task_family": "state_management",
+    "method_family": "module_global_sync",
+    "stage": "initialization",
+    "applicable_signals": [
+      "Initialization phase entry with backward compatibility flag enabled",
+      "Presence of legacy code paths in the codebase"
+    ],
+    "contraindications": [
+      "Legacy module is not imported or not available",
+      "Backward compatibility is not needed",
+      "Direct session passing is preferred over global state mutation"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Client initialization completes successfully",
+      "auto_start_session=True is configured",
+      "Legacy module integration is required"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Attempt to import agentops.legacy module', 'condition': 'Within try block'}",
+      "{'step': 2, 'action': 'Assign self._legacy_session_for_init_trace to agentops.legacy._current_session', 'condition': 'Import succeeds'}",
+      "{'step': 3, 'action': 'Assign self._init_trace_context to agentops.legacy._current_trace_context', 'condition': 'Import succeeds'}",
+      "{'step': 4, 'action': 'Catch ImportError and pass silently', 'condition': 'Legacy module not available'}"
+    ],
+    "constraints": [
+      "Must execute after internal _legacy_session_for_init_trace and _init_trace_context are set",
+      "ImportError must be caught and suppressed (legacy module absence is acceptable)",
+      "State assignment must occur before returning from initialization"
+    ],
+    "cautions": [
+      "Direct access to another module's globals is not ideal; prefer explicit calls if possible",
+      "ImportError suppression should be logged at debug level for troubleshooting"
+    ],
+    "output_contract": [
+      "agentops.legacy._current_session and agentops.legacy._current_trace_context are set to match client's internal state when legacy module is available; ImportError is caught and execution continues without failure"
+    ],
+    "examples": [],
+    "tags": [
+      "backward_compatibility",
+      "state_sync",
+      "legacy_integration",
+      "initialization"
+    ],
+    "support_ids": [
+      "d392fba4-c872-52c5-9b72-e441c75ef924"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "3e863259-c8dd-5b5a-9f4d-a768566a3985"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|ensure legacy code paths access consistent session state|default|state_management|module_global_sync|initialization|legacy module state synchronization"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

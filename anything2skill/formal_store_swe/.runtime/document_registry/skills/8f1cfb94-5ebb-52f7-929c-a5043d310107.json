@@ -1,0 +1,120 @@
+{
+  "skill_id": "8f1cfb94-5ebb-52f7-929c-a5043d310107",
+  "name": "Compute Weighted Zone Score",
+  "description": "Create an independent copy of an existing ordinal scale, preserving domain, range, and unknown-value configuration.",
+  "skill_body": "Call ordinal.copy() on an existing ordinal scale instance to produce a new scale object with identical domain, range, and unknown-value settings. The returned scale is independent and can be modified without affecting the original.\n\n## Objective\n\nDuplicate a scale for independent mutation or parallel use without affecting the original\n## Applicable Signals\n\n- Existing ordinal scale instance available\n- Multiple consumers require similar but independent scale configurations\n\n## Contraindications\n\n- Shared scale state is required across multiple consumers; cloning creates isolation, not sharing\n- Scale is used as a mutable shared reference in a single-threaded context\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Obtain reference to existing ordinal scale instance'}\n- {'step': 2, 'action': 'Invoke .copy() method on the scale'}\n- {'step': 3, 'action': 'Assign returned scale object to new variable'}\n- {'step': 4, 'action': 'Verify cloned scale has identical domain and range as original (optional validation)'}\n\n## Constraints\n\n- Source scale must be a valid ordinal scale instance\n- Cloning preserves only domain, range, and unknown-value settings; custom properties are not guaranteed to copy\n\n## Cautions\n\n- Cloned scale is independent; subsequent modifications to either the original or clone do not propagate\n- If shared state is required, use the original scale reference instead of cloning\n\n## Output Contract\n\n- A new scale object with identical domain, range, and unknown-value settings as the source, independent for further modification.",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "Produce a single weighted zone score for one query-document pair",
+  "domain": "default",
+  "task_family": "relevance_scoring",
+  "method_family": "linear_combination",
+  "stage": "scoring",
+  "applicable_signals": [
+    "Existing ordinal scale instance available",
+    "Multiple consumers require similar but independent scale configurations"
+  ],
+  "contraindications": [
+    "Shared scale state is required across multiple consumers; cloning creates isolation, not sharing",
+    "Scale is used as a mutable shared reference in a single-threaded context"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Zone scores (title and body) have been pre-computed for a query-document pair",
+    "Weight parameter g is available and valid (0 ≤ g ≤ 1)",
+    "A single combined relevance score is needed for ranking or evaluation"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Obtain reference to existing ordinal scale instance'}",
+    "{'step': 2, 'action': 'Invoke .copy() method on the scale'}",
+    "{'step': 3, 'action': 'Assign returned scale object to new variable'}",
+    "{'step': 4, 'action': 'Verify cloned scale has identical domain and range as original (optional validation)'}"
+  ],
+  "constraints": [
+    "Source scale must be a valid ordinal scale instance",
+    "Cloning preserves only domain, range, and unknown-value settings; custom properties are not guaranteed to copy"
+  ],
+  "cautions": [
+    "Cloned scale is independent; subsequent modifications to either the original or clone do not propagate",
+    "If shared state is required, use the original scale reference instead of cloning"
+  ],
+  "output_contract": [
+    "A new scale object with identical domain, range, and unknown-value settings as the source, independent for further modification."
+  ],
+  "examples": [
+    {
+      "input": "{'s_T': 0.8, 's_B': 0.5, 'g': 0.6}",
+      "output": "0.68",
+      "notes": "Title zone weighted at 60%, body at 40%; result is 0.6·0.8 + 0.4·0.5 = 0.68"
+    },
+    {
+      "input": "{'s_T': 1.0, 's_B': 0.0, 'g': 0.5}",
+      "output": "0.5",
+      "notes": "Equal weighting; title match only; result is 0.5·1.0 + 0.5·0.0 = 0.5"
+    }
+  ],
+  "tags": [
+    "scale",
+    "ordinal",
+    "cloning",
+    "configuration",
+    "d3"
+  ],
+  "support_ids": [
+    "ef1f3963-8c91-5a17-bc05-88bed02829a7",
+    "8993246c-5148-5f1b-89d2-04f028b07927"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "ae65abfa-c821-5d41-a600-ca9d1aff791b"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.9,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|produce a single weighted zone score for one query-document pair|default|relevance_scoring|linear_combination|scoring|compute weighted zone score",
+    "change_action": "merge",
+    "llm_reason": "Scale Instance Cloning and Threshold Scale Cloning are semantically identical capabilities—both clone scale objects via .copy() to create independent copies preserving configuration. They differ only in scale type (ordinal vs. threshold) but share the same method_family (object_cloning), task_family (scale_management), and workflow pattern. The candidate should merge into the existing threshold scale cloning skill, which can be generalized to cover all scale types, or the threshold skill should be deprecated in favor of a unified scale cloning skill. Peer candidate Threshold Scale Cloning already exists and is more recently staged (execution vs. post_configuration).",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "merged_from_skill_ids": []
+  },
+  "version": "0.1.1",
+  "status": "active"
+}

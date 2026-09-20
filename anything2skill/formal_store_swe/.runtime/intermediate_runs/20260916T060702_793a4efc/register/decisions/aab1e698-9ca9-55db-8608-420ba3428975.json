@@ -1,0 +1,118 @@
+{
+  "skill_id": "aab1e698-9ca9-55db-8608-420ba3428975",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct session_skill for non-blocking lock acquisition during validation phase in concurrency control. It does not match any existing skill in asset_type, granularity, task_family, or stage. Peer candidates are evaluation/benchmarking skills (different stage and task_family), and existing skills are cache benchmarking and process pool execution (unrelated domains). Candidate has clear support evidence and no conflicts.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "aab1e698-9ca9-55db-8608-420ba3428975",
+    "name": "No-Wait Lock Acquisition in Validation",
+    "description": "Acquire write-set tuple locks in primary key order during the validation phase using non-blocking lock attempts. If any lock is unavailable, immediately abort validation, release all held locks, sleep briefly (1 µs), and retry. This prevents lock thrashing and allows more transactions to validate simultaneously.",
+    "skill_body": "1. Lock write-set tuples in primary key order.\n2. If a lock cannot be acquired immediately, abort the validation phase.\n3. Release all locks acquired so far.\n4. Sleep for 1 µs.\n5. Retry the validation phase from step 1.\nRepeat until all write-set locks are acquired or a configurable retry limit is reached.\n\n## Objective\n\nMinimize lock contention and thrashing by using non-blocking lock acquisition with brief backoff during validation.\n## Applicable Signals\n\n- Transaction entering validation phase\n- Write set contains one or more tuples\n- Multi-socket or high-concurrency execution environment\n\n## Contraindications\n\n- Read-only transactions (no write set)\n- Low contention scenarios where standard blocking lock acquisition is acceptable\n- Strict immediate-lock-or-wait semantics required by application\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Iterate through write-set tuples in primary key order'}\n- {'step': 2, 'action': 'Attempt to acquire lock for current tuple (non-blocking)'}\n- {'step': 3, 'action': 'If lock acquired, move to next tuple; if all tuples locked, proceed to read-set validation'}\n- {'step': 4, 'action': 'If lock not available, release all locks acquired in this attempt'}\n- {'step': 5, 'action': 'Sleep for 1 µs'}\n- {'step': 6, 'action': 'Restart from step 1'}\n\n## Constraints\n\n- Locks must be acquired in primary key order to prevent deadlock cycles\n- Sleep duration (1 µs) should not be too large; algorithm performance is not overly sensitive to this value within reasonable bounds\n- All locks acquired in a failed attempt must be released before retry\n\n## Cautions\n\n- Repeated retries may increase CPU usage; monitor retry frequency in high-contention scenarios\n- Sleep time tuning may be required for specific hardware and workload characteristics\n\n## Output Contract\n\n- Either all write-set tuples are locked in primary key order and validation proceeds to read-set checks, or validation is aborted and the transaction is restarted. No partial lock state persists across retries.\n\n## Example Executions\n\n### Example 1\n\n- Input: Transaction T with write set {tuple_x, tuple_y} (primary keys ordered); tuple_x lock available, tuple_y lock held by another transaction\n- Output: Lock tuple_x, attempt tuple_y, fail; release tuple_x lock; sleep 1 µs; retry from tuple_x\n- Notes: Prevents blocking on tuple_y while holding tuple_x, reducing thrashing\n\n### Example 2\n\n- Input: Transaction T with write set {tuple_a, tuple_b, tuple_c}; all locks available\n- Output: Lock tuple_a, tuple_b, tuple_c in order; proceed to read-set validation\n- Notes: Fast path: no retry needed",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Minimize lock contention and thrashing by using non-blocking lock acquisition with brief backoff during validation.",
+    "domain": "default",
+    "task_family": "concurrency_control",
+    "method_family": "deadlock_prevention",
+    "stage": "validation",
+    "applicable_signals": [
+      "Transaction entering validation phase",
+      "Write set contains one or more tuples",
+      "Multi-socket or high-concurrency execution environment"
+    ],
+    "contraindications": [
+      "Read-only transactions (no write set)",
+      "Low contention scenarios where standard blocking lock acquisition is acceptable",
+      "Strict immediate-lock-or-wait semantics required by application"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Validation phase initiated for a transaction with a non-empty write set",
+      "High core count or write-intensive workload detected",
+      "Lock thrashing observed in standard 2PL validation"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Iterate through write-set tuples in primary key order'}",
+      "{'step': 2, 'action': 'Attempt to acquire lock for current tuple (non-blocking)'}",
+      "{'step': 3, 'action': 'If lock acquired, move to next tuple; if all tuples locked, proceed to read-set validation'}",
+      "{'step': 4, 'action': 'If lock not available, release all locks acquired in this attempt'}",
+      "{'step': 5, 'action': 'Sleep for 1 µs'}",
+      "{'step': 6, 'action': 'Restart from step 1'}"
+    ],
+    "constraints": [
+      "Locks must be acquired in primary key order to prevent deadlock cycles",
+      "Sleep duration (1 µs) should not be too large; algorithm performance is not overly sensitive to this value within reasonable bounds",
+      "All locks acquired in a failed attempt must be released before retry"
+    ],
+    "cautions": [
+      "Repeated retries may increase CPU usage; monitor retry frequency in high-contention scenarios",
+      "Sleep time tuning may be required for specific hardware and workload characteristics"
+    ],
+    "output_contract": [
+      "Either all write-set tuples are locked in primary key order and validation proceeds to read-set checks, or validation is aborted and the transaction is restarted. No partial lock state persists across retries."
+    ],
+    "examples": [
+      {
+        "input": "Transaction T with write set {tuple_x, tuple_y} (primary keys ordered); tuple_x lock available, tuple_y lock held by another transaction",
+        "output": "Lock tuple_x, attempt tuple_y, fail; release tuple_x lock; sleep 1 µs; retry from tuple_x",
+        "notes": "Prevents blocking on tuple_y while holding tuple_x, reducing thrashing"
+      },
+      {
+        "input": "Transaction T with write set {tuple_a, tuple_b, tuple_c}; all locks available",
+        "output": "Lock tuple_a, tuple_b, tuple_c in order; proceed to read-set validation",
+        "notes": "Fast path: no retry needed"
+      }
+    ],
+    "tags": [
+      "concurrency_control",
+      "lock_management",
+      "validation_phase",
+      "deadlock_prevention",
+      "performance_optimization",
+      "multi_core"
+    ],
+    "support_ids": [
+      "4649b236-aa05-5a77-810b-593f8cd7e00b"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "84622cbf-88b3-5113-9982-ab7fa5372d91"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.88,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|minimize lock contention and thrashing by using non-blocking lock acquisition with brief backoff during validation.|default|concurrency_control|deadlock_prevention|validation|no-wait lock acquisition in validation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

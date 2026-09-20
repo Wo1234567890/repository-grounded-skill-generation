@@ -1,0 +1,106 @@
+{
+  "skill_id": "bbca0fd6-5c18-5679-bb64-881d1290b28d",
+  "action": "merge",
+  "matched_skill_ids": [
+    "0745223a-841f-51d6-8381-727206ff716f"
+  ],
+  "reason": "Candidate is a narrower error-handling variant of two existing broader trace metadata update skills. The core capability (update trace metadata) already exists in peer skills c70f47e3 and 1aab3e23. The candidate adds only exception logging and boolean return pattern, which should be integrated as error-handling guidance into the existing skills rather than persisted as a separate micro_skill. The peer candidates cover the same task_family (trace_management/trace_instrumentation) and method_family at the same granularity and asset_level.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "bbca0fd6-5c18-5679-bb64-881d1290b28d",
+    "name": "Trace Metadata Update with Error Handling",
+    "description": "Safely update trace metadata with exception logging and boolean status return. Invoked when modifying trace attributes during agent execution and the caller needs explicit success or failure feedback.",
+    "skill_body": "Attempt to update trace metadata (e.g., tags, status, custom fields). Wrap the update operation in a try-except block. On success, return True. On exception, log the error and return False. Do not suppress the exception; log it for debugging.\n\n## Objective\n\nUpdate trace metadata and return success status\n## Applicable Signals\n\n- Active trace session in progress\n- Metadata attribute change requested\n- Downstream caller expects boolean status\n\n## Contraindications\n\n- Trace is already closed or finalized\n- Metadata is immutable or read-only\n- Bulk metadata operations without retry logic\n\n## Workflow Steps\n\n- Receive metadata update request with target trace and attribute(s)\n- Attempt metadata update operation\n- On success: return True\n- On exception: log error with logger.error() and return False\n\n## Constraints\n\n- Must wrap update in try-except block\n- Must log exception before returning False\n- Must return boolean (True/False) to caller\n\n## Cautions\n\n- Exception logging should include full error context for debugging\n- Caller should not assume False return means trace is corrupted; only metadata update failed\n- Do not use for transactional metadata updates requiring rollback\n\n## Output Contract\n\n- Boolean return value: True if metadata updated successfully; False if exception occurred and was logged. Caller uses return value to decide whether to retry, escalate, or continue.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Update trace metadata and return success status",
+    "domain": "default",
+    "task_family": "trace_management",
+    "method_family": "error_handling_pattern",
+    "stage": "execution",
+    "applicable_signals": [
+      "Active trace session in progress",
+      "Metadata attribute change requested",
+      "Downstream caller expects boolean status"
+    ],
+    "contraindications": [
+      "Trace is already closed or finalized",
+      "Metadata is immutable or read-only",
+      "Bulk metadata operations without retry logic"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Trace metadata (tags, status, custom fields) needs modification during active session",
+      "Caller requires explicit success/failure feedback on metadata update"
+    ],
+    "workflow_steps": [
+      "Receive metadata update request with target trace and attribute(s)",
+      "Attempt metadata update operation",
+      "On success: return True",
+      "On exception: log error with logger.error() and return False"
+    ],
+    "constraints": [
+      "Must wrap update in try-except block",
+      "Must log exception before returning False",
+      "Must return boolean (True/False) to caller"
+    ],
+    "cautions": [
+      "Exception logging should include full error context for debugging",
+      "Caller should not assume False return means trace is corrupted; only metadata update failed",
+      "Do not use for transactional metadata updates requiring rollback"
+    ],
+    "output_contract": [
+      "Boolean return value: True if metadata updated successfully; False if exception occurred and was logged. Caller uses return value to decide whether to retry, escalate, or continue."
+    ],
+    "examples": [],
+    "tags": [
+      "trace",
+      "metadata",
+      "error_handling",
+      "status_return",
+      "logging"
+    ],
+    "support_ids": [
+      "d4d215bb-4dc9-5158-bbab-5133d5c01a9e"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "7d2751b4-0525-5d5e-9dba-b2fa08efcd29"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|update trace metadata and return success status|default|trace_management|error_handling_pattern|execution|trace metadata update with error handling"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

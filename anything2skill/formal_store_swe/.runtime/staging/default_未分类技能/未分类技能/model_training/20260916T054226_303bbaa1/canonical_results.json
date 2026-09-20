@@ -1,0 +1,186 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "model_training",
+  "run_id": "20260916T054226_303bbaa1",
+  "skills": [
+    {
+      "skill_id": "96b4f0bd-4385-5ac7-b23a-5631eac86cc2",
+      "name": "Training Configuration Resource Adjustment",
+      "description": "Measure and compare how quickly new objects are evicted from a cache's initial queue and how accurately those evictions target low-value objects. Produces two independent normalized metrics that together predict cache miss ratio performance and enable algorithm comparison.",
+      "skill_body": "To measure quick demotion speed and precision for staged-queue cache algorithms:\n\n1. Demotion Speed: Calculate the normalized ratio of time objects spend in the initial queue (S) before eviction or promotion, using LRU eviction age as baseline. Express as: (time in S) / (LRU eviction age), measured in logical time (request count). Lower ratios indicate faster demotion.\n\n2. Precision: Determine the fraction of objects evicted from S that are not reused within a threshold. Use cache size as the reuse threshold: if requests until next reuse > cache size, count as correct early eviction. Precision = (correct early evictions) / (total evictions from S). Higher precision indicates better targeting of low-value objects.\n\n3. Interpretation: Faster demotion (lower ratio) combined with higher precision (closer to 1.0) indicates better algorithm performance and lower miss ratio. Algorithms with both faster speed and higher precision exhibit lower miss ratios.\n\n## Objective\n\nquantify demotion speed and precision for staged-queue cache algorithm comparison and performance prediction\n## Applicable Signals\n\n- need to understand algorithm performance differences beyond miss ratio alone\n- evaluating staged-queue cache designs with separate new and frequent object queues\n- tuning initial queue size (S) and observing impact on eviction behavior\n- comparing precision and speed tradeoffs across different queue configurations\n- investigating why one algorithm outperforms another on specific workloads\n\n## Contraindications\n\n- non-cache systems or systems without staged queue architecture\n- algorithms that do not separate new and frequent objects into distinct queues\n- scenarios where only final miss ratio is available (no per-object eviction trace)\n- real-time systems where logical time (request count) cannot be reliably measured\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Collect full trace', 'detail': 'Gather request sequence with object identities, timestamps (or logical time in request count), and cache size.'}\n- {'step': 2, 'action': 'Compute LRU baseline', 'detail': 'Simulate LRU eviction on the same trace; record eviction age (time from insertion to eviction) for each object.'}\n- {'step': 3, 'action': 'Simulate staged-queue algorithm', 'detail': 'Run the target algorithm (e.g., S3-FIFO) with chosen queue size S; record time each object spends in initial queue before eviction or promotion.'}\n- {'step': 4, 'action': 'Calculate demotion speed', 'detail': 'For each object evicted from S, compute (time in S) / (LRU eviction age). Average across all evictions from S to get normalized quick demotion speed.'}\n- {'step': 5, 'action': 'Calculate precision', 'detail': 'For each object evicted from S, check if requests until next reuse > cache size. Count correct early evictions; divide by total evictions from S.'}\n- {'step': 6, 'action': 'Correlate with miss ratio', 'detail': 'Compare demotion speed and precision against final miss ratio; verify that faster + higher precision correlates with lower miss ratio.'}\n\n## Constraints\n\n- requires full eviction trace with object identities and request timestamps\n- requires knowledge of cache size to compute reuse threshold\n- LRU eviction age must be computed on the same trace for baseline normalization\n- precision calculation depends on accurate tracking of object reuse after eviction\n\n## Cautions\n\n- smaller queue size (S) increases demotion speed but may reduce precision if S is too small; popular objects lack time to accumulate hits before eviction\n- larger queue size (S) increases precision but reduces demotion speed; unpopular objects may be promoted to M, reducing precision again\n- precision exhibits non-monotonic behavior with queue size; peak precision occurs at an intermediate size\n- adaptive algorithms (e.g., ARC) may choose queue sizes that are too large or too small, resulting in low precision or high miss ratio cliffs\n\n## Output Contract\n\n- Two normalized metrics: (1) quick demotion speed ratio (dimensionless, typically 0.1–1.0 relative to LRU baseline), and (2) quick demotion precision (0.0–1.0, fraction of correct early evictions). Together these metrics predict cache miss ratio; algorithms with both faster speed and higher precision exhibit lower miss ratios.\n\n## Example Executions\n\n### Example 1\n\n- Input: S3-FIFO with S=10% cache size on Twitter trace; LRU baseline computed on same trace.\n- Output: Demotion speed ≈ 0.3 (objects leave S in ~30% of LRU eviction age); precision ≈ 0.85 (85% of S evictions are correct early evictions).\n- Notes: This combination yields lower miss ratio than ARC (which has speed ≈ 0.5, precision ≈ 0.6 on same trace) because S3-FIFO balances both metrics.\n\n### Example 2\n\n- Input: S3-FIFO with S=1% cache size on large-cache trace; same LRU baseline.\n- Output: Demotion speed ≈ 0.1 (very fast eviction); precision ≈ 0.7 (lower, because popular objects evicted before accumulating hits).\n- Notes: Smaller S increases speed but reduces precision; miss ratio reduction is largest at this size for this trace, confirming importance of quick demotion.\n\n### Example 3\n\n- Input: TinyLFU with same S size on MSR trace; LRU baseline.\n- Output: Demotion speed ≈ 0.25 (slightly faster than S3-FIFO); precision ≈ 0.75 (lower than S3-FIFO at same speed).\n- Notes: TinyLFU's LRU component keeps old but recently-accessed objects, squeezing space for new objects and reducing precision; explains higher miss ratio.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "8e0637b0-c85d-551f-aaab-509f445d13b3",
+      "parent_candidate_ids": [
+        "8e0637b0-c85d-551f-aaab-509f445d13b3"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Adapt training hyperparameters to local compute environment without changing model or algorithm",
+      "domain": "default",
+      "task_family": "model_training",
+      "method_family": "hyperparameter_adaptation",
+      "stage": "pre_training_setup",
+      "applicable_signals": [
+        "need to understand algorithm performance differences beyond miss ratio alone",
+        "evaluating staged-queue cache designs with separate new and frequent object queues",
+        "tuning initial queue size (S) and observing impact on eviction behavior",
+        "comparing precision and speed tradeoffs across different queue configurations",
+        "investigating why one algorithm outperforms another on specific workloads"
+      ],
+      "contraindications": [
+        "non-cache systems or systems without staged queue architecture",
+        "algorithms that do not separate new and frequent objects into distinct queues",
+        "scenarios where only final miss ratio is available (no per-object eviction trace)",
+        "real-time systems where logical time (request count) cannot be reliably measured"
+      ],
+      "intervention_moves": [
+        "Reduce per_device_train_batch_size if OOM errors persist",
+        "Increase per_device_train_batch_size if memory headroom exists and throughput is low",
+        "Adjust num_processes to match actual GPU count"
+      ],
+      "triggers": [
+        "GPU count differs from 4xH100 baseline",
+        "Out-of-memory errors occur during training initialization",
+        "Training throughput is suboptimal relative to expected performance"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Collect full trace', 'detail': 'Gather request sequence with object identities, timestamps (or logical time in request count), and cache size.'}",
+        "{'step': 2, 'action': 'Compute LRU baseline', 'detail': 'Simulate LRU eviction on the same trace; record eviction age (time from insertion to eviction) for each object.'}",
+        "{'step': 3, 'action': 'Simulate staged-queue algorithm', 'detail': 'Run the target algorithm (e.g., S3-FIFO) with chosen queue size S; record time each object spends in initial queue before eviction or promotion.'}",
+        "{'step': 4, 'action': 'Calculate demotion speed', 'detail': 'For each object evicted from S, compute (time in S) / (LRU eviction age). Average across all evictions from S to get normalized quick demotion speed.'}",
+        "{'step': 5, 'action': 'Calculate precision', 'detail': 'For each object evicted from S, check if requests until next reuse > cache size. Count correct early evictions; divide by total evictions from S.'}",
+        "{'step': 6, 'action': 'Correlate with miss ratio', 'detail': 'Compare demotion speed and precision against final miss ratio; verify that faster + higher precision correlates with lower miss ratio.'}"
+      ],
+      "constraints": [
+        "requires full eviction trace with object identities and request timestamps",
+        "requires knowledge of cache size to compute reuse threshold",
+        "LRU eviction age must be computed on the same trace for baseline normalization",
+        "precision calculation depends on accurate tracking of object reuse after eviction"
+      ],
+      "cautions": [
+        "smaller queue size (S) increases demotion speed but may reduce precision if S is too small; popular objects lack time to accumulate hits before eviction",
+        "larger queue size (S) increases precision but reduces demotion speed; unpopular objects may be promoted to M, reducing precision again",
+        "precision exhibits non-monotonic behavior with queue size; peak precision occurs at an intermediate size",
+        "adaptive algorithms (e.g., ARC) may choose queue sizes that are too large or too small, resulting in low precision or high miss ratio cliffs"
+      ],
+      "output_contract": [
+        "Two normalized metrics: (1) quick demotion speed ratio (dimensionless, typically 0.1–1.0 relative to LRU baseline), and (2) quick demotion precision (0.0–1.0, fraction of correct early evictions). Together these metrics predict cache miss ratio; algorithms with both faster speed and higher precision exhibit lower miss ratios."
+      ],
+      "examples": [
+        {
+          "input": "S3-FIFO with S=10% cache size on Twitter trace; LRU baseline computed on same trace.",
+          "output": "Demotion speed ≈ 0.3 (objects leave S in ~30% of LRU eviction age); precision ≈ 0.85 (85% of S evictions are correct early evictions).",
+          "notes": "This combination yields lower miss ratio than ARC (which has speed ≈ 0.5, precision ≈ 0.6 on same trace) because S3-FIFO balances both metrics."
+        },
+        {
+          "input": "S3-FIFO with S=1% cache size on large-cache trace; same LRU baseline.",
+          "output": "Demotion speed ≈ 0.1 (very fast eviction); precision ≈ 0.7 (lower, because popular objects evicted before accumulating hits).",
+          "notes": "Smaller S increases speed but reduces precision; miss ratio reduction is largest at this size for this trace, confirming importance of quick demotion."
+        },
+        {
+          "input": "TinyLFU with same S size on MSR trace; LRU baseline.",
+          "output": "Demotion speed ≈ 0.25 (slightly faster than S3-FIFO); precision ≈ 0.75 (lower than S3-FIFO at same speed).",
+          "notes": "TinyLFU's LRU component keeps old but recently-accessed objects, squeezing space for new objects and reducing precision; explains higher miss ratio."
+        }
+      ],
+      "tags": [
+        "cache_algorithm",
+        "performance_metric",
+        "eviction_analysis",
+        "queue_tuning",
+        "staged_queue",
+        "s3fifo"
+      ],
+      "support_ids": [
+        "2e802ce8-4866-5b9b-8ada-3e0b0824d7c1",
+        "63501f7e-073d-5fb5-b6a6-58d55ce6e1c7"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "b8bc4b0d-5ddd-5235-8b08-26305d6069c0"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|adapt training hyperparameters to local compute environment without changing model or algorithm|default|model_training|hyperparameter_adaptation|pre_training_setup|training configuration resource adjustment",
+        "llm_reason": "Candidate 43284bc8 is a quantitative measurement skill that produces normalized demotion speed and precision metrics. These metrics are the direct outputs needed to operationalize the assessment in c5463ff5 (Quick Demotion Efficiency Assessment) and inform the parameter selection in 35e53108 (Static Queue Size Selection). The candidate should merge into both existing skills: it provides the measurement foundation for c5463ff5's comparative analysis and supplies the precision/speed data required by 35e53108's validation step. The peer candidates (c651de49, c5463ff5, 35e53108) represent a coherent workflow where this candidate is a measurement layer that feeds both analysis and configuration decisions.",
+        "change_action": "merge",
+        "parent_skill_id": "8e0637b0-c85d-551f-aaab-509f445d13b3",
+        "parent_candidate_ids": [
+          "8e0637b0-c85d-551f-aaab-509f445d13b3"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf",
+        "merged_from_skill_ids": []
+      },
+      "version": "0.1.1",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "dac8a8f1-fd11-4f89-baa2-1661c7c187a7",
+      "entity_type": "skill",
+      "entity_id": "96b4f0bd-4385-5ac7-b23a-5631eac86cc2",
+      "action": "merge",
+      "changed_at": "2026-09-15T19:41:58+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "Candidate 43284bc8 is a quantitative measurement skill that produces normalized demotion speed and precision metrics. These metrics are the direct outputs needed to operationalize the assessment in c5463ff5 (Quick Demotion Efficiency Assessment) and inform the parameter selection in 35e53108 (Static Queue Size Selection). The candidate should merge into both existing skills: it provides the measurement foundation for c5463ff5's comparative analysis and supplies the precision/speed data required by 35e53108's validation step. The peer candidates (c651de49, c5463ff5, 35e53108) represent a coherent workflow where this candidate is a measurement layer that feeds both analysis and configuration decisions.",
+      "related_entity_ids": [
+        "96b4f0bd-4385-5ac7-b23a-5631eac86cc2"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "96b4f0bd-4385-5ac7-b23a-5631eac86cc2",
+        "doc_ids": [
+          "1a328841-b24a-5f7c-8bd5-fb7199a95935",
+          "c714606b-4a4a-566c-acaf-25b924e5d713"
+        ],
+        "support_added": [
+          "63501f7e-073d-5fb5-b6a6-58d55ce6e1c7"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "96b4f0bd-4385-5ac7-b23a-5631eac86cc2"
+        ]
+      }
+    }
+  ]
+}

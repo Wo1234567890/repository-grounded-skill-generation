@@ -1,0 +1,388 @@
+{
+  "schema": "autoskill.document.staging.existing_active.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "transaction_validation",
+  "run_id": "20260916T070029_158d4488",
+  "skills": [
+    {
+      "skill_id": "184110eb-6257-5f22-9325-b3b7daa3ae7f",
+      "name": "Timestamp-Based Conflict Detection",
+      "description": "Verify that read-write or write-read conflicting transactions commit at different logical or physical timestamps by comparing tuple read timestamps (rts) and write timestamps (wts) against transaction commit timestamps. Ensures serializability by confirming distinct commit ordering for conflicting transaction pairs.",
+      "skill_body": "For a pair of transactions with read-write or write-read conflicts on the same tuple:\n1. Retrieve the tuple's current rts (read timestamp) and wts (write timestamp) by atomically reading the tuple's TS_word.\n2. Obtain the commit timestamp of the reading transaction and the writing transaction.\n3. Verify that the reading transaction's commit timestamp is ≤ tuple's current rts.\n4. Verify that the writing transaction's commit timestamp is > tuple's current rts.\n5. If both conditions hold, the transactions have different commit timestamps and conflict is resolved; otherwise, flag a serializability violation and abort/retry the transaction.\n\n## Objective\n\nDetect and enforce timestamp ordering for conflicting transaction pairs to guarantee serializability\n## Applicable Signals\n\n- Tuple has both rts and wts available\n- Transaction commit timestamps are determinable\n- Conflicting tuple access detected in read and write sets\n- Read-write or write-read conflict identified on same tuple\n\n## Contraindications\n\n- Transactions have no overlapping tuple access\n- Both transactions are read-only (no write-read or read-write conflict)\n- Tuple timestamps are unavailable or stale\n- Write set is not yet locked during validation\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify conflicting transaction pair and tuple', 'input': 'Two transactions with overlapping tuple access (one reads, one writes)'}\n- {'step': 2, 'action': \"Atomically read tuple's TS_word containing rts and wts\", 'input': 'Tuple reference'}\n- {'step': 3, 'action': \"Obtain reading transaction's commit timestamp\", 'input': 'Reading transaction context'}\n- {'step': 4, 'action': \"Obtain writing transaction's commit timestamp\", 'input': 'Writing transaction context'}\n- {'step': 5, 'action': 'Compare reading transaction timestamp against tuple rts', 'condition': 'reading_ts ≤ tuple.rts'}\n- {'step': 6, 'action': 'Compare writing transaction timestamp against tuple rts', 'condition': 'writing_ts > tuple.rts'}\n- {'step': 7, 'action': 'Return conflict resolution status', 'output': 'Boolean: true if both conditions hold (conflict resolved), false otherwise'}\n\n## Constraints\n\n- Tuple wts must be updated atomically with tuple value\n- Reading transaction commit timestamp must be determined after write set is locked to ensure accuracy\n- Comparison must use consistent snapshot of tuple timestamps\n- Write set must be locked before reading transaction's commit timestamp is finalized\n\n## Cautions\n\n- Do not compare timestamps before write set is locked; rts may change during validation\n- Ensure tuple timestamps reflect latest committed state, not in-flight writes\n- Tuple's rts in write set might be changed by different transactions; obtain approximate commit timestamp only after write set locking\n\n## Output Contract\n\n- Boolean confirmation that conflicting transactions have distinct commit timestamps. Success: reading transaction timestamp ≤ tuple rts AND writing transaction timestamp > tuple rts. Failure: either condition violated, indicating serializability violation or need for transaction abort/retry. On success, transactions are ordered in serial schedule with reading transaction after writing transaction.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "aab1e698-9ca9-55db-8608-420ba3428975",
+        "e8ccc028-f9db-5b45-9858-59c114c0a66a"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Detect and enforce timestamp ordering for conflicting transaction pairs to guarantee serializability",
+      "domain": "default",
+      "task_family": "transaction_validation",
+      "method_family": "timestamp_comparison",
+      "stage": "validation",
+      "applicable_signals": [
+        "Tuple has both rts and wts available",
+        "Transaction commit timestamps are determinable",
+        "Conflicting tuple access detected in read and write sets",
+        "Read-write or write-read conflict identified on same tuple"
+      ],
+      "contraindications": [
+        "Transactions have no overlapping tuple access",
+        "Both transactions are read-only (no write-read or read-write conflict)",
+        "Tuple timestamps are unavailable or stale",
+        "Write set is not yet locked during validation"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Transaction pair identified with read-write conflict on same tuple",
+        "Transaction pair identified with write-read conflict on same tuple",
+        "Serializability verification required during validation phase"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Identify conflicting transaction pair and tuple', 'input': 'Two transactions with overlapping tuple access (one reads, one writes)'}",
+        "{'step': 2, 'action': \"Atomically read tuple's TS_word containing rts and wts\", 'input': 'Tuple reference'}",
+        "{'step': 3, 'action': \"Obtain reading transaction's commit timestamp\", 'input': 'Reading transaction context'}",
+        "{'step': 4, 'action': \"Obtain writing transaction's commit timestamp\", 'input': 'Writing transaction context'}",
+        "{'step': 5, 'action': 'Compare reading transaction timestamp against tuple rts', 'condition': 'reading_ts ≤ tuple.rts'}",
+        "{'step': 6, 'action': 'Compare writing transaction timestamp against tuple rts', 'condition': 'writing_ts > tuple.rts'}",
+        "{'step': 7, 'action': 'Return conflict resolution status', 'output': 'Boolean: true if both conditions hold (conflict resolved), false otherwise'}"
+      ],
+      "constraints": [
+        "Tuple wts must be updated atomically with tuple value",
+        "Reading transaction commit timestamp must be determined after write set is locked to ensure accuracy",
+        "Comparison must use consistent snapshot of tuple timestamps",
+        "Write set must be locked before reading transaction's commit timestamp is finalized"
+      ],
+      "cautions": [
+        "Do not compare timestamps before write set is locked; rts may change during validation",
+        "Ensure tuple timestamps reflect latest committed state, not in-flight writes",
+        "Tuple's rts in write set might be changed by different transactions; obtain approximate commit timestamp only after write set locking"
+      ],
+      "output_contract": [
+        "Boolean confirmation that conflicting transactions have distinct commit timestamps. Success: reading transaction timestamp ≤ tuple rts AND writing transaction timestamp > tuple rts. Failure: either condition violated, indicating serializability violation or need for transaction abort/retry. On success, transactions are ordered in serial schedule with reading transaction after writing transaction."
+      ],
+      "examples": [],
+      "tags": [
+        "timestamp_ordering",
+        "conflict_detection",
+        "serializability",
+        "transaction_validation",
+        "concurrency_control",
+        "read-write_conflict"
+      ],
+      "support_ids": [
+        "491556a2-4b9d-5901-b3f8-c27d0fcc138f"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "184ca753-480c-5c00-be6a-5363d4abafa3"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|detect and enforce timestamp ordering for conflicting transaction pairs to guarantee serializability|default|transaction_validation|timestamp_comparison|validation|timestamp-based conflict detection",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "aab1e698-9ca9-55db-8608-420ba3428975",
+          "e8ccc028-f9db-5b45-9858-59c114c0a66a"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "289afdbb-dcb2-5d9f-bb8d-c989b9727366",
+      "name": "Read-Set Validation with Timestamp Overflow Handling",
+      "description": "Validates read-set entries against write-set conflicts and extends read timestamps with delta overflow correction using compare-and-swap atomicity during optimistic concurrency control commit phase.",
+      "skill_body": "For each read-set entry, check if the tuple's write timestamp matches the entry's recorded write timestamp, or if the tuple is locked and not in the write-set (abort condition). If the read timestamp is less than or equal to the commit timestamp, compute the delta between commit timestamp and write timestamp, extract the overflow portion, update the write timestamp with the shifted delta, and atomically swap the timestamp word using compare-and-swap. Retry the loop until the swap succeeds.\n\n## Objective\n\nAtomically validate and update tuple read timestamps without conflicts\n## Applicable Signals\n\n- commit_ts provided and read_ts_word accessible\n- read-set entry r with tuple reference and recorded write timestamp r.wts\n- write-set W available for membership check\n\n## Contraindications\n\n- Tuple is locked by another transaction AND entry is not in write-set (abort immediately)\n- Write timestamp mismatch detected (r.wts ≠ v1.wts) (abort immediately)\n- Pessimistic locking is active on the tuple\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Read tuple timestamp word (v1 = v2 = r.tuple.read_ts_word())'}\n- {'step': 2, 'action': 'Check abort conditions: if r.wts ≠ v1.wts OR (v1.rts ≤ commit_ts AND tuple is locked AND r.tuple not in W), then Abort()'}\n- {'step': 3, 'action': 'If v1.rts ≤ commit_ts, compute delta = commit_ts − v1.wts'}\n- {'step': 4, 'action': 'Extract overflow: shift = delta − (delta AND 0x7fff)'}\n- {'step': 5, 'action': 'Update v2: v2.wts = v2.wts + shift; v2.delta = delta − shift'}\n- {'step': 6, 'action': 'Atomically swap: success = compare_and_swap(r.tuple.ts_word, v1, v2)'}\n- {'step': 7, 'action': 'If success is false, retry from step 1; if true, validation complete'}\n\n## Constraints\n\n- Timestamp word must support atomic compare-and-swap operation\n- Delta overflow correction requires bit-masking with 0x7fff boundary\n- Loop must retry until compare-and-swap succeeds (no early exit on contention)\n\n## Cautions\n\n- If validation aborts, transaction must roll back all changes\n- Timestamp overflow handling assumes fixed bit-width representation (15-bit delta field)\n- Physical time ordering is used only when commit timestamps are equal; this validation does not enforce physical time ordering\n\n## Output Contract\n\n- Validation succeeds with read timestamp extended and timestamp word atomically updated, or validation aborts with transaction rollback. Compare-and-swap loop guarantees eventual success or explicit abort signal.\n\n## Example Executions\n\n### Example 1\n\n- Input: read-set entry r with r.wts=100, tuple with v1.wts=100, v1.rts=50, commit_ts=120, tuple not locked, not in write-set\n- Output: delta=20, shift=0, v2.wts=100, v2.delta=20, compare-and-swap succeeds, validation passes\n- Notes: No overflow; delta fits in 15-bit field\n\n### Example 2\n\n- Input: read-set entry r with r.wts=100, tuple with v1.wts=100, v1.rts=120, commit_ts=120, tuple not locked\n- Output: v1.rts ≤ commit_ts is false, skip delta handling, validation passes without timestamp update\n- Notes: Read timestamp already at or beyond commit timestamp; no extension needed\n\n### Example 3\n\n- Input: read-set entry r with r.wts=100, tuple with v1.wts=105, v1.rts=50, commit_ts=120\n- Output: r.wts ≠ v1.wts (100 ≠ 105), Abort()\n- Notes: Write timestamp mismatch indicates tuple was modified by another transaction",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "aab1e698-9ca9-55db-8608-420ba3428975",
+      "parent_candidate_ids": [
+        "aab1e698-9ca9-55db-8608-420ba3428975"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Atomically validate and update tuple read timestamps without conflicts",
+      "domain": "default",
+      "task_family": "transaction_validation",
+      "method_family": "optimistic_concurrency_control",
+      "stage": "validation_phase",
+      "applicable_signals": [
+        "commit_ts provided and read_ts_word accessible",
+        "read-set entry r with tuple reference and recorded write timestamp r.wts",
+        "write-set W available for membership check"
+      ],
+      "contraindications": [
+        "Tuple is locked by another transaction AND entry is not in write-set (abort immediately)",
+        "Write timestamp mismatch detected (r.wts ≠ v1.wts) (abort immediately)",
+        "Pessimistic locking is active on the tuple"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Transaction enters commit validation phase",
+        "Read-set entry must be checked against current tuple state",
+        "Tuple timestamp word requires extension due to delta accumulation"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Read tuple timestamp word (v1 = v2 = r.tuple.read_ts_word())'}",
+        "{'step': 2, 'action': 'Check abort conditions: if r.wts ≠ v1.wts OR (v1.rts ≤ commit_ts AND tuple is locked AND r.tuple not in W), then Abort()'}",
+        "{'step': 3, 'action': 'If v1.rts ≤ commit_ts, compute delta = commit_ts − v1.wts'}",
+        "{'step': 4, 'action': 'Extract overflow: shift = delta − (delta AND 0x7fff)'}",
+        "{'step': 5, 'action': 'Update v2: v2.wts = v2.wts + shift; v2.delta = delta − shift'}",
+        "{'step': 6, 'action': 'Atomically swap: success = compare_and_swap(r.tuple.ts_word, v1, v2)'}",
+        "{'step': 7, 'action': 'If success is false, retry from step 1; if true, validation complete'}"
+      ],
+      "constraints": [
+        "Timestamp word must support atomic compare-and-swap operation",
+        "Delta overflow correction requires bit-masking with 0x7fff boundary",
+        "Loop must retry until compare-and-swap succeeds (no early exit on contention)"
+      ],
+      "cautions": [
+        "If validation aborts, transaction must roll back all changes",
+        "Timestamp overflow handling assumes fixed bit-width representation (15-bit delta field)",
+        "Physical time ordering is used only when commit timestamps are equal; this validation does not enforce physical time ordering"
+      ],
+      "output_contract": [
+        "Validation succeeds with read timestamp extended and timestamp word atomically updated, or validation aborts with transaction rollback. Compare-and-swap loop guarantees eventual success or explicit abort signal."
+      ],
+      "examples": [
+        {
+          "input": "read-set entry r with r.wts=100, tuple with v1.wts=100, v1.rts=50, commit_ts=120, tuple not locked, not in write-set",
+          "output": "delta=20, shift=0, v2.wts=100, v2.delta=20, compare-and-swap succeeds, validation passes",
+          "notes": "No overflow; delta fits in 15-bit field"
+        },
+        {
+          "input": "read-set entry r with r.wts=100, tuple with v1.wts=100, v1.rts=120, commit_ts=120, tuple not locked",
+          "output": "v1.rts ≤ commit_ts is false, skip delta handling, validation passes without timestamp update",
+          "notes": "Read timestamp already at or beyond commit timestamp; no extension needed"
+        },
+        {
+          "input": "read-set entry r with r.wts=100, tuple with v1.wts=105, v1.rts=50, commit_ts=120",
+          "output": "r.wts ≠ v1.wts (100 ≠ 105), Abort()",
+          "notes": "Write timestamp mismatch indicates tuple was modified by another transaction"
+        }
+      ],
+      "tags": [
+        "optimistic_concurrency_control",
+        "timestamp_validation",
+        "atomic_operation",
+        "overflow_handling",
+        "commit_phase"
+      ],
+      "support_ids": [
+        "96b8020a-9e17-5e30-b34b-c75939af50f4"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "1e424058-0748-54ba-857d-0ea29ebc7568"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|atomically validate and update tuple read timestamps without conflicts|default|transaction_validation|optimistic_concurrency_control|validation_phase|read-set validation with timestamp overflow handling",
+        "change_action": "create",
+        "llm_reason": "Candidate skill addresses a distinct micro-capability (read-set validation with atomic timestamp overflow handling during optimistic concurrency control commit phase) that is not semantically equivalent to any existing skill in the registry. Existing skills cover unrelated domains (Spring Boot observation, ProcessPoolExecutor configuration, DataStream sinks). Peer candidates (timestamp extension, conflict detection, preemptive abort) are related but represent different workflow phases and objectives. This skill should be persisted as a new capability.",
+        "parent_skill_id": "aab1e698-9ca9-55db-8608-420ba3428975",
+        "parent_candidate_ids": [
+          "aab1e698-9ca9-55db-8608-420ba3428975"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "fc39f0fb-79d3-5b44-97d4-583266e72630",
+      "name": "Preemptive Abort Decision",
+      "description": "Before locking write-set tuples, determine if a transaction will fail validation by comparing an approximate commit timestamp (derived from read-set tuple rts values) against tuple wts. Abort early if validation will fail, avoiding unnecessary lock acquisition and contention.",
+      "skill_body": "1. Collect rts values from all tuples in the transaction's read set.\n2. Compute an approximate commit timestamp as the maximum rts observed.\n3. For each tuple in the read set, check if its wts matches the latest wts stored in TS_word.\n4. If any tuple's local rts is less than the approximate commit timestamp AND its local wts does not match the tuple's latest wts, the transaction will fail validation.\n5. If validation will fail, abort immediately without acquiring locks on the write set.\n6. If validation may succeed, proceed to write-set locking and full validation.\n\n## Objective\n\nReduce lock contention by identifying doomed transactions before write-set locking\n## Applicable Signals\n\n- Read-set tuple rts values are available\n- Tuple TS_word can be atomically read\n- Approximate commit timestamp can be computed from read-set rts\n\n## Contraindications\n\n- Read-only transactions (no write set to lock)\n- Empty read set\n- Exact commit timestamp already determined\n\n## Workflow Steps\n\n- {'step': 1, 'action': \"Read rts from all tuples in transaction's read set\", 'condition': 'Read set is non-empty'}\n- {'step': 2, 'action': 'Compute approximate commit timestamp as max(rts) from read set', 'condition': 'At least one rts value collected'}\n- {'step': 3, 'action': 'For each read-set tuple, atomically read latest wts from TS_word', 'condition': 'Approximate timestamp computed'}\n- {'step': 4, 'action': 'Check validation condition: rts < approximate_timestamp AND local_wts ≠ latest_wts', 'condition': 'All wts values read'}\n- {'step': 5, 'action': 'If validation will fail, abort transaction immediately', 'condition': 'Validation condition true for any read-set tuple'}\n- {'step': 6, 'action': 'If validation may succeed, proceed to write-set locking', 'condition': 'Validation condition false for all read-set tuples'}\n\n## Constraints\n\n- Approximate commit timestamp must be derived only from read-set rts values\n- Cannot use write-set rts values (they may change during validation)\n- Abort decision must be made before any write-set locks are acquired\n\n## Cautions\n\n- Approximate commit timestamp may be conservative; some transactions marked for abort might have succeeded with exact timestamp\n- Early abort trades off some false positives for reduced lock contention\n\n## Output Contract\n\n- Boolean decision: abort (true) or proceed to write-set locking (false). If abort, no locks are held. If proceed, transaction continues to full validation phase with write-set locking.\n\n## Example Executions\n\n### Example 1\n\n- Input: Transaction T with read set {tuple_x, tuple_y}; tuple_x.rts=100, tuple_y.rts=95; tuple_x.wts=100 (matches TS_word), tuple_y.wts=90 (does not match TS_word); approximate_timestamp=100\n- Output: Abort decision: true. Reason: tuple_y.rts (95) < approximate_timestamp (100) AND tuple_y.wts (90) ≠ latest_wts. No write-set locks acquired.\n- Notes: Early abort prevents unnecessary lock acquisition and contention.\n\n### Example 2\n\n- Input: Transaction T with read set {tuple_a}; tuple_a.rts=50; tuple_a.wts=50 (matches TS_word); approximate_timestamp=50\n- Output: Abort decision: false. Reason: validation condition not met (wts matches). Proceed to write-set locking and full validation.\n- Notes: Transaction may succeed; full validation required.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "aab1e698-9ca9-55db-8608-420ba3428975",
+      "parent_candidate_ids": [
+        "aab1e698-9ca9-55db-8608-420ba3428975"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Reduce lock contention by identifying doomed transactions before write-set locking",
+      "domain": "default",
+      "task_family": "transaction_validation",
+      "method_family": "early_abort",
+      "stage": "validation",
+      "applicable_signals": [
+        "Read-set tuple rts values are available",
+        "Tuple TS_word can be atomically read",
+        "Approximate commit timestamp can be computed from read-set rts"
+      ],
+      "contraindications": [
+        "Read-only transactions (no write set to lock)",
+        "Empty read set",
+        "Exact commit timestamp already determined"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Transaction enters validation phase",
+        "Transaction has non-empty read set",
+        "Write-set locking is about to occur"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': \"Read rts from all tuples in transaction's read set\", 'condition': 'Read set is non-empty'}",
+        "{'step': 2, 'action': 'Compute approximate commit timestamp as max(rts) from read set', 'condition': 'At least one rts value collected'}",
+        "{'step': 3, 'action': 'For each read-set tuple, atomically read latest wts from TS_word', 'condition': 'Approximate timestamp computed'}",
+        "{'step': 4, 'action': 'Check validation condition: rts < approximate_timestamp AND local_wts ≠ latest_wts', 'condition': 'All wts values read'}",
+        "{'step': 5, 'action': 'If validation will fail, abort transaction immediately', 'condition': 'Validation condition true for any read-set tuple'}",
+        "{'step': 6, 'action': 'If validation may succeed, proceed to write-set locking', 'condition': 'Validation condition false for all read-set tuples'}"
+      ],
+      "constraints": [
+        "Approximate commit timestamp must be derived only from read-set rts values",
+        "Cannot use write-set rts values (they may change during validation)",
+        "Abort decision must be made before any write-set locks are acquired"
+      ],
+      "cautions": [
+        "Approximate commit timestamp may be conservative; some transactions marked for abort might have succeeded with exact timestamp",
+        "Early abort trades off some false positives for reduced lock contention"
+      ],
+      "output_contract": [
+        "Boolean decision: abort (true) or proceed to write-set locking (false). If abort, no locks are held. If proceed, transaction continues to full validation phase with write-set locking."
+      ],
+      "examples": [
+        {
+          "input": "Transaction T with read set {tuple_x, tuple_y}; tuple_x.rts=100, tuple_y.rts=95; tuple_x.wts=100 (matches TS_word), tuple_y.wts=90 (does not match TS_word); approximate_timestamp=100",
+          "output": "Abort decision: true. Reason: tuple_y.rts (95) < approximate_timestamp (100) AND tuple_y.wts (90) ≠ latest_wts. No write-set locks acquired.",
+          "notes": "Early abort prevents unnecessary lock acquisition and contention."
+        },
+        {
+          "input": "Transaction T with read set {tuple_a}; tuple_a.rts=50; tuple_a.wts=50 (matches TS_word); approximate_timestamp=50",
+          "output": "Abort decision: false. Reason: validation condition not met (wts matches). Proceed to write-set locking and full validation.",
+          "notes": "Transaction may succeed; full validation required."
+        }
+      ],
+      "tags": [],
+      "support_ids": [
+        "5dd9d67b-72c9-5617-92c2-04ecaddcacce"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "68855129-61ef-5826-b7f3-3a21957cc9c5"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.82,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|reduce lock contention by identifying doomed transactions before write-set locking|default|transaction_validation|early_abort|validation|preemptive abort decision",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill in transaction_validation domain with unique semantic identity: preemptive abort decision using approximate commit timestamp derived from read-set before write-set locking. Peer candidates address related but different concerns (conflict detection via tuple timestamps, overflow handling, transaction-level timestamp comparison). Existing skills are unrelated (DataStream collection, ProcessPoolExecutor configuration). No merge, split, or revision relationship detected.",
+        "parent_skill_id": "aab1e698-9ca9-55db-8608-420ba3428975",
+        "parent_candidate_ids": [
+          "aab1e698-9ca9-55db-8608-420ba3428975"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ]
+}

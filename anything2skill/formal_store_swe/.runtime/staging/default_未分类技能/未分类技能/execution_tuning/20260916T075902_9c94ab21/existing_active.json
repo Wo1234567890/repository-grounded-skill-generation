@@ -1,0 +1,261 @@
+{
+  "schema": "autoskill.document.staging.existing_active.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "execution_tuning",
+  "run_id": "20260916T075902_9c94ab21",
+  "skills": [
+    {
+      "skill_id": "953561f7-cefc-5e57-9e3d-dd51ab122f49",
+      "name": "Validate Buffer Timeout Configuration",
+      "description": "Safety rule preventing buffer timeout misconfiguration in Flink DataStream execution. Enforces that buffer timeout values are never set to 0, which causes severe performance degradation. Guides selection between -1 (maximum throughput) or small positive values (5–10 ms for low-latency mode).",
+      "skill_body": "Before calling setBufferTimeout(), validate the timeout value. Reject 0 immediately. If maximizing throughput is the goal, use -1. If minimizing latency is the goal, use a small positive value such as 5 or 10 ms. Document the choice and rationale.\n\n## Objective\n\nprevent_performance_degradation\n## Applicable Signals\n\n- setBufferTimeout() invocation pending\n- buffer timeout parameter under review\n- latency or throughput optimization in progress\n\n## Contraindications\n\n- Not applicable when buffer timeout tuning is not required\n- Do not override this rule for experimental or one-off tests without explicit risk acceptance\n\n## Intervention Moves\n\n- Detect timeout value = 0\n- Reject or replace with safe alternative\n- Log the correction and rationale\n- Proceed with validated timeout value\n\n## Workflow Steps\n\n- Intercept setBufferTimeout() invocation with proposed timeout value\n- Validate that value is not equal to 0\n- If value is 0, reject and prompt for alternative\n- If value is -1, accept and confirm maximum throughput mode\n- If value is positive integer ≥ 5 ms, accept and confirm low-latency mode\n- Log validation result and proceed with execution\n\n## Constraints\n\n- Buffer timeout value must be validated before execution\n- Zero (0) is strictly forbidden\n- Allowed values: -1 (no timeout, flush only when full) or positive integers ≥ 5 ms\n\n## Cautions\n\n- A buffer timeout of 0 causes severe performance degradation and should never be used\n- Trade-off: -1 maximizes throughput but increases latency; small positive values (5–10 ms) minimize latency at the cost of throughput\n\n## Output Contract\n\n- Buffer timeout value is validated and confirmed to be either -1 or a positive integer ≥ 5 ms. Zero values are rejected or replaced. Execution proceeds with safe timeout configuration.\n\n## Example Executions\n\n### Example 1\n\n- Input: setBufferTimeout(0)\n- Output: Rejected; replaced with setBufferTimeout(10) for low-latency use case\n- Notes: Zero timeout triggers safety rule; caller must choose throughput (-1) or latency (5–10 ms) goal\n\n### Example 2\n\n- Input: setBufferTimeout(-1)\n- Output: Accepted; maximum throughput mode enabled\n- Notes: Buffers flush only when full; suitable for batch-like or high-throughput scenarios\n\n### Example 3\n\n- Input: setBufferTimeout(5)\n- Output: Accepted; low-latency mode enabled\n- Notes: Buffers flush every 5 ms; suitable for real-time or interactive use cases",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "prevent_performance_degradation",
+      "domain": "default",
+      "task_family": "execution_tuning",
+      "method_family": "safety_constraint",
+      "stage": "runtime_setup",
+      "applicable_signals": [
+        "setBufferTimeout() invocation pending",
+        "buffer timeout parameter under review",
+        "latency or throughput optimization in progress"
+      ],
+      "contraindications": [
+        "Not applicable when buffer timeout tuning is not required",
+        "Do not override this rule for experimental or one-off tests without explicit risk acceptance"
+      ],
+      "intervention_moves": [
+        "Detect timeout value = 0",
+        "Reject or replace with safe alternative",
+        "Log the correction and rationale",
+        "Proceed with validated timeout value"
+      ],
+      "triggers": [
+        "Before applying setBufferTimeout() call",
+        "During execution environment or operator configuration",
+        "When tuning latency or throughput trade-offs"
+      ],
+      "workflow_steps": [
+        "Intercept setBufferTimeout() invocation with proposed timeout value",
+        "Validate that value is not equal to 0",
+        "If value is 0, reject and prompt for alternative",
+        "If value is -1, accept and confirm maximum throughput mode",
+        "If value is positive integer ≥ 5 ms, accept and confirm low-latency mode",
+        "Log validation result and proceed with execution"
+      ],
+      "constraints": [
+        "Buffer timeout value must be validated before execution",
+        "Zero (0) is strictly forbidden",
+        "Allowed values: -1 (no timeout, flush only when full) or positive integers ≥ 5 ms"
+      ],
+      "cautions": [
+        "A buffer timeout of 0 causes severe performance degradation and should never be used",
+        "Trade-off: -1 maximizes throughput but increases latency; small positive values (5–10 ms) minimize latency at the cost of throughput"
+      ],
+      "output_contract": [
+        "Buffer timeout value is validated and confirmed to be either -1 or a positive integer ≥ 5 ms. Zero values are rejected or replaced. Execution proceeds with safe timeout configuration."
+      ],
+      "examples": [
+        {
+          "input": "setBufferTimeout(0)",
+          "output": "Rejected; replaced with setBufferTimeout(10) for low-latency use case",
+          "notes": "Zero timeout triggers safety rule; caller must choose throughput (-1) or latency (5–10 ms) goal"
+        },
+        {
+          "input": "setBufferTimeout(-1)",
+          "output": "Accepted; maximum throughput mode enabled",
+          "notes": "Buffers flush only when full; suitable for batch-like or high-throughput scenarios"
+        },
+        {
+          "input": "setBufferTimeout(5)",
+          "output": "Accepted; low-latency mode enabled",
+          "notes": "Buffers flush every 5 ms; suitable for real-time or interactive use cases"
+        }
+      ],
+      "tags": [
+        "buffer_timeout",
+        "latency_control",
+        "throughput_tuning",
+        "performance_trap",
+        "flink_datastream",
+        "execution_configuration"
+      ],
+      "support_ids": [
+        "076b61e9-ae06-5897-8d7f-2a6c4eb15c70"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "df850eb0-a3aa-52c9-ae71-61f4bdd70828"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.95,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|prevent_performance_degradation|default|execution_tuning|safety_constraint|runtime_setup|validate buffer timeout configuration",
+        "llm_reason": "Candidate is a distinct safety_rule at session granularity addressing buffer timeout misconfiguration in Flink DataStream execution. It has no semantic overlap with existing skills (which cover Future timeouts, process pool exceptions, file source semantics, and checkpoint tuning). The peer_candidates are in different task families (data_source_setup, fault_tolerance) and do not subsume this buffer timeout validation concern. No conflict evidence exists.",
+        "change_action": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "a81372ca-fd60-54ae-ac62-332a1e30474d",
+      "name": "Configure Buffer Timeout for Latency Control",
+      "description": "Set buffer timeout on StreamExecutionEnvironment or individual operators to balance throughput and latency. Use setBufferTimeout() to control when buffers flush: -1 for maximum throughput, small positive values (5-10ms) for minimum latency.",
+      "skill_body": "Call setBufferTimeout(timeoutMillis) on the StreamExecutionEnvironment or on individual operators in the DataStream pipeline. To maximize throughput, use -1 (buffers flush only when full). To minimize latency, use a small positive value such as 5 or 10 ms. Do not use 0, as it causes severe performance degradation.\n\n## Objective\n\ntune_buffer_flush_behavior\n## Applicable Signals\n\n- need to optimize latency or throughput trade-off in streaming job\n- before job submission or on specific operators\n- performance tuning phase\n\n## Contraindications\n\n- buffer timeout is already optimized for target profile\n- do not set timeout to 0 (causes severe performance degradation)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Obtain or create StreamExecutionEnvironment instance', 'detail': 'e.g., StreamExecutionEnvironment.createLocalEnvironment() or getExecutionEnvironment()'}\n- {'step': 2, 'action': 'Determine target profile: throughput-optimized or latency-optimized', 'detail': 'Throughput: use -1; Latency: use 5–10 ms'}\n- {'step': 3, 'action': 'Call setBufferTimeout(timeoutMillis) on environment or operator', 'detail': 'env.setBufferTimeout(timeoutMillis) or operator.setBufferTimeout(timeoutMillis)'}\n- {'step': 4, 'action': 'Submit job and monitor latency/throughput metrics', 'detail': 'Verify that observed behavior matches target profile'}\n\n## Constraints\n\n- setBufferTimeout() must be called before job execution\n- can be applied at environment level or per-operator level\n- valid range: -1 or positive integers (milliseconds); avoid 0\n\n## Cautions\n\n- Setting timeout to 0 causes severe performance degradation; avoid.\n- Trade-off: -1 maximizes throughput but increases latency; small positive values minimize latency but reduce throughput.\n\n## Output Contract\n\n- Buffer timeout value applied to environment or operator\n- Latency and throughput behavior matches target profile (low latency for small positive values, high throughput for -1)\n\n## Example Executions\n\n### Example 1\n\n- Input: StreamExecutionEnvironment with default buffer timeout; goal is to minimize latency\n- Output: env.setBufferTimeout(10) applied; buffers flush every 10 ms, reducing end-to-end latency\n- Notes: Suitable for real-time or interactive applications\n\n### Example 2\n\n- Input: StreamExecutionEnvironment with default buffer timeout; goal is to maximize throughput\n- Output: env.setBufferTimeout(-1) applied; buffers flush only when full, maximizing throughput\n- Notes: Suitable for batch-like or high-volume streaming jobs",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "tune_buffer_flush_behavior",
+      "domain": "default",
+      "task_family": "execution_tuning",
+      "method_family": "configuration",
+      "stage": "runtime_setup",
+      "applicable_signals": [
+        "need to optimize latency or throughput trade-off in streaming job",
+        "before job submission or on specific operators",
+        "performance tuning phase"
+      ],
+      "contraindications": [
+        "buffer timeout is already optimized for target profile",
+        "do not set timeout to 0 (causes severe performance degradation)"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "need to optimize latency or throughput trade-off in streaming job",
+        "before job submission or on specific operators"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Obtain or create StreamExecutionEnvironment instance', 'detail': 'e.g., StreamExecutionEnvironment.createLocalEnvironment() or getExecutionEnvironment()'}",
+        "{'step': 2, 'action': 'Determine target profile: throughput-optimized or latency-optimized', 'detail': 'Throughput: use -1; Latency: use 5–10 ms'}",
+        "{'step': 3, 'action': 'Call setBufferTimeout(timeoutMillis) on environment or operator', 'detail': 'env.setBufferTimeout(timeoutMillis) or operator.setBufferTimeout(timeoutMillis)'}",
+        "{'step': 4, 'action': 'Submit job and monitor latency/throughput metrics', 'detail': 'Verify that observed behavior matches target profile'}"
+      ],
+      "constraints": [
+        "setBufferTimeout() must be called before job execution",
+        "can be applied at environment level or per-operator level",
+        "valid range: -1 or positive integers (milliseconds); avoid 0"
+      ],
+      "cautions": [
+        "Setting timeout to 0 causes severe performance degradation; avoid.",
+        "Trade-off: -1 maximizes throughput but increases latency; small positive values minimize latency but reduce throughput."
+      ],
+      "output_contract": [
+        "Buffer timeout value applied to environment or operator",
+        "Latency and throughput behavior matches target profile (low latency for small positive values, high throughput for -1)"
+      ],
+      "examples": [
+        {
+          "input": "StreamExecutionEnvironment with default buffer timeout; goal is to minimize latency",
+          "output": "env.setBufferTimeout(10) applied; buffers flush every 10 ms, reducing end-to-end latency",
+          "notes": "Suitable for real-time or interactive applications"
+        },
+        {
+          "input": "StreamExecutionEnvironment with default buffer timeout; goal is to maximize throughput",
+          "output": "env.setBufferTimeout(-1) applied; buffers flush only when full, maximizing throughput",
+          "notes": "Suitable for batch-like or high-volume streaming jobs"
+        }
+      ],
+      "tags": [
+        "buffer_management",
+        "latency_optimization",
+        "throughput_tuning",
+        "streaming_configuration"
+      ],
+      "support_ids": [
+        "6a88fbb3-fcc5-584f-9789-7686b76547b8"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "349d8e3c-263e-5f67-8a78-06e4ad2ce8f3"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.92,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|tune_buffer_flush_behavior|default|execution_tuning|configuration|runtime_setup|configure buffer timeout for latency control",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill for buffer timeout configuration in Flink streaming, with unique objective (tune_buffer_flush_behavior), task_family (execution_tuning), and stage (runtime_setup). It does not semantically overlap with existing skills (async execution, future state management) or peer candidates (watermark emission, environment initialization, text tokenization). The peer_candidates are in different task families and stages; this skill is orthogonal to them. No conflicts detected in support evidence.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ]
+}

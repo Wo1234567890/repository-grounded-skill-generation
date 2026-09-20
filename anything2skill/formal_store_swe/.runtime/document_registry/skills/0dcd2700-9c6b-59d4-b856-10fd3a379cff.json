@@ -1,0 +1,129 @@
+{
+  "skill_id": "0dcd2700-9c6b-59d4-b856-10fd3a379cff",
+  "name": "Spring Data Properties Prefix Migration",
+  "description": "Migrate application properties from `spring.data.*` prefix to service-specific prefixes during Spring Boot 3.0 upgrade. The `spring.data` prefix is now reserved for Spring Data only; data service configurations (Cassandra, Redis, etc.) must be relocated to their respective prefixes (e.g., `spring.cassandra.*`).",
+  "skill_body": "Identify all `spring.data.*` properties in your application configuration files. For each data service (Cassandra, Redis, MongoDB, etc.), move its properties to the service-specific prefix. Validate that the application loads without property-not-found errors after migration.\n\n## Objective\n\nRelocate data service configuration properties to correct service-specific prefixes\n## Applicable Signals\n\n- Build or startup logs show property-not-found warnings for `spring.data.*` keys\n- Application configuration files contain `spring.data.cassandra.*`, `spring.data.redis.*`, or similar prefixes\n- Spring Data dependency is declared in pom.xml or build.gradle\n\n## Contraindications\n\n- Application does not use any data services\n- No `spring.data.*` properties are present in configuration\n- Spring Data is not a dependency\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Scan configuration files', 'detail': 'Search all application.properties, application.yml, and environment-specific config files for `spring.data.*` prefixes'}\n- {'step': 2, 'action': 'Identify data services', 'detail': 'Group properties by service type (Cassandra, Redis, MongoDB, etc.)'}\n- {'step': 3, 'action': 'Map to service-specific prefixes', 'detail': 'For each service, determine the correct Spring Boot 3.0 prefix (e.g., `spring.cassandra.*` for Cassandra)'}\n- {'step': 4, 'action': 'Relocate properties', 'detail': 'Move property blocks from `spring.data.<service>.*` to `spring.<service>.*`'}\n- {'step': 5, 'action': 'Validate configuration', 'detail': 'Start application and verify no property-not-found errors; confirm data service connectivity'}\n\n## Constraints\n\n- Must complete before application startup in Spring Boot 3.0\n- All data service properties must be moved; partial migration will cause runtime errors\n- Service-specific prefix names must match Spring Boot 3.0 documentation (e.g., `spring.cassandra.*`, not `spring.data.cassandra.*`)\n\n## Cautions\n\n- Verify the correct target prefix for each data service before migration\n- Test application startup after property relocation to catch missing or misnamed properties\n- Review Spring Data release notes for additional breaking changes in repository interfaces\n\n## Output Contract\n\n- All data service properties successfully migrated to service-specific prefixes; application configuration loads without property-not-found errors; data service connections are established and functional.\n\n## Example Executions\n\n### Example 1\n\n- Input: application.yml with `spring.data.cassandra.contact-points: localhost`\n- Output: application.yml updated to `spring.cassandra.contact-points: localhost`\n- Notes: Cassandra properties moved from spring.data.cassandra.* to spring.cassandra.*\n\n### Example 2\n\n- Input: application.properties with `spring.data.redis.host=localhost`\n- Output: application.properties updated to `spring.redis.host=localhost`\n- Notes: Redis properties moved from spring.data.redis.* to spring.redis.*",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [
+    "96727506-a6cb-5116-8c91-d2e2654fb438",
+    "5b89c0b3-be95-5d38-bd12-c76c956f8ce5"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "parent",
+  "objective": "Relocate data service configuration properties to correct service-specific prefixes",
+  "domain": "default",
+  "task_family": "configuration_migration",
+  "method_family": "property_relocation",
+  "stage": "upgrade_preparation",
+  "applicable_signals": [
+    "Build or startup logs show property-not-found warnings for `spring.data.*` keys",
+    "Application configuration files contain `spring.data.cassandra.*`, `spring.data.redis.*`, or similar prefixes",
+    "Spring Data dependency is declared in pom.xml or build.gradle"
+  ],
+  "contraindications": [
+    "Application does not use any data services",
+    "No `spring.data.*` properties are present in configuration",
+    "Spring Data is not a dependency"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Upgrading Spring Boot 2.x to 3.0",
+    "Application uses Cassandra, Redis, MongoDB, or other data services",
+    "Configuration contains `spring.data.*` properties",
+    "Spring Data is a classpath dependency"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Scan configuration files', 'detail': 'Search all application.properties, application.yml, and environment-specific config files for `spring.data.*` prefixes'}",
+    "{'step': 2, 'action': 'Identify data services', 'detail': 'Group properties by service type (Cassandra, Redis, MongoDB, etc.)'}",
+    "{'step': 3, 'action': 'Map to service-specific prefixes', 'detail': 'For each service, determine the correct Spring Boot 3.0 prefix (e.g., `spring.cassandra.*` for Cassandra)'}",
+    "{'step': 4, 'action': 'Relocate properties', 'detail': 'Move property blocks from `spring.data.<service>.*` to `spring.<service>.*`'}",
+    "{'step': 5, 'action': 'Validate configuration', 'detail': 'Start application and verify no property-not-found errors; confirm data service connectivity'}"
+  ],
+  "constraints": [
+    "Must complete before application startup in Spring Boot 3.0",
+    "All data service properties must be moved; partial migration will cause runtime errors",
+    "Service-specific prefix names must match Spring Boot 3.0 documentation (e.g., `spring.cassandra.*`, not `spring.data.cassandra.*`)"
+  ],
+  "cautions": [
+    "Verify the correct target prefix for each data service before migration",
+    "Test application startup after property relocation to catch missing or misnamed properties",
+    "Review Spring Data release notes for additional breaking changes in repository interfaces"
+  ],
+  "output_contract": [
+    "All data service properties successfully migrated to service-specific prefixes; application configuration loads without property-not-found errors; data service connections are established and functional."
+  ],
+  "examples": [
+    {
+      "input": "application.yml with `spring.data.cassandra.contact-points: localhost`",
+      "output": "application.yml updated to `spring.cassandra.contact-points: localhost`",
+      "notes": "Cassandra properties moved from spring.data.cassandra.* to spring.cassandra.*"
+    },
+    {
+      "input": "application.properties with `spring.data.redis.host=localhost`",
+      "output": "application.properties updated to `spring.redis.host=localhost`",
+      "notes": "Redis properties moved from spring.data.redis.* to spring.redis.*"
+    }
+  ],
+  "tags": [
+    "spring-boot-3-migration",
+    "configuration",
+    "data-services",
+    "property-migration"
+  ],
+  "support_ids": [
+    "770e58b5-322b-5319-bd84-7fc7c3890cd0"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "23470e77-3762-5c78-9328-8d7af1e9235b"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.88,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|relocate data service configuration properties to correct service-specific prefixes|default|configuration_migration|property_relocation|upgrade_preparation|spring data properties prefix migration",
+    "change_action": "create",
+    "llm_reason": "create",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [
+      "96727506-a6cb-5116-8c91-d2e2654fb438",
+      "5b89c0b3-be95-5d38-bd12-c76c956f8ce5"
+    ],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

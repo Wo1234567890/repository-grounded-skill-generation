@@ -1,0 +1,168 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "telemetry_extraction",
+  "run_id": "20260915T093653_e3385d6d",
+  "skills": [
+    {
+      "skill_id": "88ec988c-cb23-50ce-b6e6-eb8aec788c7a",
+      "name": "Attribute Extraction from Method Calls",
+      "description": "Extract telemetry attributes (e.g., model name, token usage) from LLM method arguments and return values using a structured AttributeMap handler. Normalizes observable metadata into OpenTelemetry-compliant keys for downstream observability systems.",
+      "skill_body": "Implement an attribute handler function that inspects method call arguments, keyword arguments, and return values to extract relevant telemetry data. Map extracted values to OpenTelemetry-compliant attribute keys (e.g., 'llm.request.model', 'llm.usage.total_tokens'). Return an AttributeMap dictionary with all extracted attributes. Handle cases where expected attributes may be missing or None.\n\n## Objective\n\nCapture and normalize LLM request and response metadata for observability\n## Applicable Signals\n\n- LLM method call is intercepted during instrumentation\n- Method arguments contain model identifier or configuration\n- Return value contains usage statistics or metadata\n- Span context requires enrichment with call-specific attributes\n\n## Contraindications\n\n- Method call has no relevant metadata to extract\n- Return value is None or lacks expected attributes\n- Attribute extraction would require deep introspection of complex nested objects\n\n## Intervention Moves\n\n- Check kwargs for 'model' key and extract model name\n- Inspect return_value for 'usage' attribute and extract token counts\n- Map extracted values to OpenTelemetry-compliant keys\n- Return populated AttributeMap or empty dict if no relevant data found\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Receive args, kwargs, and return_value from instrumented method call'}\n- {'step': 2, 'action': 'Initialize empty AttributeMap dictionary'}\n- {'step': 3, 'action': \"Check kwargs for 'model' key; if present, map to 'llm.request.model'\"}\n- {'step': 4, 'action': \"Check return_value for 'usage' attribute; if present, extract token counts and map to 'llm.usage.*' keys\"}\n- {'step': 5, 'action': 'Return populated AttributeMap'}\n\n## Constraints\n\n- Handler must accept args, kwargs, and return_value parameters\n- Output must be an AttributeMap (dict-like) with string keys\n- Keys must follow OpenTelemetry naming conventions (e.g., 'llm.request.*', 'llm.usage.*')\n- Handler must not raise exceptions; missing attributes should be skipped gracefully\n\n## Cautions\n\n- Do not assume all expected attributes are present; use defensive checks\n- Avoid extracting sensitive data (e.g., API keys, user content) into attributes\n- Keep attribute extraction lightweight to minimize instrumentation overhead\n\n## Output Contract\n\n- AttributeMap dictionary with zero or more OpenTelemetry-compliant key-value pairs extracted from the method call. Keys follow patterns such as 'llm.request.model', 'llm.usage.total_tokens', 'llm.usage.prompt_tokens', 'llm.usage.completion_tokens'. Empty dict is valid if no relevant metadata is found.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: {'args': [], 'kwargs': {'model': 'gpt-4', 'temperature': 0.7}, 'return_value': {'usage': {'total_tokens': 150, 'prompt_tokens': 50, 'completion_tokens': 100}}}\n- Therapist/Output: {'llm.request.model': 'gpt-4', 'llm.usage.total_tokens': 150, 'llm.usage.prompt_tokens': 50, 'llm.usage.completion_tokens': 100}\n- Notes: Full extraction from both kwargs and return_value\n\n### Example 2\n\n- Client/Input: {'args': [], 'kwargs': {'model': 'claude-3'}, 'return_value': None}\n- Therapist/Output: {'llm.request.model': 'claude-3'}\n- Notes: Partial extraction when return_value is None",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "68d2ebdb-9167-542f-8604-e8b7fac3db57",
+      "parent_candidate_ids": [
+        "68d2ebdb-9167-542f-8604-e8b7fac3db57"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Capture and normalize LLM request and response metadata for observability",
+      "domain": "default",
+      "task_family": "telemetry_extraction",
+      "method_family": "attribute_mapping",
+      "stage": "instrumentation",
+      "applicable_signals": [
+        "LLM method call is intercepted during instrumentation",
+        "Method arguments contain model identifier or configuration",
+        "Return value contains usage statistics or metadata",
+        "Span context requires enrichment with call-specific attributes"
+      ],
+      "contraindications": [
+        "Method call has no relevant metadata to extract",
+        "Return value is None or lacks expected attributes",
+        "Attribute extraction would require deep introspection of complex nested objects"
+      ],
+      "intervention_moves": [
+        "Check kwargs for 'model' key and extract model name",
+        "Inspect return_value for 'usage' attribute and extract token counts",
+        "Map extracted values to OpenTelemetry-compliant keys",
+        "Return populated AttributeMap or empty dict if no relevant data found"
+      ],
+      "triggers": [
+        "An instrumented LLM method is called; args, kwargs, or return_value contain model, usage, or other observable metadata."
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Receive args, kwargs, and return_value from instrumented method call'}",
+        "{'step': 2, 'action': 'Initialize empty AttributeMap dictionary'}",
+        "{'step': 3, 'action': \"Check kwargs for 'model' key; if present, map to 'llm.request.model'\"}",
+        "{'step': 4, 'action': \"Check return_value for 'usage' attribute; if present, extract token counts and map to 'llm.usage.*' keys\"}",
+        "{'step': 5, 'action': 'Return populated AttributeMap'}"
+      ],
+      "constraints": [
+        "Handler must accept args, kwargs, and return_value parameters",
+        "Output must be an AttributeMap (dict-like) with string keys",
+        "Keys must follow OpenTelemetry naming conventions (e.g., 'llm.request.*', 'llm.usage.*')",
+        "Handler must not raise exceptions; missing attributes should be skipped gracefully"
+      ],
+      "cautions": [
+        "Do not assume all expected attributes are present; use defensive checks",
+        "Avoid extracting sensitive data (e.g., API keys, user content) into attributes",
+        "Keep attribute extraction lightweight to minimize instrumentation overhead"
+      ],
+      "output_contract": [
+        "AttributeMap dictionary with zero or more OpenTelemetry-compliant key-value pairs extracted from the method call. Keys follow patterns such as 'llm.request.model', 'llm.usage.total_tokens', 'llm.usage.prompt_tokens', 'llm.usage.completion_tokens'. Empty dict is valid if no relevant metadata is found."
+      ],
+      "examples": [
+        {
+          "input": "{'args': [], 'kwargs': {'model': 'gpt-4', 'temperature': 0.7}, 'return_value': {'usage': {'total_tokens': 150, 'prompt_tokens': 50, 'completion_tokens': 100}}}",
+          "output": "{'llm.request.model': 'gpt-4', 'llm.usage.total_tokens': 150, 'llm.usage.prompt_tokens': 50, 'llm.usage.completion_tokens': 100}",
+          "notes": "Full extraction from both kwargs and return_value"
+        },
+        {
+          "input": "{'args': [], 'kwargs': {'model': 'claude-3'}, 'return_value': None}",
+          "output": "{'llm.request.model': 'claude-3'}",
+          "notes": "Partial extraction when return_value is None"
+        }
+      ],
+      "tags": [
+        "observability",
+        "telemetry",
+        "instrumentation",
+        "attribute_extraction",
+        "opentelemetry"
+      ],
+      "support_ids": [
+        "33e59b02-f7d0-5040-a2dc-d0f683dc744b"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "03e11c45-b969-5d05-8cba-4d4f3615b0cc"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|capture and normalize llm request and response metadata for observability|default|telemetry_extraction|attribute_mapping|instrumentation|attribute extraction from method calls",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill for extracting and normalizing LLM telemetry attributes into OpenTelemetry-compliant keys. It differs semantically from peer candidates (span hierarchy, span resolution, method patching) and existing skills (observation convention, connection mapping, reward function validation). No existing skill covers attribute extraction from method call metadata. Supported by Debugging Roadmap evidence. Safe to persist.",
+        "parent_skill_id": "68d2ebdb-9167-542f-8604-e8b7fac3db57",
+        "parent_candidate_ids": [
+          "68d2ebdb-9167-542f-8604-e8b7fac3db57"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "8cfc2e42-8619-4b9b-970e-92214785ec57",
+      "entity_type": "skill",
+      "entity_id": "88ec988c-cb23-50ce-b6e6-eb8aec788c7a",
+      "action": "create",
+      "changed_at": "2026-09-14T23:32:37+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill for extracting and normalizing LLM telemetry attributes into OpenTelemetry-compliant keys. It differs semantically from peer candidates (span hierarchy, span resolution, method patching) and existing skills (observation convention, connection mapping, reward function validation). No existing skill covers attribute extraction from method call metadata. Supported by Debugging Roadmap evidence. Safe to persist.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "88ec988c-cb23-50ce-b6e6-eb8aec788c7a",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "33e59b02-f7d0-5040-a2dc-d0f683dc744b"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "task_id": "analytics-events",
+  "task_file": "/Users/ttal0464/Desktop/skill-generation/experiment2/tasks/swe/batch1/analytics-events.md",
+  "repo": {
+    "repo_url": "https://github.com/metabase/metabase",
+    "repo_name": "metabase",
+    "commit": "d8bb291939a60c44d8ba6eb7bb132a5e0f271cf1"
+  },
+  "model": "claude-haiku-4-5-20251001",
+  "generation_policy": {
+    "task_spec_only": true,
+    "agent_outputs_used": false,
+    "gold_patch_used": false,
+    "original_verifier_used": false,
+    "review_pass": true
+  },
+  "requirement_mapping": [
+    {
+      "requirement": "File frontend/src/metabase/lib/analytics.ts must exist",
+      "test_name": "test_analytics_event_interface_exists",
+      "coverage": "FULL",
+      "reason": "Fixture attempts to load file, fails if not present"
+    },
+    {
+      "requirement": "AnalyticsEvent interface with event_name (string), payload (Record<string, unknown>), timestamp (number) fields",
+      "test_name": "test_analytics_event_has_event_name_field, test_analytics_event_has_payload_field, test_analytics_event_has_timestamp_field",
+      "coverage": "FULL",
+      "reason": "Three tests verify exact interface structure with specified types"
+    },
+    {
+      "requirement": "dashboard_viewed event with payload containing dashboard_id, view_duration_ms, card_count",
+      "test_name": "test_dashboard_viewed_event_defined, test_dashboard_viewed_payload_has_required_fields",
+      "coverage": "FULL",
+      "reason": "Event existence and all three required payload fields verified via contextual search"
+    },
+    {
+      "requirement": "question_saved event with payload containing question_id, question_type, database_id, save_duration_ms",
+      "test_name": "test_question_saved_event_defined, test_question_saved_payload_has_required_fields",
+      "coverage": "FULL",
+      "reason": "Event existence and all four required payload fields verified via contextual search"
+    },
+    {
+      "requirement": "filter_applied event with payload containing dashboard_id, filter_type, filter_value_count",
+      "test_name": "test_filter_applied_event_defined, test_filter_applied_payload_has_required_fields",
+      "coverage": "FULL",
+      "reason": "Event existence and all three required payload fields verified via contextual search"
+    },
+    {
+      "requirement": "Use snake_case for event names and payload field names",
+      "test_name": "test_event_names_are_snake_case, test_dashboard_viewed_payload_fields_snake_case, test_question_saved_payload_fields_snake_case, test_filter_applied_payload_fields_snake_case",
+      "coverage": "FULL",
+      "reason": "All required event names and payload field names validated against snake_case regex pattern"
+    },
+    {
+      "requirement": "Include TypeScript type definitions for each event payload",
+      "test_name": "test_file_contains_typescript_definitions",
+      "coverage": "PARTIAL",
+      "reason": "Verifies that type/interface definitions exist in file, but does not verify that specific payload type structures are present"
+    },
+    {
+      "requirement": "All required fields are present in each payload",
+      "test_name": "test_all_required_fields_present",
+      "coverage": "FULL",
+      "reason": "Verifies presence of all specified payload fields across all three events"
+    },
+    {
+      "requirement": "Code compiles without type errors",
+      "test_name": "UNVERIFIED",
+      "coverage": "UNVERIFIED",
+      "reason": "Task does not specify TypeScript compiler invocation or build command. Static syntax checking via regex cannot verify full type compilation."
+    },
+    {
+      "requirement": "Event triggers produce correct payload structure; timestamps are valid Unix timestamps",
+      "test_name": "UNVERIFIED",
+      "coverage": "UNVERIFIED",
+      "reason": "Runtime behavior and timestamp validation cannot be verified from static source analysis. Requires execution of event trigger code."
+    },
+    {
+      "requirement": "frontend/test/metabase/lib/analytics.test.ts - Unit tests",
+      "test_name": "UNVERIFIED",
+      "coverage": "UNVERIFIED",
+      "reason": "Task mentions test file but does not specify required test structure, test cases, or assertions beyond implementation requirements"
+    }
+  ],
+  "notes": [
+    "Verifier uses balanced-brace regex extraction for interface and type bodies to avoid false positives from comments or strings.",
+    "Field extraction uses word-boundary matching to avoid substring false positives.",
+    "snake_case verification is strict: only lowercase letters, digits, and underscores allowed per pattern ^[a-z0-9_]+$.",
+    "Type checking uses simple substring matching (e.g., 'Record<string, unknown>') which is sufficient for the explicitly specified types but would not catch complex generic mismatches.",
+    "Runtime event triggering and timestamp validation cannot be verified without execution; marked UNVERIFIED per policy."
+  ]
+}

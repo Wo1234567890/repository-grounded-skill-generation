@@ -1,0 +1,134 @@
+{
+  "skill_id": "2142ee5d-6d0f-5077-9736-8fbf5a8844d3",
+  "name": "Package Import Interception and Instrumentation",
+  "description": "Intercepts Python module imports and dynamically instruments matching packages with observability hooks. Replaces the built-in import function to detect and configure instrumentors for agentic libraries and their dependencies without modifying user code.",
+  "skill_body": "When a Python application imports a target package, intercept the import, check if the package matches a supported provider or agentic library, instantiate the appropriate instrumentor via InstrumentorLoader, apply instrumentation hooks, and return the instrumented module. Handle cascading dependencies (e.g., if mem0 is instrumented, also instrument concurrent.futures). Track instrumentation state in global _instrumenting_packages and _active_instrumentors. Skip instrumentation if an agentic library is already instrumented or if the package is not in the supported registry.\n\n## Objective\n\nEnable transparent instrumentation of third-party packages at import time without modifying user code.\n## Applicable Signals\n\n- Import event for a registered package name\n- _has_agentic_library flag is False\n- Package not already in _instrumenting_packages or _is_package_instrumented()\n\n## Contraindications\n\n- An agentic library is already instrumented (_has_agentic_library is True)\n- User has explicitly disabled instrumentation\n- Target package is not in PROVIDERS or AGENTIC_LIBRARIES registry\n- InstrumentorLoader instantiation fails due to version mismatch or missing class\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if agentic library is already instrumented', 'detail': 'If _has_agentic_library is True, delegate to original import and return early'}\n- {'step': 2, 'action': 'Perform the actual import', 'detail': 'Call _original_builtins_import(name, globals_dict, locals_dict, fromlist, level) to load the module'}\n- {'step': 3, 'action': 'Identify packages to instrument', 'detail': 'Check if the imported name or any of its items match entries in PROVIDERS or AGENTIC_LIBRARIES; build packages_to_check set'}\n- {'step': 4, 'action': 'Instrument matching packages', 'detail': 'For each package in packages_to_check: if not already instrumented, retrieve config from PROVIDERS or AGENTIC_LIBRARIES, instantiate InstrumentorLoader, call instrument_one(), and store _agentops_instrumented_package_key'}\n- {'step': 5, 'action': 'Handle cascading dependencies', 'detail': \"If package_name is 'mem0' and newly added, attempt to instrument concurrent.futures using concurrent_config\"}\n- {'step': 6, 'action': 'Update global state', 'detail': 'Add package to _instrumenting_packages and _active_instrumentors; set _has_agentic_library if an agentic library was instrumented'}\n- {'step': 7, 'action': 'Return instrumented module', 'detail': 'Return the module object to the caller with all instrumentation applied'}\n\n## Constraints\n\n- Must preserve original import behavior; return the module to caller after instrumentation\n- Global state (_instrumenting_packages, _active_instrumentors, _has_agentic_library) must be thread-safe or protected\n- Special case: if mem0 is instrumented, concurrent.futures must also be instrumented if available\n- Version checking via InstrumentorLoader.min_version must pass before instantiation\n\n## Cautions\n\n- Replacing the built-in import function is a global hook; ensure no circular dependencies or import loops\n- Instrumentor instantiation may fail silently if the target module or class is not found; log failures\n- Cascading instrumentation (mem0 → concurrent.futures) may introduce unexpected side effects if concurrent.futures is not available\n\n## Output Contract\n\n- Target package is instrumented with observability hooks\n- _instrumenting_packages and _active_instrumentors are updated to reflect the new instrumentor instance\n- _agentops_instrumented_package_key is set on the instrumentor\n- Module is returned to caller ready for use\n- Cascading dependencies (if applicable) are also instrumented",
+  "asset_type": "macro_protocol",
+  "granularity": "macro",
+  "asset_node_id": "macro_skill",
+  "asset_path": "family_root/macro_skill",
+  "asset_level": 1,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [
+    "453f771d-10b8-57c4-bb54-b12321a1b7b8",
+    "68d2ebdb-9167-542f-8604-e8b7fac3db57",
+    "8ab6381a-e2f5-5666-8d1e-85fa59b9301a",
+    "eace1bd8-b8f0-5539-bde6-e9f7deaa0c40",
+    "f8ac0674-da50-5e4a-90a1-794b56c8a3ab"
+  ],
+  "hierarchy_confidence": 1.0,
+  "hierarchy_status": "parent",
+  "visible_role": "parent",
+  "objective": "Enable transparent instrumentation of third-party packages at import time without modifying user code.",
+  "domain": "default",
+  "task_family": "observability_instrumentation",
+  "method_family": "import_hooking",
+  "stage": "initialization",
+  "applicable_signals": [
+    "Import event for a registered package name",
+    "_has_agentic_library flag is False",
+    "Package not already in _instrumenting_packages or _is_package_instrumented()"
+  ],
+  "contraindications": [
+    "An agentic library is already instrumented (_has_agentic_library is True)",
+    "User has explicitly disabled instrumentation",
+    "Target package is not in PROVIDERS or AGENTIC_LIBRARIES registry",
+    "InstrumentorLoader instantiation fails due to version mismatch or missing class"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Python application imports an agentic library (e.g., mem0, LangChain, AutoGen)",
+    "Import statement targets a package in PROVIDERS or AGENTIC_LIBRARIES registry",
+    "No agentic library instrumentation is currently active"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Check if agentic library is already instrumented', 'detail': 'If _has_agentic_library is True, delegate to original import and return early'}",
+    "{'step': 2, 'action': 'Perform the actual import', 'detail': 'Call _original_builtins_import(name, globals_dict, locals_dict, fromlist, level) to load the module'}",
+    "{'step': 3, 'action': 'Identify packages to instrument', 'detail': 'Check if the imported name or any of its items match entries in PROVIDERS or AGENTIC_LIBRARIES; build packages_to_check set'}",
+    "{'step': 4, 'action': 'Instrument matching packages', 'detail': 'For each package in packages_to_check: if not already instrumented, retrieve config from PROVIDERS or AGENTIC_LIBRARIES, instantiate InstrumentorLoader, call instrument_one(), and store _agentops_instrumented_package_key'}",
+    "{'step': 5, 'action': 'Handle cascading dependencies', 'detail': \"If package_name is 'mem0' and newly added, attempt to instrument concurrent.futures using concurrent_config\"}",
+    "{'step': 6, 'action': 'Update global state', 'detail': 'Add package to _instrumenting_packages and _active_instrumentors; set _has_agentic_library if an agentic library was instrumented'}",
+    "{'step': 7, 'action': 'Return instrumented module', 'detail': 'Return the module object to the caller with all instrumentation applied'}"
+  ],
+  "constraints": [
+    "Must preserve original import behavior; return the module to caller after instrumentation",
+    "Global state (_instrumenting_packages, _active_instrumentors, _has_agentic_library) must be thread-safe or protected",
+    "Special case: if mem0 is instrumented, concurrent.futures must also be instrumented if available",
+    "Version checking via InstrumentorLoader.min_version must pass before instantiation"
+  ],
+  "cautions": [
+    "Replacing the built-in import function is a global hook; ensure no circular dependencies or import loops",
+    "Instrumentor instantiation may fail silently if the target module or class is not found; log failures",
+    "Cascading instrumentation (mem0 → concurrent.futures) may introduce unexpected side effects if concurrent.futures is not available"
+  ],
+  "output_contract": [
+    "Target package is instrumented with observability hooks",
+    "_instrumenting_packages and _active_instrumentors are updated to reflect the new instrumentor instance",
+    "_agentops_instrumented_package_key is set on the instrumentor",
+    "Module is returned to caller ready for use",
+    "Cascading dependencies (if applicable) are also instrumented"
+  ],
+  "examples": [],
+  "tags": [
+    "import_hooking",
+    "observability",
+    "instrumentation",
+    "agentic_libraries",
+    "initialization",
+    "dynamic_loading"
+  ],
+  "support_ids": [
+    "8102f808-2597-515b-b40a-12e3d6095276"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "081d88d1-2a34-5fbc-9fbe-c5445a118734"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.85,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||macro_protocol|macro|macro_skill|enable transparent instrumentation of third-party packages at import time without modifying user code.|default|observability_instrumentation|import_hooking|initialization|package import interception and instrumentation",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct macro_protocol for import-time instrumentation of Python packages with observability hooks. It does not semantically match any existing skill (which cover cache management, Spring Boot migration, and session span initialization). The peer_candidates are unrelated macro_protocols in different domains (client lifecycle, integration testing, span initialization). No merge, split, or revision relationship exists.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 1.0,
+    "hierarchy_status": "parent",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "453f771d-10b8-57c4-bb54-b12321a1b7b8",
+      "68d2ebdb-9167-542f-8604-e8b7fac3db57",
+      "8ab6381a-e2f5-5666-8d1e-85fa59b9301a",
+      "eace1bd8-b8f0-5539-bde6-e9f7deaa0c40",
+      "f8ac0674-da50-5e4a-90a1-794b56c8a3ab"
+    ]
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

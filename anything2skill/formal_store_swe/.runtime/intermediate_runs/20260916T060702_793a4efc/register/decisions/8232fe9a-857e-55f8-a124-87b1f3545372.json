@@ -1,0 +1,115 @@
+{
+  "skill_id": "8232fe9a-857e-55f8-a124-87b1f3545372",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for measuring critical section contention impact on multi-threaded throughput scaling. It differs semantically from peer candidates: it measures bottleneck saturation point (not optimization ablation or timestamp conflict detection), uses thread-count scaling methodology (not transaction-level comparison or validation logic), and targets the optimization_evaluation stage. No existing skill in the registry matches this capability. Support evidence from section 6.4 confirms the relevance of critical section bottleneck analysis in OCC systems.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "8232fe9a-857e-55f8-a124-87b1f3545372",
+    "name": "Critical Section Bottleneck Scaling Assessment",
+    "description": "Evaluate whether shared global resources in the critical section limit multi-threaded scalability. Identify and measure the point at which throughput plateaus due to centralized synchronization contention.",
+    "skill_body": "Execute a scaling test on the concurrent algorithm under evaluation. Measure throughput across increasing thread counts (e.g., 1, 4, 8, 16, 20, 32, 64 threads). Plot throughput vs. thread count. Identify the thread count threshold beyond which throughput plateaus or degrades. Confirm that the critical section (shared global state access) is the primary bottleneck by comparing lock contention metrics or profiling data. Document the scaling limit and the contention signature.\n\n## Objective\n\nIdentify and measure critical section contention impact on throughput\n## Applicable Signals\n\n- Observed throughput plateau in scaling curve\n- Lock contention metrics indicate high critical section occupancy\n- Performance degradation correlates with thread count increase\n\n## Contraindications\n\n- Lock-free or fully distributed algorithms are in use\n- Single-threaded performance is the primary focus\n- No shared global resources exist in the algorithm\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Configure test harness with variable thread count parameter'}\n- {'step': 2, 'action': 'Execute algorithm with increasing thread counts (e.g., 1, 4, 8, 16, 20, 32, 64)'}\n- {'step': 3, 'action': 'Measure and record throughput (transactions/sec or operations/sec) for each thread count'}\n- {'step': 4, 'action': 'Plot throughput vs. thread count curve'}\n- {'step': 5, 'action': 'Identify the thread count threshold where throughput plateaus or begins to degrade'}\n- {'step': 6, 'action': 'Collect lock contention or critical section profiling data at the identified threshold'}\n\n## Constraints\n\n- Test must use consistent workload across all thread counts\n- Thread count range should span from 1 to at least 2× the suspected scaling limit\n- Profiling or lock contention instrumentation must be available\n\n## Cautions\n\n- Scaling behavior may vary with workload contention level; use representative workload\n- System thermal throttling or CPU frequency scaling may mask true contention effects\n- Ensure sufficient warm-up iterations before measurement to stabilize performance\n\n## Output Contract\n\n- Scaling limit (thread count threshold) where throughput plateaus, confirmation that critical section is the bottleneck, and quantified contention signature (e.g., lock wait time, critical section occupancy percentage)\n\n## Example Executions\n\n### Example 1\n\n- Input: Concurrent algorithm with centralized timestamp allocation; test with YCSB medium-contention workload\n- Output: Throughput plateaus at 20 cores; critical section occupancy exceeds 80% beyond 20 threads; scaling limit confirmed at 16–32 active threads\n- Notes: Matches expected behavior for algorithms with shared global resources",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "leaf",
+    "objective": "Identify and measure critical section contention impact on throughput",
+    "domain": "default",
+    "task_family": "performance_analysis",
+    "method_family": "bottleneck_measurement",
+    "stage": "optimization_evaluation",
+    "applicable_signals": [
+      "Observed throughput plateau in scaling curve",
+      "Lock contention metrics indicate high critical section occupancy",
+      "Performance degradation correlates with thread count increase"
+    ],
+    "contraindications": [
+      "Lock-free or fully distributed algorithms are in use",
+      "Single-threaded performance is the primary focus",
+      "No shared global resources exist in the algorithm"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Throughput plateaus or degrades beyond 16–32 active threads",
+      "Shared global state is suspected as the cause of performance degradation",
+      "Multi-threaded scalability evaluation is required"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Configure test harness with variable thread count parameter'}",
+      "{'step': 2, 'action': 'Execute algorithm with increasing thread counts (e.g., 1, 4, 8, 16, 20, 32, 64)'}",
+      "{'step': 3, 'action': 'Measure and record throughput (transactions/sec or operations/sec) for each thread count'}",
+      "{'step': 4, 'action': 'Plot throughput vs. thread count curve'}",
+      "{'step': 5, 'action': 'Identify the thread count threshold where throughput plateaus or begins to degrade'}",
+      "{'step': 6, 'action': 'Collect lock contention or critical section profiling data at the identified threshold'}"
+    ],
+    "constraints": [
+      "Test must use consistent workload across all thread counts",
+      "Thread count range should span from 1 to at least 2× the suspected scaling limit",
+      "Profiling or lock contention instrumentation must be available"
+    ],
+    "cautions": [
+      "Scaling behavior may vary with workload contention level; use representative workload",
+      "System thermal throttling or CPU frequency scaling may mask true contention effects",
+      "Ensure sufficient warm-up iterations before measurement to stabilize performance"
+    ],
+    "output_contract": [
+      "Scaling limit (thread count threshold) where throughput plateaus, confirmation that critical section is the bottleneck, and quantified contention signature (e.g., lock wait time, critical section occupancy percentage)"
+    ],
+    "examples": [
+      {
+        "input": "Concurrent algorithm with centralized timestamp allocation; test with YCSB medium-contention workload",
+        "output": "Throughput plateaus at 20 cores; critical section occupancy exceeds 80% beyond 20 threads; scaling limit confirmed at 16–32 active threads",
+        "notes": "Matches expected behavior for algorithms with shared global resources"
+      }
+    ],
+    "tags": [
+      "performance_analysis",
+      "scalability",
+      "bottleneck_detection",
+      "concurrency",
+      "critical_section",
+      "contention_measurement"
+    ],
+    "support_ids": [
+      "3ee102f7-db30-52e9-821a-a5c9a29a5f5b"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "be8846c2-e430-5878-8635-9e8adb05cf60"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.68,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|identify and measure critical section contention impact on throughput|default|performance_analysis|bottleneck_measurement|optimization_evaluation|critical section bottleneck scaling assessment",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

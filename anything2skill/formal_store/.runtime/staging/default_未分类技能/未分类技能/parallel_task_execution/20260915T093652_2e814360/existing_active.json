@@ -1,0 +1,990 @@
+{
+  "schema": "autoskill.document.staging.existing_active.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "parallel_task_execution",
+  "run_id": "20260915T093652_2e814360",
+  "skills": [
+    {
+      "skill_id": "14a91775-8c41-5053-967f-aa0bb64cd7bc",
+      "name": "ThreadPoolExecutor Configuration and Worker Reuse",
+      "description": "Configure ThreadPoolExecutor with adaptive max_workers sizing (min(32, os.cpu_count() + 4)) and enable idle worker thread reuse to balance I/O-bound and CPU-bound task execution while avoiding excessive resource allocation on multi-core systems.",
+      "skill_body": "Initialize ThreadPoolExecutor with default max_workers strategy: min(32, os.cpu_count() + 4). This preserves at least 5 workers for I/O-bound tasks, utilizes at most 32 CPU cores for CPU-bound tasks that release the GIL, and avoids implicit large resource allocation on many-core machines. The executor automatically reuses idle worker threads before spawning new workers.\n\n## Objective\n\nSet up thread pool with adaptive worker sizing and idle thread reuse\n## Applicable Signals\n\n- Need to balance I/O-bound and CPU-bound task execution\n- Requirement to avoid excessive implicit resource allocation\n- Workload includes network or I/O operations with thread blocking\n\n## Contraindications\n\n- CPU-bound tasks requiring process isolation (use ProcessPoolExecutor instead)\n- Interactive interpreter context (ProcessPoolExecutor limitation applies to thread pools in some contexts)\n- Single-threaded or synchronous execution preferred\n- Real-time constraints requiring deterministic thread count\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Import concurrent.futures module', 'detail': 'from concurrent.futures import ThreadPoolExecutor'}\n- {'step': 2, 'action': 'Create ThreadPoolExecutor instance without explicit max_workers', 'detail': 'executor = ThreadPoolExecutor() or ThreadPoolExecutor(max_workers=None)'}\n- {'step': 3, 'action': 'Submit I/O-bound tasks to executor', 'detail': 'Use executor.submit(callable, *args) or executor.map(callable, iterable)'}\n- {'step': 4, 'action': 'Observe automatic idle thread reuse', 'detail': 'Executor reuses idle workers before spawning new threads; no explicit action required'}\n- {'step': 5, 'action': 'Clean up executor', 'detail': 'Use context manager (with ThreadPoolExecutor() as executor:) or call executor.shutdown(wait=True)'}\n\n## Constraints\n\n- max_workers default applies only when max_workers parameter is None or omitted\n- Idle thread reuse is automatic; no explicit configuration required\n- Maximum of 32 workers enforced to prevent resource exhaustion on many-core systems\n\n## Cautions\n\n- Ensure submitted callables are thread-safe and do not hold locks across I/O operations\n- Monitor actual thread count in production; default may still be high on systems with >28 CPU cores\n\n## Output Contract\n\n- ThreadPoolExecutor instance created with max_workers set to min(32, os.cpu_count() + 4); idle worker threads are reused before new workers are spawned; executor ready to accept and execute submitted tasks with adaptive concurrency.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Launch multiple I/O-bound tasks (e.g., HTTP requests) on a 16-core system\n- Therapist/Output: ThreadPoolExecutor created with max_workers=20 (min(32, 16+4)); idle threads reused across task submissions\n- Notes: Balances I/O blocking with resource efficiency\n\n### Example 2\n\n- Client/Input: Launch tasks on a 64-core system\n- Therapist/Output: ThreadPoolExecutor created with max_workers=32 (capped); prevents implicit over-allocation\n- Notes: Cap prevents resource exhaustion on many-core machines",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+      "parent_candidate_ids": [
+        "85e9f4bf-55a0-5330-9bfe-d6575db46c9c"
+      ],
+      "child_skill_ids": [
+        "75eebd5a-67cf-54f9-b98b-48d6c9d1a996",
+        "cf48c0e3-fe11-5220-badc-4d0496f673dd"
+      ],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Set up thread pool with adaptive worker sizing and idle thread reuse",
+      "domain": "default",
+      "task_family": "parallel_task_execution",
+      "method_family": "thread_pool_configuration",
+      "stage": "initialization",
+      "applicable_signals": [
+        "Need to balance I/O-bound and CPU-bound task execution",
+        "Requirement to avoid excessive implicit resource allocation",
+        "Workload includes network or I/O operations with thread blocking"
+      ],
+      "contraindications": [
+        "CPU-bound tasks requiring process isolation (use ProcessPoolExecutor instead)",
+        "Interactive interpreter context (ProcessPoolExecutor limitation applies to thread pools in some contexts)",
+        "Single-threaded or synchronous execution preferred",
+        "Real-time constraints requiring deterministic thread count"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Launching I/O-bound workloads (network requests, file I/O)",
+        "Mixed workload execution requiring adaptive thread pool sizing",
+        "System with variable CPU core count requiring portable configuration"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Import concurrent.futures module', 'detail': 'from concurrent.futures import ThreadPoolExecutor'}",
+        "{'step': 2, 'action': 'Create ThreadPoolExecutor instance without explicit max_workers', 'detail': 'executor = ThreadPoolExecutor() or ThreadPoolExecutor(max_workers=None)'}",
+        "{'step': 3, 'action': 'Submit I/O-bound tasks to executor', 'detail': 'Use executor.submit(callable, *args) or executor.map(callable, iterable)'}",
+        "{'step': 4, 'action': 'Observe automatic idle thread reuse', 'detail': 'Executor reuses idle workers before spawning new threads; no explicit action required'}",
+        "{'step': 5, 'action': 'Clean up executor', 'detail': 'Use context manager (with ThreadPoolExecutor() as executor:) or call executor.shutdown(wait=True)'}"
+      ],
+      "constraints": [
+        "max_workers default applies only when max_workers parameter is None or omitted",
+        "Idle thread reuse is automatic; no explicit configuration required",
+        "Maximum of 32 workers enforced to prevent resource exhaustion on many-core systems"
+      ],
+      "cautions": [
+        "Ensure submitted callables are thread-safe and do not hold locks across I/O operations",
+        "Monitor actual thread count in production; default may still be high on systems with >28 CPU cores"
+      ],
+      "output_contract": [
+        "ThreadPoolExecutor instance created with max_workers set to min(32, os.cpu_count() + 4); idle worker threads are reused before new workers are spawned; executor ready to accept and execute submitted tasks with adaptive concurrency."
+      ],
+      "examples": [
+        {
+          "input": "Launch multiple I/O-bound tasks (e.g., HTTP requests) on a 16-core system",
+          "output": "ThreadPoolExecutor created with max_workers=20 (min(32, 16+4)); idle threads reused across task submissions",
+          "notes": "Balances I/O blocking with resource efficiency"
+        },
+        {
+          "input": "Launch tasks on a 64-core system",
+          "output": "ThreadPoolExecutor created with max_workers=32 (capped); prevents implicit over-allocation",
+          "notes": "Cap prevents resource exhaustion on many-core machines"
+        }
+      ],
+      "tags": [
+        "concurrency",
+        "thread_pool",
+        "I/O-bound",
+        "resource_management",
+        "Python 3.8+"
+      ],
+      "support_ids": [
+        "ac0b3509-7fd0-5199-b1aa-2124f9caa510"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "6641d10a-941d-558e-810b-0279bec4ada9"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|set up thread pool with adaptive worker sizing and idle thread reuse|default|parallel_task_execution|thread_pool_configuration|initialization|threadpoolexecutor configuration and worker reuse",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct session_skill for ThreadPoolExecutor configuration with adaptive worker sizing and idle thread reuse. It differs semantically from peer ProcessPoolExecutor skills (which target CPU-bound work with process isolation) and from the generic Executor.map skill. No existing skill covers ThreadPoolExecutor-specific initialization with the min(32, os.cpu_count() + 4) default and idle worker reuse semantics. The candidate has clear support evidence from Python 3.8+ concurrent.futures documentation and addresses a different task_family (parallel_task_execution with thread_pool_configuration method) than existing skills.",
+        "parent_skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+        "parent_candidate_ids": [
+          "85e9f4bf-55a0-5330-9bfe-d6575db46c9c"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "child_skill_ids": [
+          "75eebd5a-67cf-54f9-b98b-48d6c9d1a996",
+          "cf48c0e3-fe11-5220-badc-4d0496f673dd"
+        ]
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "20fcfee5-f751-568f-bc84-e74bdd47026d",
+      "name": "ProcessPoolExecutor Deadlock Prevention Rule",
+      "description": "Enforce constraint that Executor or Future methods must not be called from within callables submitted to ProcessPoolExecutor to prevent deadlock.",
+      "skill_body": "When designing or reviewing callable functions for ProcessPoolExecutor submission, verify that the function body does not call Executor.submit(), Future.result(), Future.cancel(), or any other Executor/Future methods. Such nested calls will cause deadlock in the worker process.\n\n## Objective\n\nPrevent deadlock in process pool execution\n## Applicable Signals\n\n- Function is being submitted to ProcessPoolExecutor via executor.submit() or executor.map()\n- Code review or static analysis of process pool task implementations\n\n## Contraindications\n\n- ThreadPoolExecutor usage (lower deadlock risk due to shared memory model)\n- Single-process or synchronous execution contexts\n- Interactive interpreter (ProcessPoolExecutor requires importable __main__ module)\n\n## Intervention Moves\n\n- Scan callable function body for Executor method calls (submit, map, shutdown)\n- Scan callable function body for Future method calls (result, cancel, done, exception)\n- If found, refactor to move blocking calls outside the callable or use ThreadPoolExecutor instead\n\n## Constraints\n\n- Rule applies only to ProcessPoolExecutor, not ThreadPoolExecutor\n- Constraint is architectural; violation causes hard deadlock, not graceful failure\n\n## Cautions\n\n- Deadlock may not manifest immediately; it occurs when worker process attempts to acquire pool lock while main process waits for worker result\n- Indirect calls to Executor/Future methods (via helper functions) also trigger deadlock\n\n## Output Contract\n\n- Callable function submitted to ProcessPoolExecutor contains no direct or indirect calls to Executor.submit(), Executor.map(), Future.result(), Future.cancel(), Future.done(), or Future.exception(). Verification artifact: code review checklist or static analysis report confirming absence of these method calls in function body.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Function submitted to ProcessPoolExecutor that calls executor.submit() internally\n- Therapist/Output: Deadlock detected; refactor to remove nested executor call or use ThreadPoolExecutor\n- Notes: Nested submit() call causes worker to wait for pool lock held by main process\n\n### Example 2\n\n- Client/Input: Function submitted to ProcessPoolExecutor that calls future.result() to wait for another task\n- Therapist/Output: Deadlock detected; move result() call outside the callable or restructure task dependency\n- Notes: Worker process blocks on result() while main process may be waiting for this worker",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Prevent deadlock in process pool execution",
+      "domain": "default",
+      "task_family": "parallel_task_execution",
+      "method_family": "deadlock_prevention",
+      "stage": "execution",
+      "applicable_signals": [
+        "Function is being submitted to ProcessPoolExecutor via executor.submit() or executor.map()",
+        "Code review or static analysis of process pool task implementations"
+      ],
+      "contraindications": [
+        "ThreadPoolExecutor usage (lower deadlock risk due to shared memory model)",
+        "Single-process or synchronous execution contexts",
+        "Interactive interpreter (ProcessPoolExecutor requires importable __main__ module)"
+      ],
+      "intervention_moves": [
+        "Scan callable function body for Executor method calls (submit, map, shutdown)",
+        "Scan callable function body for Future method calls (result, cancel, done, exception)",
+        "If found, refactor to move blocking calls outside the callable or use ThreadPoolExecutor instead"
+      ],
+      "triggers": [
+        "Code review of functions submitted to ProcessPoolExecutor",
+        "Design phase for parallel task decomposition using process pools",
+        "Debugging deadlock or hang in ProcessPoolExecutor workflows"
+      ],
+      "workflow_steps": [],
+      "constraints": [
+        "Rule applies only to ProcessPoolExecutor, not ThreadPoolExecutor",
+        "Constraint is architectural; violation causes hard deadlock, not graceful failure"
+      ],
+      "cautions": [
+        "Deadlock may not manifest immediately; it occurs when worker process attempts to acquire pool lock while main process waits for worker result",
+        "Indirect calls to Executor/Future methods (via helper functions) also trigger deadlock"
+      ],
+      "output_contract": [
+        "Callable function submitted to ProcessPoolExecutor contains no direct or indirect calls to Executor.submit(), Executor.map(), Future.result(), Future.cancel(), Future.done(), or Future.exception(). Verification artifact: code review checklist or static analysis report confirming absence of these method calls in function body."
+      ],
+      "examples": [
+        {
+          "input": "Function submitted to ProcessPoolExecutor that calls executor.submit() internally",
+          "output": "Deadlock detected; refactor to remove nested executor call or use ThreadPoolExecutor",
+          "notes": "Nested submit() call causes worker to wait for pool lock held by main process"
+        },
+        {
+          "input": "Function submitted to ProcessPoolExecutor that calls future.result() to wait for another task",
+          "output": "Deadlock detected; move result() call outside the callable or restructure task dependency",
+          "notes": "Worker process blocks on result() while main process may be waiting for this worker"
+        }
+      ],
+      "tags": [
+        "deadlock_prevention",
+        "process_pool",
+        "concurrent.futures",
+        "safety_constraint",
+        "python_parallelism"
+      ],
+      "support_ids": [
+        "9586830b-d740-5c42-bf74-50a68776e831"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "365f92b1-90ba-5d1f-beba-351e7f99fbe3"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.9,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|prevent deadlock in process pool execution|default|parallel_task_execution|deadlock_prevention|execution|processpoolexecutor deadlock prevention rule",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct safety rule for ProcessPoolExecutor deadlock prevention (architectural constraint on callable content). It differs semantically and operationally from peer candidates: it targets callable function bodies (execution-time constraint), while peer skill 4000cc6b addresses module importability (initialization constraint), peer d2d734a8 addresses worker crash recovery (exception handling), and peer 3a7c2fc9 addresses ThreadPoolExecutor inter-future dependencies (design-time analysis). Existing skills are unrelated (Virtual WAN routing). No merge, split, or revision relationship applies. Candidate has clear support evidence and no conflicts.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "3a7c2fc9-94f3-58e3-af8a-f9bcde8462e7",
+      "name": "ThreadPoolExecutor Deadlock Avoidance",
+      "description": "Detect and prevent circular wait conditions where futures block on other futures' results within the same ThreadPoolExecutor. Identifies scenarios where a limited number of worker threads can become exhausted if a submitted task calls .result() on another future in the same pool.",
+      "skill_body": "Review task submission logic before execution. Identify any submitted callable that may invoke .result() on another future from the same executor. Check for circular dependencies: task A waiting on task B, and task B waiting on task A. Verify that the number of worker threads is sufficient for all concurrent blocking operations. If a task must wait on another future's result, ensure either (1) the dependent future is submitted to a different executor, (2) the pool has enough workers to run both tasks concurrently, or (3) the task uses a non-blocking pattern such as callbacks or chaining.\n\n## Objective\n\nPrevent deadlock when futures have inter-dependencies within ThreadPoolExecutor\n## Applicable Signals\n\n- Task submission logic includes .result() calls on other futures\n- Multiple futures are submitted to the same ThreadPoolExecutor\n- Task design involves inter-task synchronization or result polling\n\n## Contraindications\n\n- Tasks are independent and do not call .result() on other futures\n- Using ProcessPoolExecutor (different concurrency model; deadlock risk is lower but still possible with insufficient workers)\n- All futures are submitted to different executors\n\n## Intervention Moves\n\n- Refactor task to avoid blocking on sibling futures; use callbacks or future chaining instead\n- Increase max_workers to at least the number of potentially concurrent blocking tasks\n- Submit dependent tasks to a separate executor to break the circular wait\n- Use non-blocking patterns such as executor.map() or future.add_done_callback()\n\n## Constraints\n\n- Applies only to ThreadPoolExecutor, not ProcessPoolExecutor or other executor types\n- Circular dependencies must be detected at design time; runtime detection is difficult\n- Increasing max_workers is a mitigation but not a complete solution if task logic is inherently circular\n\n## Cautions\n\n- A single worker thread executing a task that calls .result() on another future will block indefinitely if all other workers are also blocked\n- With max_workers=1, any task that calls .result() on a future will deadlock\n- Deadlock may not manifest immediately; it depends on task scheduling and timing\n\n## Output Contract\n\n- Task design review confirms no circular waits; all futures can progress without blocking on sibling futures. Documented evidence that either (1) no task calls .result() on another future, (2) dependent futures are in separate executors, or (3) max_workers is sufficient for concurrent blocking operations.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Two tasks submitted to ThreadPoolExecutor(max_workers=2): task A calls b.result(), task B calls a.result().\n- Therapist/Output: Deadlock detected. Recommendation: refactor to use callbacks or submit one task to a separate executor.\n- Notes: Circular dependency with insufficient workers.\n\n### Example 2\n\n- Client/Input: Single task submitted to ThreadPoolExecutor(max_workers=1) that calls executor.submit(pow, 5, 2).result().\n- Therapist/Output: Deadlock detected. The single worker is blocked waiting for itself. Recommendation: increase max_workers or use non-blocking pattern.\n- Notes: Self-blocking scenario with max_workers=1.",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Prevent deadlock when futures have inter-dependencies within ThreadPoolExecutor",
+      "domain": "default",
+      "task_family": "parallel_task_execution",
+      "method_family": "dependency_analysis",
+      "stage": "design",
+      "applicable_signals": [
+        "Task submission logic includes .result() calls on other futures",
+        "Multiple futures are submitted to the same ThreadPoolExecutor",
+        "Task design involves inter-task synchronization or result polling"
+      ],
+      "contraindications": [
+        "Tasks are independent and do not call .result() on other futures",
+        "Using ProcessPoolExecutor (different concurrency model; deadlock risk is lower but still possible with insufficient workers)",
+        "All futures are submitted to different executors"
+      ],
+      "intervention_moves": [
+        "Refactor task to avoid blocking on sibling futures; use callbacks or future chaining instead",
+        "Increase max_workers to at least the number of potentially concurrent blocking tasks",
+        "Submit dependent tasks to a separate executor to break the circular wait",
+        "Use non-blocking patterns such as executor.map() or future.add_done_callback()"
+      ],
+      "triggers": [
+        "Designing task submission logic where one submitted task may call .result() on another future in the same pool"
+      ],
+      "workflow_steps": [],
+      "constraints": [
+        "Applies only to ThreadPoolExecutor, not ProcessPoolExecutor or other executor types",
+        "Circular dependencies must be detected at design time; runtime detection is difficult",
+        "Increasing max_workers is a mitigation but not a complete solution if task logic is inherently circular"
+      ],
+      "cautions": [
+        "A single worker thread executing a task that calls .result() on another future will block indefinitely if all other workers are also blocked",
+        "With max_workers=1, any task that calls .result() on a future will deadlock",
+        "Deadlock may not manifest immediately; it depends on task scheduling and timing"
+      ],
+      "output_contract": [
+        "Task design review confirms no circular waits; all futures can progress without blocking on sibling futures. Documented evidence that either (1) no task calls .result() on another future, (2) dependent futures are in separate executors, or (3) max_workers is sufficient for concurrent blocking operations."
+      ],
+      "examples": [
+        {
+          "input": "Two tasks submitted to ThreadPoolExecutor(max_workers=2): task A calls b.result(), task B calls a.result().",
+          "output": "Deadlock detected. Recommendation: refactor to use callbacks or submit one task to a separate executor.",
+          "notes": "Circular dependency with insufficient workers."
+        },
+        {
+          "input": "Single task submitted to ThreadPoolExecutor(max_workers=1) that calls executor.submit(pow, 5, 2).result().",
+          "output": "Deadlock detected. The single worker is blocked waiting for itself. Recommendation: increase max_workers or use non-blocking pattern.",
+          "notes": "Self-blocking scenario with max_workers=1."
+        }
+      ],
+      "tags": [
+        "concurrency",
+        "deadlock",
+        "thread_pool",
+        "futures",
+        "safety",
+        "design_review"
+      ],
+      "support_ids": [
+        "16e94d7d-5739-570b-ab8c-544afed0c37a"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "25968ed9-5574-5da2-a29c-6e6ba1c69be6"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.9,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|prevent deadlock when futures have inter-dependencies within threadpoolexecutor|default|parallel_task_execution|dependency_analysis|design|threadpoolexecutor deadlock avoidance",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct safety rule for ThreadPoolExecutor deadlock avoidance with specific circular-wait detection logic and intervention moves. Peer candidates address ProcessPoolExecutor deadlock prevention, module importability, and BrokenProcessPool exception handling—all different executor types, stages, and failure modes. Existing skills are unrelated (Virtual WAN routing). No semantic overlap with any registered skill.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "4000cc6b-e91d-5bd0-a93b-1af3867a49aa",
+      "name": "Validate ProcessPoolExecutor Module Importability",
+      "description": "Enforce that code using ProcessPoolExecutor is structured as an importable module or script, not executed in an interactive interpreter. Worker subprocesses must be able to import the __main__ module for ProcessPoolExecutor to function correctly.",
+      "skill_body": "Before deploying ProcessPoolExecutor, verify that your code is in a module or script file where __main__ can be imported by worker subprocesses. Do not attempt to use ProcessPoolExecutor in an interactive Python interpreter session, as worker processes will not be able to import the main module and execution will fail.\n\n## Objective\n\nEnforce module importability constraint for process pool execution\n## Applicable Signals\n\n- Setting up ProcessPoolExecutor for task distribution\n- Deploying parallel processing code to production or non-interactive environment\n- Transitioning from ThreadPoolExecutor to ProcessPoolExecutor\n\n## Contraindications\n\n- Interactive Python interpreter (REPL, Jupyter notebook, IPython shell)\n- ThreadPoolExecutor usage (does not have this constraint)\n- Single-process execution contexts\n\n## Intervention Moves\n\n- Move code from interactive interpreter into a .py module file\n- Ensure the module containing ProcessPoolExecutor setup is importable (not just __main__)\n- Use if __name__ == '__main__': guard for entry point logic\n\n## Constraints\n\n- Code must reside in an importable module or script file\n- __main__ module must be accessible to worker subprocesses\n- Worker processes must be able to locate and import the calling module\n\n## Cautions\n\n- Attempting ProcessPoolExecutor in interactive interpreter will result in silent failure or deadlock\n- Code that works in interactive mode may fail when moved to ProcessPoolExecutor without refactoring\n\n## Output Contract\n\n- Code executes in a context where ProcessPoolExecutor can successfully spawn and initialize worker processes\n- __main__ module is importable by subprocesses\n- No import errors or deadlock occurs during worker initialization",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Enforce module importability constraint for process pool execution",
+      "domain": "default",
+      "task_family": "parallel_task_execution",
+      "method_family": "process_pool_constraints",
+      "stage": "initialization",
+      "applicable_signals": [
+        "Setting up ProcessPoolExecutor for task distribution",
+        "Deploying parallel processing code to production or non-interactive environment",
+        "Transitioning from ThreadPoolExecutor to ProcessPoolExecutor"
+      ],
+      "contraindications": [
+        "Interactive Python interpreter (REPL, Jupyter notebook, IPython shell)",
+        "ThreadPoolExecutor usage (does not have this constraint)",
+        "Single-process execution contexts"
+      ],
+      "intervention_moves": [
+        "Move code from interactive interpreter into a .py module file",
+        "Ensure the module containing ProcessPoolExecutor setup is importable (not just __main__)",
+        "Use if __name__ == '__main__': guard for entry point logic"
+      ],
+      "triggers": [
+        "Setting up ProcessPoolExecutor",
+        "Deploying code with process pools to production"
+      ],
+      "workflow_steps": [],
+      "constraints": [
+        "Code must reside in an importable module or script file",
+        "__main__ module must be accessible to worker subprocesses",
+        "Worker processes must be able to locate and import the calling module"
+      ],
+      "cautions": [
+        "Attempting ProcessPoolExecutor in interactive interpreter will result in silent failure or deadlock",
+        "Code that works in interactive mode may fail when moved to ProcessPoolExecutor without refactoring"
+      ],
+      "output_contract": [
+        "Code executes in a context where ProcessPoolExecutor can successfully spawn and initialize worker processes",
+        "__main__ module is importable by subprocesses",
+        "No import errors or deadlock occurs during worker initialization"
+      ],
+      "examples": [],
+      "tags": [
+        "process_pool",
+        "subprocess",
+        "module_importability",
+        "initialization_constraint",
+        "concurrent.futures"
+      ],
+      "support_ids": [
+        "cebfd595-9d2e-559a-bedb-9aeca28ef996"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "1bfad352-ecc9-5537-96b0-c28764a87380"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.88,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|enforce module importability constraint for process pool execution|default|parallel_task_execution|process_pool_constraints|initialization|validate processpoolexecutor module importability",
+        "llm_reason": "Candidate is a distinct safety rule for ProcessPoolExecutor module importability constraints. It addresses a different failure mode (import/initialization) than peer candidates (deadlock, worker crash). Existing skills are unrelated (Virtual WAN routing). No semantic overlap with registry.",
+        "change_action": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "75eebd5a-67cf-54f9-b98b-48d6c9d1a996",
+      "name": "ThreadPoolExecutor Context Manager Setup",
+      "description": "Use ThreadPoolExecutor with a `with` statement to automatically manage executor lifecycle and ensure all submitted tasks complete before context exit.",
+      "skill_body": "Initialize a ThreadPoolExecutor using the `with` statement. Submit your asynchronous tasks within the context block. The executor will automatically shut down with wait=True when the block exits, ensuring all submitted futures complete before proceeding. This pattern eliminates the need for explicit shutdown() calls and prevents resource leaks.\n\n## Objective\n\nSafely initialize and teardown a thread pool without explicit shutdown calls\n## Applicable Signals\n\n- Submitting multiple short-lived asynchronous tasks\n- All tasks should complete before proceeding to next code section\n- Want to avoid manual shutdown() calls\n- Need automatic resource cleanup\n\n## Contraindications\n\n- Tasks require long-running background execution after the context block exits\n- Executor must remain open and accessible across multiple code sections\n- Need to submit tasks dynamically after initial context setup\n\n## Intervention Moves\n\n- Wrap ThreadPoolExecutor instantiation in a `with` statement\n- Submit all tasks within the context block using executor.submit()\n- Allow context exit to trigger automatic shutdown with wait=True\n\n## Workflow Steps\n\n- Create ThreadPoolExecutor instance within `with` statement header\n- Submit callable tasks using executor.submit(function, *args)\n- Optionally store returned Future objects for later result retrieval\n- Exit the `with` block (automatic shutdown with wait=True occurs here)\n- Access results from stored Future objects after context exit if needed\n\n## Constraints\n\n- All task submission must occur within the `with` block\n- Context exit will block until all submitted futures complete\n- Cannot reuse executor after context exit\n\n## Cautions\n\n- If any submitted task raises an exception, it will not prevent context exit but will be raised when accessing the future result\n- Long-running tasks within the context will delay context exit and block subsequent code\n\n## Output Contract\n\n- All submitted futures complete execution\n- Executor is shut down with wait=True\n- No resource leaks\n- Context block returns control only after all tasks finish\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Submit four file copy tasks to a thread pool with max_workers=4\n- Therapist/Output: All four copy operations complete before the `with` block exits; executor is automatically shut down\n- Notes: Typical use case for batch processing of independent tasks",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "14a91775-8c41-5053-967f-aa0bb64cd7bc",
+      "parent_candidate_ids": [
+        "14a91775-8c41-5053-967f-aa0bb64cd7bc"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Safely initialize and teardown a thread pool without explicit shutdown calls",
+      "domain": "default",
+      "task_family": "parallel_task_execution",
+      "method_family": "context_manager_pattern",
+      "stage": "setup",
+      "applicable_signals": [
+        "Submitting multiple short-lived asynchronous tasks",
+        "All tasks should complete before proceeding to next code section",
+        "Want to avoid manual shutdown() calls",
+        "Need automatic resource cleanup"
+      ],
+      "contraindications": [
+        "Tasks require long-running background execution after the context block exits",
+        "Executor must remain open and accessible across multiple code sections",
+        "Need to submit tasks dynamically after initial context setup"
+      ],
+      "intervention_moves": [
+        "Wrap ThreadPoolExecutor instantiation in a `with` statement",
+        "Submit all tasks within the context block using executor.submit()",
+        "Allow context exit to trigger automatic shutdown with wait=True"
+      ],
+      "triggers": [
+        "Submitting multiple short-lived asynchronous tasks that should all complete before proceeding; want to avoid manual shutdown() calls."
+      ],
+      "workflow_steps": [
+        "Create ThreadPoolExecutor instance within `with` statement header",
+        "Submit callable tasks using executor.submit(function, *args)",
+        "Optionally store returned Future objects for later result retrieval",
+        "Exit the `with` block (automatic shutdown with wait=True occurs here)",
+        "Access results from stored Future objects after context exit if needed"
+      ],
+      "constraints": [
+        "All task submission must occur within the `with` block",
+        "Context exit will block until all submitted futures complete",
+        "Cannot reuse executor after context exit"
+      ],
+      "cautions": [
+        "If any submitted task raises an exception, it will not prevent context exit but will be raised when accessing the future result",
+        "Long-running tasks within the context will delay context exit and block subsequent code"
+      ],
+      "output_contract": [
+        "All submitted futures complete execution",
+        "Executor is shut down with wait=True",
+        "No resource leaks",
+        "Context block returns control only after all tasks finish"
+      ],
+      "examples": [
+        {
+          "input": "Submit four file copy tasks to a thread pool with max_workers=4",
+          "output": "All four copy operations complete before the `with` block exits; executor is automatically shut down",
+          "notes": "Typical use case for batch processing of independent tasks"
+        }
+      ],
+      "tags": [
+        "threading",
+        "context_manager",
+        "resource_management",
+        "executor_lifecycle"
+      ],
+      "support_ids": [
+        "90589035-31c4-5821-ad0e-2791897b16d1"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "290f7e32-94f4-5e0d-831f-53e94878e73b"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|safely initialize and teardown a thread pool without explicit shutdown calls|default|parallel_task_execution|context_manager_pattern|setup|threadpoolexecutor context manager setup",
+        "llm_reason": "Candidate is a distinct micro_skill for ThreadPoolExecutor context manager pattern (setup stage, context_manager_pattern method). Peer candidates address different aspects (worker initialization, worker count tuning, ProcessPoolExecutor lifecycle) and existing skills are unrelated (image optimization, reward functions). No semantic overlap with registry.",
+        "change_action": "create",
+        "parent_skill_id": "14a91775-8c41-5053-967f-aa0bb64cd7bc",
+        "parent_candidate_ids": [
+          "14a91775-8c41-5053-967f-aa0bb64cd7bc"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "ab334d07-1b79-5de7-878d-8dc51a398bac",
+      "name": "ProcessPoolExecutor Initialization with Worker Setup",
+      "description": "Initialize a ProcessPoolExecutor with an optional initializer callable and initargs to configure per-worker process state. Handle BrokenProcessPool exceptions when initializer fails on any worker.",
+      "skill_body": "Create a ProcessPoolExecutor instance by passing an initializer callable and initargs tuple. The initializer runs once at the start of each worker process before any tasks are submitted. If the initializer raises an exception, all pending jobs will raise BrokenProcessPool and further job submissions will fail. Ensure the __main__ module is importable by worker subprocesses and do not call Executor or Future methods from within submitted callables.\n\n## Objective\n\nSet up a process pool with per-worker initialization and error handling for CPU-bound tasks requiring process isolation\n## Applicable Signals\n\n- CPU-bound workload identified\n- Worker process state initialization needed\n- Multiple independent worker processes required\n\n## Contraindications\n\n- Interactive interpreter environment\n- Calling Executor or Future methods from within submitted callables\n- __main__ module not importable by worker subprocesses\n- Tasks requiring thread-local state or GIL-dependent operations\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Define initializer callable (optional) that accepts initargs', 'detail': 'Initializer runs once per worker process at startup'}\n- {'step': 2, 'action': 'Prepare initargs tuple with arguments for initializer', 'detail': 'Arguments are passed to initializer in order'}\n- {'step': 3, 'action': 'Create ProcessPoolExecutor with initializer and initargs parameters', 'detail': 'Executor instantiation triggers initializer execution on each worker'}\n- {'step': 4, 'action': 'Submit tasks to executor using submit() or map()', 'detail': 'Tasks execute on workers after initialization completes'}\n- {'step': 5, 'action': 'Catch BrokenProcessPool exception if initializer fails', 'detail': 'All pending jobs raise BrokenProcessPool; further submissions fail'}\n\n## Constraints\n\n- Initializer must be a callable or None\n- initargs must be a tuple of arguments passable to initializer\n- Initializer exception propagates as BrokenProcessPool to all pending jobs\n- Worker subprocesses must be able to import __main__\n\n## Cautions\n\n- If initializer raises an exception, the entire pool enters a broken state\n- Do not submit Executor or Future method calls from within task callables to avoid deadlock\n- ProcessPoolExecutor will not work in interactive interpreter\n\n## Output Contract\n\n- ProcessPoolExecutor instance with initializer executed on each worker process. If initializer succeeds, executor is ready for task submission. If initializer raises an exception, BrokenProcessPool is raised for all pending jobs and the pool becomes unusable.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+      "parent_candidate_ids": [
+        "85e9f4bf-55a0-5330-9bfe-d6575db46c9c"
+      ],
+      "child_skill_ids": [
+        "a57f0399-4bb1-5b74-ac1f-a7080f6b3f1f",
+        "f509d9e3-a785-5796-a16a-d7323cfadd5d"
+      ],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Set up a process pool with per-worker initialization and error handling for CPU-bound tasks requiring process isolation",
+      "domain": "default",
+      "task_family": "parallel_task_execution",
+      "method_family": "process_pool_initialization",
+      "stage": "initialization",
+      "applicable_signals": [
+        "CPU-bound workload identified",
+        "Worker process state initialization needed",
+        "Multiple independent worker processes required"
+      ],
+      "contraindications": [
+        "Interactive interpreter environment",
+        "Calling Executor or Future methods from within submitted callables",
+        "__main__ module not importable by worker subprocesses",
+        "Tasks requiring thread-local state or GIL-dependent operations"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Need to execute CPU-bound tasks with process isolation",
+        "Per-worker state setup required (e.g., database connections, shared resources)",
+        "Worker processes must initialize before accepting tasks"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Define initializer callable (optional) that accepts initargs', 'detail': 'Initializer runs once per worker process at startup'}",
+        "{'step': 2, 'action': 'Prepare initargs tuple with arguments for initializer', 'detail': 'Arguments are passed to initializer in order'}",
+        "{'step': 3, 'action': 'Create ProcessPoolExecutor with initializer and initargs parameters', 'detail': 'Executor instantiation triggers initializer execution on each worker'}",
+        "{'step': 4, 'action': 'Submit tasks to executor using submit() or map()', 'detail': 'Tasks execute on workers after initialization completes'}",
+        "{'step': 5, 'action': 'Catch BrokenProcessPool exception if initializer fails', 'detail': 'All pending jobs raise BrokenProcessPool; further submissions fail'}"
+      ],
+      "constraints": [
+        "Initializer must be a callable or None",
+        "initargs must be a tuple of arguments passable to initializer",
+        "Initializer exception propagates as BrokenProcessPool to all pending jobs",
+        "Worker subprocesses must be able to import __main__"
+      ],
+      "cautions": [
+        "If initializer raises an exception, the entire pool enters a broken state",
+        "Do not submit Executor or Future method calls from within task callables to avoid deadlock",
+        "ProcessPoolExecutor will not work in interactive interpreter"
+      ],
+      "output_contract": [
+        "ProcessPoolExecutor instance with initializer executed on each worker process. If initializer succeeds, executor is ready for task submission. If initializer raises an exception, BrokenProcessPool is raised for all pending jobs and the pool becomes unusable."
+      ],
+      "examples": [],
+      "tags": [
+        "concurrent.futures",
+        "ProcessPoolExecutor",
+        "process_pool",
+        "worker_initialization",
+        "parallel_execution",
+        "CPU_bound"
+      ],
+      "support_ids": [
+        "661c5b8c-297f-5df1-943f-78c48951ac7b"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "5057816c-086e-5f69-9e69-1d1c5ec31c1e"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.82,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|set up a process pool with per-worker initialization and error handling for cpu-bound tasks requiring process isolation|default|parallel_task_execution|process_pool_initialization|initialization|processpoolexecutor initialization with worker setup",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+        "parent_candidate_ids": [
+          "85e9f4bf-55a0-5330-9bfe-d6575db46c9c"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "child_skill_ids": [
+          "a57f0399-4bb1-5b74-ac1f-a7080f6b3f1f",
+          "f509d9e3-a785-5796-a16a-d7323cfadd5d"
+        ]
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "cf48c0e3-fe11-5220-badc-4d0496f673dd",
+      "name": "ThreadPoolExecutor Worker Count Configuration",
+      "description": "Set the max_workers parameter when initializing ThreadPoolExecutor to match workload concurrency needs, balancing task throughput against system resource constraints and I/O characteristics.",
+      "skill_body": "When initializing ThreadPoolExecutor, explicitly set max_workers based on your workload profile. Consider the number of concurrent tasks, system CPU cores, memory availability, and whether tasks are I/O-bound or CPU-bound. Avoid relying on the default auto-scaling behavior if you need predictable resource usage or have specific performance targets.\n\n## Objective\n\nTune thread pool size for optimal task throughput and resource utilization\n## Applicable Signals\n\n- Workload has known task count and I/O profile\n- System resource constraints are defined\n- Performance or resource utilization targets are specified\n\n## Contraindications\n\n- Task count is very small (fewer than 4 tasks)\n- Using default max_workers=None is acceptable for auto-scaling scenarios\n- Workload characteristics are unknown or highly variable\n\n## Workflow Steps\n\n- Assess workload: determine task count, I/O characteristics (I/O-bound vs. CPU-bound), and expected concurrency\n- Determine system capacity: identify available CPU cores, memory, and file descriptor limits\n- Calculate candidate max_workers: for I/O-bound tasks, use higher values; for CPU-bound tasks, align with core count\n- Initialize ThreadPoolExecutor with explicit max_workers parameter\n- Monitor and validate: measure task throughput and resource usage; adjust if needed\n\n## Constraints\n\n- max_workers must be a positive integer or None\n- Setting max_workers too high may exhaust system memory or file descriptors\n- Setting max_workers too low may underutilize available parallelism\n\n## Cautions\n\n- Do not set max_workers without understanding your system's resource limits\n- Monitor actual CPU and memory usage after configuration to validate the choice\n- Avoid deadlocks: ensure worker threads do not wait on results from other futures in the same pool with insufficient workers\n\n## Output Contract\n\n- ThreadPoolExecutor instance initialized with an explicit max_workers value\n- Task throughput and CPU/memory usage remain within acceptable bounds for the workload",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "14a91775-8c41-5053-967f-aa0bb64cd7bc",
+      "parent_candidate_ids": [
+        "14a91775-8c41-5053-967f-aa0bb64cd7bc"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Tune thread pool size for optimal task throughput and resource utilization",
+      "domain": "default",
+      "task_family": "parallel_task_execution",
+      "method_family": "resource_tuning",
+      "stage": "configuration",
+      "applicable_signals": [
+        "Workload has known task count and I/O profile",
+        "System resource constraints are defined",
+        "Performance or resource utilization targets are specified"
+      ],
+      "contraindications": [
+        "Task count is very small (fewer than 4 tasks)",
+        "Using default max_workers=None is acceptable for auto-scaling scenarios",
+        "Workload characteristics are unknown or highly variable"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Initializing ThreadPoolExecutor for a new workload",
+        "Need to balance concurrency level with available system resources",
+        "Task I/O characteristics or count require explicit pool sizing"
+      ],
+      "workflow_steps": [
+        "Assess workload: determine task count, I/O characteristics (I/O-bound vs. CPU-bound), and expected concurrency",
+        "Determine system capacity: identify available CPU cores, memory, and file descriptor limits",
+        "Calculate candidate max_workers: for I/O-bound tasks, use higher values; for CPU-bound tasks, align with core count",
+        "Initialize ThreadPoolExecutor with explicit max_workers parameter",
+        "Monitor and validate: measure task throughput and resource usage; adjust if needed"
+      ],
+      "constraints": [
+        "max_workers must be a positive integer or None",
+        "Setting max_workers too high may exhaust system memory or file descriptors",
+        "Setting max_workers too low may underutilize available parallelism"
+      ],
+      "cautions": [
+        "Do not set max_workers without understanding your system's resource limits",
+        "Monitor actual CPU and memory usage after configuration to validate the choice",
+        "Avoid deadlocks: ensure worker threads do not wait on results from other futures in the same pool with insufficient workers"
+      ],
+      "output_contract": [
+        "ThreadPoolExecutor instance initialized with an explicit max_workers value",
+        "Task throughput and CPU/memory usage remain within acceptable bounds for the workload"
+      ],
+      "examples": [],
+      "tags": [
+        "concurrency",
+        "thread_pool",
+        "resource_management",
+        "configuration",
+        "python312"
+      ],
+      "support_ids": [
+        "4a51f337-7f4b-564e-8c24-2abe4f89dbde"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "6f5407e2-e788-5211-8a25-f0d41fba67e5"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|tune thread pool size for optimal task throughput and resource utilization|default|parallel_task_execution|resource_tuning|configuration|threadpoolexecutor worker count configuration",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill for ThreadPoolExecutor max_workers tuning (resource_tuning method_family, configuration stage) with no semantic overlap to existing skills. Existing skills cover network connection setup, GRPO loss formulation, and reward function validation—none address thread pool worker count configuration. Peer candidates (context manager setup, worker initialization, process pool lifecycle) are complementary but distinct workflow stages and concerns. Candidate has valid support evidence and no conflicts.",
+        "parent_skill_id": "14a91775-8c41-5053-967f-aa0bb64cd7bc",
+        "parent_candidate_ids": [
+          "14a91775-8c41-5053-967f-aa0bb64cd7bc"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "f509d9e3-a785-5796-a16a-d7323cfadd5d",
+      "name": "ThreadPoolExecutor Worker Initialization",
+      "description": "Configure per-worker thread initialization using the initializer and initargs parameters to set up shared resources (database connections, logging context, file handles) once at thread startup. Reduces per-task overhead by amortizing expensive resource setup across multiple tasks executed by the same worker thread.",
+      "skill_body": "Pass an optional initializer callable and initargs tuple to ThreadPoolExecutor. The initializer will be called exactly once at the start of each worker thread. Use this to set up thread-local resources such as database connections, file handles, or logging contexts. If the initializer raises an exception, all pending jobs will raise BrokenThreadPool and the pool becomes unusable.\n\n## Objective\n\nInitialize shared resources once per worker thread to reduce per-task overhead\n## Applicable Signals\n\n- Resource initialization is expensive and repeated per task\n- Tasks are stateful and depend on thread-local setup\n- Pool will execute many tasks over its lifetime\n\n## Contraindications\n\n- Tasks are stateless and require no per-thread setup\n- Initializer function raises an exception (will break the pool and make it unusable)\n- Resources must be task-specific rather than thread-specific\n\n## Workflow Steps\n\n- Define an initializer function that accepts the arguments specified in initargs\n- Pass the initializer callable and initargs tuple to ThreadPoolExecutor constructor\n- Submit tasks to the executor; each worker thread will call initializer once before executing any task\n- Tasks can access thread-local state initialized by the initializer\n- If initializer raises an exception, catch BrokenThreadPool and handle pool failure\n\n## Constraints\n\n- Initializer must be a callable that accepts the arguments in initargs\n- initargs must be a tuple of arguments to pass to the initializer\n- If initializer raises any exception, all currently pending jobs will raise BrokenThreadPool\n- Any attempt to submit more jobs after initializer failure will also raise BrokenThreadPool\n\n## Cautions\n\n- Ensure initializer does not raise exceptions; test thoroughly before deployment\n- Initializer runs once per worker thread, not once per pool; do not assume single execution\n- Thread-local state set in initializer is accessible to all tasks executed by that worker\n\n## Output Contract\n\n- Initializer function executes exactly once per worker thread at startup. All tasks submitted to that worker can access the initialized state. If initializer raises an exception, BrokenThreadPool is raised for all pending and future jobs, and the pool becomes unusable.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: ThreadPoolExecutor with initializer that sets up a database connection per worker\n- Therapist/Output: Each worker thread connects to the database once; all tasks in that worker reuse the connection\n- Notes: Reduces connection overhead from O(tasks) to O(workers)\n\n### Example 2\n\n- Client/Input: Initializer raises an exception during pool startup\n- Therapist/Output: BrokenThreadPool exception is raised for all pending jobs and any new submissions\n- Notes: Pool becomes unusable; must create a new executor",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "ab334d07-1b79-5de7-878d-8dc51a398bac",
+      "parent_candidate_ids": [
+        "ab334d07-1b79-5de7-878d-8dc51a398bac"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Initialize shared resources once per worker thread to reduce per-task overhead",
+      "domain": "default",
+      "task_family": "parallel_task_execution",
+      "method_family": "worker_initialization",
+      "stage": "setup",
+      "applicable_signals": [
+        "Resource initialization is expensive and repeated per task",
+        "Tasks are stateful and depend on thread-local setup",
+        "Pool will execute many tasks over its lifetime"
+      ],
+      "contraindications": [
+        "Tasks are stateless and require no per-thread setup",
+        "Initializer function raises an exception (will break the pool and make it unusable)",
+        "Resources must be task-specific rather than thread-specific"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Each worker thread needs to initialize expensive resources before executing tasks",
+        "Tasks require thread-local state (database connection, file handle, logging context)",
+        "Per-task initialization overhead is significant and should be amortized across multiple tasks"
+      ],
+      "workflow_steps": [
+        "Define an initializer function that accepts the arguments specified in initargs",
+        "Pass the initializer callable and initargs tuple to ThreadPoolExecutor constructor",
+        "Submit tasks to the executor; each worker thread will call initializer once before executing any task",
+        "Tasks can access thread-local state initialized by the initializer",
+        "If initializer raises an exception, catch BrokenThreadPool and handle pool failure"
+      ],
+      "constraints": [
+        "Initializer must be a callable that accepts the arguments in initargs",
+        "initargs must be a tuple of arguments to pass to the initializer",
+        "If initializer raises any exception, all currently pending jobs will raise BrokenThreadPool",
+        "Any attempt to submit more jobs after initializer failure will also raise BrokenThreadPool"
+      ],
+      "cautions": [
+        "Ensure initializer does not raise exceptions; test thoroughly before deployment",
+        "Initializer runs once per worker thread, not once per pool; do not assume single execution",
+        "Thread-local state set in initializer is accessible to all tasks executed by that worker"
+      ],
+      "output_contract": [
+        "Initializer function executes exactly once per worker thread at startup. All tasks submitted to that worker can access the initialized state. If initializer raises an exception, BrokenThreadPool is raised for all pending and future jobs, and the pool becomes unusable."
+      ],
+      "examples": [
+        {
+          "input": "ThreadPoolExecutor with initializer that sets up a database connection per worker",
+          "output": "Each worker thread connects to the database once; all tasks in that worker reuse the connection",
+          "notes": "Reduces connection overhead from O(tasks) to O(workers)"
+        },
+        {
+          "input": "Initializer raises an exception during pool startup",
+          "output": "BrokenThreadPool exception is raised for all pending jobs and any new submissions",
+          "notes": "Pool becomes unusable; must create a new executor"
+        }
+      ],
+      "tags": [
+        "concurrent.futures",
+        "ThreadPoolExecutor",
+        "worker_initialization",
+        "thread_pool",
+        "resource_management",
+        "python312"
+      ],
+      "support_ids": [
+        "101b2415-e751-59ce-8c5d-aefaefa5e570"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "66296a2d-128f-51a0-a811-b90bbba71ab6"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|initialize shared resources once per worker thread to reduce per-task overhead|default|parallel_task_execution|worker_initialization|setup|threadpoolexecutor worker initialization",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill for ThreadPoolExecutor worker initialization (initializer/initargs pattern) with no semantic overlap to existing skills. Existing skills are in reward_engineering domain; peer_candidates are sibling ThreadPoolExecutor configuration skills (context manager, worker count, ProcessPoolExecutor lifecycle) but represent different method_family and stage. Candidate has unique objective, workflow, and constraints focused on per-worker resource setup amortization.",
+        "parent_skill_id": "ab334d07-1b79-5de7-878d-8dc51a398bac",
+        "parent_candidate_ids": [
+          "ab334d07-1b79-5de7-878d-8dc51a398bac"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ]
+}

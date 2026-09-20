@@ -1,0 +1,133 @@
+{
+  "skill_id": "28490fb0-322f-588f-93fe-359021352c0a",
+  "name": "Detect Jupyter Notebook Execution Context",
+  "description": "Check whether code is running inside a Jupyter Notebook (ZMQInteractiveShell) and conditionally disable auto-start behavior for manual trace control. Returns a flag indicating the execution environment to enable environment-aware session initialization.",
+  "skill_body": "Attempt to detect if the current runtime is a Jupyter Notebook by checking the IPython shell class. If get_ipython() is available and its class name is 'ZMQInteractiveShell', set auto_start_session to False to require manual trace lifecycle control. If get_ipython() raises NameError (non-Jupyter environment), allow auto_start_session to remain True or use the default value. Do not raise exceptions on NameError; treat it as a normal non-Jupyter case.\n\n## Objective\n\nAdapt session initialization behavior based on execution environment\n## Applicable Signals\n\n- Initializing a tracing session\n- Needing to determine whether to auto-start or require manual start_trace() calls\n- Jupyter notebooks require different session lifecycle handling\n\n## Contraindications\n\n- Execution environment is already known from prior detection\n- auto-start behavior is mandatory regardless of environment\n- NameError handling is not needed or not desired\n\n## Intervention Moves\n\n- Disable auto-start when Jupyter is detected\n- Allow manual trace lifecycle control in interactive notebooks\n- Preserve default auto-start behavior in non-Jupyter environments\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Attempt to call get_ipython()', 'condition': 'No precondition; wrapped in try-except'}\n- {'step': 2, 'action': \"Check if get_ipython().__class__.__name__ equals 'ZMQInteractiveShell'\", 'condition': 'get_ipython() succeeded'}\n- {'step': 3, 'action': 'Set auto_start_session = False', 'condition': 'Class name matches ZMQInteractiveShell'}\n- {'step': 4, 'action': 'Catch NameError and pass (no action)', 'condition': 'get_ipython() is not defined'}\n- {'step': 5, 'action': 'Return or use auto_start_session flag in downstream initialization', 'condition': 'Detection complete'}\n\n## Constraints\n\n- Must catch NameError gracefully without re-raising\n- Must not modify global state or side effects beyond setting the auto_start_session flag\n- Detection must be non-blocking and fast\n\n## Cautions\n\n- get_ipython() may not be available in all Python environments; NameError is expected and normal\n- ZMQInteractiveShell class name is specific to Jupyter; other interactive shells may have different class names\n- This check should run early in initialization before other session setup\n\n## Output Contract\n\n- auto_start_session flag is set to False if running in Jupyter Notebook, True (or default) otherwise; no exception is raised on NameError; flag is ready for use in session initialization arguments.\n\n## Example Executions\n\n### Example 1\n\n- Input: Initialization context in a Jupyter Notebook cell\n- Output: auto_start_session = False; manual start_trace() and end_trace() calls required\n- Notes: Jupyter environment detected; user must explicitly manage trace lifecycle\n\n### Example 2\n\n- Input: Initialization context in a standard Python script\n- Output: auto_start_session = True (or default); automatic session management enabled\n- Notes: Non-Jupyter environment; NameError caught and passed; auto-start proceeds",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [
+    "d8ea0a6a-2ee7-5ade-872e-dde9abd80350",
+    "2fefe2f0-790d-5e47-99c5-c441046648cf"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "Adapt session initialization behavior based on execution environment",
+  "domain": "default",
+  "task_family": "environment_detection",
+  "method_family": "runtime_introspection",
+  "stage": "initialization",
+  "applicable_signals": [
+    "Initializing a tracing session",
+    "Needing to determine whether to auto-start or require manual start_trace() calls",
+    "Jupyter notebooks require different session lifecycle handling"
+  ],
+  "contraindications": [
+    "Execution environment is already known from prior detection",
+    "auto-start behavior is mandatory regardless of environment",
+    "NameError handling is not needed or not desired"
+  ],
+  "intervention_moves": [
+    "Disable auto-start when Jupyter is detected",
+    "Allow manual trace lifecycle control in interactive notebooks",
+    "Preserve default auto-start behavior in non-Jupyter environments"
+  ],
+  "triggers": [
+    "Session initialization begins",
+    "Tracing client is being configured",
+    "auto_start_session parameter needs to be determined"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Attempt to call get_ipython()', 'condition': 'No precondition; wrapped in try-except'}",
+    "{'step': 2, 'action': \"Check if get_ipython().__class__.__name__ equals 'ZMQInteractiveShell'\", 'condition': 'get_ipython() succeeded'}",
+    "{'step': 3, 'action': 'Set auto_start_session = False', 'condition': 'Class name matches ZMQInteractiveShell'}",
+    "{'step': 4, 'action': 'Catch NameError and pass (no action)', 'condition': 'get_ipython() is not defined'}",
+    "{'step': 5, 'action': 'Return or use auto_start_session flag in downstream initialization', 'condition': 'Detection complete'}"
+  ],
+  "constraints": [
+    "Must catch NameError gracefully without re-raising",
+    "Must not modify global state or side effects beyond setting the auto_start_session flag",
+    "Detection must be non-blocking and fast"
+  ],
+  "cautions": [
+    "get_ipython() may not be available in all Python environments; NameError is expected and normal",
+    "ZMQInteractiveShell class name is specific to Jupyter; other interactive shells may have different class names",
+    "This check should run early in initialization before other session setup"
+  ],
+  "output_contract": [
+    "auto_start_session flag is set to False if running in Jupyter Notebook, True (or default) otherwise; no exception is raised on NameError; flag is ready for use in session initialization arguments."
+  ],
+  "examples": [
+    {
+      "input": "Initialization context in a Jupyter Notebook cell",
+      "output": "auto_start_session = False; manual start_trace() and end_trace() calls required",
+      "notes": "Jupyter environment detected; user must explicitly manage trace lifecycle"
+    },
+    {
+      "input": "Initialization context in a standard Python script",
+      "output": "auto_start_session = True (or default); automatic session management enabled",
+      "notes": "Non-Jupyter environment; NameError caught and passed; auto-start proceeds"
+    }
+  ],
+  "tags": [
+    "environment_detection",
+    "jupyter",
+    "session_initialization",
+    "runtime_introspection",
+    "conditional_logic"
+  ],
+  "support_ids": [
+    "d3c813e3-f71b-59a2-a3df-3d7c90bac0ff"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "e0e6cb95-1a3a-5e51-b2ed-d0aac9e6b6b4"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.82,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|adapt session initialization behavior based on execution environment|default|environment_detection|runtime_introspection|initialization|detect jupyter notebook execution context",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct micro_skill for environment detection (Jupyter vs. standard Python) at initialization stage. It has unique semantic identity (runtime introspection of execution context) that does not overlap with peer candidates (singleton client init, session span decoration, tag merging) or existing skills (future state, pool worker lifecycle). No merge, split, or revision relationship detected. Support evidence is present and no conflicts exist.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [
+      "d8ea0a6a-2ee7-5ade-872e-dde9abd80350",
+      "2fefe2f0-790d-5e47-99c5-c441046648cf"
+    ],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

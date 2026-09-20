@@ -1,0 +1,111 @@
+{
+  "skill_id": "38b0b2ea-56b4-5e93-8852-0a91a4b38689",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Significant redundancy with peer candidate 64cce2b8-b74d-5be9-98d6-e4ea5687643a (Euclidean Normalization of Term Frequency Vectors). Both skills perform identical mathematical operations (L2 normalization via Euclidean norm division) with nearly identical workflow steps and constraints. The only difference is that the candidate applies this to tf-idf vectors while the peer applies it to raw term frequency vectors—but the normalization algorithm itself is unchanged. The candidate adds no distinct capability beyond what the peer already covers. The peer skill is more general and reusable, making the candidate redundant within this batch.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "38b0b2ea-56b4-5e93-8852-0a91a4b38689",
+    "name": "TF-IDF Vector Euclidean Normalization",
+    "description": "Normalize tf-idf weighted document vectors to unit Euclidean length by dividing each component by the L2 norm, ensuring consistent cosine similarity scoring in vector space models.",
+    "skill_body": "Given a document vector with tf-idf weighted components for a set of terms, compute the Euclidean norm (square root of sum of squared components), then divide each component by this norm to produce a unit-length vector. Verify that the sum of squared components of the normalized vector equals 1 within machine precision tolerance (±1e-10).\n\n## Objective\n\nnormalize_term_weights\n## Applicable Signals\n\n- tf-idf weights have been computed for all terms in document collection\n- documents have varying lengths or term distributions\n- downstream scoring requires normalized vectors for cosine similarity\n\n## Contraindications\n\n- Using non-tf-idf weighting schemes (e.g., raw term frequency, binary weights)\n- Raw unnormalized scores are required for ranking\n- Normalization would violate domain-specific weighting requirements\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Compute Euclidean norm', 'detail': 'Calculate the square root of the sum of squared tf-idf components for the document vector.'}\n- {'step': 2, 'action': 'Normalize each component', 'detail': 'Divide each tf-idf weight by the Euclidean norm computed in step 1.'}\n- {'step': 3, 'action': 'Verify unit length', 'detail': 'Confirm that the sum of squared normalized components equals 1 (within rounding error, typically 1e-10 or better).'}\n\n## Constraints\n\n- All tf-idf weights must be computed before normalization\n- Vector must have at least one non-zero component\n- Rounding errors acceptable within machine precision tolerance\n\n## Cautions\n\n- Ensure tf-idf weights are computed correctly before normalization; errors propagate.\n- Handle zero-norm vectors (all weights zero) explicitly to avoid division by zero.\n- Rounding errors accumulate; verify final sum of squares is close to 1, not exactly 1.\n\n## Output Contract\n\n- Normalized document vector with unit Euclidean length; sum of squared components = 1 ± rounding tolerance. Vector is ready for cosine similarity or dot-product scoring against normalized query vectors.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Document vector with tf-idf weights [0.5, 0.3, 0.2, 0.1] for four terms.\n- Therapist/Output: Normalized vector [0.8018, 0.4811, 0.3207, 0.1604] with sum of squares = 1.0.\n- Notes: Euclidean norm = sqrt(0.25 + 0.09 + 0.04 + 0.01) = sqrt(0.39) ≈ 0.6245.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "normalize_term_weights",
+    "domain": "information_retrieval",
+    "task_family": "vector_space_scoring",
+    "method_family": "euclidean_normalization",
+    "stage": "indexing_preparation",
+    "applicable_signals": [
+      "tf-idf weights have been computed for all terms in document collection",
+      "documents have varying lengths or term distributions",
+      "downstream scoring requires normalized vectors for cosine similarity"
+    ],
+    "contraindications": [
+      "Using non-tf-idf weighting schemes (e.g., raw term frequency, binary weights)",
+      "Raw unnormalized scores are required for ranking",
+      "Normalization would violate domain-specific weighting requirements"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Building a vector space model with tf-idf weights",
+      "Need to ensure consistent document-query similarity comparisons",
+      "Preparing documents for cosine similarity or dot-product scoring"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Compute Euclidean norm', 'detail': 'Calculate the square root of the sum of squared tf-idf components for the document vector.'}",
+      "{'step': 2, 'action': 'Normalize each component', 'detail': 'Divide each tf-idf weight by the Euclidean norm computed in step 1.'}",
+      "{'step': 3, 'action': 'Verify unit length', 'detail': 'Confirm that the sum of squared normalized components equals 1 (within rounding error, typically 1e-10 or better).'}"
+    ],
+    "constraints": [
+      "All tf-idf weights must be computed before normalization",
+      "Vector must have at least one non-zero component",
+      "Rounding errors acceptable within machine precision tolerance"
+    ],
+    "cautions": [
+      "Ensure tf-idf weights are computed correctly before normalization; errors propagate.",
+      "Handle zero-norm vectors (all weights zero) explicitly to avoid division by zero.",
+      "Rounding errors accumulate; verify final sum of squares is close to 1, not exactly 1."
+    ],
+    "output_contract": [
+      "Normalized document vector with unit Euclidean length; sum of squared components = 1 ± rounding tolerance. Vector is ready for cosine similarity or dot-product scoring against normalized query vectors."
+    ],
+    "examples": [
+      {
+        "input": "Document vector with tf-idf weights [0.5, 0.3, 0.2, 0.1] for four terms.",
+        "output": "Normalized vector [0.8018, 0.4811, 0.3207, 0.1604] with sum of squares = 1.0.",
+        "notes": "Euclidean norm = sqrt(0.25 + 0.09 + 0.04 + 0.01) = sqrt(0.39) ≈ 0.6245."
+      }
+    ],
+    "tags": [
+      "vector_space_model",
+      "tf-idf",
+      "normalization",
+      "euclidean_norm",
+      "information_retrieval",
+      "scoring"
+    ],
+    "support_ids": [
+      "84983f3d-b27e-50c5-8d50-b476bbcb5a0e"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "0b29666c-aff9-5145-8e2e-8519df3ed900"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|normalize_term_weights|information_retrieval|vector_space_scoring|euclidean_normalization|indexing_preparation|tf-idf vector euclidean normalization"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 0,
+  "branch": "hits0"
+}

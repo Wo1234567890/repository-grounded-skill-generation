@@ -1,0 +1,716 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "term_weighting",
+  "run_id": "20260915T082639_6d878e9e",
+  "skills": [
+    {
+      "skill_id": "fcee8af2-1df2-5395-a35d-aa4572a0f71a",
+      "name": "Maximum TF Normalization",
+      "description": "Normalize term frequency weights in a document by dividing each term's frequency by the maximum term frequency in that document, using a smoothing parameter to prevent extreme score swings. Apply this to mitigate bias toward longer documents that repeat terms more frequently.",
+      "skill_body": "For each document d, compute the normalized term frequency (ntf) for each term t using the formula: ntf_t,d = a + (1 - a) * (tf_t,d / tfmax(d)), where tfmax(d) is the maximum term frequency in document d, tf_t,d is the raw term frequency of term t in document d, and a is a smoothing parameter (typically 0.4). The smoothing term a dampens the contribution of the scaling factor to avoid large swings in ntf from modest changes in raw tf.\n\n## Objective\n\nnormalize_term_frequency_by_document_length\n## Applicable Signals\n\n- Computing term weights for documents of varying length\n- Raw tf scores show bias toward longer documents\n- Building vector space model scores for ranking\n- Need to prevent document length from inflating relevance scores\n\n## Contraindications\n\n- Document length is already controlled or normalized upstream\n- Stop word list is unstable or frequently changing (method is sensitive to stop word changes)\n- Document contains outlier terms with unusually high frequencies not representative of content\n\n## Intervention Moves\n\n- Identify tfmax(d) for the document\n- For each term t in the document, retrieve tf_t,d\n- Apply the normalization formula with chosen smoothing parameter a\n- Use resulting ntf values in downstream scoring (e.g., tf-idf computation)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Compute tfmax(d)', 'detail': 'Scan all terms in document d and identify the maximum term frequency value'}\n- {'step': 2, 'action': 'For each term t in document d, retrieve tf_t,d', 'detail': 'Access the raw term frequency count for term t'}\n- {'step': 3, 'action': 'Apply normalization formula', 'detail': 'Compute ntf_t,d = a + (1 - a) * (tf_t,d / tfmax(d)) using smoothing parameter a (default 0.4)'}\n- {'step': 4, 'action': 'Return normalized frequencies', 'detail': 'Pass ntf values to downstream scoring or weighting steps'}\n\n## Constraints\n\n- Smoothing parameter a must be between 0 and 1; typically set to 0.4\n- tfmax(d) must be computed over all terms in the document before normalization begins\n- Method assumes raw term frequencies are available for all terms in the document\n\n## Cautions\n\n- The method is unstable: changes to the stop word list can dramatically alter term weightings and ranking order, making tuning difficult\n- Outlier terms with unusually large occurrence counts can skew the maximum and reduce normalization effectiveness\n\n## Output Contract\n\n- For each term t in document d, return a normalized term frequency value ntf_t,d in the range [a, 1]. This value is suitable for use in downstream tf-idf or vector space scoring formulas. The output eliminates the anomaly where duplicating a document would double its score.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Document d with terms: 'algorithm' (tf=5), 'data' (tf=3), 'search' (tf=2); tfmax(d)=5; a=0.4\n- Therapist/Output: ntf_algorithm,d = 0.4 + 0.6 * (5/5) = 1.0; ntf_data,d = 0.4 + 0.6 * (3/5) = 0.76; ntf_search,d = 0.4 + 0.6 * (2/5) = 0.64\n- Notes: Smoothing prevents the highest-frequency term from dominating; lower-frequency terms retain meaningful weight\n\n### Example 2\n\n- Client/Input: Document d' created by appending a copy of document d to itself; all raw tf values doubled\n- Therapist/Output: ntf values remain unchanged because both numerator and denominator scale proportionally\n- Notes: This demonstrates the key benefit: document duplication does not inflate scores, eliminating the length bias anomaly",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "normalize_term_frequency_by_document_length",
+      "domain": "information_retrieval",
+      "task_family": "term_weighting",
+      "method_family": "tf_normalization",
+      "stage": "scoring",
+      "applicable_signals": [
+        "Computing term weights for documents of varying length",
+        "Raw tf scores show bias toward longer documents",
+        "Building vector space model scores for ranking",
+        "Need to prevent document length from inflating relevance scores"
+      ],
+      "contraindications": [
+        "Document length is already controlled or normalized upstream",
+        "Stop word list is unstable or frequently changing (method is sensitive to stop word changes)",
+        "Document contains outlier terms with unusually high frequencies not representative of content"
+      ],
+      "intervention_moves": [
+        "Identify tfmax(d) for the document",
+        "For each term t in the document, retrieve tf_t,d",
+        "Apply the normalization formula with chosen smoothing parameter a",
+        "Use resulting ntf values in downstream scoring (e.g., tf-idf computation)"
+      ],
+      "triggers": [
+        "Computing term weights for documents of varying length",
+        "Raw tf scores show bias toward longer documents",
+        "Building vector space model scores for ranking"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Compute tfmax(d)', 'detail': 'Scan all terms in document d and identify the maximum term frequency value'}",
+        "{'step': 2, 'action': 'For each term t in document d, retrieve tf_t,d', 'detail': 'Access the raw term frequency count for term t'}",
+        "{'step': 3, 'action': 'Apply normalization formula', 'detail': 'Compute ntf_t,d = a + (1 - a) * (tf_t,d / tfmax(d)) using smoothing parameter a (default 0.4)'}",
+        "{'step': 4, 'action': 'Return normalized frequencies', 'detail': 'Pass ntf values to downstream scoring or weighting steps'}"
+      ],
+      "constraints": [
+        "Smoothing parameter a must be between 0 and 1; typically set to 0.4",
+        "tfmax(d) must be computed over all terms in the document before normalization begins",
+        "Method assumes raw term frequencies are available for all terms in the document"
+      ],
+      "cautions": [
+        "The method is unstable: changes to the stop word list can dramatically alter term weightings and ranking order, making tuning difficult",
+        "Outlier terms with unusually large occurrence counts can skew the maximum and reduce normalization effectiveness"
+      ],
+      "output_contract": [
+        "For each term t in document d, return a normalized term frequency value ntf_t,d in the range [a, 1]. This value is suitable for use in downstream tf-idf or vector space scoring formulas. The output eliminates the anomaly where duplicating a document would double its score."
+      ],
+      "examples": [
+        {
+          "input": "Document d with terms: 'algorithm' (tf=5), 'data' (tf=3), 'search' (tf=2); tfmax(d)=5; a=0.4",
+          "output": "ntf_algorithm,d = 0.4 + 0.6 * (5/5) = 1.0; ntf_data,d = 0.4 + 0.6 * (3/5) = 0.76; ntf_search,d = 0.4 + 0.6 * (2/5) = 0.64",
+          "notes": "Smoothing prevents the highest-frequency term from dominating; lower-frequency terms retain meaningful weight"
+        },
+        {
+          "input": "Document d' created by appending a copy of document d to itself; all raw tf values doubled",
+          "output": "ntf values remain unchanged because both numerator and denominator scale proportionally",
+          "notes": "This demonstrates the key benefit: document duplication does not inflate scores, eliminating the length bias anomaly"
+        }
+      ],
+      "tags": [
+        "term_frequency",
+        "normalization",
+        "vector_space_model",
+        "document_length_bias",
+        "tf_idf"
+      ],
+      "support_ids": [
+        "0cdd5b90-068f-58f1-9ba3-9c3e4a72da56"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "98fb81a0-a7dd-5d2f-8dbf-40988b36b6d5"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|normalize_term_frequency_by_document_length|information_retrieval|term_weighting|tf_normalization|scoring|maximum tf normalization",
+        "change_action": "create",
+        "llm_reason": "Maximum TF Normalization is a distinct micro-skill with a specific normalization technique (dividing by max TF with smoothing parameter) that differs fundamentally from TF-IDF weighting in peer_candidates. While both operate in term_weighting task_family, this skill addresses document-length bias through intra-document normalization, whereas TF-IDF uses collection-level statistics. The skill has direct support evidence and fills a legitimate gap in normalization strategies.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "6c329aa8-3870-56d8-8428-f616f68a8393",
+      "name": "TF Normalization Stability Assessment",
+      "description": "Evaluate whether maximum tf normalization is suitable for a given retrieval system by assessing stop word list stability and presence of outlier terms. Identify when the method may cause ranking instability or misrepresentation of document content.",
+      "skill_body": "Before deploying maximum tf normalization, check two stability conditions: (1) Is the stop word list fixed and unlikely to change? A change in stop word list can dramatically alter term weightings and ranking. (2) Are there outlier terms with unusually high frequencies that do not represent the document's actual content? If either condition is violated, maximum tf normalization is not recommended. Document your decision and reasoning.\n\n## Objective\n\nassess_tf_normalization_suitability\n## Applicable Signals\n\n- System design phase for term weighting\n- Stop word list maintenance or updates planned\n- Document collection with known high-frequency outlier terms\n\n## Contraindications\n\n- Stop word list is fixed and stable\n- Document content is known to be uniform in term distribution\n- Length normalization is already applied elsewhere in the pipeline\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check stop word list stability', 'detail': 'Verify whether the stop word list is fixed and unlikely to change. Document the stability status.'}\n- {'step': 2, 'action': 'Inspect document collection for outlier terms', 'detail': 'Sample documents and identify terms with unusually high frequencies that do not represent typical content.'}\n- {'step': 3, 'action': 'Make go/no-go decision', 'detail': 'If both conditions are satisfied (stable stop word list and no problematic outliers), proceed with maximum tf normalization. Otherwise, recommend alternative normalization method.'}\n\n## Constraints\n\n- Assessment must occur before normalization is applied\n- Stop word list stability must be explicitly verified\n- Document sample must be reviewed for outlier term patterns\n\n## Cautions\n\n- Maximum tf normalization can cause ranking instability if stop word list changes\n- Outlier terms with unusually high occurrences may not represent true document content\n- The method is difficult to tune once deployed due to sensitivity to stop word changes\n\n## Output Contract\n\n- Go/no-go decision on whether to apply maximum tf normalization, with documented reasons. Examples: 'Stop word list is stable and no outlier terms detected—proceed with maximum tf normalization' or 'Stop word list subject to change—use alternative length normalization method' or 'Outlier terms present in collection—apply outlier detection before normalization'.",
+      "asset_type": "safety_rule",
+      "granularity": "micro",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "assess_tf_normalization_suitability",
+      "domain": "information_retrieval",
+      "task_family": "term_weighting",
+      "method_family": "stability_check",
+      "stage": "scoring",
+      "applicable_signals": [
+        "System design phase for term weighting",
+        "Stop word list maintenance or updates planned",
+        "Document collection with known high-frequency outlier terms"
+      ],
+      "contraindications": [
+        "Stop word list is fixed and stable",
+        "Document content is known to be uniform in term distribution",
+        "Length normalization is already applied elsewhere in the pipeline"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Before deploying maximum tf normalization in a retrieval system",
+        "When stop word lists are subject to change or revision",
+        "When documents may contain outlier terms with unusually high frequencies"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check stop word list stability', 'detail': 'Verify whether the stop word list is fixed and unlikely to change. Document the stability status.'}",
+        "{'step': 2, 'action': 'Inspect document collection for outlier terms', 'detail': 'Sample documents and identify terms with unusually high frequencies that do not represent typical content.'}",
+        "{'step': 3, 'action': 'Make go/no-go decision', 'detail': 'If both conditions are satisfied (stable stop word list and no problematic outliers), proceed with maximum tf normalization. Otherwise, recommend alternative normalization method.'}"
+      ],
+      "constraints": [
+        "Assessment must occur before normalization is applied",
+        "Stop word list stability must be explicitly verified",
+        "Document sample must be reviewed for outlier term patterns"
+      ],
+      "cautions": [
+        "Maximum tf normalization can cause ranking instability if stop word list changes",
+        "Outlier terms with unusually high occurrences may not represent true document content",
+        "The method is difficult to tune once deployed due to sensitivity to stop word changes"
+      ],
+      "output_contract": [
+        "Go/no-go decision on whether to apply maximum tf normalization, with documented reasons. Examples: 'Stop word list is stable and no outlier terms detected—proceed with maximum tf normalization' or 'Stop word list subject to change—use alternative length normalization method' or 'Outlier terms present in collection—apply outlier detection before normalization'."
+      ],
+      "examples": [],
+      "tags": [
+        "term_weighting",
+        "tf_normalization",
+        "stability_check",
+        "information_retrieval",
+        "scoring"
+      ],
+      "support_ids": [
+        "be256ea5-0577-5a3c-9f76-b4a63c10ae03"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "a109e841-5a2c-5516-a12e-f81b0be13420"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|micro|safety_rule_node|assess_tf_normalization_suitability|information_retrieval|term_weighting|stability_check|scoring|tf normalization stability assessment",
+        "change_action": "create",
+        "llm_reason": "This is a distinct safety_rule (micro-level assessment skill) that evaluates preconditions for applying maximum tf normalization. It complements the peer_candidates by providing a go/no-go gate before the normalization technique is deployed. The peer candidates (Maximum TF Normalization, TF-IDF variants) are executable micro_skills for term weighting; this candidate is a stability assessment rule that prevents unsafe application of those techniques. No redundancy detected.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "5ebd86ca-a2fc-50e7-a728-868be97b707d",
+      "name": "TF-IDF Weighting Reference",
+      "description": "Canonical reference knowledge on term frequency–inverse document frequency (tf-idf) weighting, including maximum tf normalization, smoothing parameters, and documented failure modes such as length bias, stop word sensitivity, and outlier term instability.",
+      "skill_body": "This asset provides conceptual and historical context for tf-idf weighting schemes. It documents the rationale for smoothing terms, the vector space model foundation, and known failure modes. Use this to inform design decisions, troubleshoot ranking anomalies, or teach tf-idf principles. Do not use this for immediate operational scoring; instead, delegate to micro_skill or safety_rule for live execution.\n\n## Objective\n\nprovide_tf_idf_weighting_context\n## Applicable Signals\n\n- Query relevance ranking appears skewed by document length\n- Need to understand smoothing parameter role in normalization\n- Reviewing vector space model implementation\n- Assessing stability of weighting under stop word list changes\n\n## Contraindications\n\n- When immediate operational scoring decisions are needed (delegate to micro_skill or safety_rule instead)\n- When domain-specific weighting schemes override tf-idf\n- When live ranking must be executed without design review\n\n## Constraints\n\n- This is a reference asset; it informs design but does not directly execute scoring\n- Smoothing parameter a is typically set to 0.4 (some early work used 0.5)\n- Maximum tf normalization formula: ntf_t,d = a + (1 - a) * (tf_t,d / tfmax(d))\n\n## Cautions\n\n- Maximum tf normalization is unstable: changes to stop word lists can dramatically alter term weightings and ranking\n- Outlier terms with unusually large occurrence counts may not be representative of document content and can distort normalization\n- Raw tf scoring assigns higher frequencies to longer documents merely because they repeat words; this can inflate relevance scores inappropriately\n\n## Output Contract\n\n- Documented understanding of tf-idf principles, smoothing rationale, maximum tf normalization formula, and known failure modes (length bias, stop word sensitivity, outlier term instability). Caller receives conceptual grounding for design or troubleshooting decisions.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Reviewing a ranking system where longer documents consistently score higher despite lower relevance.\n- Therapist/Output: Reference explains that raw tf scoring inflates scores for longer documents due to word repetition. Maximum tf normalization mitigates this by dividing tf by the maximum tf in the document, scaled by smoothing parameter a (typically 0.4).\n- Notes: Illustrates the length bias anomaly and the normalization solution.\n\n### Example 2\n\n- Client/Input: Troubleshooting why changing the stop word list causes dramatic shifts in term weightings.\n- Therapist/Output: Reference documents that maximum tf normalization is unstable under stop word list changes because tfmax(d) can shift significantly, altering the normalized weights for all terms in the document.\n- Notes: Highlights a known tuning difficulty with the method.",
+      "asset_type": "knowledge_reference",
+      "granularity": "session",
+      "asset_node_id": "knowledge_reference_node",
+      "asset_path": "family_root/knowledge_reference_node",
+      "asset_level": 1,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 1.0,
+      "hierarchy_status": "root",
+      "visible_role": "leaf",
+      "objective": "provide_tf_idf_weighting_context",
+      "domain": "information_retrieval",
+      "task_family": "term_weighting",
+      "method_family": "tf_idf",
+      "stage": "scoring",
+      "applicable_signals": [
+        "Query relevance ranking appears skewed by document length",
+        "Need to understand smoothing parameter role in normalization",
+        "Reviewing vector space model implementation",
+        "Assessing stability of weighting under stop word list changes"
+      ],
+      "contraindications": [
+        "When immediate operational scoring decisions are needed (delegate to micro_skill or safety_rule instead)",
+        "When domain-specific weighting schemes override tf-idf",
+        "When live ranking must be executed without design review"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Designing or reviewing term weighting schemes",
+        "Troubleshooting ranking anomalies or relevance issues",
+        "Learning or teaching tf-idf and normalization techniques",
+        "Evaluating document length bias in scoring"
+      ],
+      "workflow_steps": [],
+      "constraints": [
+        "This is a reference asset; it informs design but does not directly execute scoring",
+        "Smoothing parameter a is typically set to 0.4 (some early work used 0.5)",
+        "Maximum tf normalization formula: ntf_t,d = a + (1 - a) * (tf_t,d / tfmax(d))"
+      ],
+      "cautions": [
+        "Maximum tf normalization is unstable: changes to stop word lists can dramatically alter term weightings and ranking",
+        "Outlier terms with unusually large occurrence counts may not be representative of document content and can distort normalization",
+        "Raw tf scoring assigns higher frequencies to longer documents merely because they repeat words; this can inflate relevance scores inappropriately"
+      ],
+      "output_contract": [
+        "Documented understanding of tf-idf principles, smoothing rationale, maximum tf normalization formula, and known failure modes (length bias, stop word sensitivity, outlier term instability). Caller receives conceptual grounding for design or troubleshooting decisions."
+      ],
+      "examples": [
+        {
+          "input": "Reviewing a ranking system where longer documents consistently score higher despite lower relevance.",
+          "output": "Reference explains that raw tf scoring inflates scores for longer documents due to word repetition. Maximum tf normalization mitigates this by dividing tf by the maximum tf in the document, scaled by smoothing parameter a (typically 0.4).",
+          "notes": "Illustrates the length bias anomaly and the normalization solution."
+        },
+        {
+          "input": "Troubleshooting why changing the stop word list causes dramatic shifts in term weightings.",
+          "output": "Reference documents that maximum tf normalization is unstable under stop word list changes because tfmax(d) can shift significantly, altering the normalized weights for all terms in the document.",
+          "notes": "Highlights a known tuning difficulty with the method."
+        }
+      ],
+      "tags": [
+        "tf-idf",
+        "term_weighting",
+        "normalization",
+        "smoothing",
+        "vector_space_model",
+        "length_bias"
+      ],
+      "support_ids": [
+        "fb13d20f-a024-5871-9ff8-671c8d5dd487"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "0ae89d96-5931-5cda-b07a-fbf615f6f6cc"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||knowledge_reference|session|knowledge_reference_node|provide_tf_idf_weighting_context|information_retrieval|term_weighting|tf_idf|scoring|tf-idf weighting reference",
+        "change_action": "create",
+        "llm_reason": "Candidate is a focused, non-redundant reference asset on maximum tf normalization and documented failure modes (length bias, stop word sensitivity, outlier instability). Peer candidates cover broader tf-idf theory (a45c7e44), general tf-idf computation (4e22b826), and storage optimization (1af988c0), but none specifically address maximum tf normalization techniques, smoothing parameters, or the specific failure modes documented here. The candidate fills a distinct gap in operational guidance for tf normalization design decisions.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 1.0,
+        "hierarchy_status": "root",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "8c14e62f-be01-5801-9027-2173d3c2a7ba",
+      "name": "Inverse Document Frequency (IDF) Lookup",
+      "description": "Retrieve or compute the idf value for a term based on its document frequency across a corpus. Use to penalize common terms and boost rare terms in relevance scoring.",
+      "skill_body": "Given a term t and a corpus of N documents, compute or retrieve idf(t) = log(N / df(t)), where df(t) is the number of documents containing term t. The idf value quantifies term rarity: highest for terms appearing in few documents, lowest for terms appearing in many or all documents.\n\n## Objective\n\nquantify_term_rarity\n## Applicable Signals\n\n- need to adjust term weight based on document frequency\n- building or querying a term-document matrix\n- preparing weights for tf-idf composite scoring\n\n## Contraindications\n\n- term appears in all documents (idf approaches 0; use stop word filtering instead)\n- corpus is too small or unstable (insufficient document frequency data)\n- term has not been indexed or does not exist in corpus\n\n## Intervention Moves\n\n- Look up or compute df(t) from corpus index\n- Apply logarithmic scaling: idf(t) = log(N / df(t))\n- Cache or return idf value for downstream tf-idf calculation\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Retrieve corpus size N (total number of documents)'}\n- {'step': 2, 'action': 'Look up or compute document frequency df(t) for term t'}\n- {'step': 3, 'action': 'Apply formula: idf(t) = log(N / df(t))'}\n- {'step': 4, 'action': 'Return or cache idf(t) value for use in tf-idf weighting'}\n\n## Constraints\n\n- corpus size N must be known and stable\n- document frequency df(t) must be precomputed or indexed\n- idf is always finite and non-negative\n\n## Cautions\n\n- idf of a term that occurs in every document is zero; consider stop word lists for such terms\n- idf values should be precomputed and cached for efficiency in large corpora\n\n## Output Contract\n\n- idf(t) value reflecting rarity of term t across corpus; a finite non-negative scalar suitable for multiplication with term frequency in tf-idf composite weighting",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "quantify_term_rarity",
+      "domain": "information_retrieval",
+      "task_family": "term_weighting",
+      "method_family": "statistical_scoring",
+      "stage": "document_scoring",
+      "applicable_signals": [
+        "need to adjust term weight based on document frequency",
+        "building or querying a term-document matrix",
+        "preparing weights for tf-idf composite scoring"
+      ],
+      "contraindications": [
+        "term appears in all documents (idf approaches 0; use stop word filtering instead)",
+        "corpus is too small or unstable (insufficient document frequency data)",
+        "term has not been indexed or does not exist in corpus"
+      ],
+      "intervention_moves": [
+        "Look up or compute df(t) from corpus index",
+        "Apply logarithmic scaling: idf(t) = log(N / df(t))",
+        "Cache or return idf value for downstream tf-idf calculation"
+      ],
+      "triggers": [
+        "need to adjust term weight based on how many documents contain it",
+        "building or querying a term-document matrix"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Retrieve corpus size N (total number of documents)'}",
+        "{'step': 2, 'action': 'Look up or compute document frequency df(t) for term t'}",
+        "{'step': 3, 'action': 'Apply formula: idf(t) = log(N / df(t))'}",
+        "{'step': 4, 'action': 'Return or cache idf(t) value for use in tf-idf weighting'}"
+      ],
+      "constraints": [
+        "corpus size N must be known and stable",
+        "document frequency df(t) must be precomputed or indexed",
+        "idf is always finite and non-negative"
+      ],
+      "cautions": [
+        "idf of a term that occurs in every document is zero; consider stop word lists for such terms",
+        "idf values should be precomputed and cached for efficiency in large corpora"
+      ],
+      "output_contract": [
+        "idf(t) value reflecting rarity of term t across corpus; a finite non-negative scalar suitable for multiplication with term frequency in tf-idf composite weighting"
+      ],
+      "examples": [],
+      "tags": [
+        "term_weighting",
+        "idf",
+        "relevance_scoring",
+        "statistical_weighting"
+      ],
+      "support_ids": [
+        "024ebfd5-02d4-52d2-85fc-4e964f7c6893"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "4ba503db-6fd1-5227-9ca2-c1b1968aaca5"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.88,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|quantify_term_rarity|information_retrieval|term_weighting|statistical_scoring|document_scoring|inverse document frequency (idf) lookup",
+        "change_action": "create",
+        "llm_reason": "IDF Lookup is a distinct micro-skill that isolates the computation/retrieval of inverse document frequency values. While peer candidates (TF-IDF Weight Calculation, TF-IDF Term Weighting) consume IDF as input, this skill focuses specifically on the IDF component in isolation—retrieving corpus statistics, computing document frequency, and applying logarithmic scaling. This separation enables reuse across multiple weighting schemes and supports caching strategies. No redundancy detected with peers; supported by corpus evidence.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "77456f75-5da3-5604-bfcb-ec247cd860d5",
+      "name": "Weighted Zone Scoring",
+      "description": "Assign differential weights to term occurrences across document zones (title, abstract, body, keywords, metadata) to reflect structural importance and relevance signals. Applies zone-specific multipliers to term frequencies and combines weighted contributions into a normalized relevance score.",
+      "skill_body": "For each term in the query, identify which document zones it appears in (title, abstract, body, keywords, etc.). Apply zone-specific weights to the term frequency in each zone. Combine weighted contributions across zones to produce a final relevance score that reflects the structural importance of term matches.\n\n## Objective\n\nweight_terms_by_zone\n## Applicable Signals\n\n- document zone boundaries are clearly defined\n- zone-specific term frequency data is available\n- relevance varies significantly by zone\n\n## Contraindications\n\n- documents are unstructured or flat\n- zone boundaries are unclear or unreliable\n- computational cost of zone parsing is prohibitive\n\n## Workflow Steps\n\n- Parse document into zones (title, abstract, body, keywords, metadata)\n- For each query term, identify zone occurrences and extract term frequency per zone\n- Apply zone-specific weight multiplier to each zone's term frequency\n- Combine weighted contributions across all zones\n- Return normalized weighted score\n\n## Constraints\n\n- zone weights must be pre-defined or learned from training data\n- zone boundaries must be reliably extractable from document structure\n\n## Output Contract\n\n- Weighted term frequency values per zone; combined score reflecting zone-weighted contributions to overall relevance score",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "af6320bc-1ac2-5054-999c-eadf0d98b82c",
+      "parent_candidate_ids": [
+        "af6320bc-1ac2-5054-999c-eadf0d98b82c"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "weight_terms_by_zone",
+      "domain": "information_retrieval",
+      "task_family": "term_weighting",
+      "method_family": "zone_based_weighting",
+      "stage": "score_computation",
+      "applicable_signals": [
+        "document zone boundaries are clearly defined",
+        "zone-specific term frequency data is available",
+        "relevance varies significantly by zone"
+      ],
+      "contraindications": [
+        "documents are unstructured or flat",
+        "zone boundaries are unclear or unreliable",
+        "computational cost of zone parsing is prohibitive"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "documents have structured zones (title, abstract, body, keywords)",
+        "terms in certain zones are more indicative of relevance",
+        "need to boost or suppress zone-specific matches"
+      ],
+      "workflow_steps": [
+        "Parse document into zones (title, abstract, body, keywords, metadata)",
+        "For each query term, identify zone occurrences and extract term frequency per zone",
+        "Apply zone-specific weight multiplier to each zone's term frequency",
+        "Combine weighted contributions across all zones",
+        "Return normalized weighted score"
+      ],
+      "constraints": [
+        "zone weights must be pre-defined or learned from training data",
+        "zone boundaries must be reliably extractable from document structure"
+      ],
+      "cautions": [],
+      "output_contract": [
+        "Weighted term frequency values per zone; combined score reflecting zone-weighted contributions to overall relevance score"
+      ],
+      "examples": [],
+      "tags": [
+        "term_weighting",
+        "document_structure",
+        "relevance_scoring",
+        "zone_based",
+        "information_retrieval"
+      ],
+      "support_ids": [
+        "1e7c24a6-5c24-5ccb-9270-c4f3e5d8805b"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "f753e49f-df87-57af-8a2c-4f504283b0ce"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|weight_terms_by_zone|information_retrieval|term_weighting|zone_based_weighting|score_computation|weighted zone scoring",
+        "change_action": "create",
+        "llm_reason": "Weighted Zone Scoring is a distinct micro-skill that extends term weighting beyond global TF-IDF by incorporating document structure (title, abstract, body, keywords, metadata). While peer candidates address TF normalization and TF-IDF computation, none explicitly handle zone-based differential weighting. This skill fills a specific capability gap in structured document retrieval and is supported by evidence from information retrieval literature. No conflicts detected.",
+        "parent_skill_id": "af6320bc-1ac2-5054-999c-eadf0d98b82c",
+        "parent_candidate_ids": [
+          "af6320bc-1ac2-5054-999c-eadf0d98b82c"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "79452b64-3bc6-48ea-a3ee-3c09be268ad9",
+      "entity_type": "skill",
+      "entity_id": "fcee8af2-1df2-5395-a35d-aa4572a0f71a",
+      "action": "create",
+      "changed_at": "2026-09-14T22:26:29+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Maximum TF Normalization is a distinct micro-skill with a specific normalization technique (dividing by max TF with smoothing parameter) that differs fundamentally from TF-IDF weighting in peer_candidates. While both operate in term_weighting task_family, this skill addresses document-length bias through intra-document normalization, whereas TF-IDF uses collection-level statistics. The skill has direct support evidence and fills a legitimate gap in normalization strategies.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "fcee8af2-1df2-5395-a35d-aa4572a0f71a",
+        "doc_ids": [
+          "fc9056b5-59f5-5e1a-9452-59d955d52e19"
+        ],
+        "support_added": [
+          "0cdd5b90-068f-58f1-9ba3-9c3e4a72da56"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "0bce0e3e-8713-4ccb-8d11-8667e5efe6e1",
+      "entity_type": "skill",
+      "entity_id": "6c329aa8-3870-56d8-8428-f616f68a8393",
+      "action": "create",
+      "changed_at": "2026-09-14T22:26:29+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "This is a distinct safety_rule (micro-level assessment skill) that evaluates preconditions for applying maximum tf normalization. It complements the peer_candidates by providing a go/no-go gate before the normalization technique is deployed. The peer candidates (Maximum TF Normalization, TF-IDF variants) are executable micro_skills for term weighting; this candidate is a stability assessment rule that prevents unsafe application of those techniques. No redundancy detected.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "6c329aa8-3870-56d8-8428-f616f68a8393",
+        "doc_ids": [
+          "fc9056b5-59f5-5e1a-9452-59d955d52e19"
+        ],
+        "support_added": [
+          "be256ea5-0577-5a3c-9f76-b4a63c10ae03"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "c6683eef-2210-4109-8870-8fd1d6c1b72e",
+      "entity_type": "skill",
+      "entity_id": "5ebd86ca-a2fc-50e7-a728-868be97b707d",
+      "action": "create",
+      "changed_at": "2026-09-14T22:26:29+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a focused, non-redundant reference asset on maximum tf normalization and documented failure modes (length bias, stop word sensitivity, outlier instability). Peer candidates cover broader tf-idf theory (a45c7e44), general tf-idf computation (4e22b826), and storage optimization (1af988c0), but none specifically address maximum tf normalization techniques, smoothing parameters, or the specific failure modes documented here. The candidate fills a distinct gap in operational guidance for tf normalization design decisions.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "5ebd86ca-a2fc-50e7-a728-868be97b707d",
+        "doc_ids": [
+          "fc9056b5-59f5-5e1a-9452-59d955d52e19"
+        ],
+        "support_added": [
+          "fb13d20f-a024-5871-9ff8-671c8d5dd487"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "4e6645c5-2b86-4cb0-a1be-02dcff888c76",
+      "entity_type": "skill",
+      "entity_id": "8c14e62f-be01-5801-9027-2173d3c2a7ba",
+      "action": "create",
+      "changed_at": "2026-09-14T22:26:29+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "IDF Lookup is a distinct micro-skill that isolates the computation/retrieval of inverse document frequency values. While peer candidates (TF-IDF Weight Calculation, TF-IDF Term Weighting) consume IDF as input, this skill focuses specifically on the IDF component in isolation—retrieving corpus statistics, computing document frequency, and applying logarithmic scaling. This separation enables reuse across multiple weighting schemes and supports caching strategies. No redundancy detected with peers; supported by corpus evidence.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "8c14e62f-be01-5801-9027-2173d3c2a7ba",
+        "doc_ids": [
+          "fc9056b5-59f5-5e1a-9452-59d955d52e19"
+        ],
+        "support_added": [
+          "024ebfd5-02d4-52d2-85fc-4e964f7c6893"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "3d09ebac-8692-4da1-a19a-4d0bed7b8e1a",
+      "entity_type": "skill",
+      "entity_id": "77456f75-5da3-5604-bfcb-ec247cd860d5",
+      "action": "create",
+      "changed_at": "2026-09-14T22:26:29+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Weighted Zone Scoring is a distinct micro-skill that extends term weighting beyond global TF-IDF by incorporating document structure (title, abstract, body, keywords, metadata). While peer candidates address TF normalization and TF-IDF computation, none explicitly handle zone-based differential weighting. This skill fills a specific capability gap in structured document retrieval and is supported by evidence from information retrieval literature. No conflicts detected.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "77456f75-5da3-5604-bfcb-ec247cd860d5",
+        "doc_ids": [
+          "fc9056b5-59f5-5e1a-9452-59d955d52e19"
+        ],
+        "support_added": [
+          "1e7c24a6-5c24-5ccb-9270-c4f3e5d8805b"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

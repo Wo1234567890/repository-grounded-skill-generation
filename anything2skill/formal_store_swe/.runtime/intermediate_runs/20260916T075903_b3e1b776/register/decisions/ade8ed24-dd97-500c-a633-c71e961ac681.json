@@ -1,0 +1,110 @@
+{
+  "skill_id": "ade8ed24-dd97-500c-a633-c71e961ac681",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate skill 'Auto-start trace session initialization' is a narrow, implementation-specific internal utility for a tracing library's startup hook. It does not represent a distinct user-facing capability or workflow. The peer_candidates (AgentOps session initialization skills) operate at a different semantic level (agent monitoring/instrumentation) and are not related. The existing_skills registry contains no tracing-related session skills. The candidate's workflow (atexit registration, trace context creation, legacy global updates) is too low-level and tightly coupled to a specific tracing framework's internals to warrant persistent registry entry. It should be maintained as internal library code, not as a reusable skill.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "ade8ed24-dd97-500c-a633-c71e961ac681",
+    "name": "Auto-start trace session initialization",
+    "description": "Conditionally initialize and start a trace session at client startup if auto_start_session is enabled. Registers atexit handlers once, creates trace context with configured trace_name and default_tags, and updates legacy global references for backward compatibility.",
+    "skill_body": "Check if auto_start_session is enabled in config. If enabled and trace context is None or not recording, register an atexit handler (guarded by _atexit_registered flag to prevent duplicates), start a new trace with the configured trace_name (or 'default'), apply default_tags if present as a list, instantiate a Session object, and update legacy global references (_client_init_trace_context and _client_legacy_session_for_init_trace) for backward-compatible code paths.\n\n## Objective\n\nInitialize tracing infrastructure on client startup with auto-start capability and backward compatibility\n## Applicable Signals\n\n- config.auto_start_session == True\n- _init_trace_context is None\n- _init_trace_context.span.is_recording() == False\n\n## Contraindications\n\n- Manual trace control is required by caller\n- Trace session already active and recording\n- auto_start_session is False or disabled\n\n## Workflow Steps\n\n- Check global _atexit_registered flag\n- If not registered, call atexit.register(_end_init_trace_atexit) and set _atexit_registered = True\n- Check if config.auto_start_session is True\n- Verify _init_trace_context is None or span.is_recording() is False\n- Retrieve trace_name from config or use 'default'\n- Convert config.default_tags to list if present, else pass None\n- Call tracer.start_trace(trace_name, tags, is_init_trace=True)\n- If trace context created successfully, instantiate Session(_init_trace_context)\n- Update global _client_init_trace_context and _client_legacy_session_for_init_trace for backward compatibility\n\n## Constraints\n\n- atexit handler must be registered only once (check _atexit_registered flag)\n- trace_name defaults to 'default' if not configured\n- default_tags must be converted to list if present\n\n## Cautions\n\n- Ensure atexit handler is idempotent or guarded by flag to prevent duplicate registrations\n- Legacy global references must be updated atomically with trace context creation\n- If tracer.start_trace fails, trace context remains None and session is not created\n\n## Output Contract\n\n- Trace context is created and actively recording; atexit handler is registered exactly once; legacy session reference is updated and accessible via global references for backward-compatible code paths.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Initialize tracing infrastructure on client startup with auto-start capability and backward compatibility",
+    "domain": "default",
+    "task_family": "tracing_initialization",
+    "method_family": "conditional_context_setup",
+    "stage": "client_startup",
+    "applicable_signals": [
+      "config.auto_start_session == True",
+      "_init_trace_context is None",
+      "_init_trace_context.span.is_recording() == False"
+    ],
+    "contraindications": [
+      "Manual trace control is required by caller",
+      "Trace session already active and recording",
+      "auto_start_session is False or disabled"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Client initialization begins",
+      "auto_start_session config is True",
+      "Trace context is None or not currently recording"
+    ],
+    "workflow_steps": [
+      "Check global _atexit_registered flag",
+      "If not registered, call atexit.register(_end_init_trace_atexit) and set _atexit_registered = True",
+      "Check if config.auto_start_session is True",
+      "Verify _init_trace_context is None or span.is_recording() is False",
+      "Retrieve trace_name from config or use 'default'",
+      "Convert config.default_tags to list if present, else pass None",
+      "Call tracer.start_trace(trace_name, tags, is_init_trace=True)",
+      "If trace context created successfully, instantiate Session(_init_trace_context)",
+      "Update global _client_init_trace_context and _client_legacy_session_for_init_trace for backward compatibility"
+    ],
+    "constraints": [
+      "atexit handler must be registered only once (check _atexit_registered flag)",
+      "trace_name defaults to 'default' if not configured",
+      "default_tags must be converted to list if present"
+    ],
+    "cautions": [
+      "Ensure atexit handler is idempotent or guarded by flag to prevent duplicate registrations",
+      "Legacy global references must be updated atomically with trace context creation",
+      "If tracer.start_trace fails, trace context remains None and session is not created"
+    ],
+    "output_contract": [
+      "Trace context is created and actively recording; atexit handler is registered exactly once; legacy session reference is updated and accessible via global references for backward-compatible code paths."
+    ],
+    "examples": [],
+    "tags": [
+      "initialization",
+      "tracing",
+      "session_management",
+      "startup",
+      "backward_compatibility"
+    ],
+    "support_ids": [
+      "97ce7cad-2582-5f8d-b8aa-ea01f87b5995"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "61915a08-615e-53bf-bedd-7828ac7262f9"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|initialize tracing infrastructure on client startup with auto-start capability and backward compatibility|default|tracing_initialization|conditional_context_setup|client_startup|auto-start trace session initialization"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

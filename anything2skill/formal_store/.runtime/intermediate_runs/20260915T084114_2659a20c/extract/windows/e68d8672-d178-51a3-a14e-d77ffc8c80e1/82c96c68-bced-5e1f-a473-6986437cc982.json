@@ -1,0 +1,183 @@
+{
+  "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+  "title": "agentops-docs.txt",
+  "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+  "window_id": "82c96c68-bced-5e1f-a473-6986437cc982",
+  "section_heading": "Debugging Roadmap",
+  "strategy": "strict",
+  "supports": [
+    {
+      "support_id": "3259b7fc-d130-551f-94a5-cff16de3f3d9",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 43264,
+        "end": 44818
+      },
+      "excerpt": "# Get the current span from OpenTelemetry context\n    current_span = get_current_span()\n\n# Check if the current span is valid and recording\n    if current_span and hasattr(current_span, \"is_recording\") and current_span.is_recording():\n        # Check if this is a trace/session span or a child span\n        span_name = getattr(current_span, \"name\", \"\")\n\n# If it's a session/trace span, use it directly\n        if span_name.endswith(f\".{SpanKind.SESSION}\"):\n            span = current_span\n        else:\n            # It's a child span, try to find the root trace span\n            # Get all active traces\n            active_traces = tracer.get_active_traces()\n            if active_traces:\n                # Find the trace that contains the current span\n                current_trace_id = current_span.get_span_context().trace_id\n\n# If we couldn't find the parent trace, use the current span\n                if not span:\n                    span = current_span\n            else:\n                # No active traces, use the current span\n                span = current_span",
+      "relation_type": "support",
+      "confidence": 0.75,
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Active Span Resolution in Distributed Tracing",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "resolve_active_span",
+        "task_family": "distributed_tracing",
+        "method_family": "span_resolution",
+        "stage": "instrumentation",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "82c96c68-bced-5e1f-a473-6986437cc982",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "session"
+        ],
+        "paragraph_start": 23,
+        "paragraph_end": 27,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      },
+      "created_at": "2026-09-14T22:53:28+00:00"
+    }
+  ],
+  "skill_drafts": [
+    {
+      "draft_id": "808d0e18-44c9-5274-a639-9999d1ec02b3",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "name": "Active Span Resolution in Distributed Tracing",
+      "description": "Retrieve and validate the current OpenTelemetry span from context, then resolve it to the appropriate session or root trace span for logging and debugging.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "resolve_active_span",
+      "domain": "default",
+      "task_family": "distributed_tracing",
+      "method_family": "span_resolution",
+      "stage": "instrumentation",
+      "applicable_signals": [
+        "OpenTelemetry context is active",
+        "get_current_span() returns a non-null span",
+        "Span has is_recording() method available"
+      ],
+      "contraindications": [
+        "No OpenTelemetry context is available in the current execution",
+        "The span is not recording (is_recording() returns false)",
+        "Offline or non-instrumented execution paths",
+        "Tracer instance is unavailable or uninitialized"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Retrieve current span', 'detail': 'Call get_current_span() from OpenTelemetry context'}",
+        "{'step': 2, 'action': 'Validate span', 'detail': 'Check that span is not null, has is_recording method, and is_recording() returns true'}",
+        "{'step': 3, 'action': 'Determine span type', 'detail': 'Extract span name and check if it ends with .SESSION to identify session/trace span'}",
+        "{'step': 4, 'action': 'Resolve to appropriate span', 'detail': 'If session span, use directly; if child span, query active traces and match by trace_id'}",
+        "{'step': 5, 'action': 'Fallback handling', 'detail': 'If parent trace not found or no active traces, use current span as fallback'}"
+      ],
+      "triggers": [
+        "A logging or debugging operation needs to attach telemetry data to the correct trace context",
+        "The current execution context may be a child span or a root session span",
+        "Span attachment is required before recording events or attributes"
+      ],
+      "constraints": [
+        "The span object must have a name attribute or default to empty string",
+        "The span context must expose a trace_id for parent matching",
+        "Active traces must be queryable via tracer.get_active_traces()"
+      ],
+      "cautions": [
+        "If no parent trace is found, the fallback to current span may not represent the full session context",
+        "Span name matching relies on exact suffix comparison; naming conventions must be consistent"
+      ],
+      "output_contract": [
+        "A valid, recording span object (either the current session span or the resolved root trace span) ready for event or attribute attachment. The returned span must satisfy: span is not null, span.is_recording() == true, and span has a valid trace_id."
+      ],
+      "examples": [],
+      "risk_class": "low",
+      "confidence": 0.75,
+      "support_ids": [
+        "3259b7fc-d130-551f-94a5-cff16de3f3d9"
+      ],
+      "metadata": {
+        "prompt": "1. Call get_current_span() to retrieve the span from OpenTelemetry context.\n2. Validate that the span exists and is recording (check is_recording() method).\n3. Inspect the span name to determine if it is a session/trace span (ends with .SESSION) or a child span.\n4. If it is a session span, use it directly.\n5. If it is a child span, attempt to retrieve active traces via tracer.get_active_traces().\n6. Match the current span's trace_id against active traces to find the parent trace span.\n7. If no parent trace is found or no active traces exist, fall back to the current span.\n8. Return the resolved span object.",
+        "tags": [
+          "opentelemetry",
+          "distributed_tracing",
+          "span_resolution",
+          "instrumentation",
+          "debugging",
+          "telemetry"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "Debugging Roadmap"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 1,
+        "window_id": "82c96c68-bced-5e1f-a473-6986437cc982",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "session"
+        ],
+        "paragraph_start": 23,
+        "paragraph_end": 27,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    }
+  ],
+  "failed": false,
+  "complete": true,
+  "error": {}
+}

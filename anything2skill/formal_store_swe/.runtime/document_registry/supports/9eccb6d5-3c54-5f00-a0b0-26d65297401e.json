@@ -1,0 +1,55 @@
+{
+  "support_id": "9eccb6d5-3c54-5f00-a0b0-26d65297401e",
+  "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+  "skill_id": "f51af5de-39df-59d7-a895-20bfd95920c7",
+  "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+  "section": "Debugging Roadmap",
+  "span": {
+    "start": 115165,
+    "end": 119390
+  },
+  "excerpt": "from opentelemetry.metrics import Meter\n\n_instruments = (\"openai >= 0.27.0\",)\n\nclass OpenaiInstrumentor(CommonInstrumentor):\n    \"\"\"An instrumentor for OpenAI's client library with comprehensive coverage.\"\"\"\n\n# Create instrumentor config\n        config = InstrumentorConfig(\n            library_name=LIBRARY_NAME,\n            library_version=LIBRARY_VERSION,\n            wrapped_methods=self._get_wrapped_methods(),\n            metrics_enabled=True,\n            dependencies=_instruments,\n        )\n\nsuper().__init__(config)\n\ndef _initialize(self, **kwargs):\n        \"\"\"Handle version-specific initialization.\"\"\"\n        if not is_openai_v1():\n            # For v0, use the legacy instrumentor\n            OpenAIV0Instrumentor().instrument(**kwargs)\n            # Skip normal instrumentation\n            self.config.wrapped_methods = []\n\ndef _custom_wrap(self, **kwargs):\n        \"\"\"Add custom wrappers for streaming functionality.\"\"\"\n        if is_openai_v1() and self._tracer:\n            # from wrapt import wrap_function_wrapper\n            # # Add streaming wrappers for v1\n            try:\n                # Chat completion streaming wrappers\n\nwrap_function_wrapper(\n                    \"openai.resources.chat.completions\",\n                    \"Completions.create\",\n                    chat_completion_stream_wrapper(self._tracer),\n                )\n\nwrap_function_wrapper(\n                    \"openai.resources.chat.completions\",\n                    \"AsyncCompletions.create\",\n                    async_chat_completion_stream_wrapper(self._tracer),\n                )\n\n# Beta chat completion streaming wrappers\n                wrap_function_wrapper(\n                    \"openai.resources.beta.chat.completions\",\n                    \"Completions.parse\",\n                    chat_completion_stream_wrapper(self._tracer),\n                )\n\nwrap_function_wrapper(\n                    \"openai.resources.beta.chat.completions\",\n                    \"AsyncCompletions.parse\",\n                    async_chat_completion_stream_wrapper(self._tracer),\n                )\n\n# Responses API streaming wrappers\n                wrap_function_wrapper(\n                    \"openai.resources.responses\",\n                    \"Responses.create\",\n                    responses_stream_wrapper(self._tracer),\n                )",
+  "relation_type": "support",
+  "confidence": 0.85,
+  "metadata": {
+    "document_title": "agentops-docs.txt",
+    "domain": "",
+    "extraction_unit": "window",
+    "skill_name": "OpenAI Library Instrumentation Setup",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "visible_role": "parent",
+    "objective": "Set up comprehensive observability instrumentation for OpenAI API calls with version compatibility and streaming support",
+    "task_family": "instrumentation_setup",
+    "method_family": "opentelemetry_configuration",
+    "stage": "initialization",
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "candidate_slot": 1,
+    "window_id": "bc59077b-cada-5903-8c40-112c345ebcd4",
+    "window_strategy": "strict",
+    "anchor_hits": [],
+    "paragraph_start": 0,
+    "paragraph_end": 13,
+    "heading_path": [
+      "Debugging Roadmap"
+    ],
+    "parent_heading": "",
+    "sibling_headings": [
+      "agentops-docs.txt",
+      "Repository Overview",
+      "Quick Start",
+      "First class Developer Experience",
+      "Integrations"
+    ],
+    "subsection_headings": [],
+    "context_snippets": [],
+    "heading_number": "",
+    "heading_kind": "outline_llm",
+    "section_summary": "### Why AgentOps?"
+  },
+  "created_at": "2026-09-15T22:33:28+00:00"
+}

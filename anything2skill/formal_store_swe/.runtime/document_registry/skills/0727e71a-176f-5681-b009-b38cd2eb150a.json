@@ -1,0 +1,130 @@
+{
+  "skill_id": "0727e71a-176f-5681-b009-b38cd2eb150a",
+  "name": "Classify Future Timeout and Cancellation Outcomes",
+  "description": "Catch and classify TimeoutError and CancelledError exceptions when calling Future.result(timeout=...) or waiting on Futures with timeout. Route each outcome class (timeout, cancellation, normal completion) to the appropriate handler for recovery, retry, escalation, or cleanup.",
+  "skill_body": "When calling Future.result(timeout=...) or waiting on Futures with a timeout parameter, catch and classify the exception outcome. If TimeoutError is raised, the operation exceeded the timeout threshold. If CancelledError is raised, the Future was cancelled before completion. Route each case to the appropriate handler: timeout cases may warrant retry or escalation; cancellation cases may warrant logging or cleanup. Normal completion (no exception) proceeds without intervention.\n\n## Objective\n\nClassify and handle Future timeout and cancellation outcomes\n## Applicable Signals\n\n- Calling Future.result(timeout=...) with a timeout parameter\n- Waiting on Futures using concurrent.futures.wait() or as_completed() with timeout\n- Need to distinguish between timeout, cancellation, and normal completion\n\n## Contraindications\n\n- No timeout is set on the Future operation\n- Future is guaranteed to complete within acceptable time\n- Error classification is not needed for the use case\n\n## Intervention Moves\n\n- Catch TimeoutError: log timeout event, decide whether to retry, escalate, or fail gracefully\n- Catch CancelledError: log cancellation event, perform cleanup, update caller state\n- On normal completion: proceed with result or exception from Future\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Invoke Future.result(timeout=T) or wait(..., timeout=T)', 'note': 'Set timeout parameter to a positive number or None'}\n- {'step': 2, 'action': 'Catch concurrent.futures.TimeoutError', 'note': 'Indicates operation exceeded timeout threshold T'}\n- {'step': 3, 'action': 'Catch concurrent.futures.CancelledError', 'note': 'Indicates Future was cancelled before completion'}\n- {'step': 4, 'action': 'Route to appropriate handler based on exception type', 'note': 'Timeout → retry/escalate; Cancellation → cleanup/log; Normal → proceed'}\n\n## Constraints\n\n- TimeoutError is a deprecated alias of built-in TimeoutError as of Python 3.11\n- CancelledError is raised only if the Future was explicitly cancelled\n- Exception handling must occur after the timeout-aware call (e.g., Future.result(timeout=...) or wait(..., timeout=...))\n\n## Cautions\n\n- Do not confuse TimeoutError with other exceptions raised by the Future's underlying work\n- Cancellation and timeout are distinct outcomes; apply different recovery strategies\n- Ensure timeout value is appropriate for the task; very short timeouts may cause spurious failures\n\n## Output Contract\n\n- Caller identifies the outcome class (timeout, cancellation, or normal completion) and applies the corresponding action. The skill guarantees classification; the caller is responsible for recovery logic.\n\n## Example Executions\n\n### Example 1\n\n- Input: Call future.result(timeout=5) on a Future that does not complete within 5 seconds\n- Output: concurrent.futures.TimeoutError is raised; caller catches and decides to retry or escalate\n- Notes: Timeout is the primary failure mode when timeout parameter is set\n\n### Example 2\n\n- Input: Call future.result(timeout=10) on a Future that was cancelled via future.cancel()\n- Output: concurrent.futures.CancelledError is raised; caller catches and performs cleanup\n- Notes: Cancellation takes precedence; result() raises CancelledError even if timeout has not elapsed\n\n### Example 3\n\n- Input: Call future.result(timeout=None) on a Future that completes normally\n- Output: No exception; result is returned or underlying exception is raised\n- Notes: When timeout=None, no timeout occurs; only the Future's actual outcome is observed",
+  "asset_type": "safety_rule",
+  "granularity": "micro",
+  "asset_node_id": "safety_rule_node",
+  "asset_path": "family_root/safety_module/safety_rule_node",
+  "asset_level": 2,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "Classify and handle Future timeout and cancellation outcomes",
+  "domain": "default",
+  "task_family": "concurrent_task_management",
+  "method_family": "future_error_classification",
+  "stage": "task_completion",
+  "applicable_signals": [
+    "Calling Future.result(timeout=...) with a timeout parameter",
+    "Waiting on Futures using concurrent.futures.wait() or as_completed() with timeout",
+    "Need to distinguish between timeout, cancellation, and normal completion"
+  ],
+  "contraindications": [
+    "No timeout is set on the Future operation",
+    "Future is guaranteed to complete within acceptable time",
+    "Error classification is not needed for the use case"
+  ],
+  "intervention_moves": [
+    "Catch TimeoutError: log timeout event, decide whether to retry, escalate, or fail gracefully",
+    "Catch CancelledError: log cancellation event, perform cleanup, update caller state",
+    "On normal completion: proceed with result or exception from Future"
+  ],
+  "triggers": [
+    "Calling Future.result(timeout=...) or waiting on Futures with timeout; need to distinguish between timeout, cancellation, and normal completion"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Invoke Future.result(timeout=T) or wait(..., timeout=T)', 'note': 'Set timeout parameter to a positive number or None'}",
+    "{'step': 2, 'action': 'Catch concurrent.futures.TimeoutError', 'note': 'Indicates operation exceeded timeout threshold T'}",
+    "{'step': 3, 'action': 'Catch concurrent.futures.CancelledError', 'note': 'Indicates Future was cancelled before completion'}",
+    "{'step': 4, 'action': 'Route to appropriate handler based on exception type', 'note': 'Timeout → retry/escalate; Cancellation → cleanup/log; Normal → proceed'}"
+  ],
+  "constraints": [
+    "TimeoutError is a deprecated alias of built-in TimeoutError as of Python 3.11",
+    "CancelledError is raised only if the Future was explicitly cancelled",
+    "Exception handling must occur after the timeout-aware call (e.g., Future.result(timeout=...) or wait(..., timeout=...))"
+  ],
+  "cautions": [
+    "Do not confuse TimeoutError with other exceptions raised by the Future's underlying work",
+    "Cancellation and timeout are distinct outcomes; apply different recovery strategies",
+    "Ensure timeout value is appropriate for the task; very short timeouts may cause spurious failures"
+  ],
+  "output_contract": [
+    "Caller identifies the outcome class (timeout, cancellation, or normal completion) and applies the corresponding action. The skill guarantees classification; the caller is responsible for recovery logic."
+  ],
+  "examples": [
+    {
+      "input": "Call future.result(timeout=5) on a Future that does not complete within 5 seconds",
+      "output": "concurrent.futures.TimeoutError is raised; caller catches and decides to retry or escalate",
+      "notes": "Timeout is the primary failure mode when timeout parameter is set"
+    },
+    {
+      "input": "Call future.result(timeout=10) on a Future that was cancelled via future.cancel()",
+      "output": "concurrent.futures.CancelledError is raised; caller catches and performs cleanup",
+      "notes": "Cancellation takes precedence; result() raises CancelledError even if timeout has not elapsed"
+    },
+    {
+      "input": "Call future.result(timeout=None) on a Future that completes normally",
+      "output": "No exception; result is returned or underlying exception is raised",
+      "notes": "When timeout=None, no timeout occurs; only the Future's actual outcome is observed"
+    }
+  ],
+  "tags": [
+    "concurrent.futures",
+    "Future",
+    "timeout",
+    "cancellation",
+    "exception_handling",
+    "error_classification"
+  ],
+  "support_ids": [
+    "f3edcc5d-a3cb-5cbe-8f5c-c75e4d3c576a"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "3ab4dfa8-9e23-540c-bd69-65ed10c694b2"
+    ],
+    "support_summary": {
+      "support": 0,
+      "constraint": 1,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.8,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||safety_rule|micro|safety_rule_node|classify and handle future timeout and cancellation outcomes|default|concurrent_task_management|future_error_classification|task_completion|classify future timeout and cancellation outcomes",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct micro-level safety_rule for Future timeout/cancellation classification in concurrent task management. It does not semantically overlap with existing skills (which cover Virtual WAN routing) or peer candidates (which address Executor/ThreadPool/ProcessPool health at session granularity and task submission/execution monitoring stages). Candidate operates at task_completion stage with micro granularity, addressing a specific exception classification workflow for Future.result() timeout and cancellation outcomes. No merge, split, or revision relationship exists.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

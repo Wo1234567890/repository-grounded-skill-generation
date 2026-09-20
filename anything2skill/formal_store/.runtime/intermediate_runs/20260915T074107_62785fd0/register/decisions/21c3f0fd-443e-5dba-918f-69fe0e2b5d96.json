@@ -1,0 +1,110 @@
+{
+  "skill_id": "21c3f0fd-443e-5dba-918f-69fe0e2b5d96",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct safety_rule for Spring Boot 3.0 actuator endpoint value sanitization (management.endpoints.jackson.sanitization.mode configuration). It addresses a different security concern (masking sensitive values in /env and /configprops responses) than the peer candidate 1674de73-fd00-544c-98aa-ed7a22b6bd9f which handles endpoint exposure (which endpoints are accessible). The existing_skills are unrelated (Virtual WAN routing and ProcessPoolExecutor constraints). No semantic overlap with any existing skill.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "21c3f0fd-443e-5dba-918f-69fe0e2b5d96",
+    "name": "Configure Actuator Endpoint Value Sanitization",
+    "description": "Establish sanitization policy for Spring Boot actuator endpoints (/env and /configprops) to control visibility of sensitive configuration values. Apply NEVER (default, all masked), ALWAYS (all visible), or WHEN_AUTHORIZED (conditional on user authorization) modes to protect sensitive data exposure.",
+    "skill_body": "When migrating to Spring Boot 3.0, configure the sanitization policy for actuator endpoints to protect sensitive configuration values. Set the sanitization mode using management.endpoints.jackson.sanitization.mode or management.endpoint.quartz.show-values. Choose NEVER (all values masked by default), ALWAYS (all values visible, user-defined sanitizers still apply), or WHEN_AUTHORIZED (values visible only to authenticated, authorized users). For JMX, users are always considered authorized; for HTTP, authorization requires authentication and specified roles.\n\n## Objective\n\nprotect_sensitive_actuator_endpoint_values\n## Applicable Signals\n\n- management.endpoints.jmx.exposure.include or management.endpoints.jmx.exposure.exclude configured\n- actuator module is active\n- sensitive keys or values present in application configuration\n\n## Contraindications\n\n- Actuator endpoints are not exposed or disabled\n- Application contains no sensitive configuration data\n- All users are untrusted and should never see any unmasked values (use NEVER mode exclusively)\n\n## Workflow Steps\n\n- Identify which actuator endpoints are exposed (typically /env and /configprops)\n- Determine sensitivity level of configuration values in the application\n- Select appropriate sanitization mode: NEVER (default, safest), ALWAYS (least safe), or WHEN_AUTHORIZED (conditional)\n- Configure management.endpoints.jackson.sanitization.mode property with chosen mode\n- If using QuartzEndpoint, configure management.endpoint.quartz.show-values with same mode\n- For WHEN_AUTHORIZED mode, verify role-based access control is properly configured\n\n## Constraints\n\n- Sanitization mode applies to both /env and /configprops endpoints\n- For JMX access, users are always considered authorized regardless of mode\n- For HTTP access, WHEN_AUTHORIZED mode requires both authentication and specified role membership\n- User-defined sanitizing functions apply in addition to mode-based sanitization\n\n## Cautions\n\n- ALWAYS mode exposes all values; use only if all users are trusted\n- WHEN_AUTHORIZED mode requires proper role-based access control configuration\n- QuartzEndpoint sanitization must be configured separately using management.endpoint.quartz.show-values\n\n## Output Contract\n\n- Sanitization policy applied to actuator endpoints; sensitive values masked by default (NEVER mode) or conditionally exposed based on user authorization level (WHEN_AUTHORIZED mode); all values visible if ALWAYS mode selected; QuartzEndpoint sanitization configured if applicable; downstream callers can rely on consistent value masking behavior across endpoints.",
+    "asset_type": "safety_rule",
+    "granularity": "session",
+    "asset_node_id": "safety_rule_node",
+    "asset_path": "family_root/safety_module/safety_rule_node",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "leaf",
+    "objective": "protect_sensitive_actuator_endpoint_values",
+    "domain": "default",
+    "task_family": "spring_boot_migration",
+    "method_family": "sensitive_data_protection",
+    "stage": "security_hardening",
+    "applicable_signals": [
+      "management.endpoints.jmx.exposure.include or management.endpoints.jmx.exposure.exclude configured",
+      "actuator module is active",
+      "sensitive keys or values present in application configuration"
+    ],
+    "contraindications": [
+      "Actuator endpoints are not exposed or disabled",
+      "Application contains no sensitive configuration data",
+      "All users are untrusted and should never see any unmasked values (use NEVER mode exclusively)"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Spring Boot 3.0 migration in progress",
+      "Actuator endpoints (/env, /configprops) are exposed",
+      "Application contains sensitive configuration values",
+      "Need to control visibility of unmasked configuration to users"
+    ],
+    "workflow_steps": [
+      "Identify which actuator endpoints are exposed (typically /env and /configprops)",
+      "Determine sensitivity level of configuration values in the application",
+      "Select appropriate sanitization mode: NEVER (default, safest), ALWAYS (least safe), or WHEN_AUTHORIZED (conditional)",
+      "Configure management.endpoints.jackson.sanitization.mode property with chosen mode",
+      "If using QuartzEndpoint, configure management.endpoint.quartz.show-values with same mode",
+      "For WHEN_AUTHORIZED mode, verify role-based access control is properly configured"
+    ],
+    "constraints": [
+      "Sanitization mode applies to both /env and /configprops endpoints",
+      "For JMX access, users are always considered authorized regardless of mode",
+      "For HTTP access, WHEN_AUTHORIZED mode requires both authentication and specified role membership",
+      "User-defined sanitizing functions apply in addition to mode-based sanitization"
+    ],
+    "cautions": [
+      "ALWAYS mode exposes all values; use only if all users are trusted",
+      "WHEN_AUTHORIZED mode requires proper role-based access control configuration",
+      "QuartzEndpoint sanitization must be configured separately using management.endpoint.quartz.show-values"
+    ],
+    "output_contract": [
+      "Sanitization policy applied to actuator endpoints; sensitive values masked by default (NEVER mode) or conditionally exposed based on user authorization level (WHEN_AUTHORIZED mode); all values visible if ALWAYS mode selected; QuartzEndpoint sanitization configured if applicable; downstream callers can rely on consistent value masking behavior across endpoints."
+    ],
+    "examples": [],
+    "tags": [
+      "spring-boot-3-migration",
+      "actuator-security",
+      "sensitive-data-protection",
+      "configuration-exposure",
+      "authorization-control"
+    ],
+    "support_ids": [
+      "7b29023a-196e-5ba1-942c-d56e53c2c2fd"
+    ],
+    "metadata": {
+      "risk_class": "high",
+      "source_draft_ids": [
+        "15efc62b-21e9-52ed-9570-012ab216a9c8"
+      ],
+      "support_summary": {
+        "support": 0,
+        "constraint": 1,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.88,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||safety_rule|session|safety_rule_node|protect_sensitive_actuator_endpoint_values|default|spring_boot_migration|sensitive_data_protection|security_hardening|configure actuator endpoint value sanitization",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

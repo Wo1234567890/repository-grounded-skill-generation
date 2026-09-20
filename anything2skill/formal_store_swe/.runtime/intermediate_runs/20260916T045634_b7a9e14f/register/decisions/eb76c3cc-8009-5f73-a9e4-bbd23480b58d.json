@@ -1,0 +1,115 @@
+{
+  "skill_id": "eb76c3cc-8009-5f73-a9e4-bbd23480b58d",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill in async_execution/executor_map domain with specific workflow for concurrent map() execution over iterables. It does not semantically match existing skills (which are in reward_computation domain) and differs from peer candidates (submit, initialization, future retrieval) by focusing on the map() API pattern with per-result timeout handling. Peer candidates represent complementary executor patterns but not overlapping capabilities. Strong support evidence from concurrent.futures documentation. No conflicts detected.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "eb76c3cc-8009-5f73-a9e4-bbd23480b58d",
+    "name": "Map Function Over Iterables with Concurrent Execution",
+    "description": "Apply a function to multiple iterables concurrently using an executor. Collects iterables immediately, executes the function asynchronously over input sets, and returns an iterator over results with per-result timeout and exception handling.",
+    "skill_body": "Use executor.map(fn, *iterables, timeout=None, chunksize=1) to apply fn concurrently across multiple input sets. The iterables are collected eagerly (not lazily). Results are returned as an iterator; accessing a result via __next__() raises TimeoutError if the result is not available within the timeout window. Exceptions raised by fn calls are propagated when their results are retrieved from the iterator. The chunksize parameter (default 1) controls batching of work items.\n\n## Objective\n\nExecute a function over multiple input sets concurrently with timeout and exception handling per result.\n## Applicable Signals\n\n- Batch of homogeneous tasks ready for concurrent processing\n- Multiple input iterables available upfront\n- Timeout tolerance per result is known\n\n## Contraindications\n\n- Executor has been shut down\n- Lazy evaluation of iterables is required\n- Single callable execution needed (use submit() instead)\n- Results must be collected in order without timeout per result\n\n## Workflow Steps\n\n- Prepare iterables and callable function\n- Call executor.map(fn, *iterables, timeout=timeout, chunksize=chunksize)\n- Iterate over returned iterator using __next__() or for loop\n- Handle TimeoutError if result not available within timeout\n- Handle exceptions raised by fn calls during result retrieval\n\n## Constraints\n\n- Iterables are collected immediately, not lazily\n- Calls to map() after executor.shutdown() raise RuntimeError\n- timeout applies per result retrieval, not to the entire map operation\n- chunksize must be a positive integer\n\n## Cautions\n\n- TimeoutError is raised only when __next__() is called on the iterator and the result is not ready\n- Exceptions from fn are raised when their results are accessed, not when fn is called\n- If cancel_futures=True was used in shutdown(), pending futures may be cancelled before map() completes\n\n## Output Contract\n\n- Returns an iterator over results of fn applied to input sets. Iterator raises TimeoutError if __next__() is called and result is not available after timeout seconds. Exceptions from fn calls are raised when their results are retrieved from the iterator.\n\n## Example Executions\n\n### Example 1\n\n- Input: executor.map(pow, [2, 3, 4], [10, 20, 30], timeout=5)\n- Output: Iterator yielding 1024, 3486784401, 1099511627776 (or TimeoutError if any result unavailable after 5 seconds)\n- Notes: Applies pow concurrently to three (base, exponent) pairs with 5-second timeout per result",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Execute a function over multiple input sets concurrently with timeout and exception handling per result.",
+    "domain": "default",
+    "task_family": "async_execution",
+    "method_family": "executor_map",
+    "stage": "batch_processing",
+    "applicable_signals": [
+      "Batch of homogeneous tasks ready for concurrent processing",
+      "Multiple input iterables available upfront",
+      "Timeout tolerance per result is known"
+    ],
+    "contraindications": [
+      "Executor has been shut down",
+      "Lazy evaluation of iterables is required",
+      "Single callable execution needed (use submit() instead)",
+      "Results must be collected in order without timeout per result"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Need to apply one function to many input sets",
+      "Want concurrent execution across multiple iterables",
+      "Require per-result timeout enforcement",
+      "Need exception propagation on result retrieval"
+    ],
+    "workflow_steps": [
+      "Prepare iterables and callable function",
+      "Call executor.map(fn, *iterables, timeout=timeout, chunksize=chunksize)",
+      "Iterate over returned iterator using __next__() or for loop",
+      "Handle TimeoutError if result not available within timeout",
+      "Handle exceptions raised by fn calls during result retrieval"
+    ],
+    "constraints": [
+      "Iterables are collected immediately, not lazily",
+      "Calls to map() after executor.shutdown() raise RuntimeError",
+      "timeout applies per result retrieval, not to the entire map operation",
+      "chunksize must be a positive integer"
+    ],
+    "cautions": [
+      "TimeoutError is raised only when __next__() is called on the iterator and the result is not ready",
+      "Exceptions from fn are raised when their results are accessed, not when fn is called",
+      "If cancel_futures=True was used in shutdown(), pending futures may be cancelled before map() completes"
+    ],
+    "output_contract": [
+      "Returns an iterator over results of fn applied to input sets. Iterator raises TimeoutError if __next__() is called and result is not available after timeout seconds. Exceptions from fn calls are raised when their results are retrieved from the iterator."
+    ],
+    "examples": [
+      {
+        "input": "executor.map(pow, [2, 3, 4], [10, 20, 30], timeout=5)",
+        "output": "Iterator yielding 1024, 3486784401, 1099511627776 (or TimeoutError if any result unavailable after 5 seconds)",
+        "notes": "Applies pow concurrently to three (base, exponent) pairs with 5-second timeout per result"
+      }
+    ],
+    "tags": [
+      "concurrent.futures",
+      "batch_processing",
+      "async_execution",
+      "timeout_handling",
+      "exception_propagation"
+    ],
+    "support_ids": [
+      "347bfaec-0af9-5eba-9d1f-400729a36e41"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "02a1f30e-24f7-5599-b7c3-426bf47ab086"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.92,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|execute a function over multiple input sets concurrently with timeout and exception handling per result.|default|async_execution|executor_map|batch_processing|map function over iterables with concurrent execution"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

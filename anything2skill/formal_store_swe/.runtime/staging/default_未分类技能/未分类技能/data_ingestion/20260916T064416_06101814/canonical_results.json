@@ -1,0 +1,157 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "data_ingestion",
+  "run_id": "20260916T064416_06101814",
+  "skills": [
+    {
+      "skill_id": "2935ec44-11f2-5783-9921-cc4837088279",
+      "name": "DataStream Source Creation",
+      "description": "Compute composite term weight in a document by multiplying term frequency by inverse document frequency. Use when scoring document relevance or ranking search results based on term importance.",
+      "skill_body": "Calculate tf-idf weight for a single term in a document using the formula: tf-idf(t,d) = tf(t,d) × idf(t), where tf(t,d) is the term frequency of term t in document d, and idf(t) is the inverse document frequency of term t across the collection.\n\n## Objective\n\nCalculate tf-idf weight for a single term in a document\n## Applicable Signals\n\n- Term frequency (tf) value for the term in the document is available\n- Inverse document frequency (idf) value for the term is pre-computed\n- Document collection size and term occurrence counts are known\n\n## Contraindications\n\n- Term occurs in virtually all documents (idf approaches zero; weight becomes negligible)\n- Term is a stop word or has been filtered from the collection\n- Term frequency or idf values are not yet computed or unavailable\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Retrieve or compute tf(t,d): term frequency of term t in document d'}\n- {'step': 2, 'action': 'Retrieve or compute idf(t): inverse document frequency of term t across the collection'}\n- {'step': 3, 'action': 'Multiply tf(t,d) by idf(t) to obtain tf-idf(t,d)'}\n- {'step': 4, 'action': 'Return numeric weight tf-idf(t,d) for use in document scoring or ranking'}\n\n## Constraints\n\n- Both tf(t,d) and idf(t) must be non-negative numeric values\n- idf(t) is always finite and typically decreases as term frequency in collection increases\n- Result is a single numeric weight; no further normalization is applied at this step\n\n## Cautions\n\n- High tf-idf weight indicates high discriminating power for that document; use in ranking contexts\n- Lower weight when term occurs fewer times in document or in many documents; less pronounced relevance signal\n- Lowest weight when term occurs in virtually all documents; consider filtering such terms upstream\n\n## Output Contract\n\n- Numeric weight tf-idf(t,d) = tf(t,d) × idf(t) for term t in document d. Weight is highest when term occurs many times within a small number of documents (high discriminating power); lower when term occurs fewer times or in many documents; lowest when term occurs in virtually all documents.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Create a DataStream from a specified source",
+      "domain": "default",
+      "task_family": "data_ingestion",
+      "method_family": "source_initialization",
+      "stage": "source_setup",
+      "applicable_signals": [
+        "Term frequency (tf) value for the term in the document is available",
+        "Inverse document frequency (idf) value for the term is pre-computed",
+        "Document collection size and term occurrence counts are known"
+      ],
+      "contraindications": [
+        "Term occurs in virtually all documents (idf approaches zero; weight becomes negligible)",
+        "Term is a stop word or has been filtered from the collection",
+        "Term frequency or idf values are not yet computed or unavailable"
+      ],
+      "intervention_moves": [
+        "Invoke fromElements(elements: _*) for uniform-type object sequences",
+        "Invoke fromParallelCollection(SplittableIterator) for parallel iterator ingestion",
+        "Invoke generateSequence(from, to) for numeric range generation",
+        "Invoke addSource(sourceFunction) for custom or external connectors"
+      ],
+      "triggers": [
+        "Starting a new Flink streaming job and need to bind data from memory, iterators, sequences, or external systems like Kafka"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Retrieve or compute tf(t,d): term frequency of term t in document d'}",
+        "{'step': 2, 'action': 'Retrieve or compute idf(t): inverse document frequency of term t across the collection'}",
+        "{'step': 3, 'action': 'Multiply tf(t,d) by idf(t) to obtain tf-idf(t,d)'}",
+        "{'step': 4, 'action': 'Return numeric weight tf-idf(t,d) for use in document scoring or ranking'}"
+      ],
+      "constraints": [
+        "Both tf(t,d) and idf(t) must be non-negative numeric values",
+        "idf(t) is always finite and typically decreases as term frequency in collection increases",
+        "Result is a single numeric weight; no further normalization is applied at this step"
+      ],
+      "cautions": [
+        "High tf-idf weight indicates high discriminating power for that document; use in ranking contexts",
+        "Lower weight when term occurs fewer times in document or in many documents; less pronounced relevance signal",
+        "Lowest weight when term occurs in virtually all documents; consider filtering such terms upstream"
+      ],
+      "output_contract": [
+        "Numeric weight tf-idf(t,d) = tf(t,d) × idf(t) for term t in document d. Weight is highest when term occurs many times within a small number of documents (high discriminating power); lower when term occurs fewer times or in many documents; lowest when term occurs in virtually all documents."
+      ],
+      "examples": [],
+      "tags": [
+        "term_weighting",
+        "statistical_scoring",
+        "information_retrieval",
+        "document_ranking",
+        "vector_space_model"
+      ],
+      "support_ids": [
+        "49fcc558-ded5-560b-8d76-97d8a62d31dd",
+        "5726ed9a-9e83-59ba-ba11-e1a787eb9a51"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "bcaa7748-3139-5dc2-9887-cb2d37d6e312"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|create a datastream from a specified source|default|data_ingestion|source_initialization|source_setup|datastream source creation",
+        "change_action": "merge",
+        "llm_reason": "Candidate 4f0ed3c1 (TF-IDF Weight Calculation) is a narrower, single-term variant of existing skill 0dc781a6 (TF-IDF Term Weighting Calculation). Both compute tf-idf weights in the same task_family (term_weighting) and method_family (statistical_scoring). The candidate focuses on multiplying pre-computed tf and idf for one term, while the existing skill orchestrates the full workflow including tokenization, tf calculation, idf retrieval, and multiplication across all terms. The candidate should merge into the existing broader skill; no split relationship is indicated by peer_candidates, and the existing skill already encompasses the candidate's narrower scope.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf",
+        "merged_from_skill_ids": []
+      },
+      "version": "0.1.1",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "95a1d9f7-f1da-4a25-8a5b-8060fc01f74c",
+      "entity_type": "skill",
+      "entity_id": "2935ec44-11f2-5783-9921-cc4837088279",
+      "action": "merge",
+      "changed_at": "2026-09-15T20:42:48+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "Candidate 4f0ed3c1 (TF-IDF Weight Calculation) is a narrower, single-term variant of existing skill 0dc781a6 (TF-IDF Term Weighting Calculation). Both compute tf-idf weights in the same task_family (term_weighting) and method_family (statistical_scoring). The candidate focuses on multiplying pre-computed tf and idf for one term, while the existing skill orchestrates the full workflow including tokenization, tf calculation, idf retrieval, and multiplication across all terms. The candidate should merge into the existing broader skill; no split relationship is indicated by peer_candidates, and the existing skill already encompasses the candidate's narrower scope.",
+      "related_entity_ids": [
+        "2935ec44-11f2-5783-9921-cc4837088279"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "2935ec44-11f2-5783-9921-cc4837088279",
+        "doc_ids": [
+          "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+          "fc9056b5-59f5-5e1a-9452-59d955d52e19"
+        ],
+        "support_added": [
+          "5726ed9a-9e83-59ba-ba11-e1a787eb9a51"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "2935ec44-11f2-5783-9921-cc4837088279"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "cache_tuning",
+  "run_id": "20260916T054226_07e98d7b",
+  "skills": [
+    {
+      "skill_id": "c7bdb01f-ceb5-5bff-a2dd-d8278711e259",
+      "name": "Adaptive Queue Size Balancing for Staged Cache",
+      "description": "Dynamically adjust the size of an initial FIFO queue in a two-queue cache system by tracking hit rates on evicted objects from each queue via ghost queues and rebalancing when one queue's evicted objects receive significantly more hits than the other.",
+      "skill_body": "Monitor ghost queues tracking evicted objects from the initial queue (S) and main queue (M). When both ghost queues accumulate more than 100 hits and one has 2× more hits than the other, transfer 0.1% of cache space from the queue with fewer hits to the queue with more hits. Repeat this balancing cycle throughout the cache's runtime to maintain equilibrium.\n\n## Objective\n\nmaintain optimal queue size split without manual tuning\n## Applicable Signals\n\n- Hit count on evicted objects from initial queue (S) exceeds hit count from main queue (M) by 2× or more\n- Hit count on evicted objects from main queue (M) exceeds hit count from initial queue (S) by 2× or more\n- Cache workload characteristics are changing over time\n- Ghost queues have accumulated more than 100 hits total\n\n## Contraindications\n\n- Queue size is fixed by design requirement or SLA\n- Workload is static and already manually tuned\n- Ghost queue memory overhead is unacceptable in the deployment environment\n- Real-time latency constraints prohibit periodic rebalancing checks\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Initialize two ghost queues, each sized to 5% of the cache size (metadata only)', 'input': 'cache_size, initial_queue_size_S, main_queue_size_M', 'output': 'ghost_queue_S, ghost_queue_M (empty, ready to track evictions)'}\n- {'step': 2, 'action': 'On each eviction from queue S, record the object key in ghost_queue_S; on each eviction from queue M, record the object key in ghost_queue_M', 'input': 'evicted_object_key, source_queue', 'output': 'ghost_queue_S and ghost_queue_M updated with new entries'}\n- {'step': 3, 'action': 'On each cache hit, check if the hit object exists in ghost_queue_S or ghost_queue_M; if found, increment the corresponding hit counter', 'input': 'hit_object_key', 'output': 'hit_count_S, hit_count_M (cumulative)'}\n- {'step': 4, 'action': 'Periodically (e.g., after every N requests or on a timer), check if hit_count_S + hit_count_M > 100 and max(hit_count_S, hit_count_M) >= 2 × min(hit_count_S, hit_count_M)', 'input': 'hit_count_S, hit_count_M', 'output': 'rebalance_needed (boolean)'}\n- {'step': 5, 'action': 'If rebalance_needed is true, identify the queue with fewer hits (lower hit count). Transfer 0.1% of cache space from the queue with more hits to the queue with fewer hits.', 'input': 'hit_count_S, hit_count_M, current_size_S, current_size_M', 'output': 'new_size_S, new_size_M (adjusted by ±0.1% of cache_size)'}\n- {'step': 6, 'action': 'Reset hit_count_S and hit_count_M to 0; optionally clear or rotate ghost queues to prevent unbounded growth', 'input': 'hit_count_S, hit_count_M', 'output': 'hit_count_S = 0, hit_count_M = 0'}\n- {'step': 7, 'action': 'Return to step 3 and continue monitoring', 'input': 'ongoing cache operations', 'output': 'continuous adaptive tuning'}\n\n## Constraints\n\n- Ghost queues must be sized to store 5% of cached objects (metadata only, no data)\n- Rebalancing trigger requires both ghost queues to have more than 100 cumulative hits\n- Rebalancing trigger requires a 2× hit ratio imbalance between the two ghost queues\n- Each rebalancing step transfers exactly 0.1% of cache space\n- Rebalancing must not violate minimum or maximum queue size bounds if defined\n\n## Cautions\n\n- Ghost queue overhead is non-zero; verify acceptable in memory-constrained environments\n- Rebalancing granularity (0.1% per step) may be slow to converge on highly dynamic workloads\n- Hit tracking on ghost queues requires additional instrumentation; ensure clock or request counter is available\n\n## Output Contract\n\n- Queue size ratio is adjusted incrementally; ghost queue hit counts remain balanced such that neither queue's evicted objects receive 2× more hits than the other. The system converges toward a stable queue size split that minimizes miss ratio without manual intervention.\n\n## Example Executions\n\n### Example 1\n\n- Input: Cache size 1000 objects; initial S=100 (10%), M=900. After 500 requests, ghost_queue_S has 60 hits, ghost_queue_M has 30 hits. Total hits = 90 (not yet > 100).\n- Output: No rebalancing yet. Continue monitoring.\n- Notes: Threshold not met; wait for more hits to accumulate.\n\n### Example 2\n\n- Input: After 1000 requests, ghost_queue_S has 120 hits, ghost_queue_M has 50 hits. Total = 170 > 100. Ratio: 120/50 = 2.4 (exceeds 2×).\n- Output: Rebalance triggered. Transfer 0.1% of 1000 = 1 object from S to M. New sizes: S=99, M=901. Reset hit counters to 0.\n- Notes: S had more hits on evicted objects, so S is shrinking (faster demotion). M is growing.\n\n### Example 3\n\n- Input: After another 1000 requests, ghost_queue_S has 40 hits, ghost_queue_M has 110 hits. Total = 150 > 100. Ratio: 110/40 = 2.75 (exceeds 2×).\n- Output: Rebalance triggered. Transfer 0.1% of 1000 = 1 object from M to S. New sizes: S=100, M=900. Reset hit counters to 0.\n- Notes: M now has more hits on evicted objects, so M is shrinking and S is growing (slower demotion).",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "maintain optimal queue size split without manual tuning",
+      "domain": "default",
+      "task_family": "cache_tuning",
+      "method_family": "adaptive_rebalancing",
+      "stage": "runtime_optimization",
+      "applicable_signals": [
+        "Hit count on evicted objects from initial queue (S) exceeds hit count from main queue (M) by 2× or more",
+        "Hit count on evicted objects from main queue (M) exceeds hit count from initial queue (S) by 2× or more",
+        "Cache workload characteristics are changing over time",
+        "Ghost queues have accumulated more than 100 hits total"
+      ],
+      "contraindications": [
+        "Queue size is fixed by design requirement or SLA",
+        "Workload is static and already manually tuned",
+        "Ghost queue memory overhead is unacceptable in the deployment environment",
+        "Real-time latency constraints prohibit periodic rebalancing checks"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Two-queue cache system is active with variable or unknown workload",
+        "Manual queue size configuration is undesirable or impractical",
+        "Ghost queues have accumulated more than 100 hits total"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Initialize two ghost queues, each sized to 5% of the cache size (metadata only)', 'input': 'cache_size, initial_queue_size_S, main_queue_size_M', 'output': 'ghost_queue_S, ghost_queue_M (empty, ready to track evictions)'}",
+        "{'step': 2, 'action': 'On each eviction from queue S, record the object key in ghost_queue_S; on each eviction from queue M, record the object key in ghost_queue_M', 'input': 'evicted_object_key, source_queue', 'output': 'ghost_queue_S and ghost_queue_M updated with new entries'}",
+        "{'step': 3, 'action': 'On each cache hit, check if the hit object exists in ghost_queue_S or ghost_queue_M; if found, increment the corresponding hit counter', 'input': 'hit_object_key', 'output': 'hit_count_S, hit_count_M (cumulative)'}",
+        "{'step': 4, 'action': 'Periodically (e.g., after every N requests or on a timer), check if hit_count_S + hit_count_M > 100 and max(hit_count_S, hit_count_M) >= 2 × min(hit_count_S, hit_count_M)', 'input': 'hit_count_S, hit_count_M', 'output': 'rebalance_needed (boolean)'}",
+        "{'step': 5, 'action': 'If rebalance_needed is true, identify the queue with fewer hits (lower hit count). Transfer 0.1% of cache space from the queue with more hits to the queue with fewer hits.', 'input': 'hit_count_S, hit_count_M, current_size_S, current_size_M', 'output': 'new_size_S, new_size_M (adjusted by ±0.1% of cache_size)'}",
+        "{'step': 6, 'action': 'Reset hit_count_S and hit_count_M to 0; optionally clear or rotate ghost queues to prevent unbounded growth', 'input': 'hit_count_S, hit_count_M', 'output': 'hit_count_S = 0, hit_count_M = 0'}",
+        "{'step': 7, 'action': 'Return to step 3 and continue monitoring', 'input': 'ongoing cache operations', 'output': 'continuous adaptive tuning'}"
+      ],
+      "constraints": [
+        "Ghost queues must be sized to store 5% of cached objects (metadata only, no data)",
+        "Rebalancing trigger requires both ghost queues to have more than 100 cumulative hits",
+        "Rebalancing trigger requires a 2× hit ratio imbalance between the two ghost queues",
+        "Each rebalancing step transfers exactly 0.1% of cache space",
+        "Rebalancing must not violate minimum or maximum queue size bounds if defined"
+      ],
+      "cautions": [
+        "Ghost queue overhead is non-zero; verify acceptable in memory-constrained environments",
+        "Rebalancing granularity (0.1% per step) may be slow to converge on highly dynamic workloads",
+        "Hit tracking on ghost queues requires additional instrumentation; ensure clock or request counter is available"
+      ],
+      "output_contract": [
+        "Queue size ratio is adjusted incrementally; ghost queue hit counts remain balanced such that neither queue's evicted objects receive 2× more hits than the other. The system converges toward a stable queue size split that minimizes miss ratio without manual intervention."
+      ],
+      "examples": [
+        {
+          "input": "Cache size 1000 objects; initial S=100 (10%), M=900. After 500 requests, ghost_queue_S has 60 hits, ghost_queue_M has 30 hits. Total hits = 90 (not yet > 100).",
+          "output": "No rebalancing yet. Continue monitoring.",
+          "notes": "Threshold not met; wait for more hits to accumulate."
+        },
+        {
+          "input": "After 1000 requests, ghost_queue_S has 120 hits, ghost_queue_M has 50 hits. Total = 170 > 100. Ratio: 120/50 = 2.4 (exceeds 2×).",
+          "output": "Rebalance triggered. Transfer 0.1% of 1000 = 1 object from S to M. New sizes: S=99, M=901. Reset hit counters to 0.",
+          "notes": "S had more hits on evicted objects, so S is shrinking (faster demotion). M is growing."
+        },
+        {
+          "input": "After another 1000 requests, ghost_queue_S has 40 hits, ghost_queue_M has 110 hits. Total = 150 > 100. Ratio: 110/40 = 2.75 (exceeds 2×).",
+          "output": "Rebalance triggered. Transfer 0.1% of 1000 = 1 object from M to S. New sizes: S=100, M=900. Reset hit counters to 0.",
+          "notes": "M now has more hits on evicted objects, so M is shrinking and S is growing (slower demotion)."
+        }
+      ],
+      "tags": [
+        "cache_management",
+        "adaptive_algorithm",
+        "queue_sizing",
+        "two_queue_cache",
+        "runtime_tuning",
+        "ghost_queue"
+      ],
+      "support_ids": [
+        "522f444f-adab-565e-9ca0-21ac85dce648"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "6b99aea2-86f1-56ab-9f2e-ea2cffce361b"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.82,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|maintain optimal queue size split without manual tuning|default|cache_tuning|adaptive_rebalancing|runtime_optimization|adaptive queue size balancing for staged cache",
+        "change_action": "create",
+        "llm_reason": "Candidate is a novel session_skill for adaptive queue size balancing in two-queue cache systems using ghost queues and hit-rate tracking. It does not match any existing skill in asset_type, granularity, task_family, or semantic capability. Peer candidates (Cache Eviction Algorithm Selection, Trace-Based Cache Simulation Benchmarking, Adaptive Algorithm Parameter Tuning Risk Assessment) are related but distinct: they address algorithm selection, benchmarking infrastructure, and risk assessment respectively, not runtime adaptive rebalancing. Existing skills are unrelated (Flink streaming, stream iteration). Candidate has 1 support reference (ARC/2Q literature) and 0 conflicts, indicating sound foundational basis.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "parent"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "c0ddf01d-3aaa-442e-b49c-299feb9028de",
+      "entity_type": "skill",
+      "entity_id": "c7bdb01f-ceb5-5bff-a2dd-d8278711e259",
+      "action": "create",
+      "changed_at": "2026-09-15T19:41:58+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a novel session_skill for adaptive queue size balancing in two-queue cache systems using ghost queues and hit-rate tracking. It does not match any existing skill in asset_type, granularity, task_family, or semantic capability. Peer candidates (Cache Eviction Algorithm Selection, Trace-Based Cache Simulation Benchmarking, Adaptive Algorithm Parameter Tuning Risk Assessment) are related but distinct: they address algorithm selection, benchmarking infrastructure, and risk assessment respectively, not runtime adaptive rebalancing. Existing skills are unrelated (Flink streaming, stream iteration). Candidate has 1 support reference (ARC/2Q literature) and 0 conflicts, indicating sound foundational basis.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "c7bdb01f-ceb5-5bff-a2dd-d8278711e259",
+        "doc_ids": [
+          "c714606b-4a4a-566c-acaf-25b924e5d713"
+        ],
+        "support_added": [
+          "522f444f-adab-565e-9ca0-21ac85dce648"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

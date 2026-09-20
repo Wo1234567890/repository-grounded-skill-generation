@@ -1,0 +1,119 @@
+{
+  "skill_id": "8ab6381a-e2f5-5666-8d1e-85fa59b9301a",
+  "name": "Package Instrumentation Initialization",
+  "description": "Conditionally start monitoring and instrumenting Python packages using import hooks, with safeguards to prevent redundant or conflicting instrumentation of agentic libraries.",
+  "skill_body": "Check if instrumentation is already active by examining _active_instrumentors. If empty, install the import hook (_import_monitor) to begin package monitoring. During iteration over sys.modules, check _has_agentic_library flag; if set, stop instrumentation to avoid double-instrumenting agentic libraries. Populate _active_instrumentors and set _has_agentic_library correctly based on detected libraries.\n\n## Objective\n\nInitialize and manage package-level instrumentation state with conflict prevention\n## Applicable Signals\n\n- _active_instrumentors list is empty\n- Import monitoring has not yet been installed\n- System module scan is required to detect agentic libraries\n\n## Contraindications\n\n- Instrumentation is already active (_active_instrumentors is non-empty)\n- An agentic library has already been instrumented (_has_agentic_library is True)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if _active_instrumentors is empty', 'condition': 'If empty, proceed; if non-empty, return without action'}\n- {'step': 2, 'action': 'Install import hook by setting builtins.__import__ = _import_monitor', 'condition': 'Only if _active_instrumentors was empty'}\n- {'step': 3, 'action': 'Iterate over sys.modules.keys() to scan for agentic libraries', 'condition': 'Continue until _has_agentic_library is set or all modules are scanned'}\n- {'step': 4, 'action': 'For each module, validate type and check if it is an agentic library', 'condition': 'Skip non-ModuleType entries; break if agentic library detected'}\n- {'step': 5, 'action': 'Populate _active_instrumentors and set _has_agentic_library flag', 'condition': 'Based on scan results'}\n\n## Constraints\n\n- Must check _has_agentic_library flag before instrumenting each package\n- Must break iteration loop if agentic library is detected during scan\n- Must validate module type before processing (isinstance check for ModuleType)\n- Must not instrument packages already in _instrumenting_packages list\n\n## Cautions\n\n- Installing import hook affects all subsequent module imports; ensure no other instrumentation is active first\n- Agentic library detection must complete before instrumenting non-agentic packages to prevent conflicts\n\n## Output Contract\n\n- Import hook (_import_monitor) is installed\n- _active_instrumentors list is populated with detected instrumentors\n- _has_agentic_library flag is set correctly to prevent further instrumentation of conflicting libraries",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "2142ee5d-6d0f-5077-9736-8fbf5a8844d3",
+  "parent_candidate_ids": [
+    "2142ee5d-6d0f-5077-9736-8fbf5a8844d3",
+    "048797be-e3b0-5c18-81d2-f1ef6e933f06"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.55,
+  "hierarchy_status": "linked",
+  "visible_role": "parent",
+  "objective": "Initialize and manage package-level instrumentation state with conflict prevention",
+  "domain": "default",
+  "task_family": "instrumentation_setup",
+  "method_family": "import_hook_management",
+  "stage": "initialization",
+  "applicable_signals": [
+    "_active_instrumentors list is empty",
+    "Import monitoring has not yet been installed",
+    "System module scan is required to detect agentic libraries"
+  ],
+  "contraindications": [
+    "Instrumentation is already active (_active_instrumentors is non-empty)",
+    "An agentic library has already been instrumented (_has_agentic_library is True)"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "AgentOps monitoring is first activated",
+    "No active instrumentors are currently running (_active_instrumentors is empty)",
+    "Agentic library detection is needed to avoid double-instrumentation"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Check if _active_instrumentors is empty', 'condition': 'If empty, proceed; if non-empty, return without action'}",
+    "{'step': 2, 'action': 'Install import hook by setting builtins.__import__ = _import_monitor', 'condition': 'Only if _active_instrumentors was empty'}",
+    "{'step': 3, 'action': 'Iterate over sys.modules.keys() to scan for agentic libraries', 'condition': 'Continue until _has_agentic_library is set or all modules are scanned'}",
+    "{'step': 4, 'action': 'For each module, validate type and check if it is an agentic library', 'condition': 'Skip non-ModuleType entries; break if agentic library detected'}",
+    "{'step': 5, 'action': 'Populate _active_instrumentors and set _has_agentic_library flag', 'condition': 'Based on scan results'}"
+  ],
+  "constraints": [
+    "Must check _has_agentic_library flag before instrumenting each package",
+    "Must break iteration loop if agentic library is detected during scan",
+    "Must validate module type before processing (isinstance check for ModuleType)",
+    "Must not instrument packages already in _instrumenting_packages list"
+  ],
+  "cautions": [
+    "Installing import hook affects all subsequent module imports; ensure no other instrumentation is active first",
+    "Agentic library detection must complete before instrumenting non-agentic packages to prevent conflicts"
+  ],
+  "output_contract": [
+    "Import hook (_import_monitor) is installed",
+    "_active_instrumentors list is populated with detected instrumentors",
+    "_has_agentic_library flag is set correctly to prevent further instrumentation of conflicting libraries"
+  ],
+  "examples": [],
+  "tags": [
+    "instrumentation",
+    "initialization",
+    "import_hook",
+    "package_monitoring",
+    "conflict_prevention"
+  ],
+  "support_ids": [
+    "e0c51184-d29a-5646-93f6-fe63485eb0c1"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "3e8ca54e-852f-5914-b69c-0194ea8b9d9f"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.75,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|initialize and manage package-level instrumentation state with conflict prevention|default|instrumentation_setup|import_hook_management|initialization|package instrumentation initialization",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct session_skill for package instrumentation initialization with import hook management. It does not semantically match any existing skill (which cover data stream transformations, reward scaling, and task polling). Peer candidates are related but separate initialization concerns (SDK setup, trace initialization, instrumentor configuration). No merge, split, or revision relationship exists.",
+    "parent_skill_id": "2142ee5d-6d0f-5077-9736-8fbf5a8844d3",
+    "parent_candidate_ids": [
+      "2142ee5d-6d0f-5077-9736-8fbf5a8844d3",
+      "048797be-e3b0-5c18-81d2-f1ef6e933f06"
+    ],
+    "hierarchy_confidence": 0.55,
+    "hierarchy_status": "linked",
+    "visible_role": "parent"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

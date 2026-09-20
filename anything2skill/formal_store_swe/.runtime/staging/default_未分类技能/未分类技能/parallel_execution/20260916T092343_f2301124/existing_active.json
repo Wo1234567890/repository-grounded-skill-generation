@@ -1,0 +1,767 @@
+{
+  "schema": "autoskill.document.staging.existing_active.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "parallel_execution",
+  "run_id": "20260916T092343_f2301124",
+  "skills": [
+    {
+      "skill_id": "02fc6046-51b1-5ba3-844d-4afab871d7a1",
+      "name": "ThreadPoolExecutor Context Manager Setup",
+      "description": "Use ThreadPoolExecutor with a context manager (with statement) to automatically shutdown the executor and wait for all submitted tasks to complete, avoiding explicit shutdown() calls and resource leaks.",
+      "skill_body": "Initialize a ThreadPoolExecutor using the `with` statement. Submit your tasks within the context block. The context manager automatically calls shutdown(wait=True) on exit, ensuring all running tasks complete before the executor is destroyed and resources are released.\n\n## Objective\n\nSafely initialize and teardown a thread pool executor for parallel task execution\n## Applicable Signals\n\n- Multiple independent I/O-bound tasks ready for parallel execution\n- No inter-task dependencies or manual shutdown timing requirements\n- Resource cleanup must be guaranteed\n\n## Contraindications\n\n- Tasks have inter-dependencies (risk of deadlock)\n- Require manual control over shutdown timing or partial cancellation\n- CPU-bound workloads (use ProcessPoolExecutor instead)\n- Need to reuse executor across multiple context blocks\n\n## Intervention Moves\n\n- Enter context block with ThreadPoolExecutor(max_workers=N)\n- Submit tasks using executor.submit(callable, *args)\n- Exit context block to trigger automatic shutdown(wait=True)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Create ThreadPoolExecutor context manager', 'detail': 'Use `with ThreadPoolExecutor(max_workers=N) as executor:` where N is the number of worker threads'}\n- {'step': 2, 'action': 'Submit tasks within context block', 'detail': 'Call executor.submit(callable, *args) for each independent task'}\n- {'step': 3, 'action': 'Exit context block', 'detail': 'Automatic shutdown(wait=True) is called; all running tasks complete before proceeding'}\n\n## Constraints\n\n- max_workers must be set appropriately for the workload\n- All task submissions must occur within the context block\n- Context manager will block until all running tasks complete\n\n## Cautions\n\n- Avoid nested Future.result() calls within submitted tasks to prevent deadlock\n- Do not submit tasks that wait on other futures in the same pool\n- With max_workers=1, a task cannot submit and wait on another task in the same pool\n\n## Output Contract\n\n- All submitted tasks complete execution; executor resources are released; no hanging threads remain; execution returns to caller after all tasks finish\n\n## Example Executions\n\n### Example 1\n\n- Input: Submit 4 file copy tasks to a thread pool with max_workers=4\n- Output: All 4 copy operations execute in parallel; context manager exits after all complete; resources freed\n- Notes: Typical I/O-bound use case; no explicit shutdown() call needed",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Safely initialize and teardown a thread pool executor for parallel task execution",
+      "domain": "default",
+      "task_family": "parallel_execution",
+      "method_family": "context_manager_pattern",
+      "stage": "initialization_and_cleanup",
+      "applicable_signals": [
+        "Multiple independent I/O-bound tasks ready for parallel execution",
+        "No inter-task dependencies or manual shutdown timing requirements",
+        "Resource cleanup must be guaranteed"
+      ],
+      "contraindications": [
+        "Tasks have inter-dependencies (risk of deadlock)",
+        "Require manual control over shutdown timing or partial cancellation",
+        "CPU-bound workloads (use ProcessPoolExecutor instead)",
+        "Need to reuse executor across multiple context blocks"
+      ],
+      "intervention_moves": [
+        "Enter context block with ThreadPoolExecutor(max_workers=N)",
+        "Submit tasks using executor.submit(callable, *args)",
+        "Exit context block to trigger automatic shutdown(wait=True)"
+      ],
+      "triggers": [
+        "Need to submit multiple independent I/O-bound tasks (file operations, network calls) to a thread pool",
+        "Require guaranteed cleanup and resource release without manual shutdown() calls",
+        "Want to avoid resource leaks from forgotten or conditional shutdown logic"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Create ThreadPoolExecutor context manager', 'detail': 'Use `with ThreadPoolExecutor(max_workers=N) as executor:` where N is the number of worker threads'}",
+        "{'step': 2, 'action': 'Submit tasks within context block', 'detail': 'Call executor.submit(callable, *args) for each independent task'}",
+        "{'step': 3, 'action': 'Exit context block', 'detail': 'Automatic shutdown(wait=True) is called; all running tasks complete before proceeding'}"
+      ],
+      "constraints": [
+        "max_workers must be set appropriately for the workload",
+        "All task submissions must occur within the context block",
+        "Context manager will block until all running tasks complete"
+      ],
+      "cautions": [
+        "Avoid nested Future.result() calls within submitted tasks to prevent deadlock",
+        "Do not submit tasks that wait on other futures in the same pool",
+        "With max_workers=1, a task cannot submit and wait on another task in the same pool"
+      ],
+      "output_contract": [
+        "All submitted tasks complete execution; executor resources are released; no hanging threads remain; execution returns to caller after all tasks finish"
+      ],
+      "examples": [
+        {
+          "input": "Submit 4 file copy tasks to a thread pool with max_workers=4",
+          "output": "All 4 copy operations execute in parallel; context manager exits after all complete; resources freed",
+          "notes": "Typical I/O-bound use case; no explicit shutdown() call needed"
+        }
+      ],
+      "tags": [
+        "concurrency",
+        "thread_pool",
+        "context_manager",
+        "resource_management",
+        "python312"
+      ],
+      "support_ids": [
+        "90589035-31c4-5821-ad0e-2791897b16d1"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "d7e1b3e6-4c95-5f08-95ff-15d09f046915"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.92,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|safely initialize and teardown a thread pool executor for parallel task execution|default|parallel_execution|context_manager_pattern|initialization_and_cleanup|threadpoolexecutor context manager setup",
+        "llm_reason": "Candidate is a distinct session_skill focused on ThreadPoolExecutor context manager pattern for safe initialization and teardown. Peer candidates cover ProcessPoolExecutor variants and ThreadPoolExecutor configuration, but none address the specific context manager lifecycle pattern (automatic shutdown with wait=True). Existing skills are unrelated (virtual hub routing, Next.js optimization). Candidate has clear semantic identity, strong support evidence, and no conflicts.",
+        "change_action": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "parent"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "07979eac-f1a1-5bda-8fb4-e448888f946c",
+      "name": "Detect and Handle BrokenProcessPool Exception",
+      "description": "Catch BrokenProcessPool exceptions raised when a ProcessPoolExecutor worker terminates abnormally (killed externally, crash, or resource exhaustion). Implement recovery or escalation to restore task execution capability.",
+      "skill_body": "When a ProcessPoolExecutor worker terminates in a non-clean fashion, a BrokenProcessPool exception is raised. Catch this exception, log the failure with worker identity and termination cause, determine an appropriate recovery strategy (task resubmission, pool restart, or escalation), and execute the recovery action or escalate to the caller.\n\n## Objective\n\nSafely handle process pool worker termination failures and restore execution capability\n## Applicable Signals\n\n- BrokenProcessPool exception raised by concurrent.futures.process module\n- Worker process exit code indicates non-clean termination\n\n## Contraindications\n\n- Worker termination is intentional and should not trigger recovery\n- No escalation or recovery action is required by design\n- Caller explicitly handles pool lifecycle and does not expect automatic recovery\n\n## Intervention Moves\n\n- Catch BrokenProcessPool exception from ProcessPoolExecutor.submit() or result retrieval\n- Log exception details including worker identity, timestamp, affected task, and exception message\n- Validate pool state before attempting recovery\n- Execute recovery action: resubmit task to new pool, restart pool, or escalate upstream\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Catch BrokenProcessPool exception', 'detail': 'Use try-except block around ProcessPoolExecutor.submit() or result retrieval to intercept exception from concurrent.futures.process module'}\n- {'step': 2, 'action': 'Log exception details', 'detail': 'Record timestamp, affected task identity, worker information, and exception message for diagnostics and audit trail'}\n- {'step': 3, 'action': 'Determine recovery strategy', 'detail': 'Analyze failure pattern and choose between task resubmission, pool restart, or escalation based on context and failure frequency'}\n- {'step': 4, 'action': 'Execute recovery or escalate', 'detail': 'Resubmit task to new pool instance, restart pool, or raise exception upstream with context preserved'}\n\n## Constraints\n\n- Exception is derived from BrokenExecutor; catch at appropriate hierarchy level\n- Recovery action must be idempotent to avoid duplicate task execution\n- Pool state must be validated before resubmitting tasks\n- Do not silently ignore BrokenProcessPool; always log and escalate or recover\n\n## Cautions\n\n- Resubmitting tasks without pool restart may fail; validate pool health first\n- External process kills may indicate system-level issues; escalate if repeated\n- Ensure recovery logic does not mask underlying resource or configuration problems\n\n## Output Contract\n\n- Exception caught and logged with full context. Recovery action initiated (task resubmission, pool restart, or escalation to caller). Caller receives either successful task result after recovery or re-raised exception with diagnostic context preserved.",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Safely handle process pool worker termination failures and restore execution capability",
+      "domain": "default",
+      "task_family": "parallel_execution",
+      "method_family": "exception_handling",
+      "stage": "execution_monitoring",
+      "applicable_signals": [
+        "BrokenProcessPool exception raised by concurrent.futures.process module",
+        "Worker process exit code indicates non-clean termination"
+      ],
+      "contraindications": [
+        "Worker termination is intentional and should not trigger recovery",
+        "No escalation or recovery action is required by design",
+        "Caller explicitly handles pool lifecycle and does not expect automatic recovery"
+      ],
+      "intervention_moves": [
+        "Catch BrokenProcessPool exception from ProcessPoolExecutor.submit() or result retrieval",
+        "Log exception details including worker identity, timestamp, affected task, and exception message",
+        "Validate pool state before attempting recovery",
+        "Execute recovery action: resubmit task to new pool, restart pool, or escalate upstream"
+      ],
+      "triggers": [
+        "ProcessPoolExecutor worker terminates abnormally during task execution",
+        "External process kill or crash detected",
+        "Resource exhaustion causes worker termination"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Catch BrokenProcessPool exception', 'detail': 'Use try-except block around ProcessPoolExecutor.submit() or result retrieval to intercept exception from concurrent.futures.process module'}",
+        "{'step': 2, 'action': 'Log exception details', 'detail': 'Record timestamp, affected task identity, worker information, and exception message for diagnostics and audit trail'}",
+        "{'step': 3, 'action': 'Determine recovery strategy', 'detail': 'Analyze failure pattern and choose between task resubmission, pool restart, or escalation based on context and failure frequency'}",
+        "{'step': 4, 'action': 'Execute recovery or escalate', 'detail': 'Resubmit task to new pool instance, restart pool, or raise exception upstream with context preserved'}"
+      ],
+      "constraints": [
+        "Exception is derived from BrokenExecutor; catch at appropriate hierarchy level",
+        "Recovery action must be idempotent to avoid duplicate task execution",
+        "Pool state must be validated before resubmitting tasks",
+        "Do not silently ignore BrokenProcessPool; always log and escalate or recover"
+      ],
+      "cautions": [
+        "Resubmitting tasks without pool restart may fail; validate pool health first",
+        "External process kills may indicate system-level issues; escalate if repeated",
+        "Ensure recovery logic does not mask underlying resource or configuration problems"
+      ],
+      "output_contract": [
+        "Exception caught and logged with full context. Recovery action initiated (task resubmission, pool restart, or escalation to caller). Caller receives either successful task result after recovery or re-raised exception with diagnostic context preserved."
+      ],
+      "examples": [],
+      "tags": [
+        "concurrent.futures",
+        "ProcessPoolExecutor",
+        "exception_handling",
+        "worker_failure",
+        "recovery",
+        "escalation"
+      ],
+      "support_ids": [
+        "a869af6b-0931-5bdf-9363-fbca243e4de1"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "badbb958-45a4-58f5-b0c6-63eaa2a4988a"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|safely handle process pool worker termination failures and restore execution capability|default|parallel_execution|exception_handling|execution_monitoring|detect and handle brokenprocesspool exception",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "14f81fa3-e5cd-5b13-88aa-32621a04cbe3",
+      "name": "Detect and Handle BrokenThreadPool Exception",
+      "description": "Catch and respond to BrokenThreadPool exceptions raised when a ThreadPoolExecutor worker fails during initialization. Implements recovery logic or graceful degradation when thread pool workers become unavailable.",
+      "skill_body": "When a ThreadPoolExecutor worker fails to initialize, catch the BrokenThreadPool exception. Log the failure, assess the impact on pending tasks, and execute a recovery action: retry with a new executor, fall back to sequential execution, or gracefully shut down dependent operations.\n\n## Objective\n\nSafely handle thread pool worker initialization failures\n## Applicable Signals\n\n- BrokenThreadPool exception raised by concurrent.futures.thread module\n- Worker process or thread exits abnormally during pool initialization\n\n## Contraindications\n\n- Worker failure is expected and should propagate uncaught\n- No recovery action is needed or desired\n- Caller explicitly requires exception to bubble up for external handling\n\n## Intervention Moves\n\n- Wrap ThreadPoolExecutor task submission or execution in try-except block\n- Catch concurrent.futures.thread.BrokenThreadPool exception\n- Log exception details including worker state and pending tasks\n- Execute recovery action: retry with new executor, fall back to sequential execution, or initiate graceful shutdown\n- Notify caller of recovery status and any task state changes\n\n## Workflow Steps\n\n- Wrap ThreadPoolExecutor task submission or execution in try-except block\n- Catch concurrent.futures.thread.BrokenThreadPool exception\n- Log exception details including worker state and pending tasks\n- Execute recovery action: retry with new executor, fall back to sequential execution, or initiate graceful shutdown\n- Notify caller of recovery status and any task state changes\n\n## Constraints\n\n- Exception is derived from BrokenExecutor\n- Applies only to ThreadPoolExecutor, not ProcessPoolExecutor\n- Recovery action must be initiated before dependent tasks timeout\n\n## Cautions\n\n- Do not silently swallow the exception without logging or alerting\n- Retry logic should include backoff to avoid rapid re-initialization cycles\n- Fallback to sequential execution may significantly impact performance\n\n## Output Contract\n\n- Exception caught and logged; recovery action (retry, fallback, or graceful shutdown) initiated; caller receives status indicating whether tasks will be retried, executed sequentially, or abandoned",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Safely handle thread pool worker initialization failures",
+      "domain": "default",
+      "task_family": "parallel_execution",
+      "method_family": "exception_handling",
+      "stage": "execution_monitoring",
+      "applicable_signals": [
+        "BrokenThreadPool exception raised by concurrent.futures.thread module",
+        "Worker process or thread exits abnormally during pool initialization"
+      ],
+      "contraindications": [
+        "Worker failure is expected and should propagate uncaught",
+        "No recovery action is needed or desired",
+        "Caller explicitly requires exception to bubble up for external handling"
+      ],
+      "intervention_moves": [
+        "Wrap ThreadPoolExecutor task submission or execution in try-except block",
+        "Catch concurrent.futures.thread.BrokenThreadPool exception",
+        "Log exception details including worker state and pending tasks",
+        "Execute recovery action: retry with new executor, fall back to sequential execution, or initiate graceful shutdown",
+        "Notify caller of recovery status and any task state changes"
+      ],
+      "triggers": [
+        "ThreadPoolExecutor worker initialization fails",
+        "Thread pool becomes unusable during task submission",
+        "Thread pool becomes unusable during task execution"
+      ],
+      "workflow_steps": [
+        "Wrap ThreadPoolExecutor task submission or execution in try-except block",
+        "Catch concurrent.futures.thread.BrokenThreadPool exception",
+        "Log exception details including worker state and pending tasks",
+        "Execute recovery action: retry with new executor, fall back to sequential execution, or initiate graceful shutdown",
+        "Notify caller of recovery status and any task state changes"
+      ],
+      "constraints": [
+        "Exception is derived from BrokenExecutor",
+        "Applies only to ThreadPoolExecutor, not ProcessPoolExecutor",
+        "Recovery action must be initiated before dependent tasks timeout"
+      ],
+      "cautions": [
+        "Do not silently swallow the exception without logging or alerting",
+        "Retry logic should include backoff to avoid rapid re-initialization cycles",
+        "Fallback to sequential execution may significantly impact performance"
+      ],
+      "output_contract": [
+        "Exception caught and logged; recovery action (retry, fallback, or graceful shutdown) initiated; caller receives status indicating whether tasks will be retried, executed sequentially, or abandoned"
+      ],
+      "examples": [],
+      "tags": [
+        "exception_handling",
+        "thread_pool",
+        "concurrent_futures",
+        "worker_failure",
+        "recovery",
+        "python312"
+      ],
+      "support_ids": [
+        "3d692617-4a84-5a30-a0e0-a43d51b4f492"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "c7f88edd-6d7e-5b42-812c-7b973f40fe2c"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|safely handle thread pool worker initialization failures|default|parallel_execution|exception_handling|execution_monitoring|detect and handle brokenthreadpool exception",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct safety_rule for ThreadPoolExecutor BrokenThreadPool exception handling at session granularity. It does not match any existing skill by semantic capability identity. Peer candidates (BrokenProcessPool, ThreadPoolExecutor deadlock prevention, ProcessPoolExecutor initializer handling) are related but address different executor types, failure modes, or stages. Existing skills in registry are unrelated (Virtual WAN routing, Maven repository security). Candidate has valid support evidence from concurrent.futures documentation and represents a novel, non-overlapping capability.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "1aaea44c-47b6-537f-99b8-44c0de67c697",
+      "name": "ProcessPoolExecutor Setup and Execution",
+      "description": "Compute and compare document relevance scores using TF-IDF weighting in a vector space model. Converts queries and documents into weighted vectors, computes dot products, and produces ranked document scores for information retrieval tasks.",
+      "skill_body": "To score documents against a query using TF-IDF vectors:\n1. Represent each document and the query as vectors in term space, where each dimension corresponds to a term in the collection.\n2. Weight each term using a TF-IDF scheme (e.g., nnn.atc or ntc.atc notation: first three letters denote document weighting, last three denote query weighting).\n3. Compute the dot product between the query vector and each document vector.\n4. Rank documents by descending score.\n5. Verify that relative ordering is consistent across different query formulations (e.g., reversing query terms should reverse document ordering if vectors are correctly computed).\nWhen a query term does not occur in the collection, assign zero weight to that term in the query vector.\n\n## Objective\n\nScore and rank documents by query relevance using TF-IDF vectors\n## Applicable Signals\n\n- Query provided as natural language or term list\n- Document collection with term frequencies available\n- IDF values pre-computed for collection terms\n\n## Contraindications\n\n- Query contains terms that do not occur in the collection (handle by assigning zero weight)\n- Using non-vector-based ranking methods\n- Scoring single documents without comparative context\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Construct document vectors', 'detail': 'For each document, create a vector where each dimension is a term in the collection. Populate each dimension with the TF-IDF weight of that term in the document using the chosen scheme (e.g., nnn: raw term frequency, atc: augmented TF with IDF and cosine normalization).'}\n- {'step': 2, 'action': 'Construct query vector', 'detail': 'Represent the query as a vector in the same term space. Assign equal or principled weights to query terms using the query component of the weighting scheme (e.g., atc: augmented TF with IDF and cosine normalization). For terms not in the collection, assign zero weight.'}\n- {'step': 3, 'action': 'Compute dot products', 'detail': 'For each document vector, compute the dot product with the query vector. This yields a scalar relevance score.'}\n- {'step': 4, 'action': 'Rank documents', 'detail': 'Sort documents by descending relevance score. Ties may be broken arbitrarily or by secondary criteria.'}\n- {'step': 5, 'action': 'Validate consistency', 'detail': 'Optionally verify that relative ordering is preserved or inverted predictably when query formulation changes (e.g., swapping query terms should reverse ordering if vectors are symmetric).'}\n\n## Constraints\n\n- All documents and queries must be represented in the same term space\n- TF and IDF values must be computed consistently across all documents\n- Weighting scheme (e.g., nnn.atc) must be specified and applied uniformly\n\n## Cautions\n\n- Relative ordering of scores may reverse when query formulation changes (e.g., different term weights); verify consistency as a sanity check\n- Out-of-vocabulary query terms require explicit handling (assign zero weight)\n\n## Output Contract\n\n- Ordered list of documents with computed TF-IDF scores\n- Relative ranking preserved or predictably transformed across different query formulations\n- All documents ranked by descending relevance score\n\n## Example Executions\n\n### Example 1\n\n- Input: Query: 'affection'; Documents: D1, D2, D3 with pre-computed TF-IDF vectors\n- Output: Ranked list: [D1 (score=0.45), D2 (score=0.32), D3 (score=0.18)]\n- Notes: Relative ordering for query 'affection' is reverse of ordering for query 'jealous gossip' if vectors are correctly computed.\n\n### Example 2\n\n- Input: Query: 'best car insurance'; Weighting scheme: ntc.atc; TF and IDF values from Exercise 6.10\n- Output: Top 2 scoring documents with ntc.atc weights applied\n- Notes: ntc: no TF augmentation, term frequency, cosine normalization for documents; atc: augmented TF, IDF, cosine normalization for query.\n\n### Example 3\n\n- Input: Query: 'coyote insurance'; Term 'coyote' not in collection; Weighting scheme: ntc.atc\n- Output: Scores computed with 'coyote' dimension set to zero; only 'insurance' contributes to relevance\n- Notes: Out-of-vocabulary terms are handled by zero-weighting; ranking proceeds normally.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [
+        "45af28b7-7a99-5647-9e84-0b7916ae7ec2",
+        "fe993e71-1d14-566c-a5f1-fe1e6a039fd1"
+      ],
+      "child_skill_ids": [
+        "42a24866-f9b3-5c9c-bee0-568131b255b8"
+      ],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Execute multiple independent CPU-bound function calls across worker processes and aggregate results in order.",
+      "domain": "default",
+      "task_family": "parallel_execution",
+      "method_family": "process_pool",
+      "stage": "execution",
+      "applicable_signals": [
+        "Query provided as natural language or term list",
+        "Document collection with term frequencies available",
+        "IDF values pre-computed for collection terms"
+      ],
+      "contraindications": [
+        "Query contains terms that do not occur in the collection (handle by assigning zero weight)",
+        "Using non-vector-based ranking methods",
+        "Scoring single documents without comparative context"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Need to parallelize CPU-intensive operations across multiple cores",
+        "Tasks are independent and do not require shared mutable state",
+        "GIL contention is a performance bottleneck"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Construct document vectors', 'detail': 'For each document, create a vector where each dimension is a term in the collection. Populate each dimension with the TF-IDF weight of that term in the document using the chosen scheme (e.g., nnn: raw term frequency, atc: augmented TF with IDF and cosine normalization).'}",
+        "{'step': 2, 'action': 'Construct query vector', 'detail': 'Represent the query as a vector in the same term space. Assign equal or principled weights to query terms using the query component of the weighting scheme (e.g., atc: augmented TF with IDF and cosine normalization). For terms not in the collection, assign zero weight.'}",
+        "{'step': 3, 'action': 'Compute dot products', 'detail': 'For each document vector, compute the dot product with the query vector. This yields a scalar relevance score.'}",
+        "{'step': 4, 'action': 'Rank documents', 'detail': 'Sort documents by descending relevance score. Ties may be broken arbitrarily or by secondary criteria.'}",
+        "{'step': 5, 'action': 'Validate consistency', 'detail': 'Optionally verify that relative ordering is preserved or inverted predictably when query formulation changes (e.g., swapping query terms should reverse ordering if vectors are symmetric).'}"
+      ],
+      "constraints": [
+        "All documents and queries must be represented in the same term space",
+        "TF and IDF values must be computed consistently across all documents",
+        "Weighting scheme (e.g., nnn.atc) must be specified and applied uniformly"
+      ],
+      "cautions": [
+        "Relative ordering of scores may reverse when query formulation changes (e.g., different term weights); verify consistency as a sanity check",
+        "Out-of-vocabulary query terms require explicit handling (assign zero weight)"
+      ],
+      "output_contract": [
+        "Ordered list of documents with computed TF-IDF scores",
+        "Relative ranking preserved or predictably transformed across different query formulations",
+        "All documents ranked by descending relevance score"
+      ],
+      "examples": [
+        {
+          "input": "Query: 'affection'; Documents: D1, D2, D3 with pre-computed TF-IDF vectors",
+          "output": "Ranked list: [D1 (score=0.45), D2 (score=0.32), D3 (score=0.18)]",
+          "notes": "Relative ordering for query 'affection' is reverse of ordering for query 'jealous gossip' if vectors are correctly computed."
+        },
+        {
+          "input": "Query: 'best car insurance'; Weighting scheme: ntc.atc; TF and IDF values from Exercise 6.10",
+          "output": "Top 2 scoring documents with ntc.atc weights applied",
+          "notes": "ntc: no TF augmentation, term frequency, cosine normalization for documents; atc: augmented TF, IDF, cosine normalization for query."
+        },
+        {
+          "input": "Query: 'coyote insurance'; Term 'coyote' not in collection; Weighting scheme: ntc.atc",
+          "output": "Scores computed with 'coyote' dimension set to zero; only 'insurance' contributes to relevance",
+          "notes": "Out-of-vocabulary terms are handled by zero-weighting; ranking proceeds normally."
+        }
+      ],
+      "tags": [
+        "information_retrieval",
+        "vector_space_model",
+        "tf_idf",
+        "document_ranking",
+        "scoring",
+        "query_processing"
+      ],
+      "support_ids": [
+        "a3bf87df-924f-51cc-be2c-18d28f167040",
+        "2582a0bf-b2e7-5be5-b667-a4af4b3c9328"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "e0731660-0805-51f5-a7ab-28f35411c915"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.92,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|execute multiple independent cpu-bound function calls across worker processes and aggregate results in order.|default|parallel_execution|process_pool|execution|processpoolexecutor setup and execution",
+        "change_action": "merge",
+        "llm_reason": "Candidate 'TF-IDF Vector Scoring' is a semantic duplicate of peer skills 'Vector Space Scoring via Cosine Similarity' and 'Vector Space Score Computation'. All three describe the same core capability: computing document relevance scores in vector space using term weights and dot products, then ranking results. The candidate adds no materially distinct workflow, constraint, or caution beyond what the peers already cover. The peer skills together provide both the mathematical foundation (cosine similarity) and the efficient implementation strategy (term-at-a-time accumulation). Merging into the peer skills avoids redundant registry entries and consolidates guidance.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [
+          "45af28b7-7a99-5647-9e84-0b7916ae7ec2",
+          "fe993e71-1d14-566c-a5f1-fe1e6a039fd1"
+        ],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "merged_from_skill_ids": [],
+        "child_skill_ids": [
+          "42a24866-f9b3-5c9c-bee0-568131b255b8"
+        ]
+      },
+      "version": "0.1.1",
+      "status": "active"
+    },
+    {
+      "skill_id": "5599899d-93fe-5947-af9f-b0d9a014440f",
+      "name": "ThreadPoolExecutor Initialization with Worker Setup",
+      "description": "Configure ThreadPoolExecutor with initializer and initargs to run setup code once per worker thread at startup. Handles resource allocation, logging, or thread-local state initialization with exception safety.",
+      "skill_body": "Pass an initializer callable and initargs tuple to ThreadPoolExecutor constructor. The initializer runs once at the start of each worker thread before any tasks execute. If initializer raises an exception, all pending jobs will raise BrokenThreadPool and further submissions are rejected.\n\n## Objective\n\nInitialize worker thread state and resources before task execution\n## Applicable Signals\n\n- Executor creation with max_workers > 1\n- Tasks depend on thread-local state or resources\n- Setup cost is amortized across many tasks\n\n## Contraindications\n\n- No per-worker setup needed\n- Initialization is task-specific rather than thread-specific\n- Setup must vary per task (use task wrapper instead)\n\n## Workflow Steps\n\n- Define initializer callable with signature matching initargs\n- Create ThreadPoolExecutor with initializer and initargs parameters\n- Submit tasks; initializer runs once per worker before first task\n- Handle BrokenThreadPool exception if initializer fails\n\n## Constraints\n\n- Initializer must be callable and accept only initargs\n- initargs must be a tuple of arguments to pass to initializer\n- Initializer exception blocks all pending and future submissions\n\n## Cautions\n\n- If initializer raises an exception, all currently pending jobs raise BrokenThreadPool\n- Any attempt to submit more jobs after initializer failure is rejected\n- Initializer runs in worker thread context; use thread-safe operations only\n\n## Output Contract\n\n- Initializer callable executes exactly once per worker thread at startup. On success, worker is ready for task execution. On failure, all pending jobs raise BrokenThreadPool and executor rejects further submissions.\n\n## Example Executions\n\n### Example 1\n\n- Input: initializer=setup_db, initargs=('connection_string',), max_workers=4\n- Output: Each of 4 worker threads calls setup_db('connection_string') once at startup; workers then execute submitted tasks with initialized state\n- Notes: Typical use case for database connection pooling per worker\n\n### Example 2\n\n- Input: initializer raises ValueError during startup\n- Output: All pending jobs raise BrokenThreadPool; executor.submit() rejects new submissions\n- Notes: Failure mode: initialization exception propagates to all jobs",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "cd376aff-27f0-551f-be8f-d2eb384c145a",
+      "parent_candidate_ids": [
+        "cd376aff-27f0-551f-be8f-d2eb384c145a",
+        "02fc6046-51b1-5ba3-844d-4afab871d7a1"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.55,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Initialize worker thread state and resources before task execution",
+      "domain": "default",
+      "task_family": "parallel_execution",
+      "method_family": "worker_initialization",
+      "stage": "pool_configuration",
+      "applicable_signals": [
+        "Executor creation with max_workers > 1",
+        "Tasks depend on thread-local state or resources",
+        "Setup cost is amortized across many tasks"
+      ],
+      "contraindications": [
+        "No per-worker setup needed",
+        "Initialization is task-specific rather than thread-specific",
+        "Setup must vary per task (use task wrapper instead)"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Each worker thread requires shared state setup before executing tasks",
+        "Need to allocate per-thread resources (database connections, caches, handlers)",
+        "Logging or instrumentation must be initialized per worker"
+      ],
+      "workflow_steps": [
+        "Define initializer callable with signature matching initargs",
+        "Create ThreadPoolExecutor with initializer and initargs parameters",
+        "Submit tasks; initializer runs once per worker before first task",
+        "Handle BrokenThreadPool exception if initializer fails"
+      ],
+      "constraints": [
+        "Initializer must be callable and accept only initargs",
+        "initargs must be a tuple of arguments to pass to initializer",
+        "Initializer exception blocks all pending and future submissions"
+      ],
+      "cautions": [
+        "If initializer raises an exception, all currently pending jobs raise BrokenThreadPool",
+        "Any attempt to submit more jobs after initializer failure is rejected",
+        "Initializer runs in worker thread context; use thread-safe operations only"
+      ],
+      "output_contract": [
+        "Initializer callable executes exactly once per worker thread at startup. On success, worker is ready for task execution. On failure, all pending jobs raise BrokenThreadPool and executor rejects further submissions."
+      ],
+      "examples": [
+        {
+          "input": "initializer=setup_db, initargs=('connection_string',), max_workers=4",
+          "output": "Each of 4 worker threads calls setup_db('connection_string') once at startup; workers then execute submitted tasks with initialized state",
+          "notes": "Typical use case for database connection pooling per worker"
+        },
+        {
+          "input": "initializer raises ValueError during startup",
+          "output": "All pending jobs raise BrokenThreadPool; executor.submit() rejects new submissions",
+          "notes": "Failure mode: initialization exception propagates to all jobs"
+        }
+      ],
+      "tags": [
+        "concurrent.futures",
+        "ThreadPoolExecutor",
+        "worker_setup",
+        "initialization",
+        "thread_safety",
+        "resource_allocation"
+      ],
+      "support_ids": [
+        "ff9014ed-196e-5214-84ff-9befb117c749"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "f9d95d03-15eb-59c6-8a67-a51eaf34aa95"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|initialize worker thread state and resources before task execution|default|parallel_execution|worker_initialization|pool_configuration|threadpoolexecutor initialization with worker setup",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill in parallel_execution/worker_initialization domain focused on ThreadPoolExecutor initializer configuration. It does not semantically overlap with existing skills (Script Loading Control and GRPO Loss Formulation are in unrelated domains: ui_optimization and loss_computation). Peer candidates (Map Function, ProcessPoolExecutor Lifecycle, Submit Callable) are related but operate at different stages and task families; this skill is specifically about ThreadPoolExecutor initializer setup at pool_configuration stage, not task dispatch, batch processing, or process-level lifecycle. The skill has valid support evidence and no conflicts.",
+        "parent_skill_id": "cd376aff-27f0-551f-be8f-d2eb384c145a",
+        "parent_candidate_ids": [
+          "cd376aff-27f0-551f-be8f-d2eb384c145a",
+          "02fc6046-51b1-5ba3-844d-4afab871d7a1"
+        ],
+        "hierarchy_confidence": 0.55,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "9533f43e-b370-52fc-97e8-f364f1d5fe6a",
+      "name": "Detect and Avoid ThreadPoolExecutor Deadlock",
+      "description": "Identify and prevent deadlock scenarios in ThreadPoolExecutor where a task waits on another task's result within the same pool, or a single-worker pool task submits and waits on a child task.",
+      "skill_body": "Review task callables before submission to ThreadPoolExecutor. Check for any calls to .result() on futures within the callable body. Ensure that if a task waits on another future, sufficient worker threads exist to execute both tasks concurrently. For single-worker pools, never submit a task that internally submits and waits on a child task.\n\n## Objective\n\nPrevent task interdependency deadlocks in thread pool execution\n## Applicable Signals\n\n- Designing task callables that may call .result() on other futures\n- Submitting tasks to a pool with limited workers\n- Using ThreadPoolExecutor with max_workers < number of interdependent tasks\n\n## Contraindications\n\n- Tasks are guaranteed independent with no inter-task result waits\n- Using separate executor instances for parent and child tasks\n- Pool has sufficient workers to execute all potentially concurrent tasks\n\n## Intervention Moves\n\n- Refactor task callables to eliminate inter-task result waits\n- Use separate executor instances for parent and child tasks\n- Increase max_workers to accommodate all potentially concurrent tasks\n- Restructure task hierarchy to avoid nested submissions with waits\n\n## Workflow Steps\n\n- Inspect task callable source code for .result() calls on futures\n- Identify all futures that a given task may wait on\n- Count maximum concurrent tasks that may execute simultaneously\n- Verify max_workers >= maximum concurrent task count\n- For single-worker pools, confirm no task submits and waits on child tasks\n- Approve task design or recommend refactoring\n\n## Constraints\n\n- Do not call .result() on a future within a task callable submitted to the same executor\n- If a task must wait on another task's result, ensure max_workers >= 2 and account for all concurrent waits\n- Single-worker pools (max_workers=1) must never submit a task that internally submits and waits on another task\n\n## Cautions\n\n- Deadlocks may not manifest immediately; they occur only when task scheduling causes a wait-on-wait cycle\n- Circular waits between two or more tasks in the same pool will hang indefinitely\n- Initializer exceptions in ThreadPoolExecutor will raise BrokenThreadPool on all pending jobs\n\n## Output Contract\n\n- Task design review confirms no circular waits and no result() calls within task callables\n- All submitted tasks execute to completion without blocking\n- Pool shutdown completes successfully\n\n## Example Executions\n\n### Example 1\n\n- Input: Task callable that calls .result() on another future in the same pool\n- Output: Deadlock detected; refactor to avoid inter-task result waits or use separate executors\n- Notes: Example: wait_on_b() calls b.result() while b is waiting on a.result() in the same 2-worker pool\n\n### Example 2\n\n- Input: Single-worker pool submitting a task that internally submits and waits on a child task\n- Output: Deadlock detected; increase max_workers or restructure task hierarchy\n- Notes: Example: max_workers=1 executor submitting wait_on_future() which calls executor.submit(pow, 5, 2).result()",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Prevent task interdependency deadlocks in thread pool execution",
+      "domain": "default",
+      "task_family": "parallel_execution",
+      "method_family": "deadlock_prevention",
+      "stage": "task_design_and_submission",
+      "applicable_signals": [
+        "Designing task callables that may call .result() on other futures",
+        "Submitting tasks to a pool with limited workers",
+        "Using ThreadPoolExecutor with max_workers < number of interdependent tasks"
+      ],
+      "contraindications": [
+        "Tasks are guaranteed independent with no inter-task result waits",
+        "Using separate executor instances for parent and child tasks",
+        "Pool has sufficient workers to execute all potentially concurrent tasks"
+      ],
+      "intervention_moves": [
+        "Refactor task callables to eliminate inter-task result waits",
+        "Use separate executor instances for parent and child tasks",
+        "Increase max_workers to accommodate all potentially concurrent tasks",
+        "Restructure task hierarchy to avoid nested submissions with waits"
+      ],
+      "triggers": [
+        "Designing task callables that may call .result() on other futures",
+        "Submitting tasks to a pool with limited workers"
+      ],
+      "workflow_steps": [
+        "Inspect task callable source code for .result() calls on futures",
+        "Identify all futures that a given task may wait on",
+        "Count maximum concurrent tasks that may execute simultaneously",
+        "Verify max_workers >= maximum concurrent task count",
+        "For single-worker pools, confirm no task submits and waits on child tasks",
+        "Approve task design or recommend refactoring"
+      ],
+      "constraints": [
+        "Do not call .result() on a future within a task callable submitted to the same executor",
+        "If a task must wait on another task's result, ensure max_workers >= 2 and account for all concurrent waits",
+        "Single-worker pools (max_workers=1) must never submit a task that internally submits and waits on another task"
+      ],
+      "cautions": [
+        "Deadlocks may not manifest immediately; they occur only when task scheduling causes a wait-on-wait cycle",
+        "Circular waits between two or more tasks in the same pool will hang indefinitely",
+        "Initializer exceptions in ThreadPoolExecutor will raise BrokenThreadPool on all pending jobs"
+      ],
+      "output_contract": [
+        "Task design review confirms no circular waits and no result() calls within task callables",
+        "All submitted tasks execute to completion without blocking",
+        "Pool shutdown completes successfully"
+      ],
+      "examples": [
+        {
+          "input": "Task callable that calls .result() on another future in the same pool",
+          "output": "Deadlock detected; refactor to avoid inter-task result waits or use separate executors",
+          "notes": "Example: wait_on_b() calls b.result() while b is waiting on a.result() in the same 2-worker pool"
+        },
+        {
+          "input": "Single-worker pool submitting a task that internally submits and waits on a child task",
+          "output": "Deadlock detected; increase max_workers or restructure task hierarchy",
+          "notes": "Example: max_workers=1 executor submitting wait_on_future() which calls executor.submit(pow, 5, 2).result()"
+        }
+      ],
+      "tags": [
+        "concurrency",
+        "thread_pool",
+        "deadlock_prevention",
+        "task_design",
+        "safety_guardrail"
+      ],
+      "support_ids": [
+        "9a66794f-61f2-5dbe-9ea5-a0ac86eef70c"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "048f3f2b-fe00-514a-8be4-8cc7fe8ebdbe"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.88,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|prevent task interdependency deadlocks in thread pool execution|default|parallel_execution|deadlock_prevention|task_design_and_submission|detect and avoid threadpoolexecutor deadlock",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct safety_rule addressing ThreadPoolExecutor deadlock prevention at task design stage. It does not semantically overlap with existing skills (Virtual WAN routing, Maven repository security) or peer candidates (which address exception handling and recovery after failures, not prevention). The candidate operates at task_design_and_submission stage with preventive constraints, while peer candidates operate at execution_monitoring stage with reactive exception handling. No merge, split, or revision relationship exists.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+diff --git a/AutoSkill4Doc/document/windowing.py b/AutoSkill4Doc/document/windowing.py
+index 043c287a..af870ad9 100644
+--- a/AutoSkill4Doc/document/windowing.py
++++ b/AutoSkill4Doc/document/windowing.py
+@@ -228,8 +228,21 @@ def _split_long_section(section: DocumentSection, *, max_chars: int) -> List[Doc
+ 
+ def _is_noise_section(section: DocumentSection, *, markers: Sequence[str]) -> bool:
+     heading = normalize_text(section.heading, lower=True)
+-    if any(marker in heading for marker in markers if marker):
+-        return True
++
++    for marker in markers:
++        marker = str(marker or "").strip().lower()
++        if not marker:
++            continue
++
++        if marker in {"reference", "references"}:
++            pattern = rf"(?<![a-z0-9]){re.escape(marker)}(?![a-z0-9])"
++            if re.search(pattern, heading, flags=re.IGNORECASE):
++                return True
++            continue
++
++        if marker in heading:
++            return True
++
+     return _looks_like_reference_body(section.text)
+ 
+ 

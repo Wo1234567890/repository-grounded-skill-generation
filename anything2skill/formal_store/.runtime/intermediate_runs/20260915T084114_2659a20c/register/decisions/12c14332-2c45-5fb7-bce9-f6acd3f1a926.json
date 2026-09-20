@@ -1,0 +1,106 @@
+{
+  "skill_id": "12c14332-2c45-5fb7-bce9-f6acd3f1a926",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for decorator aliasing during API migration (mapping @session to @trace with deprecation warnings). It does not semantically match any existing skill in the registry. Peer candidates address different concerns (client configuration, legacy session state sync, span hierarchy). The candidate's specific focus on decorator backward compatibility bridging is a novel capability not covered by existing skills.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "12c14332-2c45-5fb7-bce9-f6acd3f1a926",
+    "name": "Decorator Backward Compatibility Bridge",
+    "description": "Wrapper that maps a deprecated @session decorator to the new @trace decorator, handling both direct and parameterized invocation patterns while emitting deprecation warnings. Maintains API compatibility during decorator naming migration without breaking existing code.",
+    "skill_body": "Implement a @session decorator wrapper that:\n1. Accepts both direct invocation (@session) and parameterized invocation (@session(name=...))\n2. Routes all calls to the underlying @trace decorator\n3. Applies a deprecation warning to signal migration path\n4. Preserves argument forwarding for kwargs and positional args\n5. Check if args[0] is callable to distinguish direct vs. parameterized calls\n\n## Objective\n\nMaintain API compatibility during decorator naming migration without breaking existing code\n## Applicable Signals\n\n- Codebase still uses @session decorator on functions or methods\n- Need to redirect to @trace without immediate refactoring\n- Deprecation warnings are acceptable in logs\n\n## Contraindications\n\n- Full migration to @trace has been completed\n- Deprecation warnings must be eliminated from output\n- @session has custom behavior distinct from @trace\n\n## Intervention Moves\n\n- Check if args is empty or args[0] is not callable → route to trace(*args, **kwargs)\n- If args[0] is callable → route to trace(args[0], **kwargs)\n- Wrap the session function with deprecated() decorator to emit warning\n\n## Workflow Steps\n\n- Define session(*args, **kwargs) function\n- Implement conditional logic: if not args or not callable(args[0]), return trace(*args, **kwargs); else return trace(args[0], **kwargs)\n- Apply deprecated(\"Use @trace decorator instead.\")(session) to wrap the function\n- Return the wrapped session function for use as a decorator\n\n## Constraints\n\n- Must preserve the exact signature and behavior of @trace\n- Deprecation warning must be emitted on every invocation\n- Argument routing logic must handle both @session and @session(...) patterns\n\n## Cautions\n\n- If @session was intentionally distinct from @trace in the original codebase, this bridge will mask that distinction\n- Callers relying on @session-specific behavior will experience silent behavioral changes\n\n## Output Contract\n\n- @session decorator is callable with the same signature as @trace; deprecation warning is logged on invocation; all calls are successfully routed to @trace with arguments preserved",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Maintain API compatibility during decorator naming migration without breaking existing code",
+    "domain": "default",
+    "task_family": "api_migration",
+    "method_family": "decorator_aliasing",
+    "stage": "runtime",
+    "applicable_signals": [
+      "Codebase still uses @session decorator on functions or methods",
+      "Need to redirect to @trace without immediate refactoring",
+      "Deprecation warnings are acceptable in logs"
+    ],
+    "contraindications": [
+      "Full migration to @trace has been completed",
+      "Deprecation warnings must be eliminated from output",
+      "@session has custom behavior distinct from @trace"
+    ],
+    "intervention_moves": [
+      "Check if args is empty or args[0] is not callable → route to trace(*args, **kwargs)",
+      "If args[0] is callable → route to trace(args[0], **kwargs)",
+      "Wrap the session function with deprecated() decorator to emit warning"
+    ],
+    "triggers": [
+      "Codebase still uses @session decorator; need to redirect to @trace without immediate refactoring; deprecation warning acceptable"
+    ],
+    "workflow_steps": [
+      "Define session(*args, **kwargs) function",
+      "Implement conditional logic: if not args or not callable(args[0]), return trace(*args, **kwargs); else return trace(args[0], **kwargs)",
+      "Apply deprecated(\"Use @trace decorator instead.\")(session) to wrap the function",
+      "Return the wrapped session function for use as a decorator"
+    ],
+    "constraints": [
+      "Must preserve the exact signature and behavior of @trace",
+      "Deprecation warning must be emitted on every invocation",
+      "Argument routing logic must handle both @session and @session(...) patterns"
+    ],
+    "cautions": [
+      "If @session was intentionally distinct from @trace in the original codebase, this bridge will mask that distinction",
+      "Callers relying on @session-specific behavior will experience silent behavioral changes"
+    ],
+    "output_contract": [
+      "@session decorator is callable with the same signature as @trace; deprecation warning is logged on invocation; all calls are successfully routed to @trace with arguments preserved"
+    ],
+    "examples": [],
+    "tags": [
+      "decorator",
+      "backward_compatibility",
+      "deprecation",
+      "api_migration",
+      "python"
+    ],
+    "support_ids": [
+      "efc0de74-817b-5b89-a7cc-7eed0c766ae0"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "26d55d39-a873-5e0f-af0f-34b02e854aae"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|maintain api compatibility during decorator naming migration without breaking existing code|default|api_migration|decorator_aliasing|runtime|decorator backward compatibility bridge"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

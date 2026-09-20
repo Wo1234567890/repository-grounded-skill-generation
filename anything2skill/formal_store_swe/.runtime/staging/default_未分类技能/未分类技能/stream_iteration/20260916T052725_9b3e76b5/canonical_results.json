@@ -1,0 +1,156 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "stream_iteration",
+  "run_id": "20260916T052725_9b3e76b5",
+  "skills": [
+    {
+      "skill_id": "568447d8-71c4-552c-b75e-25889b5a1fdf",
+      "name": "Iterative Stream Loop Construction",
+      "description": "Builds a feedback loop in a DataStream using iterate(), map/filter transformations, and closeWith() to repeatedly process elements until a termination condition is met. Enables stateful iterative computation where elements flow through a transformation body and conditionally re-enter the loop or exit to output.",
+      "skill_body": "1. Call iterate() on the input DataStream to create an IterativeStream.\n2. Define the loop body by applying transformations (map, filter, etc.) to the IterativeStream.\n3. Split the transformed stream into two parts: one to feed back via closeWith(), one to extract as final output.\n4. Invoke closeWith() on the IterativeStream with the feedback branch to establish the loop.\n5. Extract the output stream from the non-feedback branch.\nEnsure the feedback condition eventually becomes false to prevent infinite loops.\n\n## Objective\n\nConstruct and execute a stateful iterative computation on a DataStream\n## Applicable Signals\n\n- Input stream requires conditional re-processing\n- Termination condition depends on element value or accumulated state\n- Feedback loop semantics required\n\n## Contraindications\n\n- Single-pass transformations are sufficient\n- No feedback loop or re-entry required\n- Stateless map/filter operations only\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Create IterativeStream', 'detail': 'Call iterate() on the input DataStream to obtain an IterativeStream handle.'}\n- {'step': 2, 'action': 'Define transformation body', 'detail': 'Apply map, filter, or other transformations to the IterativeStream to produce the iteration body.'}\n- {'step': 3, 'action': 'Split output and feedback', 'detail': 'Use filter or other operators to partition the transformed stream into feedback (re-entry) and output (exit) branches.'}\n- {'step': 4, 'action': 'Close the loop', 'detail': 'Invoke closeWith(feedbackBranch) on the IterativeStream to establish the feedback connection.'}\n- {'step': 5, 'action': 'Extract final output', 'detail': 'Obtain the final DataStream from the output branch for downstream sinks or further transformations.'}\n\n## Constraints\n\n- Feedback branch must eventually filter out all elements to prevent infinite loops\n- Output branch and feedback branch must be mutually exclusive or carefully designed to avoid data loss\n- IterativeStream does not support all DataStream operations; use only map, filter, and similar transformations within the loop body\n\n## Cautions\n\n- Infinite loops occur if the feedback condition never becomes false; always include a termination predicate\n- Performance may degrade with large iteration counts; monitor for backpressure and resource exhaustion\n\n## Output Contract\n\n- IterativeStream created and configured\n- Loop body defined with transformations\n- closeWith() invoked to route feedback\n- Final output stream extracted and ready for sinks or further operations\n\n## Example Executions\n\n### Example 1\n\n- Input: DataStream<Long> of integers 0–1000\n- Output: DataStream<Long> containing only integers ≤ 0 after repeated decrement\n- Notes: Subtract 1 from each element in a loop until value ≤ 0; feedback branch filters value > 0, output branch filters value ≤ 0.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Construct and execute a stateful iterative computation on a DataStream",
+      "domain": "default",
+      "task_family": "stream_iteration",
+      "method_family": "loop_construction",
+      "stage": "transformation",
+      "applicable_signals": [
+        "Input stream requires conditional re-processing",
+        "Termination condition depends on element value or accumulated state",
+        "Feedback loop semantics required"
+      ],
+      "contraindications": [
+        "Single-pass transformations are sufficient",
+        "No feedback loop or re-entry required",
+        "Stateless map/filter operations only"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Need to apply repeated transformations until convergence",
+        "Implement recursive or feedback-based stream logic",
+        "Process elements through multiple passes with state carried between iterations"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Create IterativeStream', 'detail': 'Call iterate() on the input DataStream to obtain an IterativeStream handle.'}",
+        "{'step': 2, 'action': 'Define transformation body', 'detail': 'Apply map, filter, or other transformations to the IterativeStream to produce the iteration body.'}",
+        "{'step': 3, 'action': 'Split output and feedback', 'detail': 'Use filter or other operators to partition the transformed stream into feedback (re-entry) and output (exit) branches.'}",
+        "{'step': 4, 'action': 'Close the loop', 'detail': 'Invoke closeWith(feedbackBranch) on the IterativeStream to establish the feedback connection.'}",
+        "{'step': 5, 'action': 'Extract final output', 'detail': 'Obtain the final DataStream from the output branch for downstream sinks or further transformations.'}"
+      ],
+      "constraints": [
+        "Feedback branch must eventually filter out all elements to prevent infinite loops",
+        "Output branch and feedback branch must be mutually exclusive or carefully designed to avoid data loss",
+        "IterativeStream does not support all DataStream operations; use only map, filter, and similar transformations within the loop body"
+      ],
+      "cautions": [
+        "Infinite loops occur if the feedback condition never becomes false; always include a termination predicate",
+        "Performance may degrade with large iteration counts; monitor for backpressure and resource exhaustion"
+      ],
+      "output_contract": [
+        "IterativeStream created and configured",
+        "Loop body defined with transformations",
+        "closeWith() invoked to route feedback",
+        "Final output stream extracted and ready for sinks or further operations"
+      ],
+      "examples": [
+        {
+          "input": "DataStream<Long> of integers 0–1000",
+          "output": "DataStream<Long> containing only integers ≤ 0 after repeated decrement",
+          "notes": "Subtract 1 from each element in a loop until value ≤ 0; feedback branch filters value > 0, output branch filters value ≤ 0."
+        }
+      ],
+      "tags": [
+        "iteration",
+        "feedback_loop",
+        "datastream",
+        "stateful_processing",
+        "loop_construction"
+      ],
+      "support_ids": [
+        "246bf5c0-01bb-5fea-969e-c94112e6efd8"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "09b8ea05-c069-5d40-916f-97bfaa07b9ed"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.88,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|construct and execute a stateful iterative computation on a datastream|default|stream_iteration|loop_construction|transformation|iterative stream loop construction",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct session_skill for iterative stream loop construction in Flink DataStreams. It addresses a specific transformation pattern (iterate/closeWith feedback loops) not covered by peer candidates (program scaffolding, windowed aggregation, sink configuration) or existing skills (which are Python ProcessPoolExecutor-focused, different domain entirely). No semantic overlap with existing registry.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "parent"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "1391bc57-7643-4563-817f-71effd0aacc3",
+      "entity_type": "skill",
+      "entity_id": "568447d8-71c4-552c-b75e-25889b5a1fdf",
+      "action": "create",
+      "changed_at": "2026-09-15T19:26:42+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct session_skill for iterative stream loop construction in Flink DataStreams. It addresses a specific transformation pattern (iterate/closeWith feedback loops) not covered by peer candidates (program scaffolding, windowed aggregation, sink configuration) or existing skills (which are Python ProcessPoolExecutor-focused, different domain entirely). No semantic overlap with existing registry.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "568447d8-71c4-552c-b75e-25889b5a1fdf",
+        "doc_ids": [
+          "8a36b10a-4e32-5b2b-bc38-0c56680e2cda"
+        ],
+        "support_added": [
+          "246bf5c0-01bb-5fea-969e-c94112e6efd8"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

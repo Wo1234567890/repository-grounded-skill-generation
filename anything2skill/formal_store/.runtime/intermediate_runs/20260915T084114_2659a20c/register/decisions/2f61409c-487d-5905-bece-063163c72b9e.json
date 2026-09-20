@@ -1,0 +1,114 @@
+{
+  "skill_id": "2f61409c-487d-5905-bece-063163c72b9e",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "2f61409c-487d-5905-bece-063163c72b9e",
+    "name": "LLM Event Capture and Error Handling",
+    "description": "Captures LLM request/response lifecycle events (parameters, outputs, timestamps) and wraps exceptions in error events for safe recording. Use when instrumenting LLM API calls to build an audit trail of interactions and failures.",
+    "skill_body": "When an LLM API call completes or an exception occurs during response processing, create an LLMEvent with init_timestamp and request parameters (kwargs). Extract response data via model_dump() and prompt from kwargs[\"messages\"]. If an exception occurs, wrap it in an ErrorEvent with the trigger_event reference. Call _safe_record(session, event) to persist the event safely.\n\n## Objective\n\ncapture_and_record_llm_interactions\n## Applicable Signals\n\n- LLM API call completion\n- Response object available\n- Exception raised during response processing\n\n## Contraindications\n\n- Recording is disabled or not configured\n- Session is None and no fallback handler exists\n- Response object does not support model_dump() method\n\n## Intervention Moves\n\n- Create LLMEvent with init_timestamp and request parameters\n- Extract and assign response data via model_dump()\n- Extract and assign prompt from kwargs[\"messages\"]\n- Catch exceptions and wrap in ErrorEvent with trigger_event reference\n- Call _safe_record(session, event) to persist event\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Initialize LLMEvent with init_timestamp and kwargs (request parameters)'}\n- {'step': 2, 'action': 'Extract response data via response.model_dump() and assign to llm_event.returns'}\n- {'step': 3, 'action': 'Extract prompt from kwargs[\"messages\"] and assign to llm_event.prompt'}\n- {'step': 4, 'action': 'Perform any additional processing on llm_event'}\n- {'step': 5, 'action': 'Call _safe_record(session, llm_event) to persist the event'}\n- {'step': 6, 'action': 'On exception: create ErrorEvent with trigger_event=llm_event and exception details'}\n- {'step': 7, 'action': 'Call _safe_record(session, error_event) to persist the error'}\n\n## Constraints\n\n- init_timestamp must be set before LLMEvent creation\n- kwargs must contain \"messages\" key for prompt extraction\n- session parameter may be None; _safe_record must handle gracefully\n- Exception handling must not suppress critical errors needed for escalation\n\n## Cautions\n\n- Ensure _safe_record is implemented to handle None session safely\n- Do not lose exception context when wrapping in ErrorEvent\n- Verify response.model_dump() does not expose sensitive data before recording\n\n## Output Contract\n\n- LLMEvent or ErrorEvent successfully persisted via _safe_record(); response data, prompt, and exception details (if applicable) captured and recorded for audit trail.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "capture_and_record_llm_interactions",
+    "domain": "default",
+    "task_family": "event_instrumentation",
+    "method_family": "structured_logging",
+    "stage": "runtime_monitoring",
+    "applicable_signals": [
+      "LLM API call completion",
+      "Response object available",
+      "Exception raised during response processing"
+    ],
+    "contraindications": [
+      "Recording is disabled or not configured",
+      "Session is None and no fallback handler exists",
+      "Response object does not support model_dump() method"
+    ],
+    "intervention_moves": [
+      "Create LLMEvent with init_timestamp and request parameters",
+      "Extract and assign response data via model_dump()",
+      "Extract and assign prompt from kwargs[\"messages\"]",
+      "Catch exceptions and wrap in ErrorEvent with trigger_event reference",
+      "Call _safe_record(session, event) to persist event"
+    ],
+    "triggers": [
+      "LLM API call completes and needs to be recorded",
+      "Exception occurs during response processing"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Initialize LLMEvent with init_timestamp and kwargs (request parameters)'}",
+      "{'step': 2, 'action': 'Extract response data via response.model_dump() and assign to llm_event.returns'}",
+      "{'step': 3, 'action': 'Extract prompt from kwargs[\"messages\"] and assign to llm_event.prompt'}",
+      "{'step': 4, 'action': 'Perform any additional processing on llm_event'}",
+      "{'step': 5, 'action': 'Call _safe_record(session, llm_event) to persist the event'}",
+      "{'step': 6, 'action': 'On exception: create ErrorEvent with trigger_event=llm_event and exception details'}",
+      "{'step': 7, 'action': 'Call _safe_record(session, error_event) to persist the error'}"
+    ],
+    "constraints": [
+      "init_timestamp must be set before LLMEvent creation",
+      "kwargs must contain \"messages\" key for prompt extraction",
+      "session parameter may be None; _safe_record must handle gracefully",
+      "Exception handling must not suppress critical errors needed for escalation"
+    ],
+    "cautions": [
+      "Ensure _safe_record is implemented to handle None session safely",
+      "Do not lose exception context when wrapping in ErrorEvent",
+      "Verify response.model_dump() does not expose sensitive data before recording"
+    ],
+    "output_contract": [
+      "LLMEvent or ErrorEvent successfully persisted via _safe_record(); response data, prompt, and exception details (if applicable) captured and recorded for audit trail."
+    ],
+    "examples": [],
+    "tags": [
+      "llm_instrumentation",
+      "event_capture",
+      "error_handling",
+      "audit_trail",
+      "structured_logging"
+    ],
+    "support_ids": [
+      "63d03ec7-2cd1-586d-b607-faf91a8494da"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "c9177ffa-6429-5dbb-b3d1-aad93879b6a9"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|micro_skill_node|capture_and_record_llm_interactions|default|event_instrumentation|structured_logging|runtime_monitoring|llm event capture and error handling"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

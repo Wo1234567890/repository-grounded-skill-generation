@@ -1,0 +1,109 @@
+{
+  "skill_id": "ee42057a-3ada-5055-9c21-aa1f0645e482",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct session_skill for multi-task synchronization using concurrent.futures.wait(). It addresses a different capability (blocking coordination of Future completion) than the peer candidates (ProcessPoolExecutor setup, Executor.map iteration, ThreadPoolExecutor configuration) and existing skills (GRPO reward scaling, GRPO trainer initialization). No semantic overlap with existing registry; no split relationship detected among peers.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "ee42057a-3ada-5055-9c21-aa1f0645e482",
+    "name": "Parallel Task Completion Polling",
+    "description": "Wait for one or more Futures to complete with configurable timeout and return condition. Supports three completion modes: return when any task finishes (FIRST_COMPLETED), return when any task raises an exception (FIRST_EXCEPTION), or return when all tasks finish (ALL_COMPLETED). Use to synchronize on parallel task outcomes and partition results into done and pending sets.",
+    "skill_body": "Call concurrent.futures.wait(fs, timeout=None, return_when=ALL_COMPLETED) with a collection of Future objects. Specify timeout in seconds (int or float) to limit wait duration; None means no limit. Choose return_when constant to control early exit: FIRST_COMPLETED returns immediately when any Future finishes or is cancelled; FIRST_EXCEPTION returns when any Future raises an exception (or behaves like ALL_COMPLETED if none raise); ALL_COMPLETED waits for all Futures to finish or be cancelled. The function returns a tuple (done, pending) where done is a set of completed Futures and pending is a set of Futures still running.\n\n## Objective\n\ncoordinate multi-task synchronization\n## Applicable Signals\n\n- Multiple Futures submitted to ThreadPoolExecutor or ProcessPoolExecutor\n- Synchronization point required before inspecting or processing results\n- Timeout constraint or early-exit condition specified by caller\n\n## Contraindications\n\n- Non-blocking polling is preferred; use as_completed() iterator instead\n- No timeout constraint and caller can iterate over results as they arrive\n- Single Future result retrieval; use Future.result() directly\n\n## Workflow Steps\n\n- Prepare a collection of Future objects from submitted tasks\n- Determine timeout value (seconds) or None for no limit\n- Select return_when constant based on synchronization strategy\n- Call concurrent.futures.wait(fs, timeout, return_when)\n- Unpack returned (done, pending) tuple\n- Iterate over done set to retrieve results or handle exceptions\n- If pending is non-empty, decide whether to retry, cancel, or log\n\n## Constraints\n\n- fs parameter must be a non-empty collection of Future objects\n- timeout must be None, int, or float; negative values are treated as zero\n- return_when must be one of the three module constants: FIRST_COMPLETED, FIRST_EXCEPTION, or ALL_COMPLETED\n- Function may raise TimeoutError if timeout is exceeded and no Futures have completed\n\n## Cautions\n\n- TimeoutError is a deprecated alias of built-in TimeoutError as of Python 3.11\n- If a Future is cancelled before wait() returns, it appears in the done set\n- FIRST_EXCEPTION mode returns immediately only if an exception is raised; if no exception occurs, it waits like ALL_COMPLETED\n\n## Output Contract\n\n- Returns a tuple (done, pending) where done is a set of Futures that have completed (finished, raised exception, or were cancelled) and pending is a set of Futures still running. Caller can call Future.result() or Future.exception() on items in done to retrieve outcomes. If timeout is exceeded before return condition is met, raises TimeoutError.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "coordinate multi-task synchronization",
+    "domain": "default",
+    "task_family": "concurrent_coordination",
+    "method_family": "blocking_wait",
+    "stage": "task_synchronization",
+    "applicable_signals": [
+      "Multiple Futures submitted to ThreadPoolExecutor or ProcessPoolExecutor",
+      "Synchronization point required before inspecting or processing results",
+      "Timeout constraint or early-exit condition specified by caller"
+    ],
+    "contraindications": [
+      "Non-blocking polling is preferred; use as_completed() iterator instead",
+      "No timeout constraint and caller can iterate over results as they arrive",
+      "Single Future result retrieval; use Future.result() directly"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Caller submits multiple tasks to an Executor and needs to block until one or more reach a terminal state",
+      "Timeout or early-exit strategy is required to avoid indefinite blocking",
+      "Caller must partition results into completed and pending sets for downstream handling"
+    ],
+    "workflow_steps": [
+      "Prepare a collection of Future objects from submitted tasks",
+      "Determine timeout value (seconds) or None for no limit",
+      "Select return_when constant based on synchronization strategy",
+      "Call concurrent.futures.wait(fs, timeout, return_when)",
+      "Unpack returned (done, pending) tuple",
+      "Iterate over done set to retrieve results or handle exceptions",
+      "If pending is non-empty, decide whether to retry, cancel, or log"
+    ],
+    "constraints": [
+      "fs parameter must be a non-empty collection of Future objects",
+      "timeout must be None, int, or float; negative values are treated as zero",
+      "return_when must be one of the three module constants: FIRST_COMPLETED, FIRST_EXCEPTION, or ALL_COMPLETED",
+      "Function may raise TimeoutError if timeout is exceeded and no Futures have completed"
+    ],
+    "cautions": [
+      "TimeoutError is a deprecated alias of built-in TimeoutError as of Python 3.11",
+      "If a Future is cancelled before wait() returns, it appears in the done set",
+      "FIRST_EXCEPTION mode returns immediately only if an exception is raised; if no exception occurs, it waits like ALL_COMPLETED"
+    ],
+    "output_contract": [
+      "Returns a tuple (done, pending) where done is a set of Futures that have completed (finished, raised exception, or were cancelled) and pending is a set of Futures still running. Caller can call Future.result() or Future.exception() on items in done to retrieve outcomes. If timeout is exceeded before return condition is met, raises TimeoutError."
+    ],
+    "examples": [],
+    "tags": [
+      "concurrent.futures",
+      "synchronization",
+      "blocking_wait",
+      "multi_task_coordination",
+      "timeout_handling"
+    ],
+    "support_ids": [
+      "a6e83dc0-2ffc-5f61-b7a6-4ebe0a0042dd"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "f0f86316-8f7a-51d0-9c5d-e30ea82eac52"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.88,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|coordinate multi-task synchronization|default|concurrent_coordination|blocking_wait|task_synchronization|parallel task completion polling"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

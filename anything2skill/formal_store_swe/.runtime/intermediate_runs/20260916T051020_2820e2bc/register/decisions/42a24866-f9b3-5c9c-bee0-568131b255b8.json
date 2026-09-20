@@ -1,0 +1,120 @@
+{
+  "skill_id": "42a24866-f9b3-5c9c-bee0-568131b255b8",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for Flink DataStream async collection via Iterator sink. It differs semantically and operationally from peer candidates (external sink writing, job execution control) and existing skills (thread pool executors, concurrent mapping). No existing skill covers the collectAsync() Iterator pattern for in-memory streaming result inspection. Peer candidates address different output stages (external persistence vs. execution control) and are not overlapping.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "42a24866-f9b3-5c9c-bee0-568131b255b8",
+    "name": "Collect DataStream Results via Iterator Sink",
+    "description": "Asynchronously collect DataStream output into an Iterator for testing and debugging. Provides a non-blocking handoff of streaming results to client code for inspection and validation.",
+    "skill_body": "Call collectAsync() on a DataStream to retrieve results as an Iterator. Use this micro-skill when you need to inspect or validate streaming output in a test or debug context. The Iterator allows you to iterate over collected tuples or records without blocking the stream.\n\n## Objective\n\nretrieve streaming results for inspection and validation\n## Applicable Signals\n\n- need to inspect or validate DataStream output\n- test or debug context active\n- results are small enough to fit in memory\n- non-blocking collection required\n\n## Contraindications\n\n- production high-throughput pipelines\n- large result sets that exceed available memory\n- real-time sinks required for external systems\n- parallel execution needed\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Obtain a DataStream reference', 'detail': 'Have a DataStream object available from your Flink program.'}\n- {'step': 2, 'action': 'Call collectAsync() on the DataStream', 'detail': 'Invoke myDataStream.collectAsync() to initiate asynchronous collection.'}\n- {'step': 3, 'action': 'Receive Iterator object', 'detail': 'collectAsync() returns an Iterator containing collected tuples or records.'}\n- {'step': 4, 'action': 'Iterate over results', 'detail': 'Use standard Iterator methods (hasNext(), next()) to inspect collected output.'}\n\n## Constraints\n\n- collectAsync() returns an Iterator; caller must iterate to consume results\n- collection is asynchronous; caller should handle timing appropriately\n- suitable only for small result sets due to in-memory collection\n- not intended for persistent or external data sinks\n\n## Cautions\n\n- Do not use in production pipelines with high throughput or large volumes.\n- Ensure result set fits in available memory before calling collectAsync().\n- Iterator consumption is blocking; plan iteration timing accordingly.\n\n## Output Contract\n\n- Iterator object containing collected tuples or records from the DataStream\n- Caller can iterate over results to inspect or validate output\n\n## Example Executions\n\n### Example 1\n\n- Input: val myResult: DataStream[(String, Int)] = ...\n- Output: val myOutput: Iterator[(String, Int)] = myResult.collectAsync()\n- Notes: Scala example; Java syntax is similar with generic type parameters.\n\n### Example 2\n\n- Input: DataStream<Tuple2<String, Integer>> myResult = ...;\n- Output: Iterator<Tuple2<String, Integer>> myOutput = myResult.collectAsync();\n- Notes: Java example with generic type parameters.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "retrieve streaming results for inspection and validation",
+    "domain": "default",
+    "task_family": "data_sink",
+    "method_family": "async_collection",
+    "stage": "output",
+    "applicable_signals": [
+      "need to inspect or validate DataStream output",
+      "test or debug context active",
+      "results are small enough to fit in memory",
+      "non-blocking collection required"
+    ],
+    "contraindications": [
+      "production high-throughput pipelines",
+      "large result sets that exceed available memory",
+      "real-time sinks required for external systems",
+      "parallel execution needed"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "need to inspect or validate DataStream output in test or debug context",
+      "results are small enough to fit in memory"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Obtain a DataStream reference', 'detail': 'Have a DataStream object available from your Flink program.'}",
+      "{'step': 2, 'action': 'Call collectAsync() on the DataStream', 'detail': 'Invoke myDataStream.collectAsync() to initiate asynchronous collection.'}",
+      "{'step': 3, 'action': 'Receive Iterator object', 'detail': 'collectAsync() returns an Iterator containing collected tuples or records.'}",
+      "{'step': 4, 'action': 'Iterate over results', 'detail': 'Use standard Iterator methods (hasNext(), next()) to inspect collected output.'}"
+    ],
+    "constraints": [
+      "collectAsync() returns an Iterator; caller must iterate to consume results",
+      "collection is asynchronous; caller should handle timing appropriately",
+      "suitable only for small result sets due to in-memory collection",
+      "not intended for persistent or external data sinks"
+    ],
+    "cautions": [
+      "Do not use in production pipelines with high throughput or large volumes.",
+      "Ensure result set fits in available memory before calling collectAsync().",
+      "Iterator consumption is blocking; plan iteration timing accordingly."
+    ],
+    "output_contract": [
+      "Iterator object containing collected tuples or records from the DataStream",
+      "Caller can iterate over results to inspect or validate output"
+    ],
+    "examples": [
+      {
+        "input": "val myResult: DataStream[(String, Int)] = ...",
+        "output": "val myOutput: Iterator[(String, Int)] = myResult.collectAsync()",
+        "notes": "Scala example; Java syntax is similar with generic type parameters."
+      },
+      {
+        "input": "DataStream<Tuple2<String, Integer>> myResult = ...;",
+        "output": "Iterator<Tuple2<String, Integer>> myOutput = myResult.collectAsync();",
+        "notes": "Java example with generic type parameters."
+      }
+    ],
+    "tags": [
+      "datastream",
+      "sink",
+      "testing",
+      "debugging",
+      "async",
+      "iterator"
+    ],
+    "support_ids": [
+      "47098aaa-5341-58b5-9eec-f8f14d6f6e29"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "8e59ac90-e2e5-5c5a-be36-3be7cae99fd6"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|retrieve streaming results for inspection and validation|default|data_sink|async_collection|output|collect datastream results via iterator sink"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,671 @@
+{
+  "doc_id": "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+  "title": "flink-118-datastream.md",
+  "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/flink-118-datastream.md",
+  "window_id": "c6519b14-4cef-55b3-a88f-6e329ffb5b0e",
+  "section_heading": "DataStream API▾",
+  "strategy": "strict",
+  "supports": [
+    {
+      "support_id": "bdc8d098-a538-56b4-97b1-425a9446a460",
+      "doc_id": "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/flink-118-datastream.md",
+      "section": "DataStream API▾",
+      "span": {
+        "start": 34183,
+        "end": 38548
+      },
+      "excerpt": "`writeUsingOutputFormat()` / `FileOutputFormat` - Method and base class for custom file outputs. Supports\ncustom object-to-bytes conversion.\n\n-\n\n`writeToSocket` - Writes elements to a socket according to a `SerializationSchema`\n\n-\n\n`addSink` - Invokes a custom sink function. Flink comes bundled with connectors to other systems (such as\nApache Kafka) that are implemented as sink functions.\n\nFor reliable, exactly-once delivery of a stream into a file system, use the `FileSink`.\nAlso, custom implementations through the `.addSink(...)` method can participate in Flink’s checkpointing\nfor exactly-once semantics.\n\nBack to top\n\n## \n Iterations\n #\n\nJava\n\n```\nIterativeStream<Integer> iteration = input.iterate();\n\n```\n\nThen, we specify the logic that will be executed inside the loop using a series of transformations (here\na simple `map` transformation)\n\n```\nDataStream<Integer> iterationBody = iteration.map(/* this is executed many times */);\n\n```\n\n```\niteration.closeWith(iterationBody.filter(/* one part of the stream */));\nDataStream<Integer> output = iterationBody.filter(/* some other part of the stream */);\n\n```\n\nFor example, here is program that continuously subtracts 1 from a series of integers until they reach zero:\n\n```\nDataStream<Long> someIntegers = env.generateSequence(0, 1000);\n\nIterativeStream<Long> iteration = someIntegers.iterate();\n\nDataStream<Long> minusOne = iteration.map(new MapFunction<Long, Long>() {\n  @Override\n  public Long map(Long value) throws Exception {\n    return value - 1 ;\n  }\n});\n\nDataStream<Long> stillGreaterThanZero = minusOne.filter(new FilterFunction<Long>() {\n  @Override\n  public boolean filter(Long value) throws Exception {\n    return (value > 0);\n  }\n});\n\niteration.closeWith(stillGreaterThanZero);\n\nDataStream<Long> lessThanZero = minusOne.filter(new FilterFunction<Long>() {\n  @Override\n  public boolean filter(Long value) throws Exception {\n    return (value <= 0);\n  }\n});\n\n```\n\nScala\n\n```\nval iteratedStream = someDataStream.iterate(\n  iteration => {\n    val iterationBody = iteration.map(/* this is executed many times */)\n    (iterationBody.filter(/* one part of the stream */), iterationBody.filter(/* some other part of the stream */))\n})\n\n```\n\nFor example, here is program that continuously subtracts 1 from a series of integers until they reach zero:\n\n```\nval someIntegers: DataStream[Long] = env.generateSequence(0, 1000)",
+      "relation_type": "support",
+      "confidence": 0.85,
+      "metadata": {
+        "document_title": "flink-118-datastream.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Iterative Stream Processing Loop",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "Set up and manage iterative data transformations with conditional loop closure",
+        "task_family": "stream_iteration",
+        "method_family": "loop_control",
+        "stage": "stream_processing",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "c6519b14-4cef-55b3-a88f-6e329ffb5b0e",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 35,
+        "paragraph_end": 67,
+        "heading_path": [
+          "DataStream API▾"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "flink-118-datastream.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Execution Mode (Batch/Streaming)",
+          "Event Time▾",
+          "Generating Watermarks",
+          "Builtin Watermark Generators",
+          "State & Fault Tolerance▾",
+          "Working with State",
+          "The Broadcast State Pattern",
+          "Checkpointing",
+          "State Backends",
+          "Data Types & Serialization▾",
+          "State Schema Evolution",
+          "Custom State Serialization",
+          "3rd Party Serializers",
+          "User-Defined Functions",
+          "Operators▾",
+          "Windows",
+          "Joining",
+          "Process Function",
+          "Async I/O",
+          "Data Sources",
+          "Side Outputs",
+          "Handling Application Parameters",
+          "Testing",
+          "Experimental Features",
+          "Scala API Extensions",
+          "Java Lambda Expressions",
+          "Managing Execution▾",
+          "Execution Configuration",
+          "Program Packaging"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "-"
+      },
+      "created_at": "2026-09-14T21:23:56+00:00"
+    },
+    {
+      "support_id": "851df812-8166-52fa-9967-7b493ae1f550",
+      "doc_id": "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/flink-118-datastream.md",
+      "section": "DataStream API▾",
+      "span": {
+        "start": 34183,
+        "end": 38548
+      },
+      "excerpt": "`writeUsingOutputFormat()` / `FileOutputFormat` - Method and base class for custom file outputs. Supports\ncustom object-to-bytes conversion.\n\n-\n\n`writeToSocket` - Writes elements to a socket according to a `SerializationSchema`\n\n-\n\n`addSink` - Invokes a custom sink function. Flink comes bundled with connectors to other systems (such as\nApache Kafka) that are implemented as sink functions.\n\nFor reliable, exactly-once delivery of a stream into a file system, use the `FileSink`.\nAlso, custom implementations through the `.addSink(...)` method can participate in Flink’s checkpointing\nfor exactly-once semantics.\n\nBack to top\n\n## \n Iterations\n #\n\nJava\n\n```\nIterativeStream<Integer> iteration = input.iterate();\n\n```\n\nThen, we specify the logic that will be executed inside the loop using a series of transformations (here\na simple `map` transformation)\n\n```\nDataStream<Integer> iterationBody = iteration.map(/* this is executed many times */);\n\n```\n\n```\niteration.closeWith(iterationBody.filter(/* one part of the stream */));\nDataStream<Integer> output = iterationBody.filter(/* some other part of the stream */);\n\n```\n\nFor example, here is program that continuously subtracts 1 from a series of integers until they reach zero:\n\n```\nDataStream<Long> someIntegers = env.generateSequence(0, 1000);\n\nIterativeStream<Long> iteration = someIntegers.iterate();\n\nDataStream<Long> minusOne = iteration.map(new MapFunction<Long, Long>() {\n  @Override\n  public Long map(Long value) throws Exception {\n    return value - 1 ;\n  }\n});\n\nDataStream<Long> stillGreaterThanZero = minusOne.filter(new FilterFunction<Long>() {\n  @Override\n  public boolean filter(Long value) throws Exception {\n    return (value > 0);\n  }\n});\n\niteration.closeWith(stillGreaterThanZero);\n\nDataStream<Long> lessThanZero = minusOne.filter(new FilterFunction<Long>() {\n  @Override\n  public boolean filter(Long value) throws Exception {\n    return (value <= 0);\n  }\n});\n\n```\n\nScala\n\n```\nval iteratedStream = someDataStream.iterate(\n  iteration => {\n    val iterationBody = iteration.map(/* this is executed many times */)\n    (iterationBody.filter(/* one part of the stream */), iterationBody.filter(/* some other part of the stream */))\n})\n\n```\n\nFor example, here is program that continuously subtracts 1 from a series of integers until they reach zero:\n\n```\nval someIntegers: DataStream[Long] = env.generateSequence(0, 1000)",
+      "relation_type": "support",
+      "confidence": 0.8,
+      "metadata": {
+        "document_title": "flink-118-datastream.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Custom Sink Integration with Checkpointing",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Ensure reliable, exactly-once delivery of stream data to external systems through custom sink implementation with checkpoint participation",
+        "task_family": "sink_output",
+        "method_family": "fault_tolerance",
+        "stage": "stream_output",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "c6519b14-4cef-55b3-a88f-6e329ffb5b0e",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 35,
+        "paragraph_end": 67,
+        "heading_path": [
+          "DataStream API▾"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "flink-118-datastream.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Execution Mode (Batch/Streaming)",
+          "Event Time▾",
+          "Generating Watermarks",
+          "Builtin Watermark Generators",
+          "State & Fault Tolerance▾",
+          "Working with State",
+          "The Broadcast State Pattern",
+          "Checkpointing",
+          "State Backends",
+          "Data Types & Serialization▾",
+          "State Schema Evolution",
+          "Custom State Serialization",
+          "3rd Party Serializers",
+          "User-Defined Functions",
+          "Operators▾",
+          "Windows",
+          "Joining",
+          "Process Function",
+          "Async I/O",
+          "Data Sources",
+          "Side Outputs",
+          "Handling Application Parameters",
+          "Testing",
+          "Experimental Features",
+          "Scala API Extensions",
+          "Java Lambda Expressions",
+          "Managing Execution▾",
+          "Execution Configuration",
+          "Program Packaging"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "-"
+      },
+      "created_at": "2026-09-14T21:23:56+00:00"
+    },
+    {
+      "support_id": "e4f29478-c707-587a-b493-b210f6120704",
+      "doc_id": "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/flink-118-datastream.md",
+      "section": "DataStream API▾",
+      "span": {
+        "start": 34183,
+        "end": 38548
+      },
+      "excerpt": "`writeUsingOutputFormat()` / `FileOutputFormat` - Method and base class for custom file outputs. Supports\ncustom object-to-bytes conversion.\n\n-\n\n`writeToSocket` - Writes elements to a socket according to a `SerializationSchema`\n\n-\n\n`addSink` - Invokes a custom sink function. Flink comes bundled with connectors to other systems (such as\nApache Kafka) that are implemented as sink functions.\n\nFor reliable, exactly-once delivery of a stream into a file system, use the `FileSink`.\nAlso, custom implementations through the `.addSink(...)` method can participate in Flink’s checkpointing\nfor exactly-once semantics.\n\nBack to top\n\n## \n Iterations\n #\n\nJava\n\n```\nIterativeStream<Integer> iteration = input.iterate();\n\n```\n\nThen, we specify the logic that will be executed inside the loop using a series of transformations (here\na simple `map` transformation)\n\n```\nDataStream<Integer> iterationBody = iteration.map(/* this is executed many times */);\n\n```\n\n```\niteration.closeWith(iterationBody.filter(/* one part of the stream */));\nDataStream<Integer> output = iterationBody.filter(/* some other part of the stream */);\n\n```\n\nFor example, here is program that continuously subtracts 1 from a series of integers until they reach zero:\n\n```\nDataStream<Long> someIntegers = env.generateSequence(0, 1000);\n\nIterativeStream<Long> iteration = someIntegers.iterate();\n\nDataStream<Long> minusOne = iteration.map(new MapFunction<Long, Long>() {\n  @Override\n  public Long map(Long value) throws Exception {\n    return value - 1 ;\n  }\n});\n\nDataStream<Long> stillGreaterThanZero = minusOne.filter(new FilterFunction<Long>() {\n  @Override\n  public boolean filter(Long value) throws Exception {\n    return (value > 0);\n  }\n});\n\niteration.closeWith(stillGreaterThanZero);\n\nDataStream<Long> lessThanZero = minusOne.filter(new FilterFunction<Long>() {\n  @Override\n  public boolean filter(Long value) throws Exception {\n    return (value <= 0);\n  }\n});\n\n```\n\nScala\n\n```\nval iteratedStream = someDataStream.iterate(\n  iteration => {\n    val iterationBody = iteration.map(/* this is executed many times */)\n    (iterationBody.filter(/* one part of the stream */), iterationBody.filter(/* some other part of the stream */))\n})\n\n```\n\nFor example, here is program that continuously subtracts 1 from a series of integers until they reach zero:\n\n```\nval someIntegers: DataStream[Long] = env.generateSequence(0, 1000)",
+      "relation_type": "support",
+      "confidence": 0.75,
+      "metadata": {
+        "document_title": "flink-118-datastream.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "File Output with Serialization Schema",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Serialize and output stream data to socket or file with custom encoding",
+        "task_family": "sink_output",
+        "method_family": "serialization",
+        "stage": "stream_output",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 3,
+        "window_id": "c6519b14-4cef-55b3-a88f-6e329ffb5b0e",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 35,
+        "paragraph_end": 67,
+        "heading_path": [
+          "DataStream API▾"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "flink-118-datastream.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Execution Mode (Batch/Streaming)",
+          "Event Time▾",
+          "Generating Watermarks",
+          "Builtin Watermark Generators",
+          "State & Fault Tolerance▾",
+          "Working with State",
+          "The Broadcast State Pattern",
+          "Checkpointing",
+          "State Backends",
+          "Data Types & Serialization▾",
+          "State Schema Evolution",
+          "Custom State Serialization",
+          "3rd Party Serializers",
+          "User-Defined Functions",
+          "Operators▾",
+          "Windows",
+          "Joining",
+          "Process Function",
+          "Async I/O",
+          "Data Sources",
+          "Side Outputs",
+          "Handling Application Parameters",
+          "Testing",
+          "Experimental Features",
+          "Scala API Extensions",
+          "Java Lambda Expressions",
+          "Managing Execution▾",
+          "Execution Configuration",
+          "Program Packaging"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "-"
+      },
+      "created_at": "2026-09-14T21:23:56+00:00"
+    }
+  ],
+  "skill_drafts": [
+    {
+      "draft_id": "cf5fedd8-ee5a-59d6-90ad-ec5490ce0340",
+      "doc_id": "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+      "name": "Iterative Stream Processing Loop",
+      "description": "Constructs and executes a feedback loop within a DataStream where elements are repeatedly transformed until a termination condition is met, then splits output into continuation and exit paths.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Set up and manage iterative data transformations with conditional loop closure",
+      "domain": "default",
+      "task_family": "stream_iteration",
+      "method_family": "loop_control",
+      "stage": "stream_processing",
+      "applicable_signals": [
+        "Repeated transformation requirement detected",
+        "Conditional termination logic needed",
+        "Feedback path required for loop continuation"
+      ],
+      "contraindications": [
+        "Processing unbounded streams without a clear termination criterion",
+        "Handling one-pass transformations that do not require feedback",
+        "When loop overhead outweighs computational benefit",
+        "Scenarios where elements should not be reprocessed"
+      ],
+      "intervention_moves": [
+        "Invoke `.iterate()` to establish loop context",
+        "Apply transformation logic within loop body",
+        "Use filter to partition stream into continuation and exit branches",
+        "Call `.closeWith()` to bind feedback path"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Create IterativeStream', 'detail': 'Call `input.iterate()` to obtain an IterativeStream object'}",
+        "{'step': 2, 'action': 'Define loop body', 'detail': 'Apply transformations (map, filter, etc.) to the IterativeStream'}",
+        "{'step': 3, 'action': 'Partition output', 'detail': 'Use filter to split transformed stream into continuation branch (fed back) and exit branch'}",
+        "{'step': 4, 'action': 'Close loop', 'detail': 'Call `iteration.closeWith(continuationBranch)` to establish feedback path'}",
+        "{'step': 5, 'action': 'Extract final output', 'detail': 'Obtain exit branch from loop body for downstream processing'}"
+      ],
+      "triggers": [
+        "Need to apply repeated transformations to stream elements until a stopping condition is met",
+        "Implementing recursive computations or fixed-point algorithms on streaming data",
+        "Elements must be processed multiple times with conditional feedback"
+      ],
+      "constraints": [
+        "Loop body must be defined before calling `closeWith()`",
+        "Exactly one stream must be passed to `closeWith()` for feedback",
+        "Exit stream must be extracted from the loop body, not from the original input",
+        "Termination condition must be expressible as a filter predicate"
+      ],
+      "cautions": [
+        "Ensure termination condition is reachable; infinite loops will block execution",
+        "Loop overhead may be significant for high-throughput streams; validate performance impact",
+        "Both continuation and exit branches must be explicitly defined to avoid data loss"
+      ],
+      "output_contract": [
+        "Two output DataStreams: (1) continuation stream fed back into the loop via `closeWith()`, (2) exit stream containing elements that satisfy the termination condition and exit the loop. Both streams are available for independent downstream operations."
+      ],
+      "examples": [
+        {
+          "input": "DataStream of integers [5, 3, 8]",
+          "output": "After subtracting 1 repeatedly until value ≤ 0: exit stream contains [0, 0, 0] (or final non-positive values); continuation stream is empty (no values > 0 remain)",
+          "notes": "Demonstrates fixed-point iteration: each element is decremented until it reaches zero, then exits"
+        }
+      ],
+      "risk_class": "medium",
+      "confidence": 0.85,
+      "support_ids": [
+        "bdc8d098-a538-56b4-97b1-425a9446a460"
+      ],
+      "metadata": {
+        "prompt": "1. Call `.iterate()` on the input DataStream to create an IterativeStream.\n2. Define the loop body by applying transformations (e.g., `map()`) to the IterativeStream.\n3. Split the transformed stream into two parts using filters: one that continues the loop (fed back via `closeWith()`), one that exits.\n4. Call `iteration.closeWith(continuationStream)` to close the loop and specify the feedback path.\n5. Extract the exit stream from the loop body to obtain the final output.\n6. Both streams are now available for downstream processing.",
+        "tags": [
+          "stream_iteration",
+          "loop_control",
+          "datastream_api",
+          "feedback_loop",
+          "conditional_termination"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "DataStream API▾"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "candidate_slot": 1,
+        "window_id": "c6519b14-4cef-55b3-a88f-6e329ffb5b0e",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 35,
+        "paragraph_end": 67,
+        "heading_path": [
+          "DataStream API▾"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "flink-118-datastream.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Execution Mode (Batch/Streaming)",
+          "Event Time▾",
+          "Generating Watermarks",
+          "Builtin Watermark Generators",
+          "State & Fault Tolerance▾",
+          "Working with State",
+          "The Broadcast State Pattern",
+          "Checkpointing",
+          "State Backends",
+          "Data Types & Serialization▾",
+          "State Schema Evolution",
+          "Custom State Serialization",
+          "3rd Party Serializers",
+          "User-Defined Functions",
+          "Operators▾",
+          "Windows",
+          "Joining",
+          "Process Function",
+          "Async I/O",
+          "Data Sources",
+          "Side Outputs",
+          "Handling Application Parameters",
+          "Testing",
+          "Experimental Features",
+          "Scala API Extensions",
+          "Java Lambda Expressions",
+          "Managing Execution▾",
+          "Execution Configuration",
+          "Program Packaging"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "-"
+      }
+    },
+    {
+      "draft_id": "b9ff8c9e-fc1f-557a-9afc-702b14f7cc95",
+      "doc_id": "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+      "name": "Custom Sink Integration with Checkpointing",
+      "description": "Registers a custom sink function via `addSink()` that participates in Flink's checkpointing mechanism to guarantee exactly-once delivery semantics to external systems.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Ensure reliable, exactly-once delivery of stream data to external systems through custom sink implementation with checkpoint participation",
+      "domain": "default",
+      "task_family": "sink_output",
+      "method_family": "fault_tolerance",
+      "stage": "stream_output",
+      "applicable_signals": [
+        "Stream requires delivery to external system (database, message queue, file system)",
+        "Exactly-once delivery semantics are required",
+        "Custom serialization or business logic is needed for sink behavior"
+      ],
+      "contraindications": [
+        "At-least-once or best-effort delivery is acceptable",
+        "Using built-in connectors (e.g., Kafka sink) that already handle checkpointing",
+        "Sink does not support checkpoint state participation"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "Implement custom sink function with checkpoint participation logic",
+        "Register sink via `dataStream.addSink(customSinkFunction)`",
+        "Enable checkpointing in execution environment",
+        "Verify sink state is captured in checkpoint snapshots",
+        "Test recovery behavior after simulated failure"
+      ],
+      "triggers": [
+        "Delivering stream to external system (database, message queue, file) where exactly-once semantics are required; custom serialization or business logic is needed."
+      ],
+      "constraints": [
+        "Sink function must implement checkpoint-aware interface or callback",
+        "Checkpointing must be enabled in the Flink execution environment",
+        "External system must support idempotent writes or transactional semantics"
+      ],
+      "cautions": [
+        "Custom sink implementations require careful handling of checkpoint state to avoid data loss or duplication",
+        "Verify that the sink function correctly serializes and deserializes state across checkpoint boundaries"
+      ],
+      "output_contract": [
+        "Sink function is registered and confirmed to participate in checkpoint state; data is delivered with exactly-once guarantee to the external system."
+      ],
+      "examples": [],
+      "risk_class": "medium",
+      "confidence": 0.8,
+      "support_ids": [
+        "851df812-8166-52fa-9967-7b493ae1f550"
+      ],
+      "metadata": {
+        "prompt": "Use `addSink(sinkFunction)` to register a custom sink that implements checkpoint-aware state management. Ensure the sink function participates in Flink's checkpointing protocol to achieve exactly-once delivery guarantees. Verify that the sink can handle state snapshots and recovery from checkpoints.",
+        "tags": [
+          "sink",
+          "checkpointing",
+          "fault_tolerance",
+          "exactly_once",
+          "custom_implementation"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "DataStream API▾"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 2,
+        "window_id": "c6519b14-4cef-55b3-a88f-6e329ffb5b0e",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 35,
+        "paragraph_end": 67,
+        "heading_path": [
+          "DataStream API▾"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "flink-118-datastream.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Execution Mode (Batch/Streaming)",
+          "Event Time▾",
+          "Generating Watermarks",
+          "Builtin Watermark Generators",
+          "State & Fault Tolerance▾",
+          "Working with State",
+          "The Broadcast State Pattern",
+          "Checkpointing",
+          "State Backends",
+          "Data Types & Serialization▾",
+          "State Schema Evolution",
+          "Custom State Serialization",
+          "3rd Party Serializers",
+          "User-Defined Functions",
+          "Operators▾",
+          "Windows",
+          "Joining",
+          "Process Function",
+          "Async I/O",
+          "Data Sources",
+          "Side Outputs",
+          "Handling Application Parameters",
+          "Testing",
+          "Experimental Features",
+          "Scala API Extensions",
+          "Java Lambda Expressions",
+          "Managing Execution▾",
+          "Execution Configuration",
+          "Program Packaging"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "-"
+      }
+    },
+    {
+      "draft_id": "9d960ea0-b3b7-58cb-9690-3149a196afd8",
+      "doc_id": "8a36b10a-4e32-5b2b-bc38-0c56680e2cda",
+      "name": "File Output with Serialization Schema",
+      "description": "Writes stream elements to a socket or file using a custom SerializationSchema for object-to-bytes conversion. Use when standard serializers do not meet encoding requirements.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Serialize and output stream data to socket or file with custom encoding",
+      "domain": "default",
+      "task_family": "sink_output",
+      "method_family": "serialization",
+      "stage": "stream_output",
+      "applicable_signals": [
+        "Stream requires custom object-to-bytes encoding not provided by built-in serializers",
+        "Target destination is a socket or file system",
+        "Serialization logic is application-specific"
+      ],
+      "contraindications": [
+        "Do not use when FileSink is available and exactly-once file delivery is required",
+        "Do not use when no custom serialization logic is needed; use standard sinks instead",
+        "Avoid for scenarios requiring checkpointing-aware sink behavior without custom schema"
+      ],
+      "intervention_moves": [
+        "Implement SerializationSchema with serialize() method",
+        "Call writeToSocket(schema) for socket output or writeUsingOutputFormat(format) for file output",
+        "Test serialization with sample stream elements"
+      ],
+      "workflow_steps": [],
+      "triggers": [
+        "Need to write stream to socket or file with custom serialization logic; standard serializers do not meet requirements."
+      ],
+      "constraints": [
+        "SerializationSchema must be serializable and thread-safe",
+        "Output format must be compatible with downstream consumers",
+        "Socket or file destination must be accessible and writable"
+      ],
+      "cautions": [
+        "Custom serialization may impact throughput; profile performance with expected data volumes",
+        "Ensure schema handles null or edge-case elements gracefully"
+      ],
+      "output_contract": [
+        "Stream elements are serialized according to the custom schema and written to the target socket or file. Caller receives confirmation that all elements have been processed and output is available at the destination."
+      ],
+      "examples": [],
+      "risk_class": "low",
+      "confidence": 0.75,
+      "support_ids": [
+        "e4f29478-c707-587a-b493-b210f6120704"
+      ],
+      "metadata": {
+        "prompt": "1. Define a custom SerializationSchema implementation that converts stream elements to bytes.\n2. Invoke writeToSocket() with the schema to write to a socket, or writeUsingOutputFormat() with FileOutputFormat for file output.\n3. Verify that serialization logic handles all element types in the stream.\n4. Confirm output is written to the target destination (socket or file) in the expected format.",
+        "tags": [
+          "datastream",
+          "sink",
+          "serialization",
+          "socket",
+          "file_output"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "DataStream API▾"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 3,
+        "window_id": "c6519b14-4cef-55b3-a88f-6e329ffb5b0e",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 35,
+        "paragraph_end": 67,
+        "heading_path": [
+          "DataStream API▾"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "flink-118-datastream.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Execution Mode (Batch/Streaming)",
+          "Event Time▾",
+          "Generating Watermarks",
+          "Builtin Watermark Generators",
+          "State & Fault Tolerance▾",
+          "Working with State",
+          "The Broadcast State Pattern",
+          "Checkpointing",
+          "State Backends",
+          "Data Types & Serialization▾",
+          "State Schema Evolution",
+          "Custom State Serialization",
+          "3rd Party Serializers",
+          "User-Defined Functions",
+          "Operators▾",
+          "Windows",
+          "Joining",
+          "Process Function",
+          "Async I/O",
+          "Data Sources",
+          "Side Outputs",
+          "Handling Application Parameters",
+          "Testing",
+          "Experimental Features",
+          "Scala API Extensions",
+          "Java Lambda Expressions",
+          "Managing Execution▾",
+          "Execution Configuration",
+          "Program Packaging"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "-"
+      }
+    }
+  ],
+  "failed": false,
+  "complete": true,
+  "error": {}
+}

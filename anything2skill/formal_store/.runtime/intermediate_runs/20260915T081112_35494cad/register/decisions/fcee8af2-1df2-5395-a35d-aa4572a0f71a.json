@@ -1,0 +1,121 @@
+{
+  "skill_id": "fcee8af2-1df2-5395-a35d-aa4572a0f71a",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Maximum TF Normalization is a distinct micro-skill with a specific normalization technique (dividing by max TF with smoothing parameter) that differs fundamentally from TF-IDF weighting in peer_candidates. While both operate in term_weighting task_family, this skill addresses document-length bias through intra-document normalization, whereas TF-IDF uses collection-level statistics. The skill has direct support evidence and fills a legitimate gap in normalization strategies.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "fcee8af2-1df2-5395-a35d-aa4572a0f71a",
+    "name": "Maximum TF Normalization",
+    "description": "Normalize term frequency weights in a document by dividing each term's frequency by the maximum term frequency in that document, using a smoothing parameter to prevent extreme score swings. Apply this to mitigate bias toward longer documents that repeat terms more frequently.",
+    "skill_body": "For each document d, compute the normalized term frequency (ntf) for each term t using the formula: ntf_t,d = a + (1 - a) * (tf_t,d / tfmax(d)), where tfmax(d) is the maximum term frequency in document d, tf_t,d is the raw term frequency of term t in document d, and a is a smoothing parameter (typically 0.4). The smoothing term a dampens the contribution of the scaling factor to avoid large swings in ntf from modest changes in raw tf.\n\n## Objective\n\nnormalize_term_frequency_by_document_length\n## Applicable Signals\n\n- Computing term weights for documents of varying length\n- Raw tf scores show bias toward longer documents\n- Building vector space model scores for ranking\n- Need to prevent document length from inflating relevance scores\n\n## Contraindications\n\n- Document length is already controlled or normalized upstream\n- Stop word list is unstable or frequently changing (method is sensitive to stop word changes)\n- Document contains outlier terms with unusually high frequencies not representative of content\n\n## Intervention Moves\n\n- Identify tfmax(d) for the document\n- For each term t in the document, retrieve tf_t,d\n- Apply the normalization formula with chosen smoothing parameter a\n- Use resulting ntf values in downstream scoring (e.g., tf-idf computation)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Compute tfmax(d)', 'detail': 'Scan all terms in document d and identify the maximum term frequency value'}\n- {'step': 2, 'action': 'For each term t in document d, retrieve tf_t,d', 'detail': 'Access the raw term frequency count for term t'}\n- {'step': 3, 'action': 'Apply normalization formula', 'detail': 'Compute ntf_t,d = a + (1 - a) * (tf_t,d / tfmax(d)) using smoothing parameter a (default 0.4)'}\n- {'step': 4, 'action': 'Return normalized frequencies', 'detail': 'Pass ntf values to downstream scoring or weighting steps'}\n\n## Constraints\n\n- Smoothing parameter a must be between 0 and 1; typically set to 0.4\n- tfmax(d) must be computed over all terms in the document before normalization begins\n- Method assumes raw term frequencies are available for all terms in the document\n\n## Cautions\n\n- The method is unstable: changes to the stop word list can dramatically alter term weightings and ranking order, making tuning difficult\n- Outlier terms with unusually large occurrence counts can skew the maximum and reduce normalization effectiveness\n\n## Output Contract\n\n- For each term t in document d, return a normalized term frequency value ntf_t,d in the range [a, 1]. This value is suitable for use in downstream tf-idf or vector space scoring formulas. The output eliminates the anomaly where duplicating a document would double its score.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Document d with terms: 'algorithm' (tf=5), 'data' (tf=3), 'search' (tf=2); tfmax(d)=5; a=0.4\n- Therapist/Output: ntf_algorithm,d = 0.4 + 0.6 * (5/5) = 1.0; ntf_data,d = 0.4 + 0.6 * (3/5) = 0.76; ntf_search,d = 0.4 + 0.6 * (2/5) = 0.64\n- Notes: Smoothing prevents the highest-frequency term from dominating; lower-frequency terms retain meaningful weight\n\n### Example 2\n\n- Client/Input: Document d' created by appending a copy of document d to itself; all raw tf values doubled\n- Therapist/Output: ntf values remain unchanged because both numerator and denominator scale proportionally\n- Notes: This demonstrates the key benefit: document duplication does not inflate scores, eliminating the length bias anomaly",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "normalize_term_frequency_by_document_length",
+    "domain": "information_retrieval",
+    "task_family": "term_weighting",
+    "method_family": "tf_normalization",
+    "stage": "scoring",
+    "applicable_signals": [
+      "Computing term weights for documents of varying length",
+      "Raw tf scores show bias toward longer documents",
+      "Building vector space model scores for ranking",
+      "Need to prevent document length from inflating relevance scores"
+    ],
+    "contraindications": [
+      "Document length is already controlled or normalized upstream",
+      "Stop word list is unstable or frequently changing (method is sensitive to stop word changes)",
+      "Document contains outlier terms with unusually high frequencies not representative of content"
+    ],
+    "intervention_moves": [
+      "Identify tfmax(d) for the document",
+      "For each term t in the document, retrieve tf_t,d",
+      "Apply the normalization formula with chosen smoothing parameter a",
+      "Use resulting ntf values in downstream scoring (e.g., tf-idf computation)"
+    ],
+    "triggers": [
+      "Computing term weights for documents of varying length",
+      "Raw tf scores show bias toward longer documents",
+      "Building vector space model scores for ranking"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Compute tfmax(d)', 'detail': 'Scan all terms in document d and identify the maximum term frequency value'}",
+      "{'step': 2, 'action': 'For each term t in document d, retrieve tf_t,d', 'detail': 'Access the raw term frequency count for term t'}",
+      "{'step': 3, 'action': 'Apply normalization formula', 'detail': 'Compute ntf_t,d = a + (1 - a) * (tf_t,d / tfmax(d)) using smoothing parameter a (default 0.4)'}",
+      "{'step': 4, 'action': 'Return normalized frequencies', 'detail': 'Pass ntf values to downstream scoring or weighting steps'}"
+    ],
+    "constraints": [
+      "Smoothing parameter a must be between 0 and 1; typically set to 0.4",
+      "tfmax(d) must be computed over all terms in the document before normalization begins",
+      "Method assumes raw term frequencies are available for all terms in the document"
+    ],
+    "cautions": [
+      "The method is unstable: changes to the stop word list can dramatically alter term weightings and ranking order, making tuning difficult",
+      "Outlier terms with unusually large occurrence counts can skew the maximum and reduce normalization effectiveness"
+    ],
+    "output_contract": [
+      "For each term t in document d, return a normalized term frequency value ntf_t,d in the range [a, 1]. This value is suitable for use in downstream tf-idf or vector space scoring formulas. The output eliminates the anomaly where duplicating a document would double its score."
+    ],
+    "examples": [
+      {
+        "input": "Document d with terms: 'algorithm' (tf=5), 'data' (tf=3), 'search' (tf=2); tfmax(d)=5; a=0.4",
+        "output": "ntf_algorithm,d = 0.4 + 0.6 * (5/5) = 1.0; ntf_data,d = 0.4 + 0.6 * (3/5) = 0.76; ntf_search,d = 0.4 + 0.6 * (2/5) = 0.64",
+        "notes": "Smoothing prevents the highest-frequency term from dominating; lower-frequency terms retain meaningful weight"
+      },
+      {
+        "input": "Document d' created by appending a copy of document d to itself; all raw tf values doubled",
+        "output": "ntf values remain unchanged because both numerator and denominator scale proportionally",
+        "notes": "This demonstrates the key benefit: document duplication does not inflate scores, eliminating the length bias anomaly"
+      }
+    ],
+    "tags": [
+      "term_frequency",
+      "normalization",
+      "vector_space_model",
+      "document_length_bias",
+      "tf_idf"
+    ],
+    "support_ids": [
+      "0cdd5b90-068f-58f1-9ba3-9c3e4a72da56"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "98fb81a0-a7dd-5d2f-8dbf-40988b36b6d5"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|normalize_term_frequency_by_document_length|information_retrieval|term_weighting|tf_normalization|scoring|maximum tf normalization"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 0,
+  "branch": "hits0"
+}

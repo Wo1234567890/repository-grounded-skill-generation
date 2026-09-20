@@ -1,0 +1,113 @@
+{
+  "skill_id": "685e480a-c8d7-58e5-9e0c-d8bb705a9aff",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate is redundant with peer_candidates. The peer skill '0afdc2f9-cdb4-545d-9d44-d83fa6a4ca97' (Vector Space Scoring) covers the same objective and method at the same granularity level. The candidate's term-at-a-time accumulation implementation detail is an optimization technique, not a distinct capability. The peer skill '00e54a34-f399-5fe5-a040-8254c759e481' (TF-IDF Vector Space Scoring) provides the specific weighting scheme. No unique, non-overlapping capability is introduced by this candidate.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "685e480a-c8d7-58e5-9e0c-d8bb705a9aff",
+    "name": "Vector Space Score Computation for Top-K Document Retrieval",
+    "description": "Canonical session skill that computes vector space similarity scores for all documents in a collection and retrieves the K documents with highest scores in descending order. Implements term-at-a-time accumulation to efficiently rank documents by vector space similarity to a query.",
+    "skill_body": "Initialize score accumulators for all N documents. For each query term t, calculate its weight in the query vector. Update each document's score by adding the contribution from term t (using precomputed term frequency and inverse document frequency). After all query terms are processed, extract and return the K documents with the highest scores in descending order.\n\n## Objective\n\nretrieve and rank top K documents by vector space similarity\n## Applicable Signals\n\n- query submitted with one or more terms\n- document collection available with precomputed term frequencies and idf values\n- K (number of top results) specified and positive\n\n## Contraindications\n\n- query is empty or contains no valid terms\n- K is zero or negative\n- document collection is not vectorized or indexed\n- postings lists do not contain term frequency data\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Initialize Length array with normalization factors for each of N documents'}\n- {'step': 2, 'action': 'Initialize Scores array with zero values for each of N documents'}\n- {'step': 3, 'action': 'For each query term t in the query, begin term-at-a-time accumulation loop'}\n- {'step': 4, 'action': 'Calculate the weight wt in the query vector for term t'}\n- {'step': 5, 'action': 'For each document d in the postings list of term t, retrieve tft,d and idf value'}\n- {'step': 6, 'action': 'Update Scores[d] by adding the contribution: wt × tft,d × idft'}\n- {'step': 7, 'action': 'Repeat steps 5-6 for all documents in the postings list'}\n- {'step': 8, 'action': 'After all query terms processed, normalize scores using Length array'}\n- {'step': 9, 'action': 'Use priority queue to extract the K documents with highest scores'}\n- {'step': 10, 'action': 'Return ordered list of K documents in decreasing score order'}\n\n## Constraints\n\n- must store N/dft at the head of postings for term t to avoid precomputing idf\n- must store term frequency tft,d for each postings entry\n- score accumulators must be initialized to zero before processing\n- final top-K extraction requires a priority queue data structure\n\n## Cautions\n\n- storing full floating-point weights in postings is space-inefficient; use idf precomputation and term frequency storage instead\n- term-at-a-time accumulation assumes all documents are scored; for large collections, consider approximation techniques\n\n## Output Contract\n\n- Ordered list of K documents with highest vector space scores, ready for display or further processing. Each result includes document identifier and score value.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "retrieve and rank top K documents by vector space similarity",
+    "domain": "information_retrieval",
+    "task_family": "document_ranking",
+    "method_family": "vector_space_model",
+    "stage": "scoring_and_retrieval",
+    "applicable_signals": [
+      "query submitted with one or more terms",
+      "document collection available with precomputed term frequencies and idf values",
+      "K (number of top results) specified and positive"
+    ],
+    "contraindications": [
+      "query is empty or contains no valid terms",
+      "K is zero or negative",
+      "document collection is not vectorized or indexed",
+      "postings lists do not contain term frequency data"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "need to find K best-matching documents for a query",
+      "typical K=10 for search engine result pages",
+      "document collection is vectorized and indexed"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Initialize Length array with normalization factors for each of N documents'}",
+      "{'step': 2, 'action': 'Initialize Scores array with zero values for each of N documents'}",
+      "{'step': 3, 'action': 'For each query term t in the query, begin term-at-a-time accumulation loop'}",
+      "{'step': 4, 'action': 'Calculate the weight wt in the query vector for term t'}",
+      "{'step': 5, 'action': 'For each document d in the postings list of term t, retrieve tft,d and idf value'}",
+      "{'step': 6, 'action': 'Update Scores[d] by adding the contribution: wt × tft,d × idft'}",
+      "{'step': 7, 'action': 'Repeat steps 5-6 for all documents in the postings list'}",
+      "{'step': 8, 'action': 'After all query terms processed, normalize scores using Length array'}",
+      "{'step': 9, 'action': 'Use priority queue to extract the K documents with highest scores'}",
+      "{'step': 10, 'action': 'Return ordered list of K documents in decreasing score order'}"
+    ],
+    "constraints": [
+      "must store N/dft at the head of postings for term t to avoid precomputing idf",
+      "must store term frequency tft,d for each postings entry",
+      "score accumulators must be initialized to zero before processing",
+      "final top-K extraction requires a priority queue data structure"
+    ],
+    "cautions": [
+      "storing full floating-point weights in postings is space-inefficient; use idf precomputation and term frequency storage instead",
+      "term-at-a-time accumulation assumes all documents are scored; for large collections, consider approximation techniques"
+    ],
+    "output_contract": [
+      "Ordered list of K documents with highest vector space scores, ready for display or further processing. Each result includes document identifier and score value."
+    ],
+    "examples": [],
+    "tags": [
+      "vector_space_model",
+      "document_retrieval",
+      "ranking",
+      "term_weighting",
+      "information_retrieval",
+      "search_engine"
+    ],
+    "support_ids": [
+      "c68e3706-9a10-55bd-abfd-7995901a4df8"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "e5c074fc-d5c1-58c7-9b87-9b6b6917792e"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|retrieve and rank top k documents by vector space similarity|information_retrieval|document_ranking|vector_space_model|scoring_and_retrieval|vector space score computation for top-k document retrieval"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 0,
+  "branch": "hits0"
+}

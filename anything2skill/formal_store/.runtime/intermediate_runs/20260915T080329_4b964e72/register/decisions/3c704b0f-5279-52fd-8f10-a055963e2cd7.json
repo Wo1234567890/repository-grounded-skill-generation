@@ -1,0 +1,104 @@
+{
+  "skill_id": "3c704b0f-5279-52fd-8f10-a055963e2cd7",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a diagnostic safety_rule for OCC bottleneck detection with no semantic overlap to existing skills. Peer candidates (d94f91aa, abc1826c, 94e67c82) are all micro_skills or safety_rules addressing write locking, lock-free reads, and validation—none address scaling plateau diagnosis. Existing skills (3775efec, acc58e44) operate in completely different domains (routing, concurrent futures). The candidate describes a benchmarking diagnostic procedure, not a concurrency control mechanism or error handler. No merge, split, or relationship evidence exists. Candidate should be created as a new distinct capability rather than mapped to existing registry.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "3c704b0f-5279-52fd-8f10-a055963e2cd7",
+    "name": "OCC Critical Section Bottleneck Detection",
+    "description": "A diagnostic safety rule identifying when optimistic concurrency control (OCC) implementations fail to scale due to shared global resource contention in the critical section. Detects scaling plateaus between 16–32 active threads and confirms bottleneck root cause through isolation testing.",
+    "skill_body": "When benchmarking OCC performance, monitor scaling behavior across increasing core counts. If performance plateaus or degrades significantly between 16–32 active threads, inspect the critical section for shared global state (locks, atomic operations, or synchronized data structures). Confirm that the bottleneck is global resource contention rather than algorithm logic by isolating critical section overhead.\n\n## Objective\n\nidentify_scaling_failure_threshold\n## Applicable Signals\n\n- OCC implementation shows performance degradation with increasing core count\n- Scaling plateau observed between 16–32 active threads\n- Shared global state present in critical section (locks, atomic operations, synchronized structures)\n\n## Contraindications\n\n- Using lock-free or fully distributed algorithms without global synchronization points\n- Critical section already eliminated or redesigned to avoid shared state\n- Single-threaded or low-contention workloads where scaling is not a concern\n\n## Intervention Moves\n\n- Inspect critical section code for shared global resources (locks, atomic counters, synchronized data structures)\n- Measure critical section execution time and contention rate across thread counts\n- Compare performance with and without critical section to isolate its impact\n\n## Constraints\n\n- Requires multi-core benchmarking environment with measurable thread scaling\n- Workload must exhibit sufficient contention to trigger critical section bottleneck\n- Measurement must isolate critical section overhead from other performance factors\n\n## Cautions\n\n- Scaling plateau may be masked by other bottlenecks (memory, I/O); isolate critical section impact before concluding\n- Threshold range (16–32 threads) is empirical; actual plateau point varies by hardware and implementation\n\n## Output Contract\n\n- Identification of scaling plateau point and confirmation that bottleneck is global resource contention in the critical section, not algorithm logic or other factors. Output includes core count at which scaling fails and evidence of shared global state causing contention.",
+    "asset_type": "safety_rule",
+    "granularity": "micro",
+    "asset_node_id": "safety_rule_node",
+    "asset_path": "family_root/safety_module/safety_rule_node",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "identify_scaling_failure_threshold",
+    "domain": "default",
+    "task_family": "performance_validation",
+    "method_family": "bottleneck_detection",
+    "stage": "benchmarking",
+    "applicable_signals": [
+      "OCC implementation shows performance degradation with increasing core count",
+      "Scaling plateau observed between 16–32 active threads",
+      "Shared global state present in critical section (locks, atomic operations, synchronized structures)"
+    ],
+    "contraindications": [
+      "Using lock-free or fully distributed algorithms without global synchronization points",
+      "Critical section already eliminated or redesigned to avoid shared state",
+      "Single-threaded or low-contention workloads where scaling is not a concern"
+    ],
+    "intervention_moves": [
+      "Inspect critical section code for shared global resources (locks, atomic counters, synchronized data structures)",
+      "Measure critical section execution time and contention rate across thread counts",
+      "Compare performance with and without critical section to isolate its impact"
+    ],
+    "triggers": [
+      "OCC implementation shows performance degradation",
+      "Core count exceeds 20",
+      "Shared global state is present in critical section"
+    ],
+    "workflow_steps": [],
+    "constraints": [
+      "Requires multi-core benchmarking environment with measurable thread scaling",
+      "Workload must exhibit sufficient contention to trigger critical section bottleneck",
+      "Measurement must isolate critical section overhead from other performance factors"
+    ],
+    "cautions": [
+      "Scaling plateau may be masked by other bottlenecks (memory, I/O); isolate critical section impact before concluding",
+      "Threshold range (16–32 threads) is empirical; actual plateau point varies by hardware and implementation"
+    ],
+    "output_contract": [
+      "Identification of scaling plateau point and confirmation that bottleneck is global resource contention in the critical section, not algorithm logic or other factors. Output includes core count at which scaling fails and evidence of shared global state causing contention."
+    ],
+    "examples": [],
+    "tags": [
+      "occ",
+      "concurrency_control",
+      "performance_bottleneck",
+      "scaling",
+      "critical_section",
+      "contention_detection"
+    ],
+    "support_ids": [
+      "0dd5d40f-950c-5b48-960b-4d5459097e1a"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "af1b46f2-bec0-5186-8259-dce30c8cfe92"
+      ],
+      "support_summary": {
+        "support": 0,
+        "constraint": 1,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.72,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||safety_rule|micro|safety_rule_node|identify_scaling_failure_threshold|default|performance_validation|bottleneck_detection|benchmarking|occ critical section bottleneck detection"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

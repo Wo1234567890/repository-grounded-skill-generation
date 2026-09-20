@@ -1,0 +1,129 @@
+{
+  "skill_id": "e1c33881-5c6b-5405-8b21-a771ac02a898",
+  "name": "Instrumentation Error Handling and Graceful Degradation",
+  "description": "Safety rule that wraps instrumentation operations in try-except blocks to prevent instrumentation failures from breaking the underlying API call. Ensures errors are logged but not propagated to the caller, preserving original API behavior.",
+  "skill_body": "When instrumenting external API calls, wrap instrumentation code in try-except blocks. Catch exceptions raised during instrumentation, log them for debugging, and allow the original API call to complete successfully. Do not re-raise instrumentation errors to the caller.\n\n## Objective\n\nEnsure instrumentation never causes application failure or data loss\n## Applicable Signals\n\n- Wrapping any external API call\n- Instrumentation code may raise exceptions\n- Need to preserve original API behavior\n\n## Contraindications\n\n- Do not use when instrumentation errors should halt execution\n- Do not use when original API call should not proceed if instrumentation fails\n- Do not use when error suppression violates compliance or audit requirements\n\n## Intervention Moves\n\n- Wrap instrumentation operation in try-except block\n- Log exception details (type, message, traceback) for debugging\n- Allow original API call to complete and return normally\n- Do not re-raise instrumentation exception to caller\n\n## Workflow Steps\n\n- Identify instrumentation operation to be wrapped\n- Enclose instrumentation code in try-except block\n- Capture exception details in except clause\n- Log exception with full context (type, message, traceback)\n- Allow original API call to proceed and return result\n- Return original API result to caller unchanged\n\n## Constraints\n\n- Instrumentation errors must be caught and logged, never silently ignored\n- Original API call must complete and return its result unchanged\n- Logging must include sufficient context for post-incident debugging\n\n## Cautions\n\n- Ensure logging does not itself raise exceptions or cause performance degradation\n- Monitor instrumentation error logs to detect systematic failures\n- Consider circuit-breaker patterns if instrumentation errors become frequent\n\n## Output Contract\n\n- API call completes successfully with original result; instrumentation error is logged but not propagated to caller; application continues normal execution\n\n## Example Executions\n\n### Example 1\n\n- Input: Instrumenting OpenAI API call; instrumentation code raises AttributeError\n- Output: OpenAI API call returns response normally; AttributeError logged with context; caller receives API response unchanged\n- Notes: Instrumentation failure is isolated and does not affect API functionality\n\n### Example 2\n\n- Input: Wrapping async method instrumentation; timeout occurs during metric collection\n- Output: Async method completes; timeout exception caught and logged; caller receives method result\n- Notes: Graceful degradation allows async operations to proceed despite instrumentation issues",
+  "asset_type": "safety_rule",
+  "granularity": "micro",
+  "asset_node_id": "safety_rule_node",
+  "asset_path": "family_root/safety_module/safety_rule_node",
+  "asset_level": 2,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "Ensure instrumentation never causes application failure or data loss",
+  "domain": "default",
+  "task_family": "api_instrumentation",
+  "method_family": "error_containment",
+  "stage": "implementation",
+  "applicable_signals": [
+    "Wrapping any external API call",
+    "Instrumentation code may raise exceptions",
+    "Need to preserve original API behavior"
+  ],
+  "contraindications": [
+    "Do not use when instrumentation errors should halt execution",
+    "Do not use when original API call should not proceed if instrumentation fails",
+    "Do not use when error suppression violates compliance or audit requirements"
+  ],
+  "intervention_moves": [
+    "Wrap instrumentation operation in try-except block",
+    "Log exception details (type, message, traceback) for debugging",
+    "Allow original API call to complete and return normally",
+    "Do not re-raise instrumentation exception to caller"
+  ],
+  "triggers": [
+    "Wrapping any external API call",
+    "Instrumentation code may raise exceptions",
+    "Need to preserve original API behavior"
+  ],
+  "workflow_steps": [
+    "Identify instrumentation operation to be wrapped",
+    "Enclose instrumentation code in try-except block",
+    "Capture exception details in except clause",
+    "Log exception with full context (type, message, traceback)",
+    "Allow original API call to proceed and return result",
+    "Return original API result to caller unchanged"
+  ],
+  "constraints": [
+    "Instrumentation errors must be caught and logged, never silently ignored",
+    "Original API call must complete and return its result unchanged",
+    "Logging must include sufficient context for post-incident debugging"
+  ],
+  "cautions": [
+    "Ensure logging does not itself raise exceptions or cause performance degradation",
+    "Monitor instrumentation error logs to detect systematic failures",
+    "Consider circuit-breaker patterns if instrumentation errors become frequent"
+  ],
+  "output_contract": [
+    "API call completes successfully with original result; instrumentation error is logged but not propagated to caller; application continues normal execution"
+  ],
+  "examples": [
+    {
+      "input": "Instrumenting OpenAI API call; instrumentation code raises AttributeError",
+      "output": "OpenAI API call returns response normally; AttributeError logged with context; caller receives API response unchanged",
+      "notes": "Instrumentation failure is isolated and does not affect API functionality"
+    },
+    {
+      "input": "Wrapping async method instrumentation; timeout occurs during metric collection",
+      "output": "Async method completes; timeout exception caught and logged; caller receives method result",
+      "notes": "Graceful degradation allows async operations to proceed despite instrumentation issues"
+    }
+  ],
+  "tags": [
+    "error_handling",
+    "instrumentation",
+    "graceful_degradation",
+    "api_safety",
+    "observability"
+  ],
+  "support_ids": [
+    "a661caba-dc9e-598f-a3e4-d730223abefc"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "3af78869-151a-5415-82c2-6ec5fc54956e"
+    ],
+    "support_summary": {
+      "support": 0,
+      "constraint": 1,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.8,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||safety_rule|micro|safety_rule_node|ensure instrumentation never causes application failure or data loss|default|api_instrumentation|error_containment|implementation|instrumentation error handling and graceful degradation",
+    "change_action": "create",
+    "llm_reason": "create",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

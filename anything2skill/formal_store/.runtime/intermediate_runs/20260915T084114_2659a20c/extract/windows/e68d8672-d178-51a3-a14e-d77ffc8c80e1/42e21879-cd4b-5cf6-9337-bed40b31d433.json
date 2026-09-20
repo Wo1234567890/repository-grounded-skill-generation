@@ -1,0 +1,520 @@
+{
+  "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+  "title": "agentops-docs.txt",
+  "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+  "window_id": "42e21879-cd4b-5cf6-9337-bed40b31d433",
+  "section_heading": "Debugging Roadmap",
+  "strategy": "strict",
+  "supports": [
+    {
+      "support_id": "e444ebfb-0fe4-5122-a9c4-b06064f9189c",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 50324,
+        "end": 53091
+      },
+      "excerpt": "api: ApiClient\n\ndef __new__(cls, *args: Any, **kwargs: Any) -> \"Client\":\n        if cls.__instance is None:\n            cls.__instance = super(Client, cls).__new__(cls)\n            # Initialize instance variables that should only be set once per instance\n            cls.__instance._init_trace_context = None\n            cls.__instance._legacy_session_for_init_trace = None\n        return cls.__instance\n\ndef __init__(self):\n        # Initialization of attributes like config, _initialized should happen here if they are instance-specific\n        # and not shared via __new__ for a true singleton that can be re-configured.\n        # However, the current pattern re-initializes config in init().\n        if (\n            not hasattr(self, \"_initialized\") or not self._initialized\n        ):  # Ensure init logic runs only once per actual initialization intent\n            self.config = Config()  # Initialize config here for the instance\n            self._initialized = False\n            # self._init_trace_context = None # Already done in __new__\n            # self._legacy_session_for_init_trace = None # Already done in __new__\n\n# Only treat as re-initialization if a different non-None API key is explicitly provided\n        provided_api_key = kwargs.get(\"api_key\")\n        if self.initialized and provided_api_key is not None and provided_api_key != self.config.api_key:\n            logger.warning(\"AgentOps Client being re-initialized with a different API key. This is unusual.\")\n            # Reset initialization status to allow re-init with new key/config\n            self._initialized = False\n            if self._init_trace_context and self._init_trace_context.span.is_recording():\n                logger.warning(\"Ending previously auto-started trace due to re-initialization.\")\n                tracer.end_trace(self._init_trace_context, \"Reinitialized\")\n            self._init_trace_context = None\n            self._legacy_session_for_init_trace = None\n\nif self.initialized:\n            logger.debug(\"AgentOps Client already initialized.\")\n            # If auto_start_session was true, return the existing legacy session wrapper\n            if self.config.auto_start_session:\n                return self._legacy_session_for_init_trace\n            return None  # If not auto-starting, and already initialized, return None\n\nif not self.config.api_key:\n            raise NoApiKeyException",
+      "relation_type": "support",
+      "confidence": 0.75,
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Singleton Client Initialization with Re-initialization Guard",
+        "asset_type": "macro_protocol",
+        "granularity": "macro",
+        "asset_node_id": "macro_skill",
+        "asset_path": "family_root/macro_skill",
+        "asset_level": 1,
+        "visible_role": "parent",
+        "objective": "Enforce single-instance client lifecycle and safe re-initialization",
+        "task_family": "client_lifecycle_management",
+        "method_family": "singleton_pattern_with_state_reset",
+        "stage": "initialization",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "42e21879-cd4b-5cf6-9337-bed40b31d433",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "session"
+        ],
+        "paragraph_start": 17,
+        "paragraph_end": 23,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      },
+      "created_at": "2026-09-14T22:54:49+00:00"
+    },
+    {
+      "support_id": "54b5adbc-fdfc-5106-b050-821142ab5ed4",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 50324,
+        "end": 53091
+      },
+      "excerpt": "api: ApiClient\n\ndef __new__(cls, *args: Any, **kwargs: Any) -> \"Client\":\n        if cls.__instance is None:\n            cls.__instance = super(Client, cls).__new__(cls)\n            # Initialize instance variables that should only be set once per instance\n            cls.__instance._init_trace_context = None\n            cls.__instance._legacy_session_for_init_trace = None\n        return cls.__instance\n\ndef __init__(self):\n        # Initialization of attributes like config, _initialized should happen here if they are instance-specific\n        # and not shared via __new__ for a true singleton that can be re-configured.\n        # However, the current pattern re-initializes config in init().\n        if (\n            not hasattr(self, \"_initialized\") or not self._initialized\n        ):  # Ensure init logic runs only once per actual initialization intent\n            self.config = Config()  # Initialize config here for the instance\n            self._initialized = False\n            # self._init_trace_context = None # Already done in __new__\n            # self._legacy_session_for_init_trace = None # Already done in __new__\n\n# Only treat as re-initialization if a different non-None API key is explicitly provided\n        provided_api_key = kwargs.get(\"api_key\")\n        if self.initialized and provided_api_key is not None and provided_api_key != self.config.api_key:\n            logger.warning(\"AgentOps Client being re-initialized with a different API key. This is unusual.\")\n            # Reset initialization status to allow re-init with new key/config\n            self._initialized = False\n            if self._init_trace_context and self._init_trace_context.span.is_recording():\n                logger.warning(\"Ending previously auto-started trace due to re-initialization.\")\n                tracer.end_trace(self._init_trace_context, \"Reinitialized\")\n            self._init_trace_context = None\n            self._legacy_session_for_init_trace = None\n\nif self.initialized:\n            logger.debug(\"AgentOps Client already initialized.\")\n            # If auto_start_session was true, return the existing legacy session wrapper\n            if self.config.auto_start_session:\n                return self._legacy_session_for_init_trace\n            return None  # If not auto-starting, and already initialized, return None\n\nif not self.config.api_key:\n            raise NoApiKeyException",
+      "relation_type": "constraint",
+      "confidence": 0.85,
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "API Key Validation and NoApiKeyException Escalation",
+        "asset_type": "safety_rule",
+        "granularity": "session",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "objective": "Prevent uninitialized client operation due to missing credentials",
+        "task_family": "credential_validation",
+        "method_family": "mandatory_field_check_with_exception",
+        "stage": "initialization",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "42e21879-cd4b-5cf6-9337-bed40b31d433",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "session"
+        ],
+        "paragraph_start": 17,
+        "paragraph_end": 23,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      },
+      "created_at": "2026-09-14T22:54:49+00:00"
+    },
+    {
+      "support_id": "aa580809-588f-5047-b098-f91b7f58b1da",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 50324,
+        "end": 53091
+      },
+      "excerpt": "api: ApiClient\n\ndef __new__(cls, *args: Any, **kwargs: Any) -> \"Client\":\n        if cls.__instance is None:\n            cls.__instance = super(Client, cls).__new__(cls)\n            # Initialize instance variables that should only be set once per instance\n            cls.__instance._init_trace_context = None\n            cls.__instance._legacy_session_for_init_trace = None\n        return cls.__instance\n\ndef __init__(self):\n        # Initialization of attributes like config, _initialized should happen here if they are instance-specific\n        # and not shared via __new__ for a true singleton that can be re-configured.\n        # However, the current pattern re-initializes config in init().\n        if (\n            not hasattr(self, \"_initialized\") or not self._initialized\n        ):  # Ensure init logic runs only once per actual initialization intent\n            self.config = Config()  # Initialize config here for the instance\n            self._initialized = False\n            # self._init_trace_context = None # Already done in __new__\n            # self._legacy_session_for_init_trace = None # Already done in __new__\n\n# Only treat as re-initialization if a different non-None API key is explicitly provided\n        provided_api_key = kwargs.get(\"api_key\")\n        if self.initialized and provided_api_key is not None and provided_api_key != self.config.api_key:\n            logger.warning(\"AgentOps Client being re-initialized with a different API key. This is unusual.\")\n            # Reset initialization status to allow re-init with new key/config\n            self._initialized = False\n            if self._init_trace_context and self._init_trace_context.span.is_recording():\n                logger.warning(\"Ending previously auto-started trace due to re-initialization.\")\n                tracer.end_trace(self._init_trace_context, \"Reinitialized\")\n            self._init_trace_context = None\n            self._legacy_session_for_init_trace = None\n\nif self.initialized:\n            logger.debug(\"AgentOps Client already initialized.\")\n            # If auto_start_session was true, return the existing legacy session wrapper\n            if self.config.auto_start_session:\n                return self._legacy_session_for_init_trace\n            return None  # If not auto-starting, and already initialized, return None\n\nif not self.config.api_key:\n            raise NoApiKeyException",
+      "relation_type": "support",
+      "confidence": 0.7,
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Trace Context Lifecycle Management on Re-initialization",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Clean up active trace spans before re-initialization to avoid trace corruption",
+        "task_family": "trace_lifecycle_management",
+        "method_family": "conditional_span_termination",
+        "stage": "re_initialization",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 3,
+        "window_id": "42e21879-cd4b-5cf6-9337-bed40b31d433",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "session"
+        ],
+        "paragraph_start": 17,
+        "paragraph_end": 23,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      },
+      "created_at": "2026-09-14T22:54:49+00:00"
+    }
+  ],
+  "skill_drafts": [
+    {
+      "draft_id": "c8dd2fee-9152-5d1b-9fec-0667ac642267",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "name": "Singleton Client Initialization with Re-initialization Guard",
+      "description": "Ensures AgentOps Client is instantiated only once per process, with logic to detect and handle re-initialization attempts using a different API key. Manages trace context lifecycle across initialization cycles.",
+      "asset_type": "macro_protocol",
+      "granularity": "macro",
+      "asset_node_id": "macro_skill",
+      "asset_path": "family_root/macro_skill",
+      "asset_level": 1,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Enforce single-instance client lifecycle and safe re-initialization",
+      "domain": "default",
+      "task_family": "client_lifecycle_management",
+      "method_family": "singleton_pattern_with_state_reset",
+      "stage": "initialization",
+      "applicable_signals": [
+        "cls.__instance is None (first instantiation)",
+        "provided_api_key differs from self.config.api_key and self.initialized is True",
+        "self._init_trace_context exists and span.is_recording() returns True"
+      ],
+      "contraindications": [
+        "Multi-instance clients are intentionally required",
+        "API key rotation is not a concern",
+        "Trace context lifecycle is managed externally"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check singleton instance in __new__', 'detail': 'If cls.__instance is None, create new instance and initialize _init_trace_context and _legacy_session_for_init_trace to None'}",
+        "{'step': 2, 'action': 'Initialize config in __init__', 'detail': 'If _initialized is not set or False, create Config() and set _initialized to False'}",
+        "{'step': 3, 'action': 'Detect re-initialization with different API key', 'detail': 'Extract provided_api_key from kwargs; if self.initialized is True and provided_api_key is not None and differs from self.config.api_key, log warning'}",
+        "{'step': 4, 'action': 'Reset state on key change', 'detail': \"Set _initialized to False; if _init_trace_context exists and span.is_recording(), call tracer.end_trace() with reason 'Reinitialized'; set _init_trace_context and _legacy_session_for_init_trace to None\"}",
+        "{'step': 5, 'action': 'Return or skip initialization if already initialized', 'detail': 'If self.initialized is True, log debug message; if auto_start_session is True, return _legacy_session_for_init_trace; otherwise return None'}",
+        "{'step': 6, 'action': 'Validate API key', 'detail': 'If self.config.api_key is not set, raise NoApiKeyException'}",
+        "{'step': 7, 'action': 'Return Client instance', 'detail': 'Return the single Client instance (cls.__instance)'}"
+      ],
+      "triggers": [
+        "Client instantiation or __init__ call",
+        "Re-initialization attempt with different API key detected",
+        "Trace context lifecycle boundary crossed"
+      ],
+      "constraints": [
+        "Only one Client instance may exist per process",
+        "Re-initialization with a different API key triggers state reset",
+        "Active trace must be ended before re-initialization with new key",
+        "API key must be provided; missing key raises NoApiKeyException"
+      ],
+      "cautions": [
+        "Re-initialization with a different API key is logged as unusual and may indicate misconfiguration",
+        "Ending a previously auto-started trace due to re-initialization may interrupt ongoing monitoring"
+      ],
+      "output_contract": [
+        "Single Client instance is returned; _initialized flag is set to True after successful initialization; trace context is either preserved (same API key) or ended and reset (different API key); no duplicate initialization side effects occur; NoApiKeyException is raised if API key is missing."
+      ],
+      "examples": [],
+      "risk_class": "medium",
+      "confidence": 0.75,
+      "support_ids": [
+        "e444ebfb-0fe4-5122-a9c4-b06064f9189c"
+      ],
+      "metadata": {
+        "prompt": "When instantiating or re-initializing the Client:\n1. Check if __instance exists; if not, create it and initialize trace context holders to None.\n2. In __init__, verify _initialized flag; if not set, initialize config and set _initialized to False.\n3. Detect if a different non-None API key is provided while already initialized; if so, log warning, end any active trace, reset _initialized and trace context holders.\n4. If already initialized and auto_start_session is true, return the existing legacy session wrapper; otherwise return None.\n5. If no API key is configured, raise NoApiKeyException.\n6. Return the single Client instance.",
+        "tags": [
+          "singleton",
+          "initialization",
+          "lifecycle_management",
+          "state_reset",
+          "trace_context",
+          "api_key_validation"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "Debugging Roadmap"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "macro_skill",
+        "asset_path": "family_root/macro_skill",
+        "asset_level": 1,
+        "visible_role": "parent",
+        "candidate_slot": 1,
+        "window_id": "42e21879-cd4b-5cf6-9337-bed40b31d433",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "session"
+        ],
+        "paragraph_start": 17,
+        "paragraph_end": 23,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    },
+    {
+      "draft_id": "9ae5e2a8-9d8c-57d7-a439-3fb11329197b",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "name": "API Key Validation and NoApiKeyException Escalation",
+      "description": "Validates that a non-empty API key is present in the Client config before proceeding with initialization. Raises NoApiKeyException if validation fails, preventing downstream errors and uninitialized client operation.",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Prevent uninitialized client operation due to missing credentials",
+      "domain": "default",
+      "task_family": "credential_validation",
+      "method_family": "mandatory_field_check_with_exception",
+      "stage": "initialization",
+      "applicable_signals": [
+        "Client initialization is in progress",
+        "Config object has been instantiated",
+        "API key presence must be verified before any API calls"
+      ],
+      "contraindications": [
+        "API key is optional or deferred in the current execution context",
+        "Client is operating in offline or mock mode",
+        "Credential validation is handled by a parent system or wrapper"
+      ],
+      "intervention_moves": [
+        "Inspect self.config.api_key for non-empty, non-None value",
+        "Raise NoApiKeyException if validation fails",
+        "Log or escalate the exception to halt initialization"
+      ],
+      "workflow_steps": [],
+      "triggers": [
+        "Client initialization is in progress; config object has been instantiated; API key presence must be verified before any API calls."
+      ],
+      "constraints": [
+        "Must execute after config object instantiation",
+        "Must execute before any downstream API calls or session operations",
+        "Exception must be raised synchronously to prevent partial initialization"
+      ],
+      "cautions": [
+        "Do not silently default or skip validation; missing credentials must fail fast",
+        "Do not log the API key value itself; log only the validation result"
+      ],
+      "output_contract": [
+        "On success: API key is confirmed non-empty in self.config.api_key; execution proceeds to next initialization step. On failure: NoApiKeyException is raised and initialization halts."
+      ],
+      "examples": [],
+      "risk_class": "high",
+      "confidence": 0.85,
+      "support_ids": [
+        "54b5adbc-fdfc-5106-b050-821142ab5ed4"
+      ],
+      "metadata": {
+        "prompt": "Check that self.config.api_key is non-empty and non-None. If the API key is missing or empty, raise NoApiKeyException immediately to halt initialization. This is a mandatory guard that must execute before any API calls or session operations.",
+        "tags": [
+          "initialization",
+          "credential_validation",
+          "safety_guard",
+          "exception_escalation"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "Debugging Roadmap"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "candidate_slot": 2,
+        "window_id": "42e21879-cd4b-5cf6-9337-bed40b31d433",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "session"
+        ],
+        "paragraph_start": 17,
+        "paragraph_end": 23,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    },
+    {
+      "draft_id": "dc0313f6-5a3c-5fb1-8e5a-b9af53bfd93e",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "name": "Trace Context Lifecycle Management on Re-initialization",
+      "description": "Detects active trace recording and cleanly ends the trace context when Client is re-initialized with a different API key. Logs warnings and resets trace state to prevent orphaned spans.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Clean up active trace spans before re-initialization to avoid trace corruption",
+      "domain": "default",
+      "task_family": "trace_lifecycle_management",
+      "method_family": "conditional_span_termination",
+      "stage": "re_initialization",
+      "applicable_signals": [
+        "provided_api_key differs from self.config.api_key",
+        "self._init_trace_context exists",
+        "self._init_trace_context.span.is_recording() returns True"
+      ],
+      "contraindications": [
+        "API key has not changed",
+        "trace context is None",
+        "span is not recording",
+        "trace cleanup is managed externally"
+      ],
+      "intervention_moves": [
+        "Detect API key change and log warning",
+        "Verify trace span is actively recording before cleanup",
+        "End trace with explicit reason code",
+        "Reset trace state variables to prevent stale references"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check if provided_api_key differs from self.config.api_key', 'condition': 'provided_api_key is not None and provided_api_key != self.config.api_key'}",
+        "{'step': 2, 'action': \"Log warning: 'AgentOps Client being re-initialized with a different API key. This is unusual.'\", 'condition': 'API key change detected'}",
+        "{'step': 3, 'action': 'Check if _init_trace_context exists and span is recording', 'condition': 'self._init_trace_context is not None and self._init_trace_context.span.is_recording()'}",
+        "{'step': 4, 'action': \"Log warning: 'Ending previously auto-started trace due to re-initialization.'\", 'condition': 'Trace context is active and recording'}",
+        "{'step': 5, 'action': \"Call tracer.end_trace(self._init_trace_context, 'Reinitialized')\", 'condition': 'Trace span is actively recording'}",
+        "{'step': 6, 'action': 'Set self._init_trace_context = None', 'condition': 'After trace has been ended'}",
+        "{'step': 7, 'action': 'Set self._legacy_session_for_init_trace = None', 'condition': 'After trace context reset'}"
+      ],
+      "triggers": [
+        "Client re-initialization initiated with a different API key",
+        "_init_trace_context is not None",
+        "trace span is actively recording"
+      ],
+      "constraints": [
+        "Must check API key change before attempting trace cleanup",
+        "Must verify span is recording before calling end_trace",
+        "Must reset _init_trace_context to None after ending trace"
+      ],
+      "cautions": [
+        "Calling end_trace on a non-recording span may raise an exception",
+        "Failure to reset _init_trace_context may cause subsequent initialization to reference stale trace state"
+      ],
+      "output_contract": [
+        "Active trace span is ended with reason 'Reinitialized'; _init_trace_context is set to None; _legacy_session_for_init_trace is set to None; warning logs are emitted; subsequent initialization can proceed without trace conflicts."
+      ],
+      "examples": [],
+      "risk_class": "medium",
+      "confidence": 0.7,
+      "support_ids": [
+        "aa580809-588f-5047-b098-f91b7f58b1da"
+      ],
+      "metadata": {
+        "prompt": "When Client re-initialization is triggered with a different API key, check if _init_trace_context exists and its span is actively recording. If so, end the trace with reason 'Reinitialized', log a warning, and reset _init_trace_context to None. This prevents trace corruption and orphaned spans.",
+        "tags": [
+          "trace_management",
+          "re_initialization",
+          "span_lifecycle",
+          "cleanup",
+          "state_reset"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "Debugging Roadmap"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 3,
+        "window_id": "42e21879-cd4b-5cf6-9337-bed40b31d433",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "session"
+        ],
+        "paragraph_start": 17,
+        "paragraph_end": 23,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    }
+  ],
+  "failed": false,
+  "complete": true,
+  "error": {}
+}

@@ -1,0 +1,159 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "module_loading",
+  "run_id": "20260916T092343_0b124c8f",
+  "skills": [
+    {
+      "skill_id": "10aa8713-a166-5f8d-b6b3-2a22e1c25c7b",
+      "name": "Resolve and Import Instrumentation Module",
+      "description": "Dynamically import an instrumentation module by name and return the module object for subsequent class instantiation or method access.",
+      "skill_body": "Use importlib.import_module() to load the module specified by module_name. Return the ModuleType object. This operation assumes the module name is valid and the module exists in the environment.\n\n## Objective\n\nload_instrumentation_module\n## Applicable Signals\n\n- module_name string is available and non-empty\n- module existence has been pre-validated or version check passed\n- caller needs ModuleType object for attribute access or class instantiation\n\n## Contraindications\n\n- module_name is invalid, malformed, or refers to a non-existent module\n- version validation has not been performed before this operation\n- module import would raise ImportError or ModuleNotFoundError\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Receive module_name as input', 'detail': \"module_name is a string representing the dotted module path (e.g., 'concurrent.futures', 'custom.instrumentation')\"}\n- {'step': 2, 'action': 'Call importlib.import_module(module_name)', 'detail': 'Dynamically load and return the ModuleType object'}\n- {'step': 3, 'action': 'Return ModuleType object', 'detail': 'Caller can now use getattr() or direct attribute access on the module'}\n\n## Constraints\n\n- module_name must be a valid dotted module path string\n- the target module must be installed and importable in the current environment\n- this operation does not perform version checking; assume pre-validation\n\n## Cautions\n\n- importlib.import_module() will raise ImportError if the module cannot be found\n- side effects may occur during module import (e.g., module-level code execution)\n- ensure module_name is trusted and does not come from untrusted user input\n\n## Output Contract\n\n- Returns a ModuleType object corresponding to module_name. The object is ready for attribute access (e.g., getattr(module, class_name) for class instantiation). If import fails, raises ImportError.\n\n## Example Executions\n\n### Example 1\n\n- Input: module_name = 'concurrent.futures'\n- Output: <module 'concurrent.futures' from '...'>\n- Notes: Standard library module import succeeds; caller can now access classes like ThreadPoolExecutor\n\n### Example 2\n\n- Input: module_name = 'custom.instrumentation'\n- Output: <module 'custom.instrumentation' from '...'>\n- Notes: Custom module import; caller can now instantiate classes defined in that module",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "c4301c20-1a1c-5e6e-8227-1dde6375d2be",
+      "parent_candidate_ids": [
+        "c4301c20-1a1c-5e6e-8227-1dde6375d2be"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "load_instrumentation_module",
+      "domain": "default",
+      "task_family": "module_loading",
+      "method_family": "dynamic_import",
+      "stage": "module_resolution",
+      "applicable_signals": [
+        "module_name string is available and non-empty",
+        "module existence has been pre-validated or version check passed",
+        "caller needs ModuleType object for attribute access or class instantiation"
+      ],
+      "contraindications": [
+        "module_name is invalid, malformed, or refers to a non-existent module",
+        "version validation has not been performed before this operation",
+        "module import would raise ImportError or ModuleNotFoundError"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "When you need to obtain a module object from a stored module name string",
+        "Before instantiating a class from that module"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Receive module_name as input', 'detail': \"module_name is a string representing the dotted module path (e.g., 'concurrent.futures', 'custom.instrumentation')\"}",
+        "{'step': 2, 'action': 'Call importlib.import_module(module_name)', 'detail': 'Dynamically load and return the ModuleType object'}",
+        "{'step': 3, 'action': 'Return ModuleType object', 'detail': 'Caller can now use getattr() or direct attribute access on the module'}"
+      ],
+      "constraints": [
+        "module_name must be a valid dotted module path string",
+        "the target module must be installed and importable in the current environment",
+        "this operation does not perform version checking; assume pre-validation"
+      ],
+      "cautions": [
+        "importlib.import_module() will raise ImportError if the module cannot be found",
+        "side effects may occur during module import (e.g., module-level code execution)",
+        "ensure module_name is trusted and does not come from untrusted user input"
+      ],
+      "output_contract": [
+        "Returns a ModuleType object corresponding to module_name. The object is ready for attribute access (e.g., getattr(module, class_name) for class instantiation). If import fails, raises ImportError."
+      ],
+      "examples": [
+        {
+          "input": "module_name = 'concurrent.futures'",
+          "output": "<module 'concurrent.futures' from '...'>",
+          "notes": "Standard library module import succeeds; caller can now access classes like ThreadPoolExecutor"
+        },
+        {
+          "input": "module_name = 'custom.instrumentation'",
+          "output": "<module 'custom.instrumentation' from '...'>",
+          "notes": "Custom module import; caller can now instantiate classes defined in that module"
+        }
+      ],
+      "tags": [
+        "importlib",
+        "dynamic_import",
+        "module_resolution",
+        "instrumentation"
+      ],
+      "support_ids": [
+        "ad8fa4d6-9b5f-5fc5-982a-e3423e91804c"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "e0149388-49dc-57fe-9c10-33ceb73aff75"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|load_instrumentation_module|default|module_loading|dynamic_import|module_resolution|resolve and import instrumentation module",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill for dynamic module loading via importlib, with unique objective (load_instrumentation_module), task_family (module_loading), and method_family (dynamic_import). It does not semantically overlap with existing skills (Path Command Execution, Codec Derivation via Shapeless Generic) or peer candidates (span resolution, streaming instrumentation, version routing). Peer candidates operate in different domains (distributed_tracing, stream_wrapping, version_routing) and do not subsume or conflict with module resolution. Support evidence from Debugging Roadmap validates the importlib.import_module pattern. No merge, split, or revision relationship detected.",
+        "parent_skill_id": "c4301c20-1a1c-5e6e-8227-1dde6375d2be",
+        "parent_candidate_ids": [
+          "c4301c20-1a1c-5e6e-8227-1dde6375d2be"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "178648dc-47c9-476e-9fba-22d4fb478acc",
+      "entity_type": "skill",
+      "entity_id": "10aa8713-a166-5f8d-b6b3-2a22e1c25c7b",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill for dynamic module loading via importlib, with unique objective (load_instrumentation_module), task_family (module_loading), and method_family (dynamic_import). It does not semantically overlap with existing skills (Path Command Execution, Codec Derivation via Shapeless Generic) or peer candidates (span resolution, streaming instrumentation, version routing). Peer candidates operate in different domains (distributed_tracing, stream_wrapping, version_routing) and do not subsume or conflict with module resolution. Support evidence from Debugging Roadmap validates the importlib.import_module pattern. No merge, split, or revision relationship detected.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "10aa8713-a166-5f8d-b6b3-2a22e1c25c7b",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "ad8fa4d6-9b5f-5fc5-982a-e3423e91804c"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

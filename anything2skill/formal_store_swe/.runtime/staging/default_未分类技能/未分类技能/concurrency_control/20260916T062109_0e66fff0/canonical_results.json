@@ -1,0 +1,315 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "concurrency_control",
+  "run_id": "20260916T062109_0e66fff0",
+  "skills": [
+    {
+      "skill_id": "aab1e698-9ca9-55db-8608-420ba3428975",
+      "name": "No-Wait Lock Acquisition in Validation",
+      "description": "Acquire write-set tuple locks in primary key order during the validation phase using non-blocking lock attempts. If any lock is unavailable, immediately abort validation, release all held locks, sleep briefly (1 µs), and retry. This prevents lock thrashing and allows more transactions to validate simultaneously.",
+      "skill_body": "1. Lock write-set tuples in primary key order.\n2. If a lock cannot be acquired immediately, abort the validation phase.\n3. Release all locks acquired so far.\n4. Sleep for 1 µs.\n5. Retry the validation phase from step 1.\nRepeat until all write-set locks are acquired or a configurable retry limit is reached.\n\n## Objective\n\nMinimize lock contention and thrashing by using non-blocking lock acquisition with brief backoff during validation.\n## Applicable Signals\n\n- Transaction entering validation phase\n- Write set contains one or more tuples\n- Multi-socket or high-concurrency execution environment\n\n## Contraindications\n\n- Read-only transactions (no write set)\n- Low contention scenarios where standard blocking lock acquisition is acceptable\n- Strict immediate-lock-or-wait semantics required by application\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Iterate through write-set tuples in primary key order'}\n- {'step': 2, 'action': 'Attempt to acquire lock for current tuple (non-blocking)'}\n- {'step': 3, 'action': 'If lock acquired, move to next tuple; if all tuples locked, proceed to read-set validation'}\n- {'step': 4, 'action': 'If lock not available, release all locks acquired in this attempt'}\n- {'step': 5, 'action': 'Sleep for 1 µs'}\n- {'step': 6, 'action': 'Restart from step 1'}\n\n## Constraints\n\n- Locks must be acquired in primary key order to prevent deadlock cycles\n- Sleep duration (1 µs) should not be too large; algorithm performance is not overly sensitive to this value within reasonable bounds\n- All locks acquired in a failed attempt must be released before retry\n\n## Cautions\n\n- Repeated retries may increase CPU usage; monitor retry frequency in high-contention scenarios\n- Sleep time tuning may be required for specific hardware and workload characteristics\n\n## Output Contract\n\n- Either all write-set tuples are locked in primary key order and validation proceeds to read-set checks, or validation is aborted and the transaction is restarted. No partial lock state persists across retries.\n\n## Example Executions\n\n### Example 1\n\n- Input: Transaction T with write set {tuple_x, tuple_y} (primary keys ordered); tuple_x lock available, tuple_y lock held by another transaction\n- Output: Lock tuple_x, attempt tuple_y, fail; release tuple_x lock; sleep 1 µs; retry from tuple_x\n- Notes: Prevents blocking on tuple_y while holding tuple_x, reducing thrashing\n\n### Example 2\n\n- Input: Transaction T with write set {tuple_a, tuple_b, tuple_c}; all locks available\n- Output: Lock tuple_a, tuple_b, tuple_c in order; proceed to read-set validation\n- Notes: Fast path: no retry needed",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "cdd22de9-5de9-5117-acad-5df117ce2e82",
+      "parent_candidate_ids": [
+        "cdd22de9-5de9-5117-acad-5df117ce2e82",
+        "5b89c0b3-be95-5d38-bd12-c76c956f8ce5"
+      ],
+      "child_skill_ids": [
+        "289afdbb-dcb2-5d9f-bb8d-c989b9727366",
+        "fc39f0fb-79d3-5b44-97d4-583266e72630"
+      ],
+      "hierarchy_confidence": 0.55,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Minimize lock contention and thrashing by using non-blocking lock acquisition with brief backoff during validation.",
+      "domain": "default",
+      "task_family": "concurrency_control",
+      "method_family": "deadlock_prevention",
+      "stage": "validation",
+      "applicable_signals": [
+        "Transaction entering validation phase",
+        "Write set contains one or more tuples",
+        "Multi-socket or high-concurrency execution environment"
+      ],
+      "contraindications": [
+        "Read-only transactions (no write set)",
+        "Low contention scenarios where standard blocking lock acquisition is acceptable",
+        "Strict immediate-lock-or-wait semantics required by application"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Validation phase initiated for a transaction with a non-empty write set",
+        "High core count or write-intensive workload detected",
+        "Lock thrashing observed in standard 2PL validation"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Iterate through write-set tuples in primary key order'}",
+        "{'step': 2, 'action': 'Attempt to acquire lock for current tuple (non-blocking)'}",
+        "{'step': 3, 'action': 'If lock acquired, move to next tuple; if all tuples locked, proceed to read-set validation'}",
+        "{'step': 4, 'action': 'If lock not available, release all locks acquired in this attempt'}",
+        "{'step': 5, 'action': 'Sleep for 1 µs'}",
+        "{'step': 6, 'action': 'Restart from step 1'}"
+      ],
+      "constraints": [
+        "Locks must be acquired in primary key order to prevent deadlock cycles",
+        "Sleep duration (1 µs) should not be too large; algorithm performance is not overly sensitive to this value within reasonable bounds",
+        "All locks acquired in a failed attempt must be released before retry"
+      ],
+      "cautions": [
+        "Repeated retries may increase CPU usage; monitor retry frequency in high-contention scenarios",
+        "Sleep time tuning may be required for specific hardware and workload characteristics"
+      ],
+      "output_contract": [
+        "Either all write-set tuples are locked in primary key order and validation proceeds to read-set checks, or validation is aborted and the transaction is restarted. No partial lock state persists across retries."
+      ],
+      "examples": [
+        {
+          "input": "Transaction T with write set {tuple_x, tuple_y} (primary keys ordered); tuple_x lock available, tuple_y lock held by another transaction",
+          "output": "Lock tuple_x, attempt tuple_y, fail; release tuple_x lock; sleep 1 µs; retry from tuple_x",
+          "notes": "Prevents blocking on tuple_y while holding tuple_x, reducing thrashing"
+        },
+        {
+          "input": "Transaction T with write set {tuple_a, tuple_b, tuple_c}; all locks available",
+          "output": "Lock tuple_a, tuple_b, tuple_c in order; proceed to read-set validation",
+          "notes": "Fast path: no retry needed"
+        }
+      ],
+      "tags": [
+        "concurrency_control",
+        "lock_management",
+        "validation_phase",
+        "deadlock_prevention",
+        "performance_optimization",
+        "multi_core"
+      ],
+      "support_ids": [
+        "4649b236-aa05-5a77-810b-593f8cd7e00b"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "84622cbf-88b3-5113-9982-ab7fa5372d91"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.88,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|minimize lock contention and thrashing by using non-blocking lock acquisition with brief backoff during validation.|default|concurrency_control|deadlock_prevention|validation|no-wait lock acquisition in validation",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct session_skill for non-blocking lock acquisition during validation phase in concurrency control. It does not match any existing skill in asset_type, granularity, task_family, or stage. Peer candidates are evaluation/benchmarking skills (different stage and task_family), and existing skills are cache benchmarking and process pool execution (unrelated domains). Candidate has clear support evidence and no conflicts.",
+        "parent_skill_id": "cdd22de9-5de9-5117-acad-5df117ce2e82",
+        "parent_candidate_ids": [
+          "cdd22de9-5de9-5117-acad-5df117ce2e82",
+          "5b89c0b3-be95-5d38-bd12-c76c956f8ce5"
+        ],
+        "hierarchy_confidence": 0.55,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "child_skill_ids": [
+          "289afdbb-dcb2-5d9f-bb8d-c989b9727366",
+          "fc39f0fb-79d3-5b44-97d4-583266e72630"
+        ]
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "2819293d-dcf1-5ba9-93ae-d68be19b68d0",
+      "name": "DTA Timestamp Conflict Detection",
+      "description": "Detect and resolve transaction conflicts by comparing transaction-level timestamps when two transactions access the same data. Establishes transaction ordering and identifies conflicts in optimistic concurrency control (OCC) implementations using timestamp-based conflict detection.",
+      "skill_body": "When two transactions attempt to access overlapping data, compare their associated transaction-level timestamps to determine conflict status and establish transaction ordering. In DTA, timestamps are transaction-level (not tuple-level) and are compared at conflict points to resolve dependencies.\n\n## Objective\n\nIdentify conflicting transactions via timestamp comparison and establish transaction ordering\n## Applicable Signals\n\n- Concurrent transaction access to shared data\n- OCC protocol active with timestamp-based conflict detection\n- Need to determine transaction serialization order\n\n## Contraindications\n\n- Tuple-level timestamps are already maintained (use tuple-level conflict detection instead)\n- Pessimistic locking (2PL) is the primary concurrency strategy\n- Deadlock prevention via dependency graphs is the sole goal (use DTA deadlock detection instead)\n\n## Workflow Steps\n\n- Retrieve timestamp associated with first transaction\n- Retrieve timestamp associated with second transaction\n- Compare timestamps to determine ordering\n- Return conflict determination and transaction ordering decision\n\n## Constraints\n\n- Timestamps must be associated with transactions, not tuples\n- Comparison must occur at the point of data access conflict\n- Transaction timestamps must be comparable and ordered\n\n## Cautions\n\n- DTA timestamp comparison has critical section bottleneck; does not scale beyond 16–32 active threads due to shared global resources\n- OCC with DTA timestamps requires considerable logic in critical section, limiting performance scalability to approximately 20 cores\n\n## Output Contract\n\n- Boolean conflict determination (true if conflict exists, false otherwise) and transaction ordering decision (which transaction should proceed first based on timestamp comparison)",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "e8ccc028-f9db-5b45-9858-59c114c0a66a",
+      "parent_candidate_ids": [
+        "e8ccc028-f9db-5b45-9858-59c114c0a66a",
+        "2b0663c7-63de-51bc-8f55-5b5afe69ec2e"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.55,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Identify conflicting transactions via timestamp comparison and establish transaction ordering",
+      "domain": "default",
+      "task_family": "concurrency_control",
+      "method_family": "timestamp_comparison",
+      "stage": "conflict_detection",
+      "applicable_signals": [
+        "Concurrent transaction access to shared data",
+        "OCC protocol active with timestamp-based conflict detection",
+        "Need to determine transaction serialization order"
+      ],
+      "contraindications": [
+        "Tuple-level timestamps are already maintained (use tuple-level conflict detection instead)",
+        "Pessimistic locking (2PL) is the primary concurrency strategy",
+        "Deadlock prevention via dependency graphs is the sole goal (use DTA deadlock detection instead)"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Two transactions attempt to access overlapping data",
+        "Timestamp-based conflict resolution is required in OCC implementation",
+        "Transaction dependency must be established via timestamp ordering"
+      ],
+      "workflow_steps": [
+        "Retrieve timestamp associated with first transaction",
+        "Retrieve timestamp associated with second transaction",
+        "Compare timestamps to determine ordering",
+        "Return conflict determination and transaction ordering decision"
+      ],
+      "constraints": [
+        "Timestamps must be associated with transactions, not tuples",
+        "Comparison must occur at the point of data access conflict",
+        "Transaction timestamps must be comparable and ordered"
+      ],
+      "cautions": [
+        "DTA timestamp comparison has critical section bottleneck; does not scale beyond 16–32 active threads due to shared global resources",
+        "OCC with DTA timestamps requires considerable logic in critical section, limiting performance scalability to approximately 20 cores"
+      ],
+      "output_contract": [
+        "Boolean conflict determination (true if conflict exists, false otherwise) and transaction ordering decision (which transaction should proceed first based on timestamp comparison)"
+      ],
+      "examples": [],
+      "tags": [
+        "concurrency_control",
+        "timestamp_based",
+        "conflict_detection",
+        "optimistic_concurrency",
+        "transaction_ordering",
+        "DTA"
+      ],
+      "support_ids": [
+        "8b6bb260-7998-5449-b6cf-8a98ac8520fa"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "c99e5845-c708-5c19-bdfa-26a87927557b"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.72,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|identify conflicting transactions via timestamp comparison and establish transaction ordering|default|concurrency_control|timestamp_comparison|conflict_detection|dta timestamp conflict detection",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "e8ccc028-f9db-5b45-9858-59c114c0a66a",
+        "parent_candidate_ids": [
+          "e8ccc028-f9db-5b45-9858-59c114c0a66a",
+          "2b0663c7-63de-51bc-8f55-5b5afe69ec2e"
+        ],
+        "hierarchy_confidence": 0.55,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "baeb4840-2766-4660-895e-90606cbc73b1",
+      "entity_type": "skill",
+      "entity_id": "aab1e698-9ca9-55db-8608-420ba3428975",
+      "action": "create",
+      "changed_at": "2026-09-15T20:20:11+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct session_skill for non-blocking lock acquisition during validation phase in concurrency control. It does not match any existing skill in asset_type, granularity, task_family, or stage. Peer candidates are evaluation/benchmarking skills (different stage and task_family), and existing skills are cache benchmarking and process pool execution (unrelated domains). Candidate has clear support evidence and no conflicts.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "aab1e698-9ca9-55db-8608-420ba3428975",
+        "doc_ids": [
+          "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c"
+        ],
+        "support_added": [
+          "4649b236-aa05-5a77-810b-593f8cd7e00b"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    },
+    {
+      "change_id": "14826145-3447-4a16-83c8-dcd0cf9aaa14",
+      "entity_type": "skill",
+      "entity_id": "2819293d-dcf1-5ba9-93ae-d68be19b68d0",
+      "action": "create",
+      "changed_at": "2026-09-15T20:20:11+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "create",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "2819293d-dcf1-5ba9-93ae-d68be19b68d0",
+        "doc_ids": [
+          "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c"
+        ],
+        "support_added": [
+          "8b6bb260-7998-5449-b6cf-8a98ac8520fa"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

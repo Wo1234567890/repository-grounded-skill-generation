@@ -1,0 +1,206 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "kv_cache_management",
+  "run_id": "20260916T045634_209841aa",
+  "skills": [
+    {
+      "skill_id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+      "name": "Deploy Mooncake Store Hierarchical KV Cache Backend",
+      "description": "Use Accelerate library to simplify distributed training launch and management across multiple GPUs and nodes, handling data parallelism, gradient accumulation, and distributed data loading automatically.",
+      "skill_body": "Invoke this skill when you need to launch training across multiple nodes or GPUs. Accelerate provides a unified API to manage distributed training complexities: data parallelism, gradient accumulation, and distributed data loading. Configure Accelerate with your hardware setup, then use its launcher to start training. The skill handles coordination across devices automatically.\n\n## Objective\n\nSimplify and standardize multi-node training orchestration\n## Applicable Signals\n\n- Model size exceeds single-GPU memory\n- Multiple nodes available in cluster\n- Data parallelism strategy selected\n- Training script ready for distributed execution\n\n## Contraindications\n\n- Single-GPU training environment\n- Custom low-level distributed control required\n- Non-standard parallelism patterns needed\n- Direct NCCL or torch.distributed API required\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Install and configure Accelerate', 'detail': 'Install Accelerate library; run accelerate config to detect and configure hardware setup (GPUs, nodes, parallelization strategy)'}\n- {'step': 2, 'action': 'Prepare training script', 'detail': 'Ensure training script is compatible with Accelerate; wrap model and data loading with Accelerate API calls'}\n- {'step': 3, 'action': 'Launch distributed training', 'detail': 'Use accelerate launch command to start training across all configured nodes; Accelerate handles device assignment and synchronization'}\n- {'step': 4, 'action': 'Monitor training execution', 'detail': 'Verify data parallelism and gradient accumulation are active; check logs for synchronization issues across nodes'}\n\n## Constraints\n\n- Accelerate must be installed and compatible with training framework\n- Hardware configuration must be accessible to Accelerate\n- Training script must be compatible with Accelerate launcher\n- Network connectivity between nodes must be stable\n\n## Cautions\n\n- Ensure all nodes have identical Python and dependency versions\n- Verify network bandwidth sufficient for gradient synchronization\n- Test configuration on subset of nodes before full-scale training\n\n## Output Contract\n\n- Accelerate configuration created and validated\n- Distributed training launched successfully across all nodes\n- Data parallelism and gradient accumulation active\n- Training loop executing with automatic device coordination",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa",
+      "parent_candidate_ids": [
+        "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "parent",
+      "objective": "Manage distributed KV cache across heterogeneous storage tiers in multi-node LLM inference",
+      "domain": "default",
+      "task_family": "kv_cache_management",
+      "method_family": "hierarchical_storage_backend",
+      "stage": "inference_execution",
+      "applicable_signals": [
+        "Model size exceeds single-GPU memory",
+        "Multiple nodes available in cluster",
+        "Data parallelism strategy selected",
+        "Training script ready for distributed execution"
+      ],
+      "contraindications": [
+        "Single-GPU training environment",
+        "Custom low-level distributed control required",
+        "Non-standard parallelism patterns needed",
+        "Direct NCCL or torch.distributed API required"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Deploying vLLM, SGLang, or xLLM with multi-tier KV cache requirements",
+        "Scaling inference across multiple nodes with memory constraints",
+        "Need to reduce GPU memory footprint while maintaining cache locality"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Install and configure Accelerate', 'detail': 'Install Accelerate library; run accelerate config to detect and configure hardware setup (GPUs, nodes, parallelization strategy)'}",
+        "{'step': 2, 'action': 'Prepare training script', 'detail': 'Ensure training script is compatible with Accelerate; wrap model and data loading with Accelerate API calls'}",
+        "{'step': 3, 'action': 'Launch distributed training', 'detail': 'Use accelerate launch command to start training across all configured nodes; Accelerate handles device assignment and synchronization'}",
+        "{'step': 4, 'action': 'Monitor training execution', 'detail': 'Verify data parallelism and gradient accumulation are active; check logs for synchronization issues across nodes'}"
+      ],
+      "constraints": [
+        "Accelerate must be installed and compatible with training framework",
+        "Hardware configuration must be accessible to Accelerate",
+        "Training script must be compatible with Accelerate launcher",
+        "Network connectivity between nodes must be stable"
+      ],
+      "cautions": [
+        "Ensure all nodes have identical Python and dependency versions",
+        "Verify network bandwidth sufficient for gradient synchronization",
+        "Test configuration on subset of nodes before full-scale training"
+      ],
+      "output_contract": [
+        "Accelerate configuration created and validated",
+        "Distributed training launched successfully across all nodes",
+        "Data parallelism and gradient accumulation active",
+        "Training loop executing with automatic device coordination"
+      ],
+      "examples": [
+        {
+          "input": "vLLM deployment on 8 H100 GPUs with 80GB memory each; total KV cache demand 2TB across 128 concurrent requests",
+          "output": "Mooncake Store configured with device tier (80GB per GPU), host tier (500GB per node), remote tier (1TB shared storage). Prefetch logic moves frequently accessed cache to device, cold cache to remote. Achieves 95% cache hit rate on device tier.",
+          "notes": "Based on Sept 18, 2025 vLLM Ascend KV pool backend integration"
+        },
+        {
+          "input": "SGLang with multimodal encoders (ViT) generating large embeddings; cross-instance cache sharing required",
+          "output": "Mooncake Store enables hierarchical KV caching with RadixAttention multi-tier support. ViT embeddings cached in host/remote tiers, reused across instances. Reduces redundant GPU computation.",
+          "notes": "Based on Sept 10, 2025 SGLang HiCache integration"
+        }
+      ],
+      "tags": [
+        "distributed_training",
+        "multi_node",
+        "accelerate",
+        "orchestration",
+        "data_parallelism",
+        "gradient_accumulation"
+      ],
+      "support_ids": [
+        "428ba50e-e9c9-554c-8cb7-a0456ad23565",
+        "9870584f-d6dd-51fc-92b3-404dadb3d21e"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "341d83ea-dfa7-5e91-9aaa-4999598e03bc"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.78,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|manage distributed kv cache across heterogeneous storage tiers in multi-node llm inference|default|kv_cache_management|hierarchical_storage_backend|inference_execution|deploy mooncake store hierarchical kv cache backend",
+        "change_action": "strengthen",
+        "llm_reason": "Candidate skill is semantically identical to existing skill (same asset_type, granularity, asset_node_id, task_family, method_family, stage). Support evidence from GRPO Trainer validates the capability. Peer candidates (SLURM, GRPO Training Execution, DeepSpeed ZeRO Stage 3) are complementary orchestration layers at different stages/methods, not overlapping. Candidate provides concrete workflow steps and constraints that strengthen the existing skill's executable guidance.",
+        "parent_skill_id": "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa",
+        "parent_candidate_ids": [
+          "bd5f8745-78e3-58fe-b2d8-e5d9a5e511aa"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "parent",
+        "previous_skill_id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881"
+      },
+      "version": "0.1.1",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "0401447c-7904-4697-9f02-2efc922f5e38",
+      "entity_type": "skill",
+      "entity_id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+      "action": "merge",
+      "changed_at": "2026-09-15T18:56:22+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "Candidate is a SLURM job submission wrapper that orchestrates the same distributed training workflow already covered by peer candidates (Accelerate orchestration + DeepSpeed ZeRO Stage 3). The candidate adds SLURM-specific syntax but does not introduce a distinct capability—it is a job scheduler integration layer for capabilities already represented. Merging into Accelerate and DeepSpeed skills avoids duplication and consolidates multi-node training guidance into the orchestration and memory-efficiency layers where it belongs.",
+      "related_entity_ids": [
+        "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+        "doc_ids": [
+          "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4",
+          "1b1cfe5e-1be5-5bc1-9b07-6e37f39e1ae1"
+        ],
+        "support_added": [
+          "18eb409a-c5e3-575a-b949-ad13ef7b1226"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881"
+        ]
+      }
+    },
+    {
+      "change_id": "1074807c-f6b9-4bbd-b0fd-07f9d824aae0",
+      "entity_type": "skill",
+      "entity_id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+      "action": "strengthen",
+      "changed_at": "2026-09-15T18:56:22+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "Candidate skill is semantically identical to existing skill (same asset_type, granularity, asset_node_id, task_family, method_family, stage). Support evidence from GRPO Trainer validates the capability. Peer candidates (SLURM, GRPO Training Execution, DeepSpeed ZeRO Stage 3) are complementary orchestration layers at different stages/methods, not overlapping. Candidate provides concrete workflow steps and constraints that strengthen the existing skill's executable guidance.",
+      "related_entity_ids": [
+        "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881",
+        "doc_ids": [
+          "2ef55e5f-ca4b-5f8e-b77f-264fb50461f4",
+          "1b1cfe5e-1be5-5bc1-9b07-6e37f39e1ae1"
+        ],
+        "support_added": [
+          "9870584f-d6dd-51fc-92b3-404dadb3d21e"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "3ba1bc87-4c5c-59d5-afd4-1ff2496e3881"
+        ]
+      }
+    }
+  ]
+}

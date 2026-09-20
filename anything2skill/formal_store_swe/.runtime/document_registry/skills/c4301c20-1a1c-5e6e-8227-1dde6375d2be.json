@@ -1,0 +1,125 @@
+{
+  "skill_id": "c4301c20-1a1c-5e6e-8227-1dde6375d2be",
+  "name": "Conditional Package Instrumentation",
+  "description": "Evaluates whether a package should be instrumented based on eligibility checks and prior state, then loads and instantiates the appropriate instrumentor. Handles special cases such as dependent package instrumentation (e.g., concurrent.futures when mem0 is instrumented).",
+  "skill_body": "Check if the package should be instrumented using _should_instrument_package(). If eligible, retrieve its configuration from PROVIDERS or AGENTIC_LIBRARIES, instantiate an InstrumentorLoader, and create the instrumentor instance. Mark the instance with _agentops_instrumented_package_key for tracking. For special cases (e.g., mem0), also instrument dependent packages.\n\n## Objective\n\nSafely instrument a single package by checking eligibility, loading its instrumentor, and registering it for monitoring\n## Applicable Signals\n\n- Import event for a target package\n- Configuration entry exists in PROVIDERS or AGENTIC_LIBRARIES\n- Prior instrumentation state allows new instrumentation\n\n## Contraindications\n\n- Package is already instrumented (_is_package_instrumented returns True)\n- _should_instrument_package returns False for the package\n- An agentic library is already instrumented (_has_agentic_library is True)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check eligibility', 'detail': 'Call _should_instrument_package(package_name). If False, return early.'}\n- {'step': 2, 'action': 'Retrieve configuration', 'detail': 'Look up package_name in PROVIDERS, then AGENTIC_LIBRARIES. If not found, return early.'}\n- {'step': 3, 'action': 'Instantiate loader', 'detail': 'Create InstrumentorLoader instance with retrieved configuration.'}\n- {'step': 4, 'action': 'Create instrumentor', 'detail': 'Call instrument_one(loader) to instantiate the instrumentor.'}\n- {'step': 5, 'action': 'Mark and register', 'detail': 'Set instrumentor_instance._agentops_instrumented_package_key = package_name. Add to _active_instrumentors.'}\n- {'step': 6, 'action': 'Handle special cases', 'detail': \"If package_name == 'mem0' and is_newly_added, check concurrent.futures availability and instrument it using concurrent_config.\"}\n\n## Constraints\n\n- Must check _should_instrument_package before proceeding\n- Must retrieve configuration from PROVIDERS or AGENTIC_LIBRARIES\n- Must instantiate InstrumentorLoader with valid configuration\n- Must mark instrumentor instance with _agentops_instrumented_package_key\n- Special case: if package_name is 'mem0' and newly added, also instrument concurrent.futures\n\n## Cautions\n\n- Do not instrument if _has_agentic_library is already True; defer to original import\n- Verify concurrent.futures module availability before attempting special-case instrumentation\n- Handle missing or incomplete configuration gracefully\n\n## Output Contract\n\n- Instrumentor instance is created, stored in _active_instrumentors, and marked with _agentops_instrumented_package_key for future lookup. For special cases, dependent packages are also instrumented. Caller receives confirmation that the package is now instrumented and ready for monitoring.",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "5cb1141a-bd9a-5686-a22e-969b744a44a8",
+  "parent_candidate_ids": [
+    "5cb1141a-bd9a-5686-a22e-969b744a44a8"
+  ],
+  "child_skill_ids": [
+    "10aa8713-a166-5f8d-b6b3-2a22e1c25c7b",
+    "ea776e3a-114c-52e7-8cf1-04d141bb7c88"
+  ],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "parent",
+  "visible_role": "parent",
+  "objective": "Safely instrument a single package by checking eligibility, loading its instrumentor, and registering it for monitoring",
+  "domain": "default",
+  "task_family": "instrumentation",
+  "method_family": "package_loading",
+  "stage": "package_setup",
+  "applicable_signals": [
+    "Import event for a target package",
+    "Configuration entry exists in PROVIDERS or AGENTIC_LIBRARIES",
+    "Prior instrumentation state allows new instrumentation"
+  ],
+  "contraindications": [
+    "Package is already instrumented (_is_package_instrumented returns True)",
+    "_should_instrument_package returns False for the package",
+    "An agentic library is already instrumented (_has_agentic_library is True)"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Package import is detected via _import_monitor",
+    "Package name is not yet in _instrumenting_packages",
+    "Package is not already marked as instrumented"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Check eligibility', 'detail': 'Call _should_instrument_package(package_name). If False, return early.'}",
+    "{'step': 2, 'action': 'Retrieve configuration', 'detail': 'Look up package_name in PROVIDERS, then AGENTIC_LIBRARIES. If not found, return early.'}",
+    "{'step': 3, 'action': 'Instantiate loader', 'detail': 'Create InstrumentorLoader instance with retrieved configuration.'}",
+    "{'step': 4, 'action': 'Create instrumentor', 'detail': 'Call instrument_one(loader) to instantiate the instrumentor.'}",
+    "{'step': 5, 'action': 'Mark and register', 'detail': 'Set instrumentor_instance._agentops_instrumented_package_key = package_name. Add to _active_instrumentors.'}",
+    "{'step': 6, 'action': 'Handle special cases', 'detail': \"If package_name == 'mem0' and is_newly_added, check concurrent.futures availability and instrument it using concurrent_config.\"}"
+  ],
+  "constraints": [
+    "Must check _should_instrument_package before proceeding",
+    "Must retrieve configuration from PROVIDERS or AGENTIC_LIBRARIES",
+    "Must instantiate InstrumentorLoader with valid configuration",
+    "Must mark instrumentor instance with _agentops_instrumented_package_key",
+    "Special case: if package_name is 'mem0' and newly added, also instrument concurrent.futures"
+  ],
+  "cautions": [
+    "Do not instrument if _has_agentic_library is already True; defer to original import",
+    "Verify concurrent.futures module availability before attempting special-case instrumentation",
+    "Handle missing or incomplete configuration gracefully"
+  ],
+  "output_contract": [
+    "Instrumentor instance is created, stored in _active_instrumentors, and marked with _agentops_instrumented_package_key for future lookup. For special cases, dependent packages are also instrumented. Caller receives confirmation that the package is now instrumented and ready for monitoring."
+  ],
+  "examples": [],
+  "tags": [
+    "instrumentation",
+    "package_loading",
+    "import_monitoring",
+    "dynamic_instrumentation"
+  ],
+  "support_ids": [
+    "a72b61d8-d787-5c27-9e27-2b30026fd317"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "f325b828-aa98-5539-b23b-d88af643964d"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.82,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|safely instrument a single package by checking eligibility, loading its instrumentor, and registering it for monitoring|default|instrumentation|package_loading|package_setup|conditional package instrumentation",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct session_skill for conditional package instrumentation with unique workflow (eligibility checks, loader instantiation, special-case handling for mem0/concurrent.futures). No existing skill in the registry covers this specific instrumentation orchestration pattern. Peer candidates address metrics recording, SDK initialization, and decorator-based tracing—different concerns. Existing skills cover scale construction and executor lifecycle—unrelated domains.",
+    "parent_skill_id": "5cb1141a-bd9a-5686-a22e-969b744a44a8",
+    "parent_candidate_ids": [
+      "5cb1141a-bd9a-5686-a22e-969b744a44a8"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "parent",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "10aa8713-a166-5f8d-b6b3-2a22e1c25c7b",
+      "ea776e3a-114c-52e7-8cf1-04d141bb7c88"
+    ]
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

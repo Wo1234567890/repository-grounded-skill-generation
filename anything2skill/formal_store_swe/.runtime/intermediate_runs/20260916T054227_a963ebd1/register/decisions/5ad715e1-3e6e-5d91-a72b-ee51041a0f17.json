@@ -1,0 +1,113 @@
+{
+  "skill_id": "5ad715e1-3e6e-5d91-a72b-ee51041a0f17",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct Spring Boot 3.0 migration micro-skill addressing constructor parameter annotation in @ConfigurationProperties classes. It has no semantic overlap with existing skills (Mooncake P2P checkpoint distribution and ProcessPoolExecutor lifecycle configuration are unrelated domains). Peer candidates are also distinct Spring Boot 3.0 migration tasks with different objectives (banner format, Maven plugin deprecation, HTTP header properties). Candidate has valid support evidence from Spring Boot 3.0 Migration Guide and represents a novel, actionable capability.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "5ad715e1-3e6e-5d91-a72b-ee51041a0f17",
+    "name": "ConfigurationProperties Constructor Autowiring Annotation",
+    "description": "Add explicit `@Autowired` annotation to constructor parameters in `@ConfigurationProperties` classes that rely on dependency injection. This prevents constructor parameters from being misidentified as property binding targets during Spring Boot 3.0 migration.",
+    "skill_body": "Locate all `@ConfigurationProperties` classes that use constructor-based dependency injection. For each constructor parameter that requires autowiring, add the `@Autowired` annotation explicitly. This ensures the Spring container treats the parameter as a dependency to inject rather than as a property binding target.\n\n## Objective\n\nDisambiguate constructor dependency injection from property binding in configuration classes\n## Applicable Signals\n\n- Compilation or runtime error: constructor parameter treated as property binding target\n- Configuration property binding failure in @ConfigurationProperties class\n- Spring context initialization warning about ambiguous constructor parameter resolution\n\n## Contraindications\n\n- Configuration class does not use constructor injection\n- All dependencies are field-injected or setter-injected\n- @Autowired annotation already present on all constructor parameters\n- Class is not annotated with @ConfigurationProperties\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify all @ConfigurationProperties classes in the codebase'}\n- {'step': 2, 'action': 'For each class, check if it has a constructor with parameters'}\n- {'step': 3, 'action': 'Determine which constructor parameters are dependencies (not configuration properties)'}\n- {'step': 4, 'action': 'Add @Autowired annotation to each dependency parameter'}\n- {'step': 5, 'action': 'Compile and test application startup to verify no binding errors occur'}\n\n## Constraints\n\n- Only apply to @ConfigurationProperties classes\n- Only annotate constructor parameters that represent dependencies, not configuration properties\n- Ensure the dependency type is resolvable in the Spring context\n\n## Cautions\n\n- Do not confuse constructor parameters for dependency injection with constructor parameters for property binding\n- Verify that adding @Autowired does not create circular dependencies\n- Test application startup after annotation changes to confirm context initialization succeeds\n\n## Output Contract\n\n- All constructor parameters in @ConfigurationProperties classes that require dependency injection are annotated with @Autowired; application context initializes without binding errors; configuration properties are correctly populated from external sources\n\n## Example Executions\n\n### Example 1\n\n- Input: @ConfigurationProperties(prefix=\"app\")\npublic class AppConfig {\n  private String name;\n  private SomeService service;\n  \n  public AppConfig(SomeService service) {\n    this.service = service;\n  }\n}\n- Output: @ConfigurationProperties(prefix=\"app\")\npublic class AppConfig {\n  private String name;\n  private SomeService service;\n  \n  public AppConfig(@Autowired SomeService service) {\n    this.service = service;\n  }\n}\n- Notes: Constructor parameter service is now explicitly marked for autowiring, preventing misidentification as a property binding target",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Disambiguate constructor dependency injection from property binding in configuration classes",
+    "domain": "default",
+    "task_family": "configuration_binding",
+    "method_family": "annotation_addition",
+    "stage": "pre_upgrade",
+    "applicable_signals": [
+      "Compilation or runtime error: constructor parameter treated as property binding target",
+      "Configuration property binding failure in @ConfigurationProperties class",
+      "Spring context initialization warning about ambiguous constructor parameter resolution"
+    ],
+    "contraindications": [
+      "Configuration class does not use constructor injection",
+      "All dependencies are field-injected or setter-injected",
+      "@Autowired annotation already present on all constructor parameters",
+      "Class is not annotated with @ConfigurationProperties"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Spring Boot 3.0 upgrade in progress",
+      "@ConfigurationProperties class uses constructor-based dependency injection",
+      "Constructor parameters lack explicit @Autowired annotation"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Identify all @ConfigurationProperties classes in the codebase'}",
+      "{'step': 2, 'action': 'For each class, check if it has a constructor with parameters'}",
+      "{'step': 3, 'action': 'Determine which constructor parameters are dependencies (not configuration properties)'}",
+      "{'step': 4, 'action': 'Add @Autowired annotation to each dependency parameter'}",
+      "{'step': 5, 'action': 'Compile and test application startup to verify no binding errors occur'}"
+    ],
+    "constraints": [
+      "Only apply to @ConfigurationProperties classes",
+      "Only annotate constructor parameters that represent dependencies, not configuration properties",
+      "Ensure the dependency type is resolvable in the Spring context"
+    ],
+    "cautions": [
+      "Do not confuse constructor parameters for dependency injection with constructor parameters for property binding",
+      "Verify that adding @Autowired does not create circular dependencies",
+      "Test application startup after annotation changes to confirm context initialization succeeds"
+    ],
+    "output_contract": [
+      "All constructor parameters in @ConfigurationProperties classes that require dependency injection are annotated with @Autowired; application context initializes without binding errors; configuration properties are correctly populated from external sources"
+    ],
+    "examples": [
+      {
+        "input": "@ConfigurationProperties(prefix=\"app\")\npublic class AppConfig {\n  private String name;\n  private SomeService service;\n  \n  public AppConfig(SomeService service) {\n    this.service = service;\n  }\n}",
+        "output": "@ConfigurationProperties(prefix=\"app\")\npublic class AppConfig {\n  private String name;\n  private SomeService service;\n  \n  public AppConfig(@Autowired SomeService service) {\n    this.service = service;\n  }\n}",
+        "notes": "Constructor parameter service is now explicitly marked for autowiring, preventing misidentification as a property binding target"
+      }
+    ],
+    "tags": [
+      "spring-boot-3-migration",
+      "configuration-properties",
+      "dependency-injection",
+      "annotation",
+      "constructor-injection"
+    ],
+    "support_ids": [
+      "ebd9e5e6-f3f0-5023-b320-1765255f0275"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "5747dad6-e39e-5f6d-9dc4-55125a1426a6"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.87,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|disambiguate constructor dependency injection from property binding in configuration classes|default|configuration_binding|annotation_addition|pre_upgrade|configurationproperties constructor autowiring annotation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,116 @@
+{
+  "skill_id": "91715f74-7499-5a70-b477-d27e3d511c5a",
+  "action": "split",
+  "matched_skill_ids": [
+    "8f1cfb94-5ebb-52f7-929c-a5043d310107"
+  ],
+  "reason": "Candidate skill 'Weighted Zone Scoring Parameter Optimization' is a specialized child workflow that derives the optimal weight parameter g through error minimization on training data. This is a distinct optimization stage that should split out from the parent 'Compute Weighted Zone Score' skill, which applies a pre-computed or fixed g. The peer candidates confirm this layering: one peer validates error for a given g (validation stage), another applies zone weighting operationally (indexing stage), and the parent computes scores with fixed g (scoring stage). The candidate represents the calibration/learning stage that precedes operational deployment.",
+  "split_parent_id": "8f1cfb94-5ebb-52f7-929c-a5043d310107",
+  "skill": {
+    "skill_id": "91715f74-7499-5a70-b477-d27e3d511c5a",
+    "name": "Weighted Zone Scoring Parameter Optimization",
+    "description": "Compute optimal zone weight parameter g from training data by minimizing classification error across Boolean match combinations. Derives the weight that best balances zone contributions in a weighted zone scoring system.",
+    "skill_body": "Given a training set of (query, document, relevance) examples with Boolean match scores from multiple zones, compute the optimal weight parameter g using error minimization. Differentiate the total error function with respect to g, set to zero, and solve for g using the formula derived from the error matrix.\n\n## Objective\n\nderive optimal zone weight parameter from training error\n## Applicable Signals\n\n- training set with labeled relevance judgments is available\n- zone-based scoring system is in use\n- need to learn or calibrate zone weight g from error data\n- offline training phase is feasible\n\n## Contraindications\n\n- no labeled training set available\n- zones use different Boolean match functions\n- real-time scoring without offline training phase\n- single zone or uniform weighting already applied\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Collect training set', 'detail': 'Gather (query, document, relevance) examples with Boolean match scores sT and sB from two zones'}\n- {'step': 2, 'action': 'Build error matrix', 'detail': 'Count occurrences of all four combinations: (sT=1, sB=1), (sT=1, sB=0), (sT=0, sB=1), (sT=0, sB=0) for relevant and non-relevant documents'}\n- {'step': 3, 'action': 'Formulate total error', 'detail': 'Construct error function as (n01r + n10n) * g^2 + (n10r + n01n) * (1-g)^2 + n00r + n11n'}\n- {'step': 4, 'action': 'Differentiate and solve', 'detail': 'Differentiate error function with respect to g, set to zero, and solve for optimal g = (n10r + n01n) / (n10r + n10n + n01r + n01n)'}\n- {'step': 5, 'action': 'Validate and deploy', 'detail': 'Verify g is in valid range [0, 1]; compute weighted zone scores on validation set; deploy g to production scoring'}\n\n## Constraints\n\n- training examples must include both positive and negative relevance judgments\n- Boolean match scores from all zones must be computed for each training example\n- error matrix components (n01r, n01n, n10r, n10n, n00r, n11n) must be derived from training data\n\n## Cautions\n\n- Optimal g depends on the specific training set; recompute if training data distribution changes significantly\n- Formula in Equation 6.6 excludes training examples where both zone scores agree; verify sufficient disagreement cases exist\n- Resulting g is a scalar; ensure it is normalized or bounded appropriately for the scoring system\n\n## Output Contract\n\n- Scalar weight parameter g (0 ≤ g ≤ 1) that minimizes classification error on training data, ready for use in weighted zone scoring formula: score = g * sT(d, q) + (1-g) * sB(d, q)\n\n## Example Executions\n\n### Example 1\n\n- Input: Training set: 100 examples with n10r=15, n01n=20, n10n=10, n01r=25, n00r=5, n11n=25\n- Output: g = (15 + 20) / (15 + 10 + 25 + 20) = 35 / 70 = 0.5\n- Notes: Equal weight to both zones; indicates balanced zone contributions in training data",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "derive optimal zone weight parameter from training error",
+    "domain": "default",
+    "task_family": "scoring_parameter_learning",
+    "method_family": "error_minimization",
+    "stage": "weight_calibration",
+    "applicable_signals": [
+      "training set with labeled relevance judgments is available",
+      "zone-based scoring system is in use",
+      "need to learn or calibrate zone weight g from error data",
+      "offline training phase is feasible"
+    ],
+    "contraindications": [
+      "no labeled training set available",
+      "zones use different Boolean match functions",
+      "real-time scoring without offline training phase",
+      "single zone or uniform weighting already applied"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "training data with relevance judgments is available",
+      "zone-based scoring is in use",
+      "need to learn weight g from error matrix"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Collect training set', 'detail': 'Gather (query, document, relevance) examples with Boolean match scores sT and sB from two zones'}",
+      "{'step': 2, 'action': 'Build error matrix', 'detail': 'Count occurrences of all four combinations: (sT=1, sB=1), (sT=1, sB=0), (sT=0, sB=1), (sT=0, sB=0) for relevant and non-relevant documents'}",
+      "{'step': 3, 'action': 'Formulate total error', 'detail': 'Construct error function as (n01r + n10n) * g^2 + (n10r + n01n) * (1-g)^2 + n00r + n11n'}",
+      "{'step': 4, 'action': 'Differentiate and solve', 'detail': 'Differentiate error function with respect to g, set to zero, and solve for optimal g = (n10r + n01n) / (n10r + n10n + n01r + n01n)'}",
+      "{'step': 5, 'action': 'Validate and deploy', 'detail': 'Verify g is in valid range [0, 1]; compute weighted zone scores on validation set; deploy g to production scoring'}"
+    ],
+    "constraints": [
+      "training examples must include both positive and negative relevance judgments",
+      "Boolean match scores from all zones must be computed for each training example",
+      "error matrix components (n01r, n01n, n10r, n10n, n00r, n11n) must be derived from training data"
+    ],
+    "cautions": [
+      "Optimal g depends on the specific training set; recompute if training data distribution changes significantly",
+      "Formula in Equation 6.6 excludes training examples where both zone scores agree; verify sufficient disagreement cases exist",
+      "Resulting g is a scalar; ensure it is normalized or bounded appropriately for the scoring system"
+    ],
+    "output_contract": [
+      "Scalar weight parameter g (0 ≤ g ≤ 1) that minimizes classification error on training data, ready for use in weighted zone scoring formula: score = g * sT(d, q) + (1-g) * sB(d, q)"
+    ],
+    "examples": [
+      {
+        "input": "Training set: 100 examples with n10r=15, n01n=20, n10n=10, n01r=25, n00r=5, n11n=25",
+        "output": "g = (15 + 20) / (15 + 10 + 25 + 20) = 35 / 70 = 0.5",
+        "notes": "Equal weight to both zones; indicates balanced zone contributions in training data"
+      }
+    ],
+    "tags": [
+      "zone_scoring",
+      "parameter_optimization",
+      "training_data",
+      "error_minimization",
+      "weight_learning"
+    ],
+    "support_ids": [
+      "c079a388-698f-5160-9452-edd69295a587"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "5a8bf22e-4c8d-57ee-a06a-3811ba05be60"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|derive optimal zone weight parameter from training error|default|scoring_parameter_learning|error_minimization|weight_calibration|weighted zone scoring parameter optimization"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

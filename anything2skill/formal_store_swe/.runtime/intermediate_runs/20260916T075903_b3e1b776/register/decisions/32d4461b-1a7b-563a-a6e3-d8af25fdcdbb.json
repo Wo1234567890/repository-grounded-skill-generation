@@ -1,0 +1,116 @@
+{
+  "skill_id": "32d4461b-1a7b-563a-a6e3-d8af25fdcdbb",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate skill 'Safe Event Recording with Session Validation' is a micro_skill in the event_persistence/safe_write domain, but existing_skills registry contains only DOM event handling skills (event_listener_management, pointer_position_retrieval) from a different domain (d3/visualization). The peer_candidates are all from the agentops/session_management domain. No semantic overlap exists with existing_skills. The candidate should be evaluated against a registry of session/event persistence skills, not DOM interaction skills. Discard from this context to avoid false registry pollution.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "32d4461b-1a7b-563a-a6e3-d8af25fdcdbb",
+    "name": "Safe Event Recording with Session Validation",
+    "description": "Safely records an event object to a session with implicit null-session handling, ensuring events are persisted without raising exceptions if session is unavailable.",
+    "skill_body": "Call this skill when you have a constructed event (LLMEvent, ErrorEvent, or similar) and need to record it to the current session. The skill handles the case where session is None gracefully, persisting the event without failure. Do not use this skill if you require synchronous confirmation of write success or transactional guarantees.\n\n## Objective\n\nPersist event objects to session with graceful degradation\n## Applicable Signals\n\n- Event construction complete\n- Session context available or unavailable\n- Downstream logging or audit trail required\n\n## Contraindications\n\n- Caller requires synchronous confirmation that write succeeded\n- Caller requires transactional guarantees or rollback capability\n- Event must not be lost under any circumstance (use persistent queue instead)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Receive event object and session reference', 'detail': 'Accept fully constructed event and optional session parameter'}\n- {'step': 2, 'action': 'Attempt to record event to session', 'detail': 'Call session.events.append(event) or equivalent store operation if session is not None'}\n- {'step': 3, 'action': 'Handle null session gracefully', 'detail': 'If session is None, skip recording without raising exception'}\n- {'step': 4, 'action': 'Suppress exceptions during write', 'detail': 'Wrap operation in try-except; log or discard errors silently'}\n\n## Constraints\n\n- Session parameter may be None; skill must handle gracefully\n- Event object must be fully constructed before calling\n- No exception should propagate to caller\n\n## Cautions\n\n- This is best-effort logging; events may not persist if session is None or storage is unavailable\n- No confirmation is returned; caller cannot verify write success\n- Use only for non-critical event recording\n\n## Output Contract\n\n- Event is recorded to session.events or equivalent store if session is available; no exception is raised to caller regardless of session state or write outcome.\n\n## Example Executions\n\n### Example 1\n\n- Input: event=LLMEvent(init_timestamp=1234567890, params={'messages': [...]}), session=<Session object>\n- Output: Event appended to session.events; function returns without exception\n- Notes: Normal case with valid session\n\n### Example 2\n\n- Input: event=ErrorEvent(trigger_event=llm_event, exception=<Exception>), session=None\n- Output: Event not recorded; function returns without exception\n- Notes: Graceful degradation when session is unavailable",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Persist event objects to session with graceful degradation",
+    "domain": "default",
+    "task_family": "event_persistence",
+    "method_family": "safe_write",
+    "stage": "recording",
+    "applicable_signals": [
+      "Event construction complete",
+      "Session context available or unavailable",
+      "Downstream logging or audit trail required"
+    ],
+    "contraindications": [
+      "Caller requires synchronous confirmation that write succeeded",
+      "Caller requires transactional guarantees or rollback capability",
+      "Event must not be lost under any circumstance (use persistent queue instead)"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Event object (LLMEvent, ErrorEvent, etc.) is constructed and ready for recording",
+      "Current session reference is available (may be None)",
+      "Event must be persisted without blocking or raising exceptions"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Receive event object and session reference', 'detail': 'Accept fully constructed event and optional session parameter'}",
+      "{'step': 2, 'action': 'Attempt to record event to session', 'detail': 'Call session.events.append(event) or equivalent store operation if session is not None'}",
+      "{'step': 3, 'action': 'Handle null session gracefully', 'detail': 'If session is None, skip recording without raising exception'}",
+      "{'step': 4, 'action': 'Suppress exceptions during write', 'detail': 'Wrap operation in try-except; log or discard errors silently'}"
+    ],
+    "constraints": [
+      "Session parameter may be None; skill must handle gracefully",
+      "Event object must be fully constructed before calling",
+      "No exception should propagate to caller"
+    ],
+    "cautions": [
+      "This is best-effort logging; events may not persist if session is None or storage is unavailable",
+      "No confirmation is returned; caller cannot verify write success",
+      "Use only for non-critical event recording"
+    ],
+    "output_contract": [
+      "Event is recorded to session.events or equivalent store if session is available; no exception is raised to caller regardless of session state or write outcome."
+    ],
+    "examples": [
+      {
+        "input": "event=LLMEvent(init_timestamp=1234567890, params={'messages': [...]}), session=<Session object>",
+        "output": "Event appended to session.events; function returns without exception",
+        "notes": "Normal case with valid session"
+      },
+      {
+        "input": "event=ErrorEvent(trigger_event=llm_event, exception=<Exception>), session=None",
+        "output": "Event not recorded; function returns without exception",
+        "notes": "Graceful degradation when session is unavailable"
+      }
+    ],
+    "tags": [
+      "event_recording",
+      "session_management",
+      "error_handling",
+      "defensive_programming",
+      "logging"
+    ],
+    "support_ids": [
+      "3be4b92c-cd89-5921-8fe3-44ad9685480f"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "acdd391d-7523-565a-93dc-0b2a1790b7fc"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.78,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|persist event objects to session with graceful degradation|default|event_persistence|safe_write|recording|safe event recording with session validation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

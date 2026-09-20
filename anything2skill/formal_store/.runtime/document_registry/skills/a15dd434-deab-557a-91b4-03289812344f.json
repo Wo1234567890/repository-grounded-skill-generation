@@ -1,0 +1,143 @@
+{
+  "skill_id": "a15dd434-deab-557a-91b4-03289812344f",
+  "name": "Flink DataStream Window Aggregation Setup",
+  "description": "Construct and execute a complete streaming window aggregation pipeline using Flink DataStream API. Chains socket source, flat-map transformation, keying, windowing, and aggregation into one executable job that reads from a socket, transforms data, windows it in fixed time intervals, aggregates within each window, and outputs results.",
+  "skill_body": "1. Initialize StreamExecutionEnvironment.\n2. Create a socket text stream source (host, port).\n3. Apply flatMap to split and filter input (e.g., tokenize words).\n4. Key the stream by the grouping field (e.g., word).\n5. Apply a tumbling processing-time window (e.g., 5 seconds).\n6. Aggregate within the window (e.g., sum, count).\n7. Add a sink (e.g., print()).\n8. Call env.execute(jobName) to submit and run the job.\n\n## Objective\n\nBuild and run a complete windowed stream processing job that reads from a socket, transforms, windows, and aggregates data.\n## Applicable Signals\n\n- Need to aggregate streaming data over fixed time windows\n- Word count or metric rollup use case\n- End-to-end job execution required\n- Real-time processing from socket or similar source\n\n## Contraindications\n\n- Batch processing only (use DataSet API instead)\n- No windowing requirement (use map/filter directly)\n- Using higher-level SQL or Table API\n- Event-time semantics required without watermark setup\n\n## Intervention Moves\n\n- Initialize execution environment\n- Attach socket text stream source\n- Chain flatMap for tokenization or splitting\n- Apply keyBy for grouping\n- Specify tumbling processing-time window\n- Apply aggregation operator (sum, count, etc.)\n- Attach sink for output\n- Execute job with named identifier\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Create StreamExecutionEnvironment', 'detail': 'StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();'}\n- {'step': 2, 'action': 'Attach socket text stream source', 'detail': 'env.socketTextStream(host, port) returns DataStream<String>'}\n- {'step': 3, 'action': 'Apply flatMap transformation', 'detail': 'Split input (e.g., by whitespace), filter empty tokens, emit individual elements'}\n- {'step': 4, 'action': 'Key the stream', 'detail': 'keyBy(value -> value.f0) or equivalent; groups elements by key for windowing'}\n- {'step': 5, 'action': 'Define tumbling window', 'detail': 'window(TumblingProcessingTimeWindows.of(Time.seconds(N))) creates fixed-size non-overlapping windows'}\n- {'step': 6, 'action': 'Apply aggregation', 'detail': 'sum(fieldIndex) or aggregate() to combine values within each window'}\n- {'step': 7, 'action': 'Attach sink', 'detail': 'dataStream.print() or other sink (writeAsText, custom sink)'}\n- {'step': 8, 'action': 'Execute job', 'detail': 'env.execute(jobName) submits and runs the job; blocks until completion or cancellation'}\n\n## Constraints\n\n- Socket source must be available and listening on specified host:port\n- Transformation logic (flatMap, keyBy) must be correctly implemented\n- Window size must be appropriate for data arrival rate\n- Aggregation field index or key must match stream schema\n\n## Cautions\n\n- Lazy evaluation: transformations are not executed until env.execute() is called\n- Socket source is blocking; ensure input stream is active before job starts\n- Processing-time windows are not deterministic across runs; use event-time windows for reproducibility if needed\n- Ensure flatMap filter removes empty tokens to avoid null key errors\n\n## Output Contract\n\n- Executable Flink job that reads from socket source, applies transformations, windows data in fixed time intervals, aggregates within each window, and outputs results to sink. Job runs until explicitly cancelled or source closes.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Socket stream: 'hello world', 'hello flink', 'world flink' (within 5-second window)\n- Therapist/Output: (hello, 2), (world, 2), (flink, 2)\n- Notes: Tumbling 5-second window counts word occurrences; each word appears twice in the example window.\n\n### Example 2\n\n- Client/Input: Metric stream: '10', '20', '15' (within 10-second window, keyed by metric type)\n- Therapist/Output: Sum: 45\n- Notes: Aggregates numeric values within the window using sum operator.",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [
+    "20d5f145-6862-53e0-b6ca-186486afc92e"
+  ],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "parent",
+  "visible_role": "parent",
+  "objective": "Build and run a complete windowed stream processing job that reads from a socket, transforms, windows, and aggregates data.",
+  "domain": "default",
+  "task_family": "stream_processing",
+  "method_family": "datastream_pipeline",
+  "stage": "execution_setup",
+  "applicable_signals": [
+    "Need to aggregate streaming data over fixed time windows",
+    "Word count or metric rollup use case",
+    "End-to-end job execution required",
+    "Real-time processing from socket or similar source"
+  ],
+  "contraindications": [
+    "Batch processing only (use DataSet API instead)",
+    "No windowing requirement (use map/filter directly)",
+    "Using higher-level SQL or Table API",
+    "Event-time semantics required without watermark setup"
+  ],
+  "intervention_moves": [
+    "Initialize execution environment",
+    "Attach socket text stream source",
+    "Chain flatMap for tokenization or splitting",
+    "Apply keyBy for grouping",
+    "Specify tumbling processing-time window",
+    "Apply aggregation operator (sum, count, etc.)",
+    "Attach sink for output",
+    "Execute job with named identifier"
+  ],
+  "triggers": [
+    "Need to aggregate streaming data over fixed time windows (e.g., word count, metric rollup) and execute the job end-to-end."
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Create StreamExecutionEnvironment', 'detail': 'StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();'}",
+    "{'step': 2, 'action': 'Attach socket text stream source', 'detail': 'env.socketTextStream(host, port) returns DataStream<String>'}",
+    "{'step': 3, 'action': 'Apply flatMap transformation', 'detail': 'Split input (e.g., by whitespace), filter empty tokens, emit individual elements'}",
+    "{'step': 4, 'action': 'Key the stream', 'detail': 'keyBy(value -> value.f0) or equivalent; groups elements by key for windowing'}",
+    "{'step': 5, 'action': 'Define tumbling window', 'detail': 'window(TumblingProcessingTimeWindows.of(Time.seconds(N))) creates fixed-size non-overlapping windows'}",
+    "{'step': 6, 'action': 'Apply aggregation', 'detail': 'sum(fieldIndex) or aggregate() to combine values within each window'}",
+    "{'step': 7, 'action': 'Attach sink', 'detail': 'dataStream.print() or other sink (writeAsText, custom sink)'}",
+    "{'step': 8, 'action': 'Execute job', 'detail': 'env.execute(jobName) submits and runs the job; blocks until completion or cancellation'}"
+  ],
+  "constraints": [
+    "Socket source must be available and listening on specified host:port",
+    "Transformation logic (flatMap, keyBy) must be correctly implemented",
+    "Window size must be appropriate for data arrival rate",
+    "Aggregation field index or key must match stream schema"
+  ],
+  "cautions": [
+    "Lazy evaluation: transformations are not executed until env.execute() is called",
+    "Socket source is blocking; ensure input stream is active before job starts",
+    "Processing-time windows are not deterministic across runs; use event-time windows for reproducibility if needed",
+    "Ensure flatMap filter removes empty tokens to avoid null key errors"
+  ],
+  "output_contract": [
+    "Executable Flink job that reads from socket source, applies transformations, windows data in fixed time intervals, aggregates within each window, and outputs results to sink. Job runs until explicitly cancelled or source closes."
+  ],
+  "examples": [
+    {
+      "input": "Socket stream: 'hello world', 'hello flink', 'world flink' (within 5-second window)",
+      "output": "(hello, 2), (world, 2), (flink, 2)",
+      "notes": "Tumbling 5-second window counts word occurrences; each word appears twice in the example window."
+    },
+    {
+      "input": "Metric stream: '10', '20', '15' (within 10-second window, keyed by metric type)",
+      "output": "Sum: 45",
+      "notes": "Aggregates numeric values within the window using sum operator."
+    }
+  ],
+  "tags": [
+    "flink",
+    "datastream",
+    "windowing",
+    "aggregation",
+    "streaming",
+    "socket_source"
+  ],
+  "support_ids": [
+    "bf12d786-80e2-5737-8551-53283424fc97"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "a0be4a2e-7e42-5bb0-9c6c-ed0b46aa255c"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.85,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|build and run a complete windowed stream processing job that reads from a socket, transforms, windows, and aggregates data.|default|stream_processing|datastream_pipeline|execution_setup|flink datastream window aggregation setup",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct session-level workflow skill for Flink DataStream window aggregation that chains socket source, transformation, keying, windowing, and aggregation into one executable job. It does not semantically match any existing skill (which cover Python multiprocessing and GRPO reward scaling in different domains). Peer candidates (DataStream Transformation, Source Reading, Source Creation) are narrower, complementary skills at the same granularity but different stages/methods. The candidate integrates multiple stages (input, processing, windowing, aggregation) into a complete end-to-end session workflow, making it a distinct capability worthy of creation rather than merge or split.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "parent",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "20d5f145-6862-53e0-b6ca-186486afc92e"
+    ]
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

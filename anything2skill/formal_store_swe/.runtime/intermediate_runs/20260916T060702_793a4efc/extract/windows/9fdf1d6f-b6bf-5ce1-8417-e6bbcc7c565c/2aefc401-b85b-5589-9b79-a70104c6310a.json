@@ -1,0 +1,510 @@
+{
+  "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+  "title": "tictoc-paper.txt",
+  "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/tictoc-paper.txt",
+  "window_id": "2aefc401-b85b-5589-9b79-a70104c6310a",
+  "section_heading": "4.1     Proof Idea",
+  "strategy": "strict",
+  "supports": [
+    {
+      "support_id": "491556a2-4b9d-5901-b3f8-c27d0fcc138f",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/tictoc-paper.txt",
+      "section": "4.1     Proof Idea",
+      "span": {
+        "start": 54923,
+        "end": 63749
+      },
+      "excerpt": "1634\n\fneed to show that all read-write or write-read conflicting transac-                       transactions         A        B        C        D\ntions commit at different logical or physical time.\n   Consider a pair of transactions committing at the same physical\ntime. One reads a tuple and the other writes to the same tuple.\nThen, the commit timestamp of the reading transaction must be less                           tuples       x         y        z        u        v\nthan or equal to the tuple’s current rts. And the commit timestamp\nof the writing transaction must be greater than the tuple’s current                                           Locking                Waiting\nrts. Therefore, they have different commit timestamps.\n                                                                                      Figure 2: An example of lock thrashing in a 2PL protocol.\n    L EMMA 3. A read operation from a committed transaction re-\nturns the value of the latest write to the tuple in the serial schedule.          essentially the same process as a 2PL protocol where a transaction\n    P ROOF. We first prove that if a committed transaction’s read                 may wait if the next lock that it needs to acquire is not immediately\nobserves another transaction’s write, then the reading transaction                available. Waiting for locks, however, may create thrashing prob-\nmust be ordered after the writing transaction in the serial schedule.             lems at high core counts, even if locks are acquired in primary key\n   A tuple’s wts is always updated together with its value, and the               order [37]. Thrashing happens when a transaction already holds\nwts is always the commit timestamp of the transaction that writes                 locks and waits for the next lock. The locks it already holds, how-\nthe value. Line 9 in Algorithm 2 states that if another transaction               ever, may block other transactions.\nreads the value, then its commit timestamp must be greater than or                   Consider a pathological case shown in Fig. 2 where each trans-\nequal to wts. If the commit timestamp equals wts, then the reading                action tries to lock two tuples. Transaction D has already acquired\ntransaction still commits after the writing transaction in physical               both of the locks that it needs, while transactions A, B, and C are\ntime because the writing transaction only makes its writes globally               waiting for locks held by other transactions. When transaction D\nvisible after its physical commit time. By Definition 1, the reading              commits, C is able to acquire the lock and make forward progress.\ntransaction is always ordered after the writing transaction in the                Transactions A and B, however, still need to wait. The end result\nserial schedule.                                                                  is that the four transactions are validated sequentially.\n   We next show that the write observed by the following read is                     Note that, in this particular example, it is actually possible to\nthe latest write in the serial schedule. In other words, if the writing           abort transactions A and C so that B and D can acquire the locks\ntransaction has timestamp t1 and the reading transaction has times-               and run in parallel. After they finish, A and C can also run in\ntamp t2 , no other write to the same tuple happens at timestamp t,                parallel. This schedule only takes half the execution time compared\nsuch that t1 ≤ t ≤ t2 .                                                           to the pathological schedule, but it requires an additional deadlock\n   According to Algorithm 2, when the reading transaction com-                    detection thread to quickly identify these scenarios.\nmits, it can observe a consistent view of the tuple’s TS_word with                   A better approach to avoid the thrashing problem is to use a 2PL\nwts and rts, where t1 = wts and t2 ≤ rts. This implies that so far in             variant based on non-waiting deadlock prevention in TicToc’s vali-\nphysical time, no write to the same tuple has happened between t1                 dation phase [5]. This protocol optimization, which we refer to as\nand t2 in logical time because otherwise the wts of the tuple would               no-wait, is like running a mini concurrency control algorithm in-\nbe greater than t1 . No such write can happen in the future either                side of the TicToc algorithm. With no-wait, if a transaction fails to\nbecause all future writes will have timestamps greater the tuple’s                acquire a lock for a tuple in its write set during the validation phase,\nrts and thus greater than t2 .                                                    the validation is immediately aborted (releasing any locks) and then\n                                                                                  TicToc restarts the validation phase. The transaction sleeps for a\n    P ROOF OF T HEOREM 1. According to Lemma 2, transactions                      short period (1 µs) before retrying to reduce restarts. Our experi-\nwith the same commit timestamp and physical commit time do not                    ments show that the algorithm’s performance is not overly sensitive\nconflict. Thus, all serial orders among them are equivalent.                      to the length of this sleep time as long as it is not too large.\n   According to Lemma 3, for transactions with different commit                      The no-wait optimization minimizes the blocking and allows more\ntimestamps or physical commit times, a read in a transaction al-                  transactions to validate simultaneously. In the example in Fig. 2, if\nways returns the latest write in the serial schedule. According to                no-wait is used, then A or B may run in parallel with D.\nLemma 1, only one such latest write can exist so there is no ambi-\nguity. Then, for each transaction executed in the actual schedule,                5.2     Preemptive Aborts\nall the values it observes are identical to the values it would observe              The first step of the validation phase (Algorithm 2) locks the tu-\nin the serial schedule. Hence, the two schedules are equivalent.                  ples in the transaction’s write set before it examines the read set.\n                                                                                  If a transaction ends up aborting because read set validation fails,\n5.    OPTIMIZATIONS                                                               then this locking potentially blocked other transactions unnecessar-\n   The TicToc algorithm as presented so far achieves good perfor-                 ily. We observe that for some transactions the decision to abort can\nmance when tested on a multi-socket system (Section 6). There                     actually be made before locking the write set tuples. We call this\nare, however, still places in the validation phase that may create                optimization preemptive abort. Since all the serialization infor-\nunnecessary contention and thus hurt performance. For example,                    mation is already stored in the tuples’ timestamps, it can be used to\nlocking the transaction’s write set during the validation phase may               make early abort decisions, thereby reducing contention.\ncause thrashing for write-intensive benchmarks.                                      To better understand this, consider a transaction with one tuple\n   In this section, we discuss several optimizations that we devel-               in its read set. This transaction will fail the validation phase if this\noped for TicToc to minimize contention. We also discuss how Tic-                  tuple’s local rts is less than the transaction’s commit timestamp and\nToc works for weaker isolation levels for those applications that do              its local wts does not match the tuple’s latest wts. A tuple’s latest\nnot need strong serializability.                                                  wts can be atomically read from the TS_word of the tuple. The\n                                                                                  transaction’s commit timestamp, however, cannot be accurately de-\n5.1     No-Wait Locking in Validation Phase                                       termined before the write set is locked because a tuple’s rts in the\n   In TicToc’s validation phase (Algorithm 2), tuples in a transac-               write set might be changed by a different transaction. The key ob-\ntion’s write set are locked following the primary key order. This is              servation here is that we just need to find an approximate commit",
+      "relation_type": "support",
+      "confidence": 0.85,
+      "metadata": {
+        "document_title": "tictoc-paper.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Timestamp-Based Conflict Detection",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Detect and enforce timestamp ordering for conflicting transaction pairs",
+        "task_family": "transaction_validation",
+        "method_family": "timestamp_comparison",
+        "stage": "validation",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "2aefc401-b85b-5589-9b79-a70104c6310a",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "4.1     Proof Idea"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "3.2     Protocol Specification",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads",
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "L EMMA 2. Transactions that commit at the same timestamp"
+      },
+      "created_at": "2026-09-15T20:10:39+00:00"
+    },
+    {
+      "support_id": "4649b236-aa05-5a77-810b-593f8cd7e00b",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/tictoc-paper.txt",
+      "section": "4.1     Proof Idea",
+      "span": {
+        "start": 54923,
+        "end": 63749
+      },
+      "excerpt": "1634\n\fneed to show that all read-write or write-read conflicting transac-                       transactions         A        B        C        D\ntions commit at different logical or physical time.\n   Consider a pair of transactions committing at the same physical\ntime. One reads a tuple and the other writes to the same tuple.\nThen, the commit timestamp of the reading transaction must be less                           tuples       x         y        z        u        v\nthan or equal to the tuple’s current rts. And the commit timestamp\nof the writing transaction must be greater than the tuple’s current                                           Locking                Waiting\nrts. Therefore, they have different commit timestamps.\n                                                                                      Figure 2: An example of lock thrashing in a 2PL protocol.\n    L EMMA 3. A read operation from a committed transaction re-\nturns the value of the latest write to the tuple in the serial schedule.          essentially the same process as a 2PL protocol where a transaction\n    P ROOF. We first prove that if a committed transaction’s read                 may wait if the next lock that it needs to acquire is not immediately\nobserves another transaction’s write, then the reading transaction                available. Waiting for locks, however, may create thrashing prob-\nmust be ordered after the writing transaction in the serial schedule.             lems at high core counts, even if locks are acquired in primary key\n   A tuple’s wts is always updated together with its value, and the               order [37]. Thrashing happens when a transaction already holds\nwts is always the commit timestamp of the transaction that writes                 locks and waits for the next lock. The locks it already holds, how-\nthe value. Line 9 in Algorithm 2 states that if another transaction               ever, may block other transactions.\nreads the value, then its commit timestamp must be greater than or                   Consider a pathological case shown in Fig. 2 where each trans-\nequal to wts. If the commit timestamp equals wts, then the reading                action tries to lock two tuples. Transaction D has already acquired\ntransaction still commits after the writing transaction in physical               both of the locks that it needs, while transactions A, B, and C are\ntime because the writing transaction only makes its writes globally               waiting for locks held by other transactions. When transaction D\nvisible after its physical commit time. By Definition 1, the reading              commits, C is able to acquire the lock and make forward progress.\ntransaction is always ordered after the writing transaction in the                Transactions A and B, however, still need to wait. The end result\nserial schedule.                                                                  is that the four transactions are validated sequentially.\n   We next show that the write observed by the following read is                     Note that, in this particular example, it is actually possible to\nthe latest write in the serial schedule. In other words, if the writing           abort transactions A and C so that B and D can acquire the locks\ntransaction has timestamp t1 and the reading transaction has times-               and run in parallel. After they finish, A and C can also run in\ntamp t2 , no other write to the same tuple happens at timestamp t,                parallel. This schedule only takes half the execution time compared\nsuch that t1 ≤ t ≤ t2 .                                                           to the pathological schedule, but it requires an additional deadlock\n   According to Algorithm 2, when the reading transaction com-                    detection thread to quickly identify these scenarios.\nmits, it can observe a consistent view of the tuple’s TS_word with                   A better approach to avoid the thrashing problem is to use a 2PL\nwts and rts, where t1 = wts and t2 ≤ rts. This implies that so far in             variant based on non-waiting deadlock prevention in TicToc’s vali-\nphysical time, no write to the same tuple has happened between t1                 dation phase [5]. This protocol optimization, which we refer to as\nand t2 in logical time because otherwise the wts of the tuple would               no-wait, is like running a mini concurrency control algorithm in-\nbe greater than t1 . No such write can happen in the future either                side of the TicToc algorithm. With no-wait, if a transaction fails to\nbecause all future writes will have timestamps greater the tuple’s                acquire a lock for a tuple in its write set during the validation phase,\nrts and thus greater than t2 .                                                    the validation is immediately aborted (releasing any locks) and then\n                                                                                  TicToc restarts the validation phase. The transaction sleeps for a\n    P ROOF OF T HEOREM 1. According to Lemma 2, transactions                      short period (1 µs) before retrying to reduce restarts. Our experi-\nwith the same commit timestamp and physical commit time do not                    ments show that the algorithm’s performance is not overly sensitive\nconflict. Thus, all serial orders among them are equivalent.                      to the length of this sleep time as long as it is not too large.\n   According to Lemma 3, for transactions with different commit                      The no-wait optimization minimizes the blocking and allows more\ntimestamps or physical commit times, a read in a transaction al-                  transactions to validate simultaneously. In the example in Fig. 2, if\nways returns the latest write in the serial schedule. According to                no-wait is used, then A or B may run in parallel with D.\nLemma 1, only one such latest write can exist so there is no ambi-\nguity. Then, for each transaction executed in the actual schedule,                5.2     Preemptive Aborts\nall the values it observes are identical to the values it would observe              The first step of the validation phase (Algorithm 2) locks the tu-\nin the serial schedule. Hence, the two schedules are equivalent.                  ples in the transaction’s write set before it examines the read set.\n                                                                                  If a transaction ends up aborting because read set validation fails,\n5.    OPTIMIZATIONS                                                               then this locking potentially blocked other transactions unnecessar-\n   The TicToc algorithm as presented so far achieves good perfor-                 ily. We observe that for some transactions the decision to abort can\nmance when tested on a multi-socket system (Section 6). There                     actually be made before locking the write set tuples. We call this\nare, however, still places in the validation phase that may create                optimization preemptive abort. Since all the serialization infor-\nunnecessary contention and thus hurt performance. For example,                    mation is already stored in the tuples’ timestamps, it can be used to\nlocking the transaction’s write set during the validation phase may               make early abort decisions, thereby reducing contention.\ncause thrashing for write-intensive benchmarks.                                      To better understand this, consider a transaction with one tuple\n   In this section, we discuss several optimizations that we devel-               in its read set. This transaction will fail the validation phase if this\noped for TicToc to minimize contention. We also discuss how Tic-                  tuple’s local rts is less than the transaction’s commit timestamp and\nToc works for weaker isolation levels for those applications that do              its local wts does not match the tuple’s latest wts. A tuple’s latest\nnot need strong serializability.                                                  wts can be atomically read from the TS_word of the tuple. The\n                                                                                  transaction’s commit timestamp, however, cannot be accurately de-\n5.1     No-Wait Locking in Validation Phase                                       termined before the write set is locked because a tuple’s rts in the\n   In TicToc’s validation phase (Algorithm 2), tuples in a transac-               write set might be changed by a different transaction. The key ob-\ntion’s write set are locked following the primary key order. This is              servation here is that we just need to find an approximate commit",
+      "relation_type": "support",
+      "confidence": 0.88,
+      "metadata": {
+        "document_title": "tictoc-paper.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "No-Wait Lock Acquisition in Validation",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "Minimize lock contention and thrashing by using non-blocking lock acquisition with brief backoff.",
+        "task_family": "concurrency_control",
+        "method_family": "deadlock_prevention",
+        "stage": "validation",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "2aefc401-b85b-5589-9b79-a70104c6310a",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "4.1     Proof Idea"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "3.2     Protocol Specification",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads",
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "L EMMA 2. Transactions that commit at the same timestamp"
+      },
+      "created_at": "2026-09-15T20:10:39+00:00"
+    },
+    {
+      "support_id": "5dd9d67b-72c9-5617-92c2-04ecaddcacce",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/tictoc-paper.txt",
+      "section": "4.1     Proof Idea",
+      "span": {
+        "start": 54923,
+        "end": 63749
+      },
+      "excerpt": "1634\n\fneed to show that all read-write or write-read conflicting transac-                       transactions         A        B        C        D\ntions commit at different logical or physical time.\n   Consider a pair of transactions committing at the same physical\ntime. One reads a tuple and the other writes to the same tuple.\nThen, the commit timestamp of the reading transaction must be less                           tuples       x         y        z        u        v\nthan or equal to the tuple’s current rts. And the commit timestamp\nof the writing transaction must be greater than the tuple’s current                                           Locking                Waiting\nrts. Therefore, they have different commit timestamps.\n                                                                                      Figure 2: An example of lock thrashing in a 2PL protocol.\n    L EMMA 3. A read operation from a committed transaction re-\nturns the value of the latest write to the tuple in the serial schedule.          essentially the same process as a 2PL protocol where a transaction\n    P ROOF. We first prove that if a committed transaction’s read                 may wait if the next lock that it needs to acquire is not immediately\nobserves another transaction’s write, then the reading transaction                available. Waiting for locks, however, may create thrashing prob-\nmust be ordered after the writing transaction in the serial schedule.             lems at high core counts, even if locks are acquired in primary key\n   A tuple’s wts is always updated together with its value, and the               order [37]. Thrashing happens when a transaction already holds\nwts is always the commit timestamp of the transaction that writes                 locks and waits for the next lock. The locks it already holds, how-\nthe value. Line 9 in Algorithm 2 states that if another transaction               ever, may block other transactions.\nreads the value, then its commit timestamp must be greater than or                   Consider a pathological case shown in Fig. 2 where each trans-\nequal to wts. If the commit timestamp equals wts, then the reading                action tries to lock two tuples. Transaction D has already acquired\ntransaction still commits after the writing transaction in physical               both of the locks that it needs, while transactions A, B, and C are\ntime because the writing transaction only makes its writes globally               waiting for locks held by other transactions. When transaction D\nvisible after its physical commit time. By Definition 1, the reading              commits, C is able to acquire the lock and make forward progress.\ntransaction is always ordered after the writing transaction in the                Transactions A and B, however, still need to wait. The end result\nserial schedule.                                                                  is that the four transactions are validated sequentially.\n   We next show that the write observed by the following read is                     Note that, in this particular example, it is actually possible to\nthe latest write in the serial schedule. In other words, if the writing           abort transactions A and C so that B and D can acquire the locks\ntransaction has timestamp t1 and the reading transaction has times-               and run in parallel. After they finish, A and C can also run in\ntamp t2 , no other write to the same tuple happens at timestamp t,                parallel. This schedule only takes half the execution time compared\nsuch that t1 ≤ t ≤ t2 .                                                           to the pathological schedule, but it requires an additional deadlock\n   According to Algorithm 2, when the reading transaction com-                    detection thread to quickly identify these scenarios.\nmits, it can observe a consistent view of the tuple’s TS_word with                   A better approach to avoid the thrashing problem is to use a 2PL\nwts and rts, where t1 = wts and t2 ≤ rts. This implies that so far in             variant based on non-waiting deadlock prevention in TicToc’s vali-\nphysical time, no write to the same tuple has happened between t1                 dation phase [5]. This protocol optimization, which we refer to as\nand t2 in logical time because otherwise the wts of the tuple would               no-wait, is like running a mini concurrency control algorithm in-\nbe greater than t1 . No such write can happen in the future either                side of the TicToc algorithm. With no-wait, if a transaction fails to\nbecause all future writes will have timestamps greater the tuple’s                acquire a lock for a tuple in its write set during the validation phase,\nrts and thus greater than t2 .                                                    the validation is immediately aborted (releasing any locks) and then\n                                                                                  TicToc restarts the validation phase. The transaction sleeps for a\n    P ROOF OF T HEOREM 1. According to Lemma 2, transactions                      short period (1 µs) before retrying to reduce restarts. Our experi-\nwith the same commit timestamp and physical commit time do not                    ments show that the algorithm’s performance is not overly sensitive\nconflict. Thus, all serial orders among them are equivalent.                      to the length of this sleep time as long as it is not too large.\n   According to Lemma 3, for transactions with different commit                      The no-wait optimization minimizes the blocking and allows more\ntimestamps or physical commit times, a read in a transaction al-                  transactions to validate simultaneously. In the example in Fig. 2, if\nways returns the latest write in the serial schedule. According to                no-wait is used, then A or B may run in parallel with D.\nLemma 1, only one such latest write can exist so there is no ambi-\nguity. Then, for each transaction executed in the actual schedule,                5.2     Preemptive Aborts\nall the values it observes are identical to the values it would observe              The first step of the validation phase (Algorithm 2) locks the tu-\nin the serial schedule. Hence, the two schedules are equivalent.                  ples in the transaction’s write set before it examines the read set.\n                                                                                  If a transaction ends up aborting because read set validation fails,\n5.    OPTIMIZATIONS                                                               then this locking potentially blocked other transactions unnecessar-\n   The TicToc algorithm as presented so far achieves good perfor-                 ily. We observe that for some transactions the decision to abort can\nmance when tested on a multi-socket system (Section 6). There                     actually be made before locking the write set tuples. We call this\nare, however, still places in the validation phase that may create                optimization preemptive abort. Since all the serialization infor-\nunnecessary contention and thus hurt performance. For example,                    mation is already stored in the tuples’ timestamps, it can be used to\nlocking the transaction’s write set during the validation phase may               make early abort decisions, thereby reducing contention.\ncause thrashing for write-intensive benchmarks.                                      To better understand this, consider a transaction with one tuple\n   In this section, we discuss several optimizations that we devel-               in its read set. This transaction will fail the validation phase if this\noped for TicToc to minimize contention. We also discuss how Tic-                  tuple’s local rts is less than the transaction’s commit timestamp and\nToc works for weaker isolation levels for those applications that do              its local wts does not match the tuple’s latest wts. A tuple’s latest\nnot need strong serializability.                                                  wts can be atomically read from the TS_word of the tuple. The\n                                                                                  transaction’s commit timestamp, however, cannot be accurately de-\n5.1     No-Wait Locking in Validation Phase                                       termined before the write set is locked because a tuple’s rts in the\n   In TicToc’s validation phase (Algorithm 2), tuples in a transac-               write set might be changed by a different transaction. The key ob-\ntion’s write set are locked following the primary key order. This is              servation here is that we just need to find an approximate commit",
+      "relation_type": "support",
+      "confidence": 0.82,
+      "metadata": {
+        "document_title": "tictoc-paper.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Preemptive Abort Decision",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Reduce lock contention by identifying doomed transactions before write-set locking",
+        "task_family": "transaction_validation",
+        "method_family": "early_abort",
+        "stage": "validation",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 3,
+        "window_id": "2aefc401-b85b-5589-9b79-a70104c6310a",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "4.1     Proof Idea"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "3.2     Protocol Specification",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads",
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "L EMMA 2. Transactions that commit at the same timestamp"
+      },
+      "created_at": "2026-09-15T20:10:39+00:00"
+    }
+  ],
+  "skill_drafts": [
+    {
+      "draft_id": "184ca753-480c-5c00-be6a-5363d4abafa3",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "name": "Timestamp-Based Conflict Detection",
+      "description": "Verify that read-write or write-read conflicting transactions commit at different logical or physical timestamps by comparing tuple read timestamps (rts) and write timestamps (wts) against transaction commit timestamps.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Detect and enforce timestamp ordering for conflicting transaction pairs",
+      "domain": "default",
+      "task_family": "transaction_validation",
+      "method_family": "timestamp_comparison",
+      "stage": "validation",
+      "applicable_signals": [
+        "Tuple has both rts and wts available",
+        "Transaction commit timestamps are determinable",
+        "Conflicting tuple access detected in read and write sets"
+      ],
+      "contraindications": [
+        "Transactions have no overlapping tuple access",
+        "Both transactions are read-only (no write-read or read-write conflict)",
+        "Tuple timestamps are unavailable or stale"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Identify conflicting transaction pair and tuple', 'input': 'Two transactions with overlapping tuple access (one reads, one writes)'}",
+        "{'step': 2, 'action': \"Atomically read tuple's TS_word containing rts and wts\", 'input': 'Tuple reference'}",
+        "{'step': 3, 'action': \"Obtain reading transaction's commit timestamp\", 'input': 'Reading transaction context'}",
+        "{'step': 4, 'action': \"Obtain writing transaction's commit timestamp\", 'input': 'Writing transaction context'}",
+        "{'step': 5, 'action': 'Compare reading transaction timestamp against tuple rts', 'condition': 'reading_ts ≤ tuple.rts'}",
+        "{'step': 6, 'action': 'Compare writing transaction timestamp against tuple rts', 'condition': 'writing_ts > tuple.rts'}",
+        "{'step': 7, 'action': 'Return conflict resolution status', 'output': 'Boolean: true if both conditions hold (conflict resolved), false otherwise'}"
+      ],
+      "triggers": [
+        "Transaction pair identified with read-write conflict on same tuple",
+        "Transaction pair identified with write-read conflict on same tuple",
+        "Serializability verification required during validation phase"
+      ],
+      "constraints": [
+        "Tuple wts must be updated atomically with tuple value",
+        "Reading transaction commit timestamp must be determined after write set is locked to ensure accuracy",
+        "Comparison must use consistent snapshot of tuple timestamps"
+      ],
+      "cautions": [
+        "Do not compare timestamps before write set is locked; rts may change during validation",
+        "Ensure tuple timestamps reflect latest committed state, not in-flight writes"
+      ],
+      "output_contract": [
+        "Boolean confirmation that conflicting transactions have distinct commit timestamps. Success: reading transaction timestamp ≤ tuple rts AND writing transaction timestamp > tuple rts. Failure: either condition violated, indicating serializability violation or need for transaction abort/retry."
+      ],
+      "examples": [],
+      "risk_class": "medium",
+      "confidence": 0.85,
+      "support_ids": [
+        "491556a2-4b9d-5901-b3f8-c27d0fcc138f"
+      ],
+      "metadata": {
+        "prompt": "For a pair of transactions with read-write or write-read conflicts on the same tuple:\n1. Retrieve the tuple's current rts (read timestamp) and wts (write timestamp).\n2. Obtain the commit timestamp of the reading transaction and the writing transaction.\n3. Verify that the reading transaction's commit timestamp is ≤ tuple's current rts.\n4. Verify that the writing transaction's commit timestamp is > tuple's current rts.\n5. If both conditions hold, the transactions have different commit timestamps and conflict is resolved; otherwise, flag a serializability violation.",
+        "tags": [
+          "timestamp_ordering",
+          "conflict_detection",
+          "serializability",
+          "transaction_validation",
+          "concurrency_control"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "4.1     Proof Idea"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 1,
+        "window_id": "2aefc401-b85b-5589-9b79-a70104c6310a",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "4.1     Proof Idea"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "3.2     Protocol Specification",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads",
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "L EMMA 2. Transactions that commit at the same timestamp"
+      }
+    },
+    {
+      "draft_id": "84622cbf-88b3-5113-9982-ab7fa5372d91",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "name": "No-Wait Lock Acquisition in Validation",
+      "description": "Acquire write-set tuple locks in primary key order during the validation phase. If any lock is unavailable, immediately abort validation, release all held locks, sleep briefly (1 µs), and retry. This prevents lock thrashing and allows more transactions to validate simultaneously.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Minimize lock contention and thrashing by using non-blocking lock acquisition with brief backoff.",
+      "domain": "default",
+      "task_family": "concurrency_control",
+      "method_family": "deadlock_prevention",
+      "stage": "validation",
+      "applicable_signals": [
+        "Transaction entering validation phase",
+        "Write set contains one or more tuples",
+        "Multi-socket or high-concurrency execution environment"
+      ],
+      "contraindications": [
+        "Read-only transactions (no write set)",
+        "Low contention scenarios where standard blocking lock acquisition is acceptable",
+        "Strict immediate-lock-or-wait semantics required by application"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Iterate through write-set tuples in primary key order'}",
+        "{'step': 2, 'action': 'Attempt to acquire lock for current tuple (non-blocking)'}",
+        "{'step': 3, 'action': 'If lock acquired, move to next tuple; if all tuples locked, proceed to read-set validation'}",
+        "{'step': 4, 'action': 'If lock not available, release all locks acquired in this attempt'}",
+        "{'step': 5, 'action': 'Sleep for 1 µs'}",
+        "{'step': 6, 'action': 'Restart from step 1'}"
+      ],
+      "triggers": [
+        "Validation phase initiated for a transaction with a non-empty write set",
+        "High core count or write-intensive workload detected",
+        "Lock thrashing observed in standard 2PL validation"
+      ],
+      "constraints": [
+        "Locks must be acquired in primary key order to prevent deadlock cycles",
+        "Sleep duration (1 µs) should not be too large; algorithm performance is not overly sensitive to this value within reasonable bounds",
+        "All locks acquired in a failed attempt must be released before retry"
+      ],
+      "cautions": [
+        "Repeated retries may increase CPU usage; monitor retry frequency in high-contention scenarios",
+        "Sleep time tuning may be required for specific hardware and workload characteristics"
+      ],
+      "output_contract": [
+        "Either all write-set tuples are locked in primary key order and validation proceeds to read-set checks, or validation is aborted and the transaction is restarted. No partial lock state persists across retries."
+      ],
+      "examples": [
+        {
+          "input": "Transaction T with write set {tuple_x, tuple_y} (primary keys ordered); tuple_x lock available, tuple_y lock held by another transaction",
+          "output": "Lock tuple_x, attempt tuple_y, fail; release tuple_x lock; sleep 1 µs; retry from tuple_x",
+          "notes": "Prevents blocking on tuple_y while holding tuple_x, reducing thrashing"
+        },
+        {
+          "input": "Transaction T with write set {tuple_a, tuple_b, tuple_c}; all locks available",
+          "output": "Lock tuple_a, tuple_b, tuple_c in order; proceed to read-set validation",
+          "notes": "Fast path: no retry needed"
+        }
+      ],
+      "risk_class": "low",
+      "confidence": 0.88,
+      "support_ids": [
+        "4649b236-aa05-5a77-810b-593f8cd7e00b"
+      ],
+      "metadata": {
+        "prompt": "1. Lock write-set tuples in primary key order.\n2. If a lock cannot be acquired immediately, abort the validation phase.\n3. Release all locks acquired so far.\n4. Sleep for 1 µs.\n5. Retry the validation phase from step 1.\nRepeat until all write-set locks are acquired or a configurable retry limit is reached.",
+        "tags": [
+          "concurrency_control",
+          "lock_management",
+          "validation_phase",
+          "deadlock_prevention",
+          "performance_optimization",
+          "multi_core"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "4.1     Proof Idea"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "candidate_slot": 2,
+        "window_id": "2aefc401-b85b-5589-9b79-a70104c6310a",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "4.1     Proof Idea"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "3.2     Protocol Specification",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads",
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "L EMMA 2. Transactions that commit at the same timestamp"
+      }
+    },
+    {
+      "draft_id": "68855129-61ef-5826-b7f3-3a21957cc9c5",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "name": "Preemptive Abort Decision",
+      "description": "Before locking write-set tuples, determine if a transaction will fail validation by comparing an approximate commit timestamp (derived from read-set tuple rts values) against tuple wts. Abort early if validation will fail, avoiding unnecessary lock acquisition and contention.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Reduce lock contention by identifying doomed transactions before write-set locking",
+      "domain": "default",
+      "task_family": "transaction_validation",
+      "method_family": "early_abort",
+      "stage": "validation",
+      "applicable_signals": [
+        "Read-set tuple rts values are available",
+        "Tuple TS_word can be atomically read",
+        "Approximate commit timestamp can be computed from read-set rts"
+      ],
+      "contraindications": [
+        "Read-only transactions (no write set to lock)",
+        "Empty read set",
+        "Exact commit timestamp already determined"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': \"Read rts from all tuples in transaction's read set\", 'condition': 'Read set is non-empty'}",
+        "{'step': 2, 'action': 'Compute approximate commit timestamp as max(rts) from read set', 'condition': 'At least one rts value collected'}",
+        "{'step': 3, 'action': 'For each read-set tuple, atomically read latest wts from TS_word', 'condition': 'Approximate timestamp computed'}",
+        "{'step': 4, 'action': 'Check validation condition: rts < approximate_timestamp AND local_wts ≠ latest_wts', 'condition': 'All wts values read'}",
+        "{'step': 5, 'action': 'If validation will fail, abort transaction immediately', 'condition': 'Validation condition true for any read-set tuple'}",
+        "{'step': 6, 'action': 'If validation may succeed, proceed to write-set locking', 'condition': 'Validation condition false for all read-set tuples'}"
+      ],
+      "triggers": [
+        "Transaction enters validation phase",
+        "Transaction has non-empty read set",
+        "Write-set locking is about to occur"
+      ],
+      "constraints": [
+        "Approximate commit timestamp must be derived only from read-set rts values",
+        "Cannot use write-set rts values (they may change during validation)",
+        "Abort decision must be made before any write-set locks are acquired"
+      ],
+      "cautions": [
+        "Approximate commit timestamp may be conservative; some transactions marked for abort might have succeeded with exact timestamp",
+        "Early abort trades off some false positives for reduced lock contention"
+      ],
+      "output_contract": [
+        "Boolean decision: abort (true) or proceed to write-set locking (false). If abort, no locks are held. If proceed, transaction continues to full validation phase with write-set locking."
+      ],
+      "examples": [
+        {
+          "input": "Transaction T with read set {tuple_x, tuple_y}; tuple_x.rts=100, tuple_y.rts=95; tuple_x.wts=100 (matches TS_word), tuple_y.wts=90 (does not match TS_word); approximate_timestamp=100",
+          "output": "Abort decision: true. Reason: tuple_y.rts (95) < approximate_timestamp (100) AND tuple_y.wts (90) ≠ latest_wts. No write-set locks acquired.",
+          "notes": "Early abort prevents unnecessary lock acquisition and contention."
+        },
+        {
+          "input": "Transaction T with read set {tuple_a}; tuple_a.rts=50; tuple_a.wts=50 (matches TS_word); approximate_timestamp=50",
+          "output": "Abort decision: false. Reason: validation condition not met (wts matches). Proceed to write-set locking and full validation.",
+          "notes": "Transaction may succeed; full validation required."
+        }
+      ],
+      "risk_class": "low",
+      "confidence": 0.82,
+      "support_ids": [
+        "5dd9d67b-72c9-5617-92c2-04ecaddcacce"
+      ],
+      "metadata": {
+        "prompt": "1. Collect rts values from all tuples in the transaction's read set.\n2. Compute an approximate commit timestamp as the maximum rts observed.\n3. For each tuple in the read set, check if its wts matches the latest wts stored in TS_word.\n4. If any tuple's local rts is less than the approximate commit timestamp AND its local wts does not match the tuple's latest wts, the transaction will fail validation.\n5. If validation will fail, abort immediately without acquiring locks on the write set.\n6. If validation may succeed, proceed to write-set locking and full validation.",
+        "tags": [],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "4.1     Proof Idea"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 3,
+        "window_id": "2aefc401-b85b-5589-9b79-a70104c6310a",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "4.1     Proof Idea"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "3.2     Protocol Specification",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads",
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "L EMMA 2. Transactions that commit at the same timestamp"
+      }
+    }
+  ],
+  "failed": false,
+  "complete": true,
+  "error": {}
+}

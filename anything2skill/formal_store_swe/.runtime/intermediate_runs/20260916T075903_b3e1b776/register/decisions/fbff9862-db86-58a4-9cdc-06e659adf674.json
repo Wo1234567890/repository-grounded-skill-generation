@@ -1,0 +1,106 @@
+{
+  "skill_id": "fbff9862-db86-58a4-9cdc-06e659adf674",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for LLM event capture and interception within provider response handling. It does not semantically match existing skills (DOM event listeners, D3 local variables, or stream processing). Peer candidates address different concerns (stream iteration, chat completion invocation, trace metadata updates) and do not subsume this capability. Support evidence from Debugging Roadmap confirms the need for provider-level event logging. No conflicts detected.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "fbff9862-db86-58a4-9cdc-06e659adf674",
+    "name": "LLM Event Capture and Tracking",
+    "description": "Micro operation to intercept and log LLM interactions including prompts, completions, token usage, timestamps, errors, and tool calls. Invoked within provider handle_response() to record observable LLM behavior for debugging and monitoring.",
+    "skill_body": "When an LLM provider receives a response, capture and record the following event metadata: the input prompt, the completion text, token usage counts, request/response timestamps, any errors encountered, and tool invocations if applicable. Store the event record in a structured format accessible to downstream logging and analysis.\n\n## Objective\n\nCapture and record LLM request/response events with full observability metadata\n## Applicable Signals\n\n- Response object available from LLM client\n- Provider context is active and initialized\n\n## Contraindications\n\n- Do not invoke during pre-request validation phase\n- Do not invoke during provider initialization or setup\n- Do not invoke during method patching or unpatching logic\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Extract prompt from request context', 'detail': 'Retrieve the input prompt text that was sent to the LLM'}\n- {'step': 2, 'action': 'Extract completion from response', 'detail': 'Retrieve the completion text returned by the LLM'}\n- {'step': 3, 'action': 'Record token usage', 'detail': 'Capture prompt tokens, completion tokens, and total tokens if available'}\n- {'step': 4, 'action': 'Record timestamps', 'detail': 'Capture request start time and response completion time'}\n- {'step': 5, 'action': 'Capture error information', 'detail': 'Log any errors or exceptions encountered during the LLM call'}\n- {'step': 6, 'action': 'Track tool usage if applicable', 'detail': 'Record any tool calls or function invocations made by the LLM'}\n- {'step': 7, 'action': 'Assemble and store event record', 'detail': 'Combine all captured metadata into a structured event record'}\n\n## Constraints\n\n- Must execute after response is received, not before\n- Event record must include all required fields: prompt, completion, token usage, timestamp, error status\n- Tool usage tracking is conditional on applicability to the provider\n\n## Cautions\n\n- Ensure token counts are accurate for billing and quota tracking\n- Preserve error details without exposing sensitive information\n- Handle cases where tool usage is not applicable to the provider\n\n## Output Contract\n\n- Event record object containing: prompt (string), completion (string), token_usage (dict with prompt_tokens, completion_tokens, total_tokens), timestamp_start (ISO 8601), timestamp_end (ISO 8601), error (string or null), tool_calls (list or null). Record is immediately available for logging, monitoring, and downstream analysis.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Capture and record LLM request/response events with full observability metadata",
+    "domain": "default",
+    "task_family": "event_capture",
+    "method_family": "response_interception",
+    "stage": "execution",
+    "applicable_signals": [
+      "Response object available from LLM client",
+      "Provider context is active and initialized"
+    ],
+    "contraindications": [
+      "Do not invoke during pre-request validation phase",
+      "Do not invoke during provider initialization or setup",
+      "Do not invoke during method patching or unpatching logic"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "LLM provider receives a response from the model",
+      "handle_response() method is invoked on the provider instance"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Extract prompt from request context', 'detail': 'Retrieve the input prompt text that was sent to the LLM'}",
+      "{'step': 2, 'action': 'Extract completion from response', 'detail': 'Retrieve the completion text returned by the LLM'}",
+      "{'step': 3, 'action': 'Record token usage', 'detail': 'Capture prompt tokens, completion tokens, and total tokens if available'}",
+      "{'step': 4, 'action': 'Record timestamps', 'detail': 'Capture request start time and response completion time'}",
+      "{'step': 5, 'action': 'Capture error information', 'detail': 'Log any errors or exceptions encountered during the LLM call'}",
+      "{'step': 6, 'action': 'Track tool usage if applicable', 'detail': 'Record any tool calls or function invocations made by the LLM'}",
+      "{'step': 7, 'action': 'Assemble and store event record', 'detail': 'Combine all captured metadata into a structured event record'}"
+    ],
+    "constraints": [
+      "Must execute after response is received, not before",
+      "Event record must include all required fields: prompt, completion, token usage, timestamp, error status",
+      "Tool usage tracking is conditional on applicability to the provider"
+    ],
+    "cautions": [
+      "Ensure token counts are accurate for billing and quota tracking",
+      "Preserve error details without exposing sensitive information",
+      "Handle cases where tool usage is not applicable to the provider"
+    ],
+    "output_contract": [
+      "Event record object containing: prompt (string), completion (string), token_usage (dict with prompt_tokens, completion_tokens, total_tokens), timestamp_start (ISO 8601), timestamp_end (ISO 8601), error (string or null), tool_calls (list or null). Record is immediately available for logging, monitoring, and downstream analysis."
+    ],
+    "examples": [],
+    "tags": [
+      "observability",
+      "event_logging",
+      "llm_monitoring",
+      "debugging",
+      "provider_integration"
+    ],
+    "support_ids": [
+      "ad4d6e65-e70a-5223-89b5-ea8d691946e3"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "9eede995-4703-55b8-a592-a9cac287d483"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|capture and record llm request/response events with full observability metadata|default|event_capture|response_interception|execution|llm event capture and tracking"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,126 @@
+{
+  "skill_id": "ab334d07-1b79-5de7-878d-8dc51a398bac",
+  "name": "ProcessPoolExecutor Initialization with Worker Setup",
+  "description": "Initializes the AgentOps SDK with environment variables or defaults when not yet initialized. Handles initialization failures gracefully by logging warnings and errors, returning None if initialization cannot proceed. Use this as a guard before starting traces to ensure SDK readiness.",
+  "skill_body": "Check if tracer.initialized is False. If so, attempt to initialize the SDK using init() with environment variables or defaults. Log a warning before attempting initialization. If initialization fails (either init() raises an exception or tracer.initialized remains False after init()), log an error and return None. Otherwise, return the initialized tracer state.\n\n## Objective\n\nEnsure SDK is ready before starting traces; fail safely if initialization is not possible.\n## Applicable Signals\n\n- tracer.initialized == False\n- start_trace() called without prior init() confirmation\n\n## Contraindications\n\n- SDK is already confirmed initialized (tracer.initialized == True)\n- Explicit init() has already been called and succeeded\n- Caller does not need automatic fallback behavior and prefers explicit initialization only\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if tracer.initialized is False', 'condition': 'tracer.initialized == False'}\n- {'step': 2, 'action': \"Log warning: 'AgentOps SDK not initialized. Attempting to initialize with defaults before starting trace.'\", 'condition': 'Initialization check passed'}\n- {'step': 3, 'action': 'Call init() to initialize with environment variables or defaults', 'condition': 'Warning logged'}\n- {'step': 4, 'action': 'Check if tracer.initialized is True after init()', 'condition': 'init() completed without exception'}\n- {'step': 5, 'action': \"Log error: 'SDK initialization failed. Cannot start trace.' and return None\", 'condition': 'tracer.initialized is still False after init()'}\n- {'step': 6, 'action': 'Catch exception from init(), log error with exception details, and return None', 'condition': 'init() raises an exception'}\n\n## Constraints\n\n- Must check tracer.initialized before attempting init()\n- Must log warning before attempting initialization\n- Must catch and log exceptions from init() without re-raising\n- Must verify tracer.initialized after init() call to confirm success\n\n## Cautions\n\n- Automatic initialization may mask configuration issues; explicit init() is preferred in production\n- Logging warnings and errors should be visible to caller for debugging\n\n## Output Contract\n\n- Returns True (or initialized tracer state) if tracer.initialized becomes True; returns None with error logged if initialization fails or raises an exception. Caller can check return value to determine if SDK is ready for trace operations.",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "048797be-e3b0-5c18-81d2-f1ef6e933f06",
+  "parent_candidate_ids": [
+    "048797be-e3b0-5c18-81d2-f1ef6e933f06",
+    "2142ee5d-6d0f-5077-9736-8fbf5a8844d3"
+  ],
+  "child_skill_ids": [
+    "a57f0399-4bb1-5b74-ac1f-a7080f6b3f1f",
+    "f509d9e3-a785-5796-a16a-d7323cfadd5d"
+  ],
+  "hierarchy_confidence": 0.55,
+  "hierarchy_status": "linked",
+  "visible_role": "parent",
+  "objective": "Set up a process pool with per-worker initialization and error handling for CPU-bound tasks requiring process isolation",
+  "domain": "default",
+  "task_family": "parallel_task_execution",
+  "method_family": "process_pool_initialization",
+  "stage": "initialization",
+  "applicable_signals": [
+    "tracer.initialized == False",
+    "start_trace() called without prior init() confirmation"
+  ],
+  "contraindications": [
+    "SDK is already confirmed initialized (tracer.initialized == True)",
+    "Explicit init() has already been called and succeeded",
+    "Caller does not need automatic fallback behavior and prefers explicit initialization only"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Need to execute CPU-bound tasks with process isolation",
+    "Per-worker state setup required (e.g., database connections, shared resources)",
+    "Worker processes must initialize before accepting tasks"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Check if tracer.initialized is False', 'condition': 'tracer.initialized == False'}",
+    "{'step': 2, 'action': \"Log warning: 'AgentOps SDK not initialized. Attempting to initialize with defaults before starting trace.'\", 'condition': 'Initialization check passed'}",
+    "{'step': 3, 'action': 'Call init() to initialize with environment variables or defaults', 'condition': 'Warning logged'}",
+    "{'step': 4, 'action': 'Check if tracer.initialized is True after init()', 'condition': 'init() completed without exception'}",
+    "{'step': 5, 'action': \"Log error: 'SDK initialization failed. Cannot start trace.' and return None\", 'condition': 'tracer.initialized is still False after init()'}",
+    "{'step': 6, 'action': 'Catch exception from init(), log error with exception details, and return None', 'condition': 'init() raises an exception'}"
+  ],
+  "constraints": [
+    "Must check tracer.initialized before attempting init()",
+    "Must log warning before attempting initialization",
+    "Must catch and log exceptions from init() without re-raising",
+    "Must verify tracer.initialized after init() call to confirm success"
+  ],
+  "cautions": [
+    "Automatic initialization may mask configuration issues; explicit init() is preferred in production",
+    "Logging warnings and errors should be visible to caller for debugging"
+  ],
+  "output_contract": [
+    "Returns True (or initialized tracer state) if tracer.initialized becomes True; returns None with error logged if initialization fails or raises an exception. Caller can check return value to determine if SDK is ready for trace operations."
+  ],
+  "examples": [],
+  "tags": [
+    "sdk_initialization",
+    "error_handling",
+    "fallback_logic",
+    "setup_guard"
+  ],
+  "support_ids": [
+    "661c5b8c-297f-5df1-943f-78c48951ac7b",
+    "3ac02d9e-04a0-56e3-b28b-f9dd3022b88e"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "5057816c-086e-5f69-9e69-1d1c5ec31c1e"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.82,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|set up a process pool with per-worker initialization and error handling for cpu-bound tasks requiring process isolation|default|parallel_task_execution|process_pool_initialization|initialization|processpoolexecutor initialization with worker setup",
+    "change_action": "merge",
+    "llm_reason": "Candidate 'SDK Initialization with Fallback' is a narrower, defensive variant of three existing peer SDK initialization skills. It implements graceful fallback logic (check→warn→init→verify→return None on failure) that should be integrated as a constraint/caution pattern across the broader initialization skills rather than persisted as a separate session_skill. The peer candidates already cover the full initialization lifecycle; this candidate adds error-handling guidance that belongs in the constraints and cautions of the existing skills, not as a distinct capability.",
+    "parent_skill_id": "048797be-e3b0-5c18-81d2-f1ef6e933f06",
+    "parent_candidate_ids": [
+      "048797be-e3b0-5c18-81d2-f1ef6e933f06",
+      "2142ee5d-6d0f-5077-9736-8fbf5a8844d3"
+    ],
+    "hierarchy_confidence": 0.55,
+    "hierarchy_status": "linked",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "a57f0399-4bb1-5b74-ac1f-a7080f6b3f1f",
+      "f509d9e3-a785-5796-a16a-d7323cfadd5d"
+    ],
+    "merged_from_skill_ids": []
+  },
+  "version": "0.1.1",
+  "status": "active"
+}

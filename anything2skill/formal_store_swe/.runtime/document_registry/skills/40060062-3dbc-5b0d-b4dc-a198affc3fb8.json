@@ -1,0 +1,128 @@
+{
+  "skill_id": "40060062-3dbc-5b0d-b4dc-a198affc3fb8",
+  "name": "Future Cancellation and State Inspection",
+  "description": "Synchronize current session and trace context state to legacy module globals for backward compatibility. Invoked during client initialization when auto-trace is enabled and legacy code paths must remain functional.",
+  "skill_body": "Update the legacy module's _current_session and _current_trace_context globals with the values from the current client instance. Wrap the import and assignment in a try-except block to gracefully handle cases where the legacy module is not available. Do not raise an error if the import fails; log and continue.\n\n## Objective\n\nUpdate legacy module globals with current session state to maintain backward compatibility\n## Applicable Signals\n\n- auto_start_session flag is True\n- Legacy session wrapper exists in current client instance\n- Trace context has been initialized\n\n## Contraindications\n\n- Legacy module is not imported or not available\n- auto_start_session is False\n- Direct session passing is available and preferred\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Attempt to import agentops.legacy module', 'condition': 'Legacy module integration required'}\n- {'step': 2, 'action': 'Assign self._legacy_session_for_init_trace to agentops.legacy._current_session', 'condition': 'Import successful'}\n- {'step': 3, 'action': 'Assign self._init_trace_context to agentops.legacy._current_trace_context', 'condition': 'Import successful'}\n- {'step': 4, 'action': 'Catch ImportError and pass silently', 'condition': 'Legacy module not available'}\n\n## Constraints\n\n- ImportError must be caught and suppressed; do not propagate\n- Assignment must occur only if import succeeds\n- State values must be taken from the current client instance, not external sources\n\n## Cautions\n\n- Direct access to another module's globals is not ideal; use only when explicit session passing is not feasible\n- Ensure legacy module is in the expected import path before relying on this synchronization\n\n## Output Contract\n\n- Legacy module _current_session and _current_trace_context globals are updated with current client state; ImportError is caught and suppressed without raising; caller receives confirmation that synchronization completed (or was skipped if legacy module unavailable)",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "Inspect and control individual Future object state without blocking or retrieving results.",
+  "domain": "default",
+  "task_family": "async_coordination",
+  "method_family": "future_state_query",
+  "stage": "monitoring",
+  "applicable_signals": [
+    "auto_start_session flag is True",
+    "Legacy session wrapper exists in current client instance",
+    "Trace context has been initialized"
+  ],
+  "contraindications": [
+    "Legacy module is not imported or not available",
+    "auto_start_session is False",
+    "Direct session passing is available and preferred"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Need to conditionally cancel a pending task before it starts execution",
+    "Must check if a task is still running before attempting to access its result",
+    "Implementing timeout-based or event-driven cancellation logic",
+    "Coordinating multiple dependent futures and need to know their execution state"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Attempt to import agentops.legacy module', 'condition': 'Legacy module integration required'}",
+    "{'step': 2, 'action': 'Assign self._legacy_session_for_init_trace to agentops.legacy._current_session', 'condition': 'Import successful'}",
+    "{'step': 3, 'action': 'Assign self._init_trace_context to agentops.legacy._current_trace_context', 'condition': 'Import successful'}",
+    "{'step': 4, 'action': 'Catch ImportError and pass silently', 'condition': 'Legacy module not available'}"
+  ],
+  "constraints": [
+    "ImportError must be caught and suppressed; do not propagate",
+    "Assignment must occur only if import succeeds",
+    "State values must be taken from the current client instance, not external sources"
+  ],
+  "cautions": [
+    "Direct access to another module's globals is not ideal; use only when explicit session passing is not feasible",
+    "Ensure legacy module is in the expected import path before relying on this synchronization"
+  ],
+  "output_contract": [
+    "Legacy module _current_session and _current_trace_context globals are updated with current client state; ImportError is caught and suppressed without raising; caller receives confirmation that synchronization completed (or was skipped if legacy module unavailable)"
+  ],
+  "examples": [
+    {
+      "input": "future = executor.submit(is_prime, 112272535095293); future.cancel()",
+      "output": "True (if task was pending and successfully cancelled) or False (if task already running or finished)",
+      "notes": "Attempt to cancel a submitted task before it starts execution"
+    },
+    {
+      "input": "future.running()",
+      "output": "True (if task is currently executing) or False (if not yet started or already finished)",
+      "notes": "Check if task is in progress before attempting cancellation"
+    },
+    {
+      "input": "future.done()",
+      "output": "True (if task has finished in any state) or False (if still pending or running)",
+      "notes": "Verify task has reached terminal state before proceeding with dependent operations"
+    }
+  ],
+  "tags": [
+    "backward_compatibility",
+    "state_synchronization",
+    "legacy_integration",
+    "client_initialization"
+  ],
+  "support_ids": [
+    "3632124d-1bc2-5083-abf7-1d820a6bcc9c",
+    "d392fba4-c872-52c5-9b72-e441c75ef924"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "c688f1c1-dc66-5a9e-b42d-273f01fa613e"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.88,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|inspect and control individual future object state without blocking or retrieving results.|default|async_coordination|future_state_query|monitoring|future cancellation and state inspection",
+    "change_action": "merge",
+    "llm_reason": "Candidate skill 'Legacy Module State Synchronization' is semantically identical to existing skill 'Update legacy global references for backward compatibility' (92ed35c6-913a-5714-a07d-66723714d806). Both target the same objective: synchronizing internal state to legacy module globals during initialization for backward compatibility. The candidate uses agentops.legacy module import pattern while the existing skill uses direct global variable assignment, but both accomplish the same capability. The candidate should merge into the existing skill, which already captures the broader pattern.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "merged_from_skill_ids": []
+  },
+  "version": "0.1.1",
+  "status": "active"
+}

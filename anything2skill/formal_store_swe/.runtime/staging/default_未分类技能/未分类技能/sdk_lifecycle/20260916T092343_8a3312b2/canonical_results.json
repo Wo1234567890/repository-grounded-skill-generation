@@ -1,0 +1,153 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "sdk_lifecycle",
+  "run_id": "20260916T092343_8a3312b2",
+  "skills": [
+    {
+      "skill_id": "86a1fa28-94ca-59d8-816c-237d0c8ee660",
+      "name": "SDK Initialization State Check and Recovery",
+      "description": "Validate SDK initialization state before critical tracer operations. Attempt automatic recovery if uninitialized; escalate to error logging and return None if recovery fails. Prevents silent failures and ensures SDK readiness.",
+      "skill_body": "Check tracer.initialized status. If False, log warning and attempt init() with environment defaults. If init() succeeds and tracer.initialized becomes True, proceed. If init() fails or tracer.initialized remains False after attempt, log error and return None. Do not silently continue with uninitialized SDK.\n\n## Objective\n\nPrevent silent failures and ensure SDK readiness before critical operations\n## Applicable Signals\n\n- Before any tracer operation (start_trace, log_event, etc.)\n- When tracer.initialized status is uncertain or unknown\n- Entry point to operations that depend on SDK readiness\n\n## Contraindications\n\n- SDK initialization is explicitly disabled by user configuration\n- Running in a context where auto-initialization is forbidden by policy\n- Caller has already verified SDK initialization state upstream\n\n## Intervention Moves\n\n- Check tracer.initialized boolean flag\n- Log warning if uninitialized\n- Attempt init() with environment variables and defaults\n- Re-check tracer.initialized after init() attempt\n- Log error and return None if still uninitialized or init() raised exception\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check tracer.initialized', 'condition': 'if not tracer.initialized'}\n- {'step': 2, 'action': \"Log warning: 'AgentOps SDK not initialized. Attempting to initialize with defaults before starting trace.'\", 'condition': 'tracer.initialized is False'}\n- {'step': 3, 'action': 'Call init() to attempt recovery with environment defaults', 'condition': 'Warning logged'}\n- {'step': 4, 'action': 'Re-check tracer.initialized', 'condition': 'init() completed without exception'}\n- {'step': 5, 'action': 'Log error and return None', 'condition': 'tracer.initialized still False or init() raised exception'}\n\n## Constraints\n\n- Must not silently proceed with uninitialized SDK\n- Must log both warning (pre-recovery) and error (post-failure) states\n- Must return None on failure, not raise exception\n- Auto-initialization attempt must use environment defaults only\n\n## Cautions\n\n- Auto-initialization may fail if required environment variables are missing\n- Exception during init() must be caught and logged; do not propagate\n- Caller must handle None return value and decide whether to escalate or retry\n\n## Output Contract\n\n- Returns True if tracer.initialized == True after check or recovery; returns False if recovery failed. Caller receives explicit error log entry on failure. No silent failures.",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Prevent silent failures and ensure SDK readiness before critical operations",
+      "domain": "default",
+      "task_family": "sdk_lifecycle",
+      "method_family": "state_validation",
+      "stage": "precondition_check",
+      "applicable_signals": [
+        "Before any tracer operation (start_trace, log_event, etc.)",
+        "When tracer.initialized status is uncertain or unknown",
+        "Entry point to operations that depend on SDK readiness"
+      ],
+      "contraindications": [
+        "SDK initialization is explicitly disabled by user configuration",
+        "Running in a context where auto-initialization is forbidden by policy",
+        "Caller has already verified SDK initialization state upstream"
+      ],
+      "intervention_moves": [
+        "Check tracer.initialized boolean flag",
+        "Log warning if uninitialized",
+        "Attempt init() with environment variables and defaults",
+        "Re-check tracer.initialized after init() attempt",
+        "Log error and return None if still uninitialized or init() raised exception"
+      ],
+      "triggers": [
+        "Before any tracer operation; when tracer.initialized status is uncertain; to prevent downstream failures from uninitialized SDK"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check tracer.initialized', 'condition': 'if not tracer.initialized'}",
+        "{'step': 2, 'action': \"Log warning: 'AgentOps SDK not initialized. Attempting to initialize with defaults before starting trace.'\", 'condition': 'tracer.initialized is False'}",
+        "{'step': 3, 'action': 'Call init() to attempt recovery with environment defaults', 'condition': 'Warning logged'}",
+        "{'step': 4, 'action': 'Re-check tracer.initialized', 'condition': 'init() completed without exception'}",
+        "{'step': 5, 'action': 'Log error and return None', 'condition': 'tracer.initialized still False or init() raised exception'}"
+      ],
+      "constraints": [
+        "Must not silently proceed with uninitialized SDK",
+        "Must log both warning (pre-recovery) and error (post-failure) states",
+        "Must return None on failure, not raise exception",
+        "Auto-initialization attempt must use environment defaults only"
+      ],
+      "cautions": [
+        "Auto-initialization may fail if required environment variables are missing",
+        "Exception during init() must be caught and logged; do not propagate",
+        "Caller must handle None return value and decide whether to escalate or retry"
+      ],
+      "output_contract": [
+        "Returns True if tracer.initialized == True after check or recovery; returns False if recovery failed. Caller receives explicit error log entry on failure. No silent failures."
+      ],
+      "examples": [],
+      "tags": [
+        "sdk_lifecycle",
+        "state_validation",
+        "precondition_check",
+        "error_handling",
+        "initialization_guard"
+      ],
+      "support_ids": [
+        "f0a7eb3a-7dfa-56cf-b83e-6557755a53ac"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "8b8eb65e-7f18-5795-b9c6-7bf448922bbb"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.82,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|prevent silent failures and ensure sdk readiness before critical operations|default|sdk_lifecycle|state_validation|precondition_check|sdk initialization state check and recovery",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct safety rule for SDK initialization state validation with unique precondition logic (check → warn → attempt recovery → re-check → error). It differs semantically from peer candidates (API key validation is credential-specific, legacy cleanup is deprecation-focused, agent failure detection is monitoring-focused) and from existing executor/pool failure rules (which handle downstream task execution failures, not SDK readiness). No existing skill covers this specific SDK initialization state recovery workflow.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "5fad73b6-2983-404a-8c9c-8a1128b50f35",
+      "entity_type": "skill",
+      "entity_id": "86a1fa28-94ca-59d8-816c-237d0c8ee660",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct safety rule for SDK initialization state validation with unique precondition logic (check → warn → attempt recovery → re-check → error). It differs semantically from peer candidates (API key validation is credential-specific, legacy cleanup is deprecation-focused, agent failure detection is monitoring-focused) and from existing executor/pool failure rules (which handle downstream task execution failures, not SDK readiness). No existing skill covers this specific SDK initialization state recovery workflow.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "86a1fa28-94ca-59d8-816c-237d0c8ee660",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "f0a7eb3a-7dfa-56cf-b83e-6557755a53ac"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,481 @@
+{
+  "task_id": "implementing-jsc-classes-zig",
+  "model": "claude-haiku-4-5-20251001",
+  "raw_plan": {
+    "requirements": [
+      {
+        "id": "R1",
+        "requirement": "File BunHash.classes.ts must exist at src/bun.js/api/BunHash.classes.ts",
+        "primitive": "FILE_EXISTS",
+        "args": {
+          "path": "src/bun.js/api/BunHash.classes.ts"
+        },
+        "reason": "Task explicitly names this exact file path as a required file to create/modify"
+      },
+      {
+        "id": "R2",
+        "requirement": "File BunHash.zig must exist at src/bun.js/api/BunHash.zig",
+        "primitive": "FILE_EXISTS",
+        "args": {
+          "path": "src/bun.js/api/BunHash.zig"
+        },
+        "reason": "Task explicitly names this exact file path as a required file to create/modify"
+      },
+      {
+        "id": "R3",
+        "requirement": "File hash.test.ts must exist at test/js/bun/hash/hash.test.ts",
+        "primitive": "FILE_EXISTS",
+        "args": {
+          "path": "test/js/bun/hash/hash.test.ts"
+        },
+        "reason": "Task explicitly names this exact file path as a required file to create/modify"
+      },
+      {
+        "id": "R4",
+        "requirement": "BunHash.classes.ts must define class with name 'BunHash'",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "src/bun.js/api/BunHash.classes.ts",
+          "value": "BunHash"
+        },
+        "reason": "Task explicitly requires name: 'BunHash' in class definition and specifies the file, but cannot verify TypeScript structure without exact interface definition"
+      },
+      {
+        "id": "R5",
+        "requirement": "BunHash.classes.ts must include constructor: true property",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "src/bun.js/api/BunHash.classes.ts",
+          "value": "constructor"
+        },
+        "reason": "Task explicitly requires constructor: true in class definition but cannot verify exact structure without seeing the define() pattern interface"
+      },
+      {
+        "id": "R6",
+        "requirement": "BunHash.classes.ts must include finalize: true property",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "src/bun.js/api/BunHash.classes.ts",
+          "value": "finalize"
+        },
+        "reason": "Task explicitly requires finalize: true in class definition but cannot verify exact structure without seeing the define() pattern interface"
+      },
+      {
+        "id": "R7",
+        "requirement": "BunHash.classes.ts must define prototype method 'hash'",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "src/bun.js/api/BunHash.classes.ts",
+          "value": "hash"
+        },
+        "reason": "Task explicitly requires prototype method hash(data) but cannot verify exact TypeScript field structure"
+      },
+      {
+        "id": "R8",
+        "requirement": "BunHash.classes.ts must define prototype method 'digest'",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "src/bun.js/api/BunHash.classes.ts",
+          "value": "digest"
+        },
+        "reason": "Task explicitly requires prototype method digest() but cannot verify exact TypeScript field structure"
+      },
+      {
+        "id": "R9",
+        "requirement": "BunHash.classes.ts must define prototype getter 'algorithm'",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "src/bun.js/api/BunHash.classes.ts",
+          "value": "algorithm"
+        },
+        "reason": "Task explicitly requires prototype getter algorithm (cached) but cannot verify exact TypeScript field structure"
+      },
+      {
+        "id": "R10",
+        "requirement": "BunHash.zig must implement constructor supporting algorithm names",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires runtime behavior verification that constructor accepts algorithm string parameter - cannot verify statically"
+      },
+      {
+        "id": "R11",
+        "requirement": "BunHash.zig must support 'murmur3' algorithm",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "src/bun.js/api/BunHash.zig",
+          "value": "murmur3"
+        },
+        "reason": "Task explicitly names 'murmur3' as supported algorithm and specifies file, but cannot verify functional implementation"
+      },
+      {
+        "id": "R12",
+        "requirement": "BunHash.zig must support 'xxhash32' algorithm",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "src/bun.js/api/BunHash.zig",
+          "value": "xxhash32"
+        },
+        "reason": "Task explicitly names 'xxhash32' as supported algorithm and specifies file, but cannot verify functional implementation"
+      },
+      {
+        "id": "R13",
+        "requirement": "BunHash.zig must support 'xxhash64' algorithm",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "src/bun.js/api/BunHash.zig",
+          "value": "xxhash64"
+        },
+        "reason": "Task explicitly names 'xxhash64' as supported algorithm and specifies file, but cannot verify functional implementation"
+      },
+      {
+        "id": "R14",
+        "requirement": "BunHash.zig must support 'wyhash' algorithm",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "src/bun.js/api/BunHash.zig",
+          "value": "wyhash"
+        },
+        "reason": "Task explicitly names 'wyhash' as supported algorithm and specifies file, but cannot verify functional implementation"
+      },
+      {
+        "id": "R15",
+        "requirement": "BunHash.zig must implement hash() method accepting string or Uint8Array",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires runtime behavior verification of method signature and type handling - cannot statically verify parameter types or return value"
+      },
+      {
+        "id": "R16",
+        "requirement": "BunHash.zig must implement digest() method returning hex string",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires runtime behavior verification that digest() returns hex string format - cannot verify statically"
+      },
+      {
+        "id": "R17",
+        "requirement": "BunHash.zig must implement getAlgorithm getter returning algorithm name",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires runtime behavior verification of getter implementation and return value - cannot verify statically"
+      },
+      {
+        "id": "R18",
+        "requirement": "BunHash.zig must implement deinit and finalize for memory cleanup",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires verification of memory management implementation - cannot verify cleanup behavior statically"
+      },
+      {
+        "id": "R19",
+        "requirement": "Test suite must test all 4 hash algorithms",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires runtime test execution to verify coverage of all algorithms - cannot verify from static file analysis"
+      },
+      {
+        "id": "R20",
+        "requirement": "Test suite must test empty string scenario",
+        "primitive": "STRING_LITERAL_IN_FILE",
+        "args": {
+          "path": "test/js/bun/hash/hash.test.ts",
+          "value": "empty"
+        },
+        "reason": "Task explicitly requires empty string testing but cannot verify test execution behavior statically"
+      },
+      {
+        "id": "R21",
+        "requirement": "Test suite must test ASCII data scenario",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires runtime test execution to verify ASCII data handling - cannot verify from static analysis"
+      },
+      {
+        "id": "R22",
+        "requirement": "Test suite must test Unicode/UTF-8 data scenario",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires runtime test execution to verify Unicode/UTF-8 handling - cannot verify from static analysis"
+      },
+      {
+        "id": "R23",
+        "requirement": "Test suite must test binary data (Uint8Array) scenario",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires runtime test execution to verify Uint8Array handling - cannot verify from static analysis"
+      },
+      {
+        "id": "R24",
+        "requirement": "Test suite must verify known test vectors",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires runtime test execution to verify hash output correctness - cannot verify from static analysis"
+      },
+      {
+        "id": "R25",
+        "requirement": "Test suite must handle large input (>1MB)",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires runtime test execution to verify large input handling - cannot verify from static analysis"
+      },
+      {
+        "id": "R26",
+        "requirement": "Code must compile with bun run build without errors",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires compilation execution - cannot verify static syntax without running the build command"
+      },
+      {
+        "id": "R27",
+        "requirement": "BunHash class must be accessible from JavaScript",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires runtime verification that class is exported and accessible - cannot verify from static analysis"
+      },
+      {
+        "id": "R28",
+        "requirement": "Hash algorithms must produce correct and consistent results",
+        "primitive": "UNVERIFIED",
+        "args": {},
+        "reason": "Requires runtime test execution to verify hash correctness and consistency - cannot verify from static analysis"
+      }
+    ]
+  },
+  "sanitized_requirements": [
+    {
+      "id": "R1",
+      "requirement": "File BunHash.classes.ts must exist at src/bun.js/api/BunHash.classes.ts",
+      "primitive": "FILE_EXISTS",
+      "args": {
+        "path": "src/bun.js/api/BunHash.classes.ts"
+      },
+      "reason": "Task explicitly names this exact file path as a required file to create/modify"
+    },
+    {
+      "id": "R2",
+      "requirement": "File BunHash.zig must exist at src/bun.js/api/BunHash.zig",
+      "primitive": "FILE_EXISTS",
+      "args": {
+        "path": "src/bun.js/api/BunHash.zig"
+      },
+      "reason": "Task explicitly names this exact file path as a required file to create/modify"
+    },
+    {
+      "id": "R3",
+      "requirement": "File hash.test.ts must exist at test/js/bun/hash/hash.test.ts",
+      "primitive": "FILE_EXISTS",
+      "args": {
+        "path": "test/js/bun/hash/hash.test.ts"
+      },
+      "reason": "Task explicitly names this exact file path as a required file to create/modify"
+    },
+    {
+      "id": "R4",
+      "requirement": "BunHash.classes.ts must define class with name 'BunHash'",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "src/bun.js/api/BunHash.classes.ts",
+        "value": "BunHash"
+      },
+      "reason": "Task explicitly requires name: 'BunHash' in class definition and specifies the file, but cannot verify TypeScript structure without exact interface definition"
+    },
+    {
+      "id": "R5",
+      "requirement": "BunHash.classes.ts must include constructor: true property",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "src/bun.js/api/BunHash.classes.ts",
+        "value": "constructor"
+      },
+      "reason": "Task explicitly requires constructor: true in class definition but cannot verify exact structure without seeing the define() pattern interface"
+    },
+    {
+      "id": "R6",
+      "requirement": "BunHash.classes.ts must include finalize: true property",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "src/bun.js/api/BunHash.classes.ts",
+        "value": "finalize"
+      },
+      "reason": "Task explicitly requires finalize: true in class definition but cannot verify exact structure without seeing the define() pattern interface"
+    },
+    {
+      "id": "R7",
+      "requirement": "BunHash.classes.ts must define prototype method 'hash'",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "src/bun.js/api/BunHash.classes.ts",
+        "value": "hash"
+      },
+      "reason": "Task explicitly requires prototype method hash(data) but cannot verify exact TypeScript field structure"
+    },
+    {
+      "id": "R8",
+      "requirement": "BunHash.classes.ts must define prototype method 'digest'",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "src/bun.js/api/BunHash.classes.ts",
+        "value": "digest"
+      },
+      "reason": "Task explicitly requires prototype method digest() but cannot verify exact TypeScript field structure"
+    },
+    {
+      "id": "R9",
+      "requirement": "BunHash.classes.ts must define prototype getter 'algorithm'",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "src/bun.js/api/BunHash.classes.ts",
+        "value": "algorithm"
+      },
+      "reason": "Task explicitly requires prototype getter algorithm (cached) but cannot verify exact TypeScript field structure"
+    },
+    {
+      "id": "R10",
+      "requirement": "BunHash.zig must implement constructor supporting algorithm names",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires runtime behavior verification that constructor accepts algorithm string parameter - cannot verify statically"
+    },
+    {
+      "id": "R11",
+      "requirement": "BunHash.zig must support 'murmur3' algorithm",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "src/bun.js/api/BunHash.zig",
+        "value": "murmur3"
+      },
+      "reason": "Task explicitly names 'murmur3' as supported algorithm and specifies file, but cannot verify functional implementation"
+    },
+    {
+      "id": "R12",
+      "requirement": "BunHash.zig must support 'xxhash32' algorithm",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "src/bun.js/api/BunHash.zig",
+        "value": "xxhash32"
+      },
+      "reason": "Task explicitly names 'xxhash32' as supported algorithm and specifies file, but cannot verify functional implementation"
+    },
+    {
+      "id": "R13",
+      "requirement": "BunHash.zig must support 'xxhash64' algorithm",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "src/bun.js/api/BunHash.zig",
+        "value": "xxhash64"
+      },
+      "reason": "Task explicitly names 'xxhash64' as supported algorithm and specifies file, but cannot verify functional implementation"
+    },
+    {
+      "id": "R14",
+      "requirement": "BunHash.zig must support 'wyhash' algorithm",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "src/bun.js/api/BunHash.zig",
+        "value": "wyhash"
+      },
+      "reason": "Task explicitly names 'wyhash' as supported algorithm and specifies file, but cannot verify functional implementation"
+    },
+    {
+      "id": "R15",
+      "requirement": "BunHash.zig must implement hash() method accepting string or Uint8Array",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires runtime behavior verification of method signature and type handling - cannot statically verify parameter types or return value"
+    },
+    {
+      "id": "R16",
+      "requirement": "BunHash.zig must implement digest() method returning hex string",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires runtime behavior verification that digest() returns hex string format - cannot verify statically"
+    },
+    {
+      "id": "R17",
+      "requirement": "BunHash.zig must implement getAlgorithm getter returning algorithm name",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires runtime behavior verification of getter implementation and return value - cannot verify statically"
+    },
+    {
+      "id": "R18",
+      "requirement": "BunHash.zig must implement deinit and finalize for memory cleanup",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires verification of memory management implementation - cannot verify cleanup behavior statically"
+    },
+    {
+      "id": "R19",
+      "requirement": "Test suite must test all 4 hash algorithms",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires runtime test execution to verify coverage of all algorithms - cannot verify from static file analysis"
+    },
+    {
+      "id": "R20",
+      "requirement": "Test suite must test empty string scenario",
+      "primitive": "STRING_LITERAL_IN_FILE",
+      "args": {
+        "path": "test/js/bun/hash/hash.test.ts",
+        "value": "empty"
+      },
+      "reason": "Task explicitly requires empty string testing but cannot verify test execution behavior statically"
+    },
+    {
+      "id": "R21",
+      "requirement": "Test suite must test ASCII data scenario",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires runtime test execution to verify ASCII data handling - cannot verify from static analysis"
+    },
+    {
+      "id": "R22",
+      "requirement": "Test suite must test Unicode/UTF-8 data scenario",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires runtime test execution to verify Unicode/UTF-8 handling - cannot verify from static analysis"
+    },
+    {
+      "id": "R23",
+      "requirement": "Test suite must test binary data (Uint8Array) scenario",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires runtime test execution to verify Uint8Array handling - cannot verify from static analysis"
+    },
+    {
+      "id": "R24",
+      "requirement": "Test suite must verify known test vectors",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires runtime test execution to verify hash output correctness - cannot verify from static analysis"
+    },
+    {
+      "id": "R25",
+      "requirement": "Test suite must handle large input (>1MB)",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires runtime test execution to verify large input handling - cannot verify from static analysis"
+    },
+    {
+      "id": "R26",
+      "requirement": "Code must compile with bun run build without errors",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires compilation execution - cannot verify static syntax without running the build command"
+    },
+    {
+      "id": "R27",
+      "requirement": "BunHash class must be accessible from JavaScript",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires runtime verification that class is exported and accessible - cannot verify from static analysis"
+    },
+    {
+      "id": "R28",
+      "requirement": "Hash algorithms must produce correct and consistent results",
+      "primitive": "UNVERIFIED",
+      "args": {},
+      "reason": "Requires runtime test execution to verify hash correctness and consistency - cannot verify from static analysis"
+    }
+  ],
+  "warnings": []
+}

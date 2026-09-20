@@ -1,0 +1,114 @@
+{
+  "skill_id": "9d5ecb66-7fd5-59e0-8078-7d96f3a85568",
+  "name": "Learn Zone Weights from Relevance Judgments",
+  "description": "Extract and optimize zone weighting parameters from training examples of query-document pairs with relevance labels, minimizing squared error between predicted and actual relevance judgments using supervised parameter learning.",
+  "skill_body": "Given a set of training examples, each consisting of a query-document pair with a relevance judgment (binary or graded), learn the zone weight parameter g that minimizes total squared error. Use the weighted zone scoring formula score(d, q) = g · s_T(d, q) + (1 − g) · s_B(d, q), where s_T is the editorial zone score and s_B is the body zone score. Compute the squared error for each example as (r(d, q) − score(d, q))^2, then aggregate across all training examples to find the optimal g.\n\n## Objective\n\nFit zone weight parameters to training data to calibrate relevance scoring\n## Applicable Signals\n\n- Training dataset with query-document pairs is available\n- Relevance judgments (binary or graded) are provided for each pair\n- Zone structure (editorial and body zones) is already defined\n- Need to calibrate zone weights before deployment\n\n## Contraindications\n\n- No training examples available\n- Zone structure is not yet defined\n- Relevance judgments are missing or unreliable\n- Only a single query-document pair (insufficient for parameter learning)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Prepare training data', 'detail': 'Collect all query-document pairs with their relevance judgments; quantize judgments to numeric form (0 or 1 for binary).'}\n- {'step': 2, 'action': 'Compute zone scores for each example', 'detail': 'For each training pair (d_j, q_j), compute s_T(d_j, q_j) (editorial/title zone score) and s_B(d_j, q_j) (body zone score).'}\n- {'step': 3, 'action': 'Define scoring formula', 'detail': 'Use score(d_j, q_j) = g · s_T(d_j, q_j) + (1 − g) · s_B(d_j, q_j) for each example.'}\n- {'step': 4, 'action': 'Compute squared error for each example', 'detail': 'Calculate ε(g, Φ_j) = (r(d_j, q_j) − score(d_j, q_j))^2 for each training pair.'}\n- {'step': 5, 'action': 'Aggregate total error', 'detail': 'Sum all squared errors: Σ ε(g, Φ_j) across all j.'}\n- {'step': 6, 'action': 'Optimize g', 'detail': 'Find the value of g in [0, 1] that minimizes total squared error (e.g., via gradient descent, grid search, or closed-form solution if available).'}\n- {'step': 7, 'action': 'Validate and output', 'detail': 'Verify that the learned g produces lower error than baseline; document the final parameter value and total error.'}\n\n## Constraints\n\n- Weight parameter g must be in the range [0, 1]\n- Both s_T and s_B scores must be computed for each training example\n- Relevance judgments must be quantized to numeric values (0 or 1 for binary; 0–n for graded)\n\n## Cautions\n\n- Ensure training examples are representative of the query-document distribution in production.\n- Overfitting may occur if the training set is small; consider cross-validation.\n- If s_T and s_B are highly correlated, the learned g may be unstable; inspect zone score distributions.\n\n## Output Contract\n\n- Learned weight parameter g (scalar in [0, 1]) that minimizes total squared error across all training examples, accompanied by the final aggregated error value. This parameter is ready for deployment in the weighted zone scoring function for production queries.",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "parent",
+  "objective": "Fit zone weight parameters to training data to calibrate relevance scoring",
+  "domain": "default",
+  "task_family": "relevance_scoring",
+  "method_family": "supervised_parameter_learning",
+  "stage": "training",
+  "applicable_signals": [
+    "Training dataset with query-document pairs is available",
+    "Relevance judgments (binary or graded) are provided for each pair",
+    "Zone structure (editorial and body zones) is already defined",
+    "Need to calibrate zone weights before deployment"
+  ],
+  "contraindications": [
+    "No training examples available",
+    "Zone structure is not yet defined",
+    "Relevance judgments are missing or unreliable",
+    "Only a single query-document pair (insufficient for parameter learning)"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "You have a set of query-document pairs with binary or graded relevance judgments and need to calibrate zone weights for a weighted zone scoring function."
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Prepare training data', 'detail': 'Collect all query-document pairs with their relevance judgments; quantize judgments to numeric form (0 or 1 for binary).'}",
+    "{'step': 2, 'action': 'Compute zone scores for each example', 'detail': 'For each training pair (d_j, q_j), compute s_T(d_j, q_j) (editorial/title zone score) and s_B(d_j, q_j) (body zone score).'}",
+    "{'step': 3, 'action': 'Define scoring formula', 'detail': 'Use score(d_j, q_j) = g · s_T(d_j, q_j) + (1 − g) · s_B(d_j, q_j) for each example.'}",
+    "{'step': 4, 'action': 'Compute squared error for each example', 'detail': 'Calculate ε(g, Φ_j) = (r(d_j, q_j) − score(d_j, q_j))^2 for each training pair.'}",
+    "{'step': 5, 'action': 'Aggregate total error', 'detail': 'Sum all squared errors: Σ ε(g, Φ_j) across all j.'}",
+    "{'step': 6, 'action': 'Optimize g', 'detail': 'Find the value of g in [0, 1] that minimizes total squared error (e.g., via gradient descent, grid search, or closed-form solution if available).'}",
+    "{'step': 7, 'action': 'Validate and output', 'detail': 'Verify that the learned g produces lower error than baseline; document the final parameter value and total error.'}"
+  ],
+  "constraints": [
+    "Weight parameter g must be in the range [0, 1]",
+    "Both s_T and s_B scores must be computed for each training example",
+    "Relevance judgments must be quantized to numeric values (0 or 1 for binary; 0–n for graded)"
+  ],
+  "cautions": [
+    "Ensure training examples are representative of the query-document distribution in production.",
+    "Overfitting may occur if the training set is small; consider cross-validation.",
+    "If s_T and s_B are highly correlated, the learned g may be unstable; inspect zone score distributions."
+  ],
+  "output_contract": [
+    "Learned weight parameter g (scalar in [0, 1]) that minimizes total squared error across all training examples, accompanied by the final aggregated error value. This parameter is ready for deployment in the weighted zone scoring function for production queries."
+  ],
+  "examples": [],
+  "tags": [
+    "parameter_learning",
+    "zone_weighting",
+    "relevance_scoring",
+    "supervised_learning",
+    "training"
+  ],
+  "support_ids": [
+    "23feab94-a160-5974-86bd-af952ddd1687"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "c1ee586c-0b38-5d5f-996b-ebc9f8074c21"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.85,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|fit zone weight parameters to training data to calibrate relevance scoring|default|relevance_scoring|supervised_parameter_learning|training|learn zone weights from relevance judgments",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct supervised parameter learning workflow for zone weight optimization from relevance judgments. It differs semantically from peer candidates: 'Weighted Zone Scoring' (c30abe9c) executes scoring with preset/learned weights in ranking stage; 'Weighted Zone Score Computation' (8466bfb2) computes scores given weights; 'Vector Space Scoring' (415a5490) uses vector similarity, not zone weighting. The candidate is the training-stage skill that produces the weights used by the peers. No existing skill in the registry matches this supervised optimization objective. Existing skills (168e9557, d036d5ff) are unrelated (Spring Boot deprecation). Asset type, granularity, and node_id are consistent with peers.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

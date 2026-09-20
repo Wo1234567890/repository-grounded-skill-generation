@@ -1,0 +1,119 @@
+{
+  "skill_id": "305dd0c5-848d-5a21-8427-f59f4c4b46f8",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate skill is about Spring Boot 3.0 HTTP header property migration (asset_type: micro_skill, task_family: spring_boot_migration). Existing skills are about vLLM training acceleration, cache eviction precision measurement, and other unrelated domains. No semantic capability match exists. Peer candidates (Jetty Servlet downgrade, Actuator JSON serialization, Gradle main class resolution) are all Spring Boot 3.0 migration micro_skills in the same task_family but address different objectives and stages. The candidate should be evaluated against a Spring Boot migration skill registry, not this unrelated set of existing skills.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "305dd0c5-848d-5a21-8427-f59f4c4b46f8",
+    "name": "HTTP Header Size Property Migration",
+    "description": "Migrate from deprecated `server.max-http-header-size` to `server.max-http-request-header-size` in Spring Boot 3.0 configuration. For response header size limits on Tomcat or Jetty, implement a WebServerFactoryCustomizer bean.",
+    "skill_body": "1. Locate all occurrences of `server.max-http-header-size` in application.properties or application.yml.\n2. Replace with `server.max-http-request-header-size` for request header size control.\n3. If response header limits are required on Tomcat or Jetty, create a WebServerFactoryCustomizer bean to configure the server-specific response header size.\n4. Verify no deprecation warnings appear after rebuild.\n\n## Objective\n\nupdate_deprecated_header_properties\n## Applicable Signals\n\n- application.properties or application.yml contains `server.max-http-header-size`\n- Build output shows deprecation warnings for header size property\n- Need to enforce HTTP header size limits in Spring Boot 3.0\n\n## Contraindications\n\n- Application does not configure HTTP header size limits\n- Using default server settings is acceptable for the use case\n- No response header size customization is required\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Search configuration files', 'detail': 'Find all instances of `server.max-http-header-size` in application.properties, application.yml, or environment variables'}\n- {'step': 2, 'action': 'Replace property name', 'detail': 'Change `server.max-http-header-size` to `server.max-http-request-header-size` with the same value'}\n- {'step': 3, 'action': 'Implement response header customizer if needed', 'detail': 'If response header limits are required, create a @Configuration class with WebServerFactoryCustomizer<TomcatServletWebServerFactory> or WebServerFactoryCustomizer<JettyServletWebServerFactory>'}\n- {'step': 4, 'action': 'Rebuild and verify', 'detail': 'Compile application and confirm no deprecation warnings for header size properties'}\n\n## Constraints\n\n- Response header size limits via `server.max-http-request-header-size` only apply to request headers\n- Response header limits require WebServerFactoryCustomizer and only work on Tomcat or Jetty\n- Jetty requires Servlet API downgrade to 5.0 for Spring Boot 3.0 compatibility\n\n## Cautions\n\n- Ensure WebServerFactoryCustomizer is applied only when response header limits are explicitly needed\n- Test header size limits after migration to confirm expected behavior\n\n## Output Contract\n\n- Deprecated `server.max-http-header-size` property removed from configuration\n- `server.max-http-request-header-size` configured for request header limits\n- WebServerFactoryCustomizer bean present if response header limits are required\n- Build completes without header-size-related deprecation warnings\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: application.properties contains: server.max-http-header-size=16384\n- Therapist/Output: Property replaced with: server.max-http-request-header-size=16384; no WebServerFactoryCustomizer needed if response limits not required\n- Notes: Simple property replacement for request header size\n\n### Example 2\n\n- Client/Input: Application requires response header size limit of 32KB on Tomcat\n- Therapist/Output: WebServerFactoryCustomizer<TomcatServletWebServerFactory> bean created with customizer.getConnector().setMaxHttpHeaderSize(32768)\n- Notes: Response header customization requires explicit bean implementation",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "update_deprecated_header_properties",
+    "domain": "default",
+    "task_family": "spring_boot_migration",
+    "method_family": "property_replacement",
+    "stage": "configuration_migration",
+    "applicable_signals": [
+      "application.properties or application.yml contains `server.max-http-header-size`",
+      "Build output shows deprecation warnings for header size property",
+      "Need to enforce HTTP header size limits in Spring Boot 3.0"
+    ],
+    "contraindications": [
+      "Application does not configure HTTP header size limits",
+      "Using default server settings is acceptable for the use case",
+      "No response header size customization is required"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Spring Boot 3.0 upgrade initiated",
+      "Deprecation warning for `server.max-http-header-size` detected",
+      "Configuration property review phase during migration"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Search configuration files', 'detail': 'Find all instances of `server.max-http-header-size` in application.properties, application.yml, or environment variables'}",
+      "{'step': 2, 'action': 'Replace property name', 'detail': 'Change `server.max-http-header-size` to `server.max-http-request-header-size` with the same value'}",
+      "{'step': 3, 'action': 'Implement response header customizer if needed', 'detail': 'If response header limits are required, create a @Configuration class with WebServerFactoryCustomizer<TomcatServletWebServerFactory> or WebServerFactoryCustomizer<JettyServletWebServerFactory>'}",
+      "{'step': 4, 'action': 'Rebuild and verify', 'detail': 'Compile application and confirm no deprecation warnings for header size properties'}"
+    ],
+    "constraints": [
+      "Response header size limits via `server.max-http-request-header-size` only apply to request headers",
+      "Response header limits require WebServerFactoryCustomizer and only work on Tomcat or Jetty",
+      "Jetty requires Servlet API downgrade to 5.0 for Spring Boot 3.0 compatibility"
+    ],
+    "cautions": [
+      "Ensure WebServerFactoryCustomizer is applied only when response header limits are explicitly needed",
+      "Test header size limits after migration to confirm expected behavior"
+    ],
+    "output_contract": [
+      "Deprecated `server.max-http-header-size` property removed from configuration",
+      "`server.max-http-request-header-size` configured for request header limits",
+      "WebServerFactoryCustomizer bean present if response header limits are required",
+      "Build completes without header-size-related deprecation warnings"
+    ],
+    "examples": [
+      {
+        "input": "application.properties contains: server.max-http-header-size=16384",
+        "output": "Property replaced with: server.max-http-request-header-size=16384; no WebServerFactoryCustomizer needed if response limits not required",
+        "notes": "Simple property replacement for request header size"
+      },
+      {
+        "input": "Application requires response header size limit of 32KB on Tomcat",
+        "output": "WebServerFactoryCustomizer<TomcatServletWebServerFactory> bean created with customizer.getConnector().setMaxHttpHeaderSize(32768)",
+        "notes": "Response header customization requires explicit bean implementation"
+      }
+    ],
+    "tags": [
+      "spring-boot-3-migration",
+      "configuration-property",
+      "deprecation-handling",
+      "http-headers",
+      "tomcat",
+      "jetty"
+    ],
+    "support_ids": [
+      "d7a669a0-b07c-5aac-9001-15009b65a1e2"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "9e328e3c-df79-57f3-ad78-cd363f0a6da5"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.88,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|update_deprecated_header_properties|default|spring_boot_migration|property_replacement|configuration_migration|http header size property migration"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,116 @@
+{
+  "skill_id": "af6320bc-1ac2-5054-999c-eadf0d98b82c",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate represents a distinct and necessary capability for zone-weighted scoring that complements but does not duplicate peer skills. While TF-IDF and Vector Space Scoring operate on term-level weights in continuous space, this skill specifically addresses Boolean zone matching with preset/learned zone weights—a different scoring paradigm. Zone Index Construction is a prerequisite indexing step, not a scoring method. The candidate has clear workflow steps, documented constraints, and support evidence from information retrieval literature. No redundancy detected among peers.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "af6320bc-1ac2-5054-999c-eadf0d98b82c",
+    "name": "Weighted Zone Scoring Computation",
+    "description": "Combine Boolean match scores from multiple document zones using learned or preset weights to produce a single relevance score for ranking. Apply during query evaluation when documents have structured zones (e.g., title, body, metadata).",
+    "skill_body": "For each query-document pair with multiple zones: (1) Obtain Boolean match indicator (0 or 1) for each zone. (2) Multiply each zone's match indicator by its corresponding weight. (3) Sum weighted contributions to produce final score. (4) Use this score for document ranking in result set.\n\n## Objective\n\ncompute_zone_weighted_score\n## Applicable Signals\n\n- Boolean match indicators per zone available\n- zone weight parameters established\n- query-document pair ready for scoring\n\n## Contraindications\n\n- document is unstructured or single-zone only\n- zones require different Boolean match functions\n- continuous relevance scores required instead of weighted Boolean combination\n- zone weights are unknown and cannot be estimated\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Extract Boolean match indicator for each zone', 'detail': 'For each zone in the document, determine if query terms match (1) or do not match (0).'}\n- {'step': 2, 'action': 'Retrieve zone weights', 'detail': 'Obtain pre-computed or learned weight for each zone (e.g., g1 for title, g2 for body).'}\n- {'step': 3, 'action': 'Compute weighted sum', 'detail': \"Multiply each zone's Boolean indicator by its weight and sum all contributions.\"}\n- {'step': 4, 'action': 'Return combined score', 'detail': 'Output numeric score for use in document ranking.'}\n\n## Constraints\n\n- All zones must use compatible Boolean match functions (same or equivalent logic).\n- Zone weights must sum to a meaningful total (typically 1.0 or normalized).\n- Boolean match indicators must be binary (0 or 1) per zone.\n\n## Cautions\n\n- Ensure zone weights reflect actual relevance contribution; poorly calibrated weights degrade ranking quality.\n- Verify that zone definitions are consistent across all documents in the collection.\n\n## Output Contract\n\n- Numeric score (typically in range [0, sum_of_weights]) combining all zone contributions; suitable for sorting documents by relevance in result set.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Query: 'machine learning'; Document with zones: title (match=1), body (match=1), metadata (match=0); weights: g1=0.2, g2=0.5, g3=0.3\n- Therapist/Output: Score = 1*0.2 + 1*0.5 + 0*0.3 = 0.7\n- Notes: Document ranks higher when query matches high-weight zones.\n\n### Example 2\n\n- Client/Input: Query: 'neural networks'; Document with zones: title (match=0), body (match=1), metadata (match=1); weights: g1=0.4, g2=0.4, g3=0.2\n- Therapist/Output: Score = 0*0.4 + 1*0.4 + 1*0.2 = 0.6\n- Notes: Title mismatch reduces score despite body and metadata matches.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "compute_zone_weighted_score",
+    "domain": "information_retrieval",
+    "task_family": "scoring_and_weighting",
+    "method_family": "zone_combination",
+    "stage": "retrieval",
+    "applicable_signals": [
+      "Boolean match indicators per zone available",
+      "zone weight parameters established",
+      "query-document pair ready for scoring"
+    ],
+    "contraindications": [
+      "document is unstructured or single-zone only",
+      "zones require different Boolean match functions",
+      "continuous relevance scores required instead of weighted Boolean combination",
+      "zone weights are unknown and cannot be estimated"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "document has multiple structured zones (title, body, anchor text, etc.)",
+      "zone weights are known or have been learned from training data",
+      "need to produce single combined relevance score for ranking"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Extract Boolean match indicator for each zone', 'detail': 'For each zone in the document, determine if query terms match (1) or do not match (0).'}",
+      "{'step': 2, 'action': 'Retrieve zone weights', 'detail': 'Obtain pre-computed or learned weight for each zone (e.g., g1 for title, g2 for body).'}",
+      "{'step': 3, 'action': 'Compute weighted sum', 'detail': \"Multiply each zone's Boolean indicator by its weight and sum all contributions.\"}",
+      "{'step': 4, 'action': 'Return combined score', 'detail': 'Output numeric score for use in document ranking.'}"
+    ],
+    "constraints": [
+      "All zones must use compatible Boolean match functions (same or equivalent logic).",
+      "Zone weights must sum to a meaningful total (typically 1.0 or normalized).",
+      "Boolean match indicators must be binary (0 or 1) per zone."
+    ],
+    "cautions": [
+      "Ensure zone weights reflect actual relevance contribution; poorly calibrated weights degrade ranking quality.",
+      "Verify that zone definitions are consistent across all documents in the collection."
+    ],
+    "output_contract": [
+      "Numeric score (typically in range [0, sum_of_weights]) combining all zone contributions; suitable for sorting documents by relevance in result set."
+    ],
+    "examples": [
+      {
+        "input": "Query: 'machine learning'; Document with zones: title (match=1), body (match=1), metadata (match=0); weights: g1=0.2, g2=0.5, g3=0.3",
+        "output": "Score = 1*0.2 + 1*0.5 + 0*0.3 = 0.7",
+        "notes": "Document ranks higher when query matches high-weight zones."
+      },
+      {
+        "input": "Query: 'neural networks'; Document with zones: title (match=0), body (match=1), metadata (match=1); weights: g1=0.4, g2=0.4, g3=0.2",
+        "output": "Score = 0*0.4 + 1*0.4 + 1*0.2 = 0.6",
+        "notes": "Title mismatch reduces score despite body and metadata matches."
+      }
+    ],
+    "tags": [
+      "information_retrieval",
+      "scoring",
+      "zone_weighting",
+      "ranking",
+      "Boolean_matching"
+    ],
+    "support_ids": [
+      "9330325c-465f-5065-be94-b1032779fdcc"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "4557d25b-45f8-57c6-90ad-70fcefd64543"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.72,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|compute_zone_weighted_score|information_retrieval|scoring_and_weighting|zone_combination|retrieval|weighted zone scoring computation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 0,
+  "branch": "hits0"
+}

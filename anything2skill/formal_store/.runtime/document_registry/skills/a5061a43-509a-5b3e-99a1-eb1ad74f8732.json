@@ -1,0 +1,116 @@
+{
+  "skill_id": "a5061a43-509a-5b3e-99a1-eb1ad74f8732",
+  "name": "Serial Order Definition with Timestamp and Physical Time",
+  "description": "Establishes a total order among transactions using commit timestamp as primary criterion and physical commit time as tiebreaker, enabling correctness proofs for optimistic concurrency control schedules. Resolves transaction ordering when commit timestamps are identical by comparing wall-clock times between validation and write phases.",
+  "skill_body": "To establish serial order among transactions in an optimistic concurrency control system:\n1. Use commit timestamp as the primary ordering criterion.\n2. When two transactions have equal commit timestamps, use physical commit time (the actual wall-clock time between validation and write phases) as the tiebreaker.\n3. Define the serial order relation A <s B as: A <ts B ∨ (A =ts B ∧ A ≤pt B), where <ts is commit timestamp order and ≤pt is physical commit time order.\n4. This definition creates a total order among all transactions, allowing any schedule to be mapped to an equivalent serial schedule.\n5. Use this order to prove that read operations always return the value of the last store in the equivalent serial schedule.\n\n## Objective\n\ndefine_serializability_order\n## Applicable Signals\n\n- Multiple transactions with identical commit timestamps\n- Need to establish total order for correctness proof\n- Requirement to map actual schedule to serial schedule\n\n## Contraindications\n\n- Transactions have distinct commit timestamps only (no tie resolution needed)\n- Physical time ordering is unavailable or not tracked\n- Proof does not require total order among all transactions\n\n## Constraints\n\n- Commit timestamps must be derived from accessed tuples without global coordination\n- Physical commit time must be measurable between validation and write phases\n- The relation must form a total order (transitive, antisymmetric, total)\n\n## Cautions\n\n- Transactions with identical logical and physical commit times may have arbitrary serial order; this does not affect correctness\n- The definition assumes no global timestamp coordination; local timestamp derivation is sufficient\n\n## Output Contract\n\n- A formal definition of serial order (A <s B) that establishes a total order among all transactions; enables proof that any actual schedule is equivalent to a serial schedule respecting this order; provides foundation for proving that read operations return correct values.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Two transactions A and B with commit_ts(A) = 100, commit_ts(B) = 100, physical_time(A) = 1000ms, physical_time(B) = 1050ms\n- Therapist/Output: A <s B (A ordered before B because they have equal commit timestamps but A has earlier physical commit time)\n- Notes: Demonstrates tiebreaker rule when timestamps are equal\n\n### Example 2\n\n- Client/Input: Transaction C with commit_ts(C) = 95, Transaction D with commit_ts(D) = 100\n- Therapist/Output: C <s D (C ordered before D because commit_ts(C) < commit_ts(D), regardless of physical times)\n- Notes: Demonstrates primary ordering criterion",
+  "asset_type": "knowledge_reference",
+  "granularity": "session",
+  "asset_node_id": "knowledge_reference_node",
+  "asset_path": "family_root/knowledge_reference_node",
+  "asset_level": 1,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 1.0,
+  "hierarchy_status": "root",
+  "visible_role": "leaf",
+  "objective": "define_serializability_order",
+  "domain": "default",
+  "task_family": "concurrency_control",
+  "method_family": "timestamp_ordering",
+  "stage": "correctness_proof",
+  "applicable_signals": [
+    "Multiple transactions with identical commit timestamps",
+    "Need to establish total order for correctness proof",
+    "Requirement to map actual schedule to serial schedule"
+  ],
+  "contraindications": [
+    "Transactions have distinct commit timestamps only (no tie resolution needed)",
+    "Physical time ordering is unavailable or not tracked",
+    "Proof does not require total order among all transactions"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Proving schedule equivalence in optimistic concurrency control",
+    "Resolving transaction ordering when commit timestamps are equal",
+    "Establishing dependencies for serializability proof"
+  ],
+  "workflow_steps": [],
+  "constraints": [
+    "Commit timestamps must be derived from accessed tuples without global coordination",
+    "Physical commit time must be measurable between validation and write phases",
+    "The relation must form a total order (transitive, antisymmetric, total)"
+  ],
+  "cautions": [
+    "Transactions with identical logical and physical commit times may have arbitrary serial order; this does not affect correctness",
+    "The definition assumes no global timestamp coordination; local timestamp derivation is sufficient"
+  ],
+  "output_contract": [
+    "A formal definition of serial order (A <s B) that establishes a total order among all transactions; enables proof that any actual schedule is equivalent to a serial schedule respecting this order; provides foundation for proving that read operations return correct values."
+  ],
+  "examples": [
+    {
+      "input": "Two transactions A and B with commit_ts(A) = 100, commit_ts(B) = 100, physical_time(A) = 1000ms, physical_time(B) = 1050ms",
+      "output": "A <s B (A ordered before B because they have equal commit timestamps but A has earlier physical commit time)",
+      "notes": "Demonstrates tiebreaker rule when timestamps are equal"
+    },
+    {
+      "input": "Transaction C with commit_ts(C) = 95, Transaction D with commit_ts(D) = 100",
+      "output": "C <s D (C ordered before D because commit_ts(C) < commit_ts(D), regardless of physical times)",
+      "notes": "Demonstrates primary ordering criterion"
+    }
+  ],
+  "tags": [
+    "serializability",
+    "timestamp_ordering",
+    "optimistic_concurrency_control",
+    "correctness_proof",
+    "total_order"
+  ],
+  "support_ids": [
+    "5f026afa-3366-50dc-8bfc-32acb8a76851"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "372b9cbb-0098-5e63-93db-53799589b774"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.9,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||knowledge_reference|session|knowledge_reference_node|define_serializability_order|default|concurrency_control|timestamp_ordering|correctness_proof|serial order definition with timestamp and physical time",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct knowledge_reference at session granularity addressing serial order definition for optimistic concurrency control correctness proofs. It differs semantically from peer candidates (DTA focuses on deadlock detection, Spurious Abort focuses on abort classification, TicToc Serializability Proof focuses on formal proof validation) and from existing skills (which address cache eviction and executor selection—entirely different domains). The candidate establishes foundational ordering semantics using commit timestamps and physical time as tiebreaker, which is prerequisite knowledge for the TicToc framework but not redundant with it. Single support section confirms relevance to Algorithm 5 in protocol specification.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 1.0,
+    "hierarchy_status": "root",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

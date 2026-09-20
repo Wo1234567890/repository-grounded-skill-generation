@@ -1,0 +1,119 @@
+{
+  "skill_id": "d2d734a8-0322-51e2-a503-f256a0d31d5c",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct safety rule for ProcessPoolExecutor exception handling with no semantic overlap to existing skills. Existing skills cover Virtual WAN routing and BGP configuration (different domain entirely). Peer candidates are related but address different failure modes (deadlock prevention, module importability, ThreadPoolExecutor deadlock) and do not subsume this exception handling rule. The candidate addresses a specific, well-documented failure mode (BrokenProcessPool) with clear intervention moves and constraints that are orthogonal to peer concerns.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "d2d734a8-0322-51e2-a503-f256a0d31d5c",
+    "name": "BrokenProcessPool Exception Handling",
+    "description": "Detect and handle BrokenProcessPool exception raised when a worker process in ProcessPoolExecutor terminates abruptly. Prevents undefined behavior such as freezing or deadlock by catching the exception, logging the failure, and ensuring graceful cleanup before escalating to caller.",
+    "skill_body": "When using ProcessPoolExecutor, wrap executor operations (submit, map, or future result access) in a try-except block to catch BrokenProcessPool. Log the exception with context about which operation and futures were affected. Trigger executor cleanup via context manager exit or explicit shutdown. Re-raise the exception or notify the caller of the pool failure state. Do not suppress the exception; escalation is mandatory.\n\n## Objective\n\nCatch and respond to worker process failure in ProcessPoolExecutor to prevent freezing, deadlock, and undefined behavior\n## Applicable Signals\n\n- ProcessPoolExecutor in active use\n- Worker process crashes or terminates unexpectedly\n- Operations on executor or futures may freeze or deadlock\n\n## Contraindications\n\n- ThreadPoolExecutor in use (does not raise BrokenProcessPool)\n- No worker process failure expected or error handling not required\n- Caller does not support exception propagation\n\n## Intervention Moves\n\n- Catch BrokenProcessPool exception at executor operation boundary\n- Log exception with context (which operation, which futures affected)\n- Trigger executor cleanup (context manager exit or explicit shutdown)\n- Escalate failure state to caller for recovery or retry decision\n\n## Workflow Steps\n\n- Identify ProcessPoolExecutor operation boundary (submit, map, or future result access)\n- Wrap operation in try-except block targeting BrokenProcessPool\n- In except block: log exception with operation context and affected futures\n- Initiate executor cleanup (context manager exit or shutdown)\n- Re-raise exception or notify caller of pool failure state\n\n## Constraints\n\n- Must be applied at ProcessPoolExecutor operation boundary (submit, map, or future result access)\n- Exception must not be silently suppressed; escalation is mandatory\n- Executor cleanup must complete before returning control to caller\n\n## Cautions\n\n- BrokenProcessPool indicates worker process failure; recovery may require pool restart or fallback to sequential execution\n- Futures submitted before the crash may be lost; caller must handle incomplete results\n- Do not attempt to reuse the same executor instance after BrokenProcessPool; create a new one\n\n## Output Contract\n\n- BrokenProcessPool exception is caught, logged with context, executor is cleaned up, and exception is re-raised or caller is notified of pool failure state. Downstream caller receives clear signal that the pool is no longer usable and must create a new executor for retry or fallback.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: ProcessPoolExecutor.map() called; worker process terminates abruptly during iteration\n- Therapist/Output: BrokenProcessPool exception caught, logged with operation context, executor shutdown initiated, exception re-raised to caller\n- Notes: Caller must decide whether to retry with a new executor or fall back to sequential execution",
+    "asset_type": "safety_rule",
+    "granularity": "session",
+    "asset_node_id": "safety_rule_node",
+    "asset_path": "family_root/safety_module/safety_rule_node",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "leaf",
+    "objective": "Catch and respond to worker process failure in ProcessPoolExecutor to prevent freezing, deadlock, and undefined behavior",
+    "domain": "default",
+    "task_family": "error_handling",
+    "method_family": "exception_escalation",
+    "stage": "execution",
+    "applicable_signals": [
+      "ProcessPoolExecutor in active use",
+      "Worker process crashes or terminates unexpectedly",
+      "Operations on executor or futures may freeze or deadlock"
+    ],
+    "contraindications": [
+      "ThreadPoolExecutor in use (does not raise BrokenProcessPool)",
+      "No worker process failure expected or error handling not required",
+      "Caller does not support exception propagation"
+    ],
+    "intervention_moves": [
+      "Catch BrokenProcessPool exception at executor operation boundary",
+      "Log exception with context (which operation, which futures affected)",
+      "Trigger executor cleanup (context manager exit or explicit shutdown)",
+      "Escalate failure state to caller for recovery or retry decision"
+    ],
+    "triggers": [
+      "ProcessPoolExecutor in use",
+      "Worker process crashes or terminates unexpectedly",
+      "Operations on executor or futures may freeze"
+    ],
+    "workflow_steps": [
+      "Identify ProcessPoolExecutor operation boundary (submit, map, or future result access)",
+      "Wrap operation in try-except block targeting BrokenProcessPool",
+      "In except block: log exception with operation context and affected futures",
+      "Initiate executor cleanup (context manager exit or shutdown)",
+      "Re-raise exception or notify caller of pool failure state"
+    ],
+    "constraints": [
+      "Must be applied at ProcessPoolExecutor operation boundary (submit, map, or future result access)",
+      "Exception must not be silently suppressed; escalation is mandatory",
+      "Executor cleanup must complete before returning control to caller"
+    ],
+    "cautions": [
+      "BrokenProcessPool indicates worker process failure; recovery may require pool restart or fallback to sequential execution",
+      "Futures submitted before the crash may be lost; caller must handle incomplete results",
+      "Do not attempt to reuse the same executor instance after BrokenProcessPool; create a new one"
+    ],
+    "output_contract": [
+      "BrokenProcessPool exception is caught, logged with context, executor is cleaned up, and exception is re-raised or caller is notified of pool failure state. Downstream caller receives clear signal that the pool is no longer usable and must create a new executor for retry or fallback."
+    ],
+    "examples": [
+      {
+        "input": "ProcessPoolExecutor.map() called; worker process terminates abruptly during iteration",
+        "output": "BrokenProcessPool exception caught, logged with operation context, executor shutdown initiated, exception re-raised to caller",
+        "notes": "Caller must decide whether to retry with a new executor or fall back to sequential execution"
+      }
+    ],
+    "tags": [
+      "concurrent.futures",
+      "ProcessPoolExecutor",
+      "exception_handling",
+      "worker_process",
+      "safety",
+      "deadlock_prevention"
+    ],
+    "support_ids": [
+      "337840e7-9198-598a-ba19-2bac011c91bc"
+    ],
+    "metadata": {
+      "risk_class": "high",
+      "source_draft_ids": [
+        "5bbe9d2c-efa0-5ac2-9034-059c175867ce"
+      ],
+      "support_summary": {
+        "support": 0,
+        "constraint": 1,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.82,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||safety_rule|session|safety_rule_node|catch and respond to worker process failure in processpoolexecutor to prevent freezing, deadlock, and undefined behavior|default|error_handling|exception_escalation|execution|brokenprocesspool exception handling",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

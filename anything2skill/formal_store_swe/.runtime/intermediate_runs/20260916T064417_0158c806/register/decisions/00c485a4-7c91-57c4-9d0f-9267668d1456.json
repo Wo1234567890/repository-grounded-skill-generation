@@ -1,0 +1,116 @@
+{
+  "skill_id": "00c485a4-7c91-57c4-9d0f-9267668d1456",
+  "action": "merge",
+  "matched_skill_ids": [
+    "30d72c77-fba4-5b7c-b89a-1ff0a77a8cc1"
+  ],
+  "reason": "The candidate skill 'Compute image width from aspect ratio and known height' is a narrow computational sub-step within the broader 'Reserve space for images' and 'Set image dimensions' workflows. It performs a single formula application (width = height × aspect_width/aspect_height) that is already implicit in peer skills that handle dimension declaration and space reservation. The candidate should merge into the existing dimension-declaration and attribute-setting skills, where aspect-ratio calculation is a supporting detail rather than a standalone capability. The peer candidates already cover the full workflow from diagnosis through remediation; the candidate adds no distinct capability.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "00c485a4-7c91-57c4-9d0f-9267668d1456",
+    "name": "Compute image width from aspect ratio and known height",
+    "description": "Calculate a missing image dimension using the aspect ratio formula to enable layout space reservation before the image loads. Given one known dimension (height) and an aspect ratio (e.g., 16:9), compute the other dimension (width) to prevent cumulative layout shift.",
+    "skill_body": "Use the aspect ratio formula: width = height × (aspect_width / aspect_height). Substitute the known height value and the aspect ratio components to derive the missing width. Return the calculated dimension in the same units as the input.\n\n## Objective\n\nderive_missing_dimension\n## Applicable Signals\n\n- Image element with height specified but width missing\n- CSS aspect-ratio property or intrinsic aspect ratio available\n- Responsive design context where one dimension is constrained\n\n## Contraindications\n\n- Aspect ratio is unknown or variable\n- Image is truly fluid with no intrinsic dimensions or aspect ratio\n- Dimension is already explicitly specified in markup or CSS\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify the known dimension (height) and the aspect ratio (width:height)', 'input': 'height value, aspect_width, aspect_height'}\n- {'step': 2, 'action': 'Apply the formula: width = height × (aspect_width / aspect_height)', 'input': 'height, aspect_width, aspect_height'}\n- {'step': 3, 'action': 'Return the calculated width value', 'output': 'width in same units as input height'}\n\n## Constraints\n\n- Aspect ratio must be expressed as two positive numbers (width:height)\n- Known dimension must be a valid numeric value in consistent units\n- Calculated dimension should be rounded or truncated to match browser layout precision\n\n## Cautions\n\n- Ensure aspect ratio matches the actual image; mismatched ratios will distort the image or reserve incorrect space\n- Use consistent units (pixels, percentages, or relative units) for input and output\n\n## Output Contract\n\n- Calculated dimension value (in pixels or relative units) that matches or approximates the actual image size; layout space correctly reserved before image load\n\n## Example Executions\n\n### Example 1\n\n- Input: {'height': 360, 'aspect_ratio': '16:9'}\n- Output: {'width': 640}\n- Notes: 16:9 aspect ratio with 360px height yields 640px width\n\n### Example 2\n\n- Input: {'height': 300, 'aspect_ratio': '4:3'}\n- Output: {'width': 400}\n- Notes: 4:3 aspect ratio with 300px height yields 400px width",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "derive_missing_dimension",
+    "domain": "default",
+    "task_family": "layout_stability",
+    "method_family": "aspect_ratio_calculation",
+    "stage": "page_construction",
+    "applicable_signals": [
+      "Image element with height specified but width missing",
+      "CSS aspect-ratio property or intrinsic aspect ratio available",
+      "Responsive design context where one dimension is constrained"
+    ],
+    "contraindications": [
+      "Aspect ratio is unknown or variable",
+      "Image is truly fluid with no intrinsic dimensions or aspect ratio",
+      "Dimension is already explicitly specified in markup or CSS"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "One image dimension is known (e.g., responsive width constraint from CSS or viewport)",
+      "Aspect ratio is available (e.g., 16:9, 4:3, or computed from intrinsic dimensions)",
+      "Need to pre-allocate layout space before image download completes"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Identify the known dimension (height) and the aspect ratio (width:height)', 'input': 'height value, aspect_width, aspect_height'}",
+      "{'step': 2, 'action': 'Apply the formula: width = height × (aspect_width / aspect_height)', 'input': 'height, aspect_width, aspect_height'}",
+      "{'step': 3, 'action': 'Return the calculated width value', 'output': 'width in same units as input height'}"
+    ],
+    "constraints": [
+      "Aspect ratio must be expressed as two positive numbers (width:height)",
+      "Known dimension must be a valid numeric value in consistent units",
+      "Calculated dimension should be rounded or truncated to match browser layout precision"
+    ],
+    "cautions": [
+      "Ensure aspect ratio matches the actual image; mismatched ratios will distort the image or reserve incorrect space",
+      "Use consistent units (pixels, percentages, or relative units) for input and output"
+    ],
+    "output_contract": [
+      "Calculated dimension value (in pixels or relative units) that matches or approximates the actual image size; layout space correctly reserved before image load"
+    ],
+    "examples": [
+      {
+        "input": "{'height': 360, 'aspect_ratio': '16:9'}",
+        "output": "{'width': 640}",
+        "notes": "16:9 aspect ratio with 360px height yields 640px width"
+      },
+      {
+        "input": "{'height': 300, 'aspect_ratio': '4:3'}",
+        "output": "{'width': 400}",
+        "notes": "4:3 aspect ratio with 300px height yields 400px width"
+      }
+    ],
+    "tags": [
+      "layout_shift_prevention",
+      "responsive_images",
+      "aspect_ratio",
+      "dimension_calculation",
+      "space_reservation"
+    ],
+    "support_ids": [
+      "c349ea68-4f4c-5291-8556-b50789396796"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "f90b9831-41d7-50f8-85de-b3349d78dbc7"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.9,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|derive_missing_dimension|default|layout_stability|aspect_ratio_calculation|page_construction|compute image width from aspect ratio and known height"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

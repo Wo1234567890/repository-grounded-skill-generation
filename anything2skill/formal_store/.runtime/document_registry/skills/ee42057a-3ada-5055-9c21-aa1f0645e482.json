@@ -1,0 +1,120 @@
+{
+  "skill_id": "ee42057a-3ada-5055-9c21-aa1f0645e482",
+  "name": "Parallel Task Completion Polling",
+  "description": "Initialize AgentOps client with optional automatic session and trace startup. Configures internal state, optionally starts tracing, and returns a session handle or None based on auto_start_session setting.",
+  "skill_body": "1. Check if auto_start_session is enabled in configuration.\n2. If enabled: initialize legacy session wrapper, set trace context, mark client as initialized, and return the legacy session object.\n3. If disabled: mark client as initialized without starting trace, and return None.\n4. Ensure backward compatibility by updating legacy module globals when auto-trace is active.\n\n## Objective\n\nSet up client with configurable auto-trace behavior and return appropriate session handle\n## Applicable Signals\n\n- Client constructor invoked with auto_start_session=True or False\n- Initialization phase of client lifecycle\n\n## Contraindications\n\n- Do not use if client is already initialized; use configure() for post-init updates instead\n- Do not invoke multiple times on same client instance\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check auto_start_session configuration flag'}\n- {'step': 2, 'action': 'If auto_start_session is True: initialize legacy session wrapper and trace context'}\n- {'step': 3, 'action': 'Attempt to update legacy module globals for backward compatibility; catch ImportError if legacy module unavailable'}\n- {'step': 4, 'action': 'Set self._initialized = True'}\n- {'step': 5, 'action': 'Return legacy session wrapper if auto_start_session=True; return None otherwise'}\n\n## Constraints\n\n- Legacy module import may fail; handle ImportError gracefully\n- Backward compatibility must be maintained for legacy session wrapper\n- State synchronization with legacy module globals required when auto-trace enabled\n\n## Cautions\n\n- Direct access to another module's globals is not ideal; prefer explicit calls where possible\n- ImportError on legacy module access should not occur in normal operation but is handled defensively\n\n## Output Contract\n\n- self._initialized flag is set to True; returns legacy session wrapper object if auto_start_session=True, otherwise returns None. Caller receives a usable session handle or explicit None to indicate no auto-session.",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [
+    "b1c7e545-b288-5698-96f2-bd145626c8d9",
+    "db0c89b8-5508-5da5-9421-4117ee2bb58c"
+  ],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "parent",
+  "objective": "coordinate multi-task synchronization",
+  "domain": "default",
+  "task_family": "concurrent_coordination",
+  "method_family": "blocking_wait",
+  "stage": "task_synchronization",
+  "applicable_signals": [
+    "Client constructor invoked with auto_start_session=True or False",
+    "Initialization phase of client lifecycle"
+  ],
+  "contraindications": [
+    "Do not use if client is already initialized; use configure() for post-init updates instead",
+    "Do not invoke multiple times on same client instance"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Caller submits multiple tasks to an Executor and needs to block until one or more reach a terminal state",
+    "Timeout or early-exit strategy is required to avoid indefinite blocking",
+    "Caller must partition results into completed and pending sets for downstream handling"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Check auto_start_session configuration flag'}",
+    "{'step': 2, 'action': 'If auto_start_session is True: initialize legacy session wrapper and trace context'}",
+    "{'step': 3, 'action': 'Attempt to update legacy module globals for backward compatibility; catch ImportError if legacy module unavailable'}",
+    "{'step': 4, 'action': 'Set self._initialized = True'}",
+    "{'step': 5, 'action': 'Return legacy session wrapper if auto_start_session=True; return None otherwise'}"
+  ],
+  "constraints": [
+    "Legacy module import may fail; handle ImportError gracefully",
+    "Backward compatibility must be maintained for legacy session wrapper",
+    "State synchronization with legacy module globals required when auto-trace enabled"
+  ],
+  "cautions": [
+    "Direct access to another module's globals is not ideal; prefer explicit calls where possible",
+    "ImportError on legacy module access should not occur in normal operation but is handled defensively"
+  ],
+  "output_contract": [
+    "self._initialized flag is set to True; returns legacy session wrapper object if auto_start_session=True, otherwise returns None. Caller receives a usable session handle or explicit None to indicate no auto-session."
+  ],
+  "examples": [],
+  "tags": [
+    "initialization",
+    "session_management",
+    "auto_trace",
+    "backward_compatibility",
+    "client_setup"
+  ],
+  "support_ids": [
+    "a6e83dc0-2ffc-5f61-b7a6-4ebe0a0042dd",
+    "503a8c4e-af82-5aa2-9f5a-d678ed07d70d",
+    "21a28cfe-50d9-5c5e-aeb4-22472184974a"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "f0f86316-8f7a-51d0-9c5d-e30ea82eac52"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.88,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|coordinate multi-task synchronization|default|concurrent_coordination|blocking_wait|task_synchronization|parallel task completion polling",
+    "change_action": "merge",
+    "llm_reason": "Candidate 'Client Initialization with Auto-Trace Toggle' is a narrower, implementation-specific variant of the broader 'AgentOps SDK Initialization' skill. Its core responsibility—conditional auto-start of tracing based on auto_start_session flag—is already covered by the SDK initialization workflow. The auto-trace logic and legacy session wrapper handling are specialized details of the 'Auto-start Trace Session Initialization' skill. The candidate should be merged into both parent skills rather than persisted as a separate session_skill, as it represents a sub-workflow of SDK setup and trace initialization, not a distinct capability.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "b1c7e545-b288-5698-96f2-bd145626c8d9",
+      "db0c89b8-5508-5da5-9421-4117ee2bb58c"
+    ],
+    "previous_skill_id": "ee42057a-3ada-5055-9c21-aa1f0645e482",
+    "merged_from_skill_ids": []
+  },
+  "version": "0.1.2",
+  "status": "active"
+}

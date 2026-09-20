@@ -1,0 +1,135 @@
+{
+  "skill_id": "a600fbef-41ac-5267-a405-97b2503d08a6",
+  "name": "Custom Reward Function Design",
+  "description": "Apply the @operation decorator to wrap functions and automatically track their execution, parameters, and return values as spans in session visualization. Use when you need to monitor internal function behavior alongside LLM calls.",
+  "skill_body": "To instrument a function:\n1. Import the operation decorator from agentops.sdk.decorators\n2. Apply @operation decorator above the function definition\n3. The decorated function will automatically create spans capturing execution, parameters, and return values\n4. These spans appear in session visualization alongside LLM calls\n\nExample:\nfrom agentops.sdk.decorators import operation\n\n@operation\ndef process_data(data):\n    result = data.upper()\n    return result\n\n## Objective\n\nTrack function execution and parameters as instrumented spans\n## Applicable Signals\n\n- Function is part of agent logic and should be tracked\n- Session visualization is active and spans are being collected\n- Function is modifiable (not external/third-party)\n\n## Contraindications\n\n- Function is external or third-party code that cannot be modified\n- Function is called at very high frequency where span creation overhead is unacceptable\n- Span collection is disabled or session visualization is not in use\n\n## Workflow Steps\n\n- Import operation decorator: from agentops.sdk.decorators import operation\n- Place @operation decorator immediately above target function definition\n- Invoke the decorated function normally; decorator automatically creates span\n- Span captures function name, parameters, return value, and execution timing\n- Span appears in session visualization alongside other LLM and operation spans\n\n## Constraints\n\n- Function must be accessible and modifiable in source code\n- agentops.sdk.decorators module must be available\n- Session must be initialized to capture and display spans\n\n## Output Contract\n\n- Function execution appears as a span in session visualization with captured parameters and return value; function behavior and return value are unchanged.",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "87f86160-f44f-511c-82f8-58083943120b",
+  "parent_candidate_ids": [
+    "87f86160-f44f-511c-82f8-58083943120b"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "linked",
+  "visible_role": "leaf",
+  "objective": "Create a callable reward function that maps completions to scalar reward scores for GRPO training optimization",
+  "domain": "default",
+  "task_family": "reward_engineering",
+  "method_family": "scoring_function",
+  "stage": "training_preparation",
+  "applicable_signals": [
+    "Function is part of agent logic and should be tracked",
+    "Session visualization is active and spans are being collected",
+    "Function is modifiable (not external/third-party)"
+  ],
+  "contraindications": [
+    "Function is external or third-party code that cannot be modified",
+    "Function is called at very high frequency where span creation overhead is unacceptable",
+    "Span collection is disabled or session visualization is not in use"
+  ],
+  "intervention_moves": [
+    "Define the reward criterion (e.g., target length, format pattern, quality metric)",
+    "Implement the scoring logic as a Python function",
+    "Ensure the function returns one scalar per completion",
+    "Test the function with sample completions to verify output range and behavior"
+  ],
+  "triggers": [
+    "Need to optimize for domain-specific completion quality",
+    "Have clear reward criteria (e.g., length, format, correctness)",
+    "Want to steer model behavior during GRPO training"
+  ],
+  "workflow_steps": [
+    "Import operation decorator: from agentops.sdk.decorators import operation",
+    "Place @operation decorator immediately above target function definition",
+    "Invoke the decorated function normally; decorator automatically creates span",
+    "Span captures function name, parameters, return value, and execution timing",
+    "Span appears in session visualization alongside other LLM and operation spans"
+  ],
+  "constraints": [
+    "Function must be accessible and modifiable in source code",
+    "agentops.sdk.decorators module must be available",
+    "Session must be initialized to capture and display spans"
+  ],
+  "cautions": [
+    "Poorly designed reward functions can lead to reward hacking or unintended model behavior",
+    "Ensure reward signal is aligned with actual desired outcomes, not just measurable proxies",
+    "Test reward function on diverse completion samples before full training run"
+  ],
+  "output_contract": [
+    "Function execution appears as a span in session visualization with captured parameters and return value; function behavior and return value are unchanged."
+  ],
+  "examples": [
+    {
+      "input": "Optimize for completions close to 20 characters",
+      "output": "def reward_len(completions, **kwargs):\n    return [-abs(20 - len(completion)) for completion in completions]",
+      "notes": "Simple length-based reward; higher scores for completions near target length"
+    },
+    {
+      "input": "Optimize for completions containing specific format (e.g., numbered steps)",
+      "output": "def reward_format(completions, **kwargs):\n    return [1.0 if '1.' in c and '2.' in c else -1.0 for c in completions]",
+      "notes": "Binary reward based on format detection; can be extended with graduated scoring"
+    }
+  ],
+  "tags": [
+    "instrumentation",
+    "debugging",
+    "decorator",
+    "span_tracking",
+    "session_visualization",
+    "function_monitoring"
+  ],
+  "support_ids": [
+    "75a1663e-b07e-58d8-bebd-3c70a8e7beb3",
+    "26815d11-4fdd-59b0-8460-0464dd85640e"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "f7602e3e-e59e-5c45-814b-01e463966beb"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.8,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|create a callable reward function that maps completions to scalar reward scores for grpo training optimization|default|reward_engineering|scoring_function|training_preparation|custom reward function design",
+    "change_action": "merge",
+    "llm_reason": "The candidate skill 'Function Instrumentation with Operation Decorator' is a general-purpose decorator-based instrumentation pattern that overlaps semantically with two existing skills: (1) 'Agent Operation Span Tracking' covers the @operation decorator pattern for agent-specific observability, and (2) 'Span Management with Attribute Tracking' covers the broader span creation and attribute management framework. The candidate represents a narrower, more specific application of these existing capabilities rather than a distinct new capability. The peer candidates 'Async and Generator Function Instrumentation' and 'Span Management with Attribute Tracking' together with the existing 'Agent Operation Span Tracking' already provide the necessary instrumentation patterns. Merging the candidate into these existing skills avoids duplication and maintains coherent skill granularity.",
+    "parent_skill_id": "87f86160-f44f-511c-82f8-58083943120b",
+    "parent_candidate_ids": [
+      "87f86160-f44f-511c-82f8-58083943120b"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "linked",
+    "visible_role": "leaf",
+    "merged_from_skill_ids": []
+  },
+  "version": "0.1.1",
+  "status": "active"
+}

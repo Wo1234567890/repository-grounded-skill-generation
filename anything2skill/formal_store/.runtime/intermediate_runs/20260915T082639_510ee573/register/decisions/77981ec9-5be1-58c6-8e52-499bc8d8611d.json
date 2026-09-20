@@ -1,0 +1,120 @@
+{
+  "skill_id": "77981ec9-5be1-58c6-8e52-499bc8d8611d",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate skill 77981ec9-5be1-58c6-8e52-499bc8d8611d (Distinguish Lab vs. Field CLS Measurement) belongs to domain 'web_performance' with task_family 'performance_diagnosis', but existing_skills registry contains only Flink data streaming skills (Collection Data Source Setup, DataStream Map Transformation) from domain 'data_engineering'. The candidate is semantically unrelated to the existing skill set and represents a different knowledge domain. No merge, split, or relationship mapping is possible across these distinct domains. The peer_candidates (post-load CLS detection, bfcache optimization, web font rendering) are also web performance skills orthogonal to the Flink registry. Candidate should be persisted in a separate web performance skill registry, not this data engineering registry.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "77981ec9-5be1-58c6-8e52-499bc8d8611d",
+    "name": "Distinguish Lab vs. Field CLS Measurement",
+    "description": "Identify whether Cumulative Layout Shift (CLS) issues originate from load-time (measured by lab tools like Lighthouse) or post-load interactions (measured by field data in CrUX). Use this skill when CLS values differ significantly between lab-based and real-user measurements to route to the appropriate diagnostic approach.",
+    "skill_body": "Compare CrUX field CLS score with Lighthouse lab CLS score. If CrUX reports substantially higher CLS than Lighthouse, the difference indicates post-load CLS. If scores are similar, CLS is primarily load-time. Document the disagreement magnitude and route to the corresponding diagnostic tool (DevTools Performance panel for load CLS; field data collection for post-load CLS).\n\n## Objective\n\nClassify CLS source (load-time vs. post-load) to enable targeted root-cause investigation\n## Applicable Signals\n\n- CrUX field CLS value higher than Lighthouse lab CLS value\n- PageSpeed Insights shows discrepancy between 'Discover what your real users are experiencing' and 'Diagnose performance issues' sections\n- Performance audit requires routing to appropriate diagnostic tool\n\n## Contraindications\n\n- Only lab-based measurement available; no field data collected\n- CrUX data not accessible or unavailable for the URL\n- Insufficient time window for field data collection\n\n## Intervention Moves\n\n- Route to DevTools Performance panel Layout Shifts track for load-time CLS investigation\n- Route to field data collection or live metrics view for post-load CLS investigation\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Retrieve CrUX CLS score', 'detail': \"Access PageSpeed Insights 'Discover what your real users are experiencing' section or CrUX dataset for the target URL\"}\n- {'step': 2, 'action': 'Retrieve Lighthouse lab CLS score', 'detail': \"Access PageSpeed Insights 'Diagnose performance issues' section or run Lighthouse audit locally\"}\n- {'step': 3, 'action': 'Compare scores', 'detail': 'Calculate the difference between CrUX and Lighthouse CLS values'}\n- {'step': 4, 'action': 'Classify source', 'detail': 'If CrUX >> Lighthouse, classify as post-load CLS; if similar, classify as load-time CLS'}\n- {'step': 5, 'action': 'Route to diagnostic tool', 'detail': 'For load CLS: use DevTools Performance panel Layout Shifts track. For post-load CLS: collect field data or use live metrics view'}\n\n## Constraints\n\n- Requires access to both CrUX data and Lighthouse results for the same URL\n- Field data must represent sufficient user interactions to be statistically meaningful\n- Comparison is most reliable when both measurements cover similar time periods\n\n## Cautions\n\n- Disagreement between CrUX and Lighthouse does not automatically indicate post-load CLS; other factors may contribute\n- Field data collection requires instrumentation; cannot be performed retroactively without prior setup\n\n## Output Contract\n\n- Clear determination of CLS source (load-time or post-load) with magnitude of disagreement; explicit routing recommendation to DevTools Performance panel (for load CLS) or field data collection (for post-load CLS)\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: PageSpeed Insights shows CrUX CLS of 0.25 and Lighthouse CLS of 0.08\n- Therapist/Output: Post-load CLS confirmed (0.17 point difference). Route to: collect field data using Performance panel live metrics view to identify user interactions causing shifts.\n- Notes: Large disagreement indicates substantial post-load layout shifts\n\n### Example 2\n\n- Client/Input: PageSpeed Insights shows CrUX CLS of 0.10 and Lighthouse CLS of 0.09\n- Therapist/Output: Load-time CLS primary concern (0.01 point difference). Route to: DevTools Performance panel Layout Shifts track to identify elements shifting during initial load.\n- Notes: Minimal disagreement suggests CLS is mostly load-time",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Classify CLS source (load-time vs. post-load) to enable targeted root-cause investigation",
+    "domain": "default",
+    "task_family": "performance_diagnosis",
+    "method_family": "comparative_measurement",
+    "stage": "analysis",
+    "applicable_signals": [
+      "CrUX field CLS value higher than Lighthouse lab CLS value",
+      "PageSpeed Insights shows discrepancy between 'Discover what your real users are experiencing' and 'Diagnose performance issues' sections",
+      "Performance audit requires routing to appropriate diagnostic tool"
+    ],
+    "contraindications": [
+      "Only lab-based measurement available; no field data collected",
+      "CrUX data not accessible or unavailable for the URL",
+      "Insufficient time window for field data collection"
+    ],
+    "intervention_moves": [
+      "Route to DevTools Performance panel Layout Shifts track for load-time CLS investigation",
+      "Route to field data collection or live metrics view for post-load CLS investigation"
+    ],
+    "triggers": [
+      "CrUX and Lighthouse CLS scores show significant disagreement",
+      "Post-load CLS suspected but not yet confirmed",
+      "Need to determine whether to focus on initial load or user interactions"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Retrieve CrUX CLS score', 'detail': \"Access PageSpeed Insights 'Discover what your real users are experiencing' section or CrUX dataset for the target URL\"}",
+      "{'step': 2, 'action': 'Retrieve Lighthouse lab CLS score', 'detail': \"Access PageSpeed Insights 'Diagnose performance issues' section or run Lighthouse audit locally\"}",
+      "{'step': 3, 'action': 'Compare scores', 'detail': 'Calculate the difference between CrUX and Lighthouse CLS values'}",
+      "{'step': 4, 'action': 'Classify source', 'detail': 'If CrUX >> Lighthouse, classify as post-load CLS; if similar, classify as load-time CLS'}",
+      "{'step': 5, 'action': 'Route to diagnostic tool', 'detail': 'For load CLS: use DevTools Performance panel Layout Shifts track. For post-load CLS: collect field data or use live metrics view'}"
+    ],
+    "constraints": [
+      "Requires access to both CrUX data and Lighthouse results for the same URL",
+      "Field data must represent sufficient user interactions to be statistically meaningful",
+      "Comparison is most reliable when both measurements cover similar time periods"
+    ],
+    "cautions": [
+      "Disagreement between CrUX and Lighthouse does not automatically indicate post-load CLS; other factors may contribute",
+      "Field data collection requires instrumentation; cannot be performed retroactively without prior setup"
+    ],
+    "output_contract": [
+      "Clear determination of CLS source (load-time or post-load) with magnitude of disagreement; explicit routing recommendation to DevTools Performance panel (for load CLS) or field data collection (for post-load CLS)"
+    ],
+    "examples": [
+      {
+        "input": "PageSpeed Insights shows CrUX CLS of 0.25 and Lighthouse CLS of 0.08",
+        "output": "Post-load CLS confirmed (0.17 point difference). Route to: collect field data using Performance panel live metrics view to identify user interactions causing shifts.",
+        "notes": "Large disagreement indicates substantial post-load layout shifts"
+      },
+      {
+        "input": "PageSpeed Insights shows CrUX CLS of 0.10 and Lighthouse CLS of 0.09",
+        "output": "Load-time CLS primary concern (0.01 point difference). Route to: DevTools Performance panel Layout Shifts track to identify elements shifting during initial load.",
+        "notes": "Minimal disagreement suggests CLS is mostly load-time"
+      }
+    ],
+    "tags": [
+      "performance_diagnosis",
+      "cls",
+      "measurement",
+      "routing",
+      "web_vitals",
+      "field_vs_lab"
+    ],
+    "support_ids": [
+      "e8bd96be-a02e-5505-8893-64c64f9c4732"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "f9e87e9f-424a-5fb6-bf3d-cdab715aee95"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|classify cls source (load-time vs. post-load) to enable targeted root-cause investigation|default|performance_diagnosis|comparative_measurement|analysis|distinguish lab vs. field cls measurement"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

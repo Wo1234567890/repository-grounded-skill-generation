@@ -1,0 +1,49 @@
+# Package Import Interception and Instrumentation 子技能地图
+
+## 子技能列表
+
+- [AgentOps Integration Setup](通用技能领域/Family技能/未分类技能/二级技能/AgentOps Integration Setup/SKILL.md) ｜ 二级技能
+  - 适用：Scaffold for integrating AgentOps monitoring and debugging into AI/ML projects. Use when starting a new agent project or adding observability to an existing framework.
+  - 线索：Starting new AI/ML agent project, Adding debugging or monitoring to existing codebase, Evaluating AgentOps capabilities for observability, observability, agent_monitoring
+- [AgentOps Session Lifecycle Management](通用技能领域/Family技能/未分类技能/二级技能/AgentOps Session Lifecycle Management/SKILL.md) ｜ 二级技能
+  - 适用：Initialize and terminate an AgentOps observability session, wrapping agent or LLM interactions for end-to-end tracking and debugging.
+  - 线索：starting an agent or multi-step LLM workflow that requires end-to-end observability, debugging logs, or audit trail, observability, session_management, debugging, audit_trail
+- [Assemble and Retrieve Tracing Client Instance](通用技能领域/Family技能/未分类技能/二级技能/Assemble and Retrieve Tracing Client Instance/SKILL.md) ｜ 二级技能
+  - 适用：Construct a complete initialization parameter dictionary from user inputs and configuration, then retrieve or create a singleton client instance for tracing operations.
+  - 线索：Starting a new tracing session, Resuming an existing tracing session, All configuration parameters (API key, endpoint, tags, queue settings) are available, initialization, client_factory
+- [CamelAI Agent Tracking Setup](通用技能领域/Family技能/未分类技能/二级技能/CamelAI Agent Tracking Setup/SKILL.md) ｜ 二级技能
+  - 适用：Install and configure AgentOps integration with CamelAI Python SDK (>=0.32.0) to enable agent activity tracking and monitoring.
+  - 线索：Starting a new CamelAI agent project, Adding observability to an existing CamelAI system, Enabling agent activity monitoring for CamelAI-based agents, agent_integration, camelai
+- [Cohere SDK Integration Setup](通用技能领域/Family技能/未分类技能/二级技能/Cohere SDK Integration Setup/SKILL.md) ｜ 二级技能
+  - 适用：Install and configure AgentOps with Cohere SDK (version >=5.4.0) to enable agent monitoring and observability for Cohere-based applications.
+  - 线索：Starting a new Cohere-based agent project, Adding AgentOps monitoring to an existing Cohere application, integration, cohere, agentops
+- [Conditional Package Instrumentation](通用技能领域/Family技能/未分类技能/二级技能/Conditional Package Instrumentation/SKILL.md) ｜ 二级技能
+  - 适用：Evaluates whether a package should be instrumented based on eligibility checks and prior state, then loads and instantiates the appropriate instrumentor. Handles special cases such as dependent package instrumentation (e.g., concurrent.futures when mem0 is instrumented).
+  - 线索：Package import is detected via _import_monitor, Package name is not yet in _instrumenting_packages, Package is not already marked as instrumented, instrumentation, package_loading
+- [Decorator-based Observability Instrumentation](通用技能领域/Family技能/未分类技能/二级技能/Decorator-based Observability Instrumentation/SKILL.md) ｜ 二级技能
+  - 适用：Apply decorator patterns (@workflow, @agent, @operation) to instrument functions and classes with observability spans, enabling hierarchical tracing of agent execution with minimal code overhead.
+  - 线索：Adding tracing to agent workflows, Instrumenting nested operations in class-based agents, Requiring minimal code changes for observability, Need for hierarchical span hierarchy in agent execution, observability
+- [Initialize Package Instrumentation](通用技能领域/Family技能/未分类技能/二级技能/Initialize Package Instrumentation/SKILL.md) ｜ 二级技能
+  - 适用：Start monitoring and instrumenting Python packages using import hooks if not already active. Prevents duplicate instrumentation and respects agentic library precedence by checking _has_agentic_library flag and _active_instrumentors collection.
+  - 线索：AgentOps monitoring needs to begin, _active_instrumentors is empty, No agentic library is already instrumented, instrumentation, import_hook
+- [Jakarta EE Package Import Migration](通用技能领域/Family技能/未分类技能/二级技能/Jakarta EE Package Import Migration/SKILL.md) ｜ 二级技能
+  - 适用：Initialize and configure the AgentOps SDK by importing core tracing decorators, semantic conventions, and client infrastructure. Establishes the public API surface for agent instrumentation and tracing context setup.
+  - 线索：Upgrading Spring Boot 2.x application to 3.0, Jakarta EE 10 dependencies added to project, Import statements reference javax packages, initialization, sdk_setup
+- [LiteLLM Integration Setup](通用技能领域/Family技能/未分类技能/二级技能/LiteLLM Integration Setup/SKILL.md) ｜ 二级技能
+  - 适用：Configure and install AgentOps support for LiteLLM (>=1.3.1) to enable unified access to 100+ LLMs through a standardized Input/Output interface.
+  - 线索：Starting a new AgentOps project requiring multi-LLM support, Switching from direct LLM calls to unified LiteLLM interface, Need to abstract multiple LLM providers behind a single API, integration, litellm
+- [Notebook-Based Integration Testing for LLM Providers](通用技能领域/Family技能/未分类技能/二级技能/Notebook-Based Integration Testing for LLM Providers/SKILL.md) ｜ 二级技能
+  - 适用：Execute Jupyter notebooks as integration tests to verify end-to-end LLM provider functionality, real-world usage patterns, and API compatibility across multiple Python versions. Notebooks are located in examples/ directory, executed via CI workflow on PR merges and manual triggers, with provider API keys configured in GitHub Actions secrets.
+  - 线索：Adding or updating LLM provider support, Running CI/CD on PR merges to main, Verifying provider API compatibility across Python versions, integration_testing, llm_providers
+- [Standard Metrics Recording](通用技能领域/Family技能/未分类技能/二级技能/Standard Metrics Recording/SKILL.md) ｜ 二级技能
+  - 适用：Create and record standard metrics (token usage, duration) using StandardMetrics and MetricsRecorder for consistent observability across instrumented operations.
+  - 线索：Need to record token usage and duration metrics across multiple operations, Using OpenTelemetry meter for observability, Want standardized metric names and types across instrumentations, observability, metrics
+- [Third-Party Script Performance Optimization](通用技能领域/Family技能/未分类技能/二级技能/Third-Party Script Performance Optimization/SKILL.md) ｜ 二级技能
+  - 适用：Set up AgentOps client in 2 lines of code to automatically capture and replay LLM call analytics and session traces.
+  - 线索：application integrates analytics scripts, application integrates tracking scripts, application integrates vendor scripts, page performance metrics show script-related bottlenecks, setup
+- [Time Format and Parse Operations](通用技能领域/Family技能/未分类技能/二级技能/Time Format and Parse Operations/SKILL.md) ｜ 二级技能
+  - 适用：Automates extraction of Jupyter notebook content and conversion to Markdown documentation with frontmatter, metadata, and MDX file generation for website publishing.
+  - 线索：Need to format Date objects to strings or parse time strings to Date objects; working with locale-specific or UTC timestamps, documentation, notebook, markdown, mdx
+- [Trace and Tag Workflow Execution](通用技能领域/Family技能/未分类技能/二级技能/Trace and Tag Workflow Execution/SKILL.md) ｜ 二级技能
+  - 适用：Decorator-based pattern to wrap a workflow function with execution tracing, naming, and semantic tags for observability and workflow discovery.
+  - 线索：Defining a reusable workflow that spans multiple agent operations, Need for observability, replay, or semantic categorization of workflow execution, Workflow involves coordinated multi-step operations requiring traceability, workflow, tracing

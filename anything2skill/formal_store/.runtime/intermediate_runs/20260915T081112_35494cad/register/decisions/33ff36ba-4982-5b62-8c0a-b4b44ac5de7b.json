@@ -1,0 +1,107 @@
+{
+  "skill_id": "33ff36ba-4982-5b62-8c0a-b4b44ac5de7b",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Distinct capability for supervised parameter optimization of zone weights. Complements but does not overlap with peer candidates: differs from Zone Index Construction (indexing stage), Weighted Zone Scoring Computation (retrieval/application stage), and Vector Space Scoring (different scoring paradigm). Supported by evidence and addresses a specific model-training stage need.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "33ff36ba-4982-5b62-8c0a-b4b44ac5de7b",
+    "name": "Learn Zone Weights from Training Data",
+    "description": "Fit zone weight parameter g from labeled query-document pairs using squared error minimization. Optimizes the balance between title-zone and body-zone relevance scores to minimize prediction error on training examples.",
+    "skill_body": "Given a set of training examples, each consisting of a query q, document d, and a relevance judgment r(d, q) (binary: 0 or 1), learn the zone weight parameter g that minimizes total squared error. For each training example j, compute the score as score(d_j, q_j) = g · s_T(d_j, q_j) + (1 − g) · s_B(d_j, q_j), where s_T is the title-zone score and s_B is the body-zone score. Calculate the error ε(g, Φ_j) = (r(d_j, q_j) − score(d_j, q_j))^2 for each example. Adjust g to minimize the sum of all errors across the training set.\n\n## Objective\n\noptimize_zone_weights\n## Applicable Signals\n\n- Presence of labeled training dataset with (query, document, relevance) tuples\n- Need to optimize weighted combination of title and body zone scores\n- Supervised learning context with ground-truth relevance labels\n\n## Contraindications\n\n- No labeled training data available\n- Real-time online learning without a held-out validation set\n- Unlabeled or weakly labeled data only\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Collect training examples', 'detail': 'Gather a set of (query, document, relevance_judgment) tuples. Quantize relevance judgments to binary (0 or 1) or use graded scale.'}\n- {'step': 2, 'action': 'Compute zone scores for each example', 'detail': 'For each training example j, compute s_T(d_j, q_j) (title-zone score) and s_B(d_j, q_j) (body-zone score).'}\n- {'step': 3, 'action': 'Initialize or iterate on parameter g', 'detail': 'Start with an initial guess for g (e.g., 0.5) or use optimization algorithm (e.g., gradient descent, grid search) to find g that minimizes total error.'}\n- {'step': 4, 'action': 'Compute combined score for each example', 'detail': 'For each training example j, calculate score(d_j, q_j) = g · s_T(d_j, q_j) + (1 − g) · s_B(d_j, q_j).'}\n- {'step': 5, 'action': 'Calculate squared error for each example', 'detail': 'Compute ε(g, Φ_j) = (r(d_j, q_j) − score(d_j, q_j))^2 for each training example j.'}\n- {'step': 6, 'action': 'Sum total error', 'detail': 'Calculate total error as Σ_j ε(g, Φ_j) across all training examples.'}\n- {'step': 7, 'action': 'Optimize g', 'detail': 'Adjust g to minimize total error. Repeat steps 4–6 until convergence or use closed-form solution if available.'}\n\n## Constraints\n\n- Parameter g must be in range [0, 1] to maintain valid score combination\n- Training examples must include both s_T and s_B scores and a relevance judgment\n- Squared error metric assumes continuous or quantized relevance judgments\n\n## Cautions\n\n- Overfitting risk if training set is small; use cross-validation or hold-out test set\n- Learned weights are specific to the training distribution; may not generalize to different query or document populations\n\n## Output Contract\n\n- Learned weight parameter g (scalar in [0, 1]) that minimizes total squared error across all training examples. Output includes: (1) optimal g value, (2) total squared error on training set, (3) per-example error breakdown for diagnostics.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "optimize_zone_weights",
+    "domain": "information_retrieval",
+    "task_family": "parameter_learning",
+    "method_family": "supervised_learning",
+    "stage": "model_training",
+    "applicable_signals": [
+      "Presence of labeled training dataset with (query, document, relevance) tuples",
+      "Need to optimize weighted combination of title and body zone scores",
+      "Supervised learning context with ground-truth relevance labels"
+    ],
+    "contraindications": [
+      "No labeled training data available",
+      "Real-time online learning without a held-out validation set",
+      "Unlabeled or weakly labeled data only"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Training examples with query-document pairs and relevance judgments are available",
+      "Goal is to fit zone weight parameters to minimize prediction error",
+      "Relevance judgments are binary (Relevant/Non-relevant) or graded"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Collect training examples', 'detail': 'Gather a set of (query, document, relevance_judgment) tuples. Quantize relevance judgments to binary (0 or 1) or use graded scale.'}",
+      "{'step': 2, 'action': 'Compute zone scores for each example', 'detail': 'For each training example j, compute s_T(d_j, q_j) (title-zone score) and s_B(d_j, q_j) (body-zone score).'}",
+      "{'step': 3, 'action': 'Initialize or iterate on parameter g', 'detail': 'Start with an initial guess for g (e.g., 0.5) or use optimization algorithm (e.g., gradient descent, grid search) to find g that minimizes total error.'}",
+      "{'step': 4, 'action': 'Compute combined score for each example', 'detail': 'For each training example j, calculate score(d_j, q_j) = g · s_T(d_j, q_j) + (1 − g) · s_B(d_j, q_j).'}",
+      "{'step': 5, 'action': 'Calculate squared error for each example', 'detail': 'Compute ε(g, Φ_j) = (r(d_j, q_j) − score(d_j, q_j))^2 for each training example j.'}",
+      "{'step': 6, 'action': 'Sum total error', 'detail': 'Calculate total error as Σ_j ε(g, Φ_j) across all training examples.'}",
+      "{'step': 7, 'action': 'Optimize g', 'detail': 'Adjust g to minimize total error. Repeat steps 4–6 until convergence or use closed-form solution if available.'}"
+    ],
+    "constraints": [
+      "Parameter g must be in range [0, 1] to maintain valid score combination",
+      "Training examples must include both s_T and s_B scores and a relevance judgment",
+      "Squared error metric assumes continuous or quantized relevance judgments"
+    ],
+    "cautions": [
+      "Overfitting risk if training set is small; use cross-validation or hold-out test set",
+      "Learned weights are specific to the training distribution; may not generalize to different query or document populations"
+    ],
+    "output_contract": [
+      "Learned weight parameter g (scalar in [0, 1]) that minimizes total squared error across all training examples. Output includes: (1) optimal g value, (2) total squared error on training set, (3) per-example error breakdown for diagnostics."
+    ],
+    "examples": [],
+    "tags": [
+      "parameter_optimization",
+      "zone_weighting",
+      "supervised_learning",
+      "information_retrieval",
+      "model_training"
+    ],
+    "support_ids": [
+      "143ae8a0-500b-57db-b609-31dc1eb3789a"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "89235314-fb24-5115-afff-dd03f3199ef3"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|optimize_zone_weights|information_retrieval|parameter_learning|supervised_learning|model_training|learn zone weights from training data"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 0,
+  "branch": "hits0"
+}

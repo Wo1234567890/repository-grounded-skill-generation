@@ -1,0 +1,565 @@
+{
+  "doc_id": "c714606b-4a4a-566c-acaf-25b924e5d713",
+  "title": "s3fifo-paper.txt",
+  "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/s3fifo-paper.txt",
+  "window_id": "2b87b0e8-18c9-5228-9202-e9b092d02c04",
+  "section_heading": "0                                                                  0.0",
+  "strategy": "strict",
+  "supports": [
+    {
+      "support_id": "8bf07c72-af76-515d-a499-53d22b2a61f1",
+      "doc_id": "c714606b-4a4a-566c-acaf-25b924e5d713",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/s3fifo-paper.txt",
+      "section": "0                                                                  0.0",
+      "span": {
+        "start": 109509,
+        "end": 116662
+      },
+      "excerpt": "140\n\fARC and 2Q, share a similar idea. They separate new and                     in Fig. 10a, corresponding to a sudden increase in the miss\nfrequent objects into two queues (denote using S and M)                     ratio (Table 2).\nso that popular objects are not affected by scan requests.                     Although S3-FIFO does not use advanced techniques, it\nThis work shows that a small static FIFO queue, one of the                  achieves a robust and predictable quick demotion speed and\nsimplest designs to filter out low-value objects, works better              precision. As S size increases, the speed decreases mono-\nthan many more advanced alternatives.                                       tonically (moving towards the left in the figure), and the\n    But why? We take a closer look at demotion speed and                    precision also increases until it reaches a peak. When S\nprecision using the same trace from §3 to get a deeper un-                  is very small, popular objects do not have enough time to\nderstanding. The normalized quick demotion speed measures                   accumulate a hit before being evicted, so the precision is\nhow long objects stay in S before they are evicted or moved                 low. Increasing S size leads to higher precision. When S is\nto M. We use the LRU eviction age as a baseline and calcu-                  very large, many unpopular objects are requested in S and\n                   LRU eviction age\nlate the speed as time in S . We use logical time measured                  moved to M, leading to reduced precision as well. Table 2\nin request count. The quick demotion precision measures how                 shows that at similar quick demotion speed, higher precision\nmany objects evicted from S are not reused soon. Using an                   always leads to lower miss ratios.\nidea similar to previous work [126], if the number of requests                 In summary, S3-FIFO guarantees that newly inserted un-\ntill an object’s next reuse is larger than cache size\n                                           miss ratio , then we say\n                                                                            popular objects are evicted in a predictably short time. The\nthe quick demotion results in a correct early eviction.                     quick demotion is often more precise and robust compared\n    An algorithm with both faster and more precise quick                    to existing approaches. This combination allows S3-FIFO to\ndemotion exhibits a lower miss ratio. Fig. 10 shows that                    obtain better than state-of-the-art miss ratios.\nARC, TinyLFU, and S3-FIFO can quickly demote new objects\nand have lower miss ratios compared to LRU (Table 2).                       6.2 How about adaptive eviction algorithms?\nARC uses an adaptive algorithm to decide the size of S. We                  Is queue size sensitive? We chose S to use 10% of the cache\nfind that the algorithm can identify the correct direction to               size based on results from ten traces and found that it gener-\nadjust the size, but the size it finds is often too large or too            alizes well across the 6594 traces. Fig. 11 shows how the miss\nsmall. For example, Fig. 10a shows that ARC chooses a very                  ratios change with S size. We observe that a smaller S leads\nsmall S on the Twitter trace, causing most new objects to be                to larger miss ratio reductions, confirming the importance of\nevicted too quickly with low precision. This happens because                quick demotion. For example, when the cache size is large,\nof two trace properties. First, objects in the Twitter trace of-            the best-performing traces (P90) have the largest reduction\nten have many requests; Second, new objects are constantly                  when S uses 1% of the cache size. However, a smaller S also\ngenerated. Therefore, objects evicted from M are requested                  causes more traces to have miss ratios higher than FIFO. This\nvery soon, causing S to shrink to a very small size (around                 aligns with the observation in §6.1 where we see smaller S\n0.01% of cache size). Meanwhile, constantly generated new                   leads to faster quick demotion, but the precision decreases\n(and popular) objects in S face more competition and of-                    after the peak. Overall, the predictability between efficiency\nten have to suffer a miss before being inserted in M, which                 and S size makes it easy to choose the S size. And the ef-\ncauses low precision and a high miss ratio (Table 2). On the                ficiency does not change much for most traces if S size is\nMSR trace, ARC has a reasonable speed with relatively high                  between 5% and 20% of the cache size.\nprecision, which correlates with its low miss ratio.                        Making queue size adaptive! We designed and imple-\nTinyLFU and S3-FIFO have a predictable quick demotion                       mented an algorithm that adaptively changes the FIFO queue\nspeed — reducing the size of S always increases the demo-                   sizes, which we call S3-FIFO-d, S3-FIFO with dynamic queue\ntion speed. When using the same S size, TinyLFU demotes                     sizes. S3-FIFO-d maintains a balance between marginal hits\nslightly faster than S3-FIFO because it uses LRU, which keeps               on the evicted objects from S and M. It uses two small ghost\nsome old but recently-accessed objects, squeezing the avail-                queues to track objects evicted from S and M. Each ghost\nable space for newly-inserted objects.                                      queue is sized to store 5% of the cached objects (without data).\n    Besides, S3-FIFO often shows higher precision than                      Each time the two ghost queues have more than 100 hits, and\nTinyLFU at a similar quick demotion speed, which explains                   one has 2× more hits than the other, S3-FIFO-d moves 0.1%\nwhy S3-FIFO has a lower miss ratio. TinyLFU compares                        of cache space to the queue whose evicted objects receive\nthe eviction candidates from S and M, then evicts the less-                 more hits. By balancing the marginal hits on the evicted ob-\nfrequently-used candidate. When the eviction candidate from                 jects, S3-FIFO minimizes the gradient of hits on the evicted\nM has a high frequency, it causes many worth-to-keep ob-                    objects. If S is too small, its evicted objects will receive many\njects from S to be evicted. This causes not only a low pre-                 hits causing an expansion of S. Vice versa. Besides the algo-\ncision but also unpredictable precision and miss ratio cliffs.              rithm described above, we also experimented with another\nFor example, the precision shows a large dip at 5% and 10%                  adaptive algorithm similar to ARC, which increases queue\n                                                                            size by one upon a hit on the ghost. However, we find this",
+      "relation_type": "support",
+      "confidence": 0.85,
+      "metadata": {
+        "document_title": "s3fifo-paper.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "S3-FIFO Quick Demotion Tuning",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "optimize_cache_eviction_policy",
+        "task_family": "cache_management",
+        "method_family": "queue_sizing_tuning",
+        "stage": "configuration",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "2b87b0e8-18c9-5228-9202-e9b092d02c04",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "0                                                                  0.0"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "20 pages. https://doi.org/10.1145/3600006.3613147",
+          "4   Design and implementation",
+          "40                                                                     24",
+          "24                                                                                                                             beyond two cores. Compared to LRU, TinyLFU needs to",
+          "1        2     4       8             16",
+          "1        2     4       8           16"
+        ],
+        "subsection_headings": [
+          "0.4                                                                                                                          0.3"
+        ],
+        "context_snippets": [],
+        "heading_number": "0",
+        "heading_kind": "decimal",
+        "section_summary": "0.2     0.3      0.4        0.5                                  0.2         0.4      0.6     0.8"
+      },
+      "created_at": "2026-09-14T21:38:29+00:00"
+    },
+    {
+      "support_id": "34c00a49-176f-55a2-a9e5-3fd8592c3fd9",
+      "doc_id": "c714606b-4a4a-566c-acaf-25b924e5d713",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/s3fifo-paper.txt",
+      "section": "0                                                                  0.0",
+      "span": {
+        "start": 109509,
+        "end": 116662
+      },
+      "excerpt": "140\n\fARC and 2Q, share a similar idea. They separate new and                     in Fig. 10a, corresponding to a sudden increase in the miss\nfrequent objects into two queues (denote using S and M)                     ratio (Table 2).\nso that popular objects are not affected by scan requests.                     Although S3-FIFO does not use advanced techniques, it\nThis work shows that a small static FIFO queue, one of the                  achieves a robust and predictable quick demotion speed and\nsimplest designs to filter out low-value objects, works better              precision. As S size increases, the speed decreases mono-\nthan many more advanced alternatives.                                       tonically (moving towards the left in the figure), and the\n    But why? We take a closer look at demotion speed and                    precision also increases until it reaches a peak. When S\nprecision using the same trace from §3 to get a deeper un-                  is very small, popular objects do not have enough time to\nderstanding. The normalized quick demotion speed measures                   accumulate a hit before being evicted, so the precision is\nhow long objects stay in S before they are evicted or moved                 low. Increasing S size leads to higher precision. When S is\nto M. We use the LRU eviction age as a baseline and calcu-                  very large, many unpopular objects are requested in S and\n                   LRU eviction age\nlate the speed as time in S . We use logical time measured                  moved to M, leading to reduced precision as well. Table 2\nin request count. The quick demotion precision measures how                 shows that at similar quick demotion speed, higher precision\nmany objects evicted from S are not reused soon. Using an                   always leads to lower miss ratios.\nidea similar to previous work [126], if the number of requests                 In summary, S3-FIFO guarantees that newly inserted un-\ntill an object’s next reuse is larger than cache size\n                                           miss ratio , then we say\n                                                                            popular objects are evicted in a predictably short time. The\nthe quick demotion results in a correct early eviction.                     quick demotion is often more precise and robust compared\n    An algorithm with both faster and more precise quick                    to existing approaches. This combination allows S3-FIFO to\ndemotion exhibits a lower miss ratio. Fig. 10 shows that                    obtain better than state-of-the-art miss ratios.\nARC, TinyLFU, and S3-FIFO can quickly demote new objects\nand have lower miss ratios compared to LRU (Table 2).                       6.2 How about adaptive eviction algorithms?\nARC uses an adaptive algorithm to decide the size of S. We                  Is queue size sensitive? We chose S to use 10% of the cache\nfind that the algorithm can identify the correct direction to               size based on results from ten traces and found that it gener-\nadjust the size, but the size it finds is often too large or too            alizes well across the 6594 traces. Fig. 11 shows how the miss\nsmall. For example, Fig. 10a shows that ARC chooses a very                  ratios change with S size. We observe that a smaller S leads\nsmall S on the Twitter trace, causing most new objects to be                to larger miss ratio reductions, confirming the importance of\nevicted too quickly with low precision. This happens because                quick demotion. For example, when the cache size is large,\nof two trace properties. First, objects in the Twitter trace of-            the best-performing traces (P90) have the largest reduction\nten have many requests; Second, new objects are constantly                  when S uses 1% of the cache size. However, a smaller S also\ngenerated. Therefore, objects evicted from M are requested                  causes more traces to have miss ratios higher than FIFO. This\nvery soon, causing S to shrink to a very small size (around                 aligns with the observation in §6.1 where we see smaller S\n0.01% of cache size). Meanwhile, constantly generated new                   leads to faster quick demotion, but the precision decreases\n(and popular) objects in S face more competition and of-                    after the peak. Overall, the predictability between efficiency\nten have to suffer a miss before being inserted in M, which                 and S size makes it easy to choose the S size. And the ef-\ncauses low precision and a high miss ratio (Table 2). On the                ficiency does not change much for most traces if S size is\nMSR trace, ARC has a reasonable speed with relatively high                  between 5% and 20% of the cache size.\nprecision, which correlates with its low miss ratio.                        Making queue size adaptive! We designed and imple-\nTinyLFU and S3-FIFO have a predictable quick demotion                       mented an algorithm that adaptively changes the FIFO queue\nspeed — reducing the size of S always increases the demo-                   sizes, which we call S3-FIFO-d, S3-FIFO with dynamic queue\ntion speed. When using the same S size, TinyLFU demotes                     sizes. S3-FIFO-d maintains a balance between marginal hits\nslightly faster than S3-FIFO because it uses LRU, which keeps               on the evicted objects from S and M. It uses two small ghost\nsome old but recently-accessed objects, squeezing the avail-                queues to track objects evicted from S and M. Each ghost\nable space for newly-inserted objects.                                      queue is sized to store 5% of the cached objects (without data).\n    Besides, S3-FIFO often shows higher precision than                      Each time the two ghost queues have more than 100 hits, and\nTinyLFU at a similar quick demotion speed, which explains                   one has 2× more hits than the other, S3-FIFO-d moves 0.1%\nwhy S3-FIFO has a lower miss ratio. TinyLFU compares                        of cache space to the queue whose evicted objects receive\nthe eviction candidates from S and M, then evicts the less-                 more hits. By balancing the marginal hits on the evicted ob-\nfrequently-used candidate. When the eviction candidate from                 jects, S3-FIFO minimizes the gradient of hits on the evicted\nM has a high frequency, it causes many worth-to-keep ob-                    objects. If S is too small, its evicted objects will receive many\njects from S to be evicted. This causes not only a low pre-                 hits causing an expansion of S. Vice versa. Besides the algo-\ncision but also unpredictable precision and miss ratio cliffs.              rithm described above, we also experimented with another\nFor example, the precision shows a large dip at 5% and 10%                  adaptive algorithm similar to ARC, which increases queue\n                                                                            size by one upon a hit on the ghost. However, we find this",
+      "relation_type": "support",
+      "confidence": 0.82,
+      "metadata": {
+        "document_title": "s3fifo-paper.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "S3-FIFO-d Adaptive Queue Sizing",
+        "asset_type": "macro_protocol",
+        "granularity": "macro",
+        "asset_node_id": "macro_skill",
+        "asset_path": "family_root/macro_skill",
+        "asset_level": 1,
+        "visible_role": "parent",
+        "objective": "automate_cache_queue_adaptation",
+        "task_family": "cache_management",
+        "method_family": "adaptive_queue_sizing",
+        "stage": "runtime_optimization",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "2b87b0e8-18c9-5228-9202-e9b092d02c04",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "0                                                                  0.0"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "20 pages. https://doi.org/10.1145/3600006.3613147",
+          "4   Design and implementation",
+          "40                                                                     24",
+          "24                                                                                                                             beyond two cores. Compared to LRU, TinyLFU needs to",
+          "1        2     4       8             16",
+          "1        2     4       8           16"
+        ],
+        "subsection_headings": [
+          "0.4                                                                                                                          0.3"
+        ],
+        "context_snippets": [],
+        "heading_number": "0",
+        "heading_kind": "decimal",
+        "section_summary": "0.2     0.3      0.4        0.5                                  0.2         0.4      0.6     0.8"
+      },
+      "created_at": "2026-09-14T21:38:29+00:00"
+    },
+    {
+      "support_id": "64de786c-4de9-500c-920f-1cca1ed6b202",
+      "doc_id": "c714606b-4a4a-566c-acaf-25b924e5d713",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/s3fifo-paper.txt",
+      "section": "0                                                                  0.0",
+      "span": {
+        "start": 109509,
+        "end": 116662
+      },
+      "excerpt": "140\n\fARC and 2Q, share a similar idea. They separate new and                     in Fig. 10a, corresponding to a sudden increase in the miss\nfrequent objects into two queues (denote using S and M)                     ratio (Table 2).\nso that popular objects are not affected by scan requests.                     Although S3-FIFO does not use advanced techniques, it\nThis work shows that a small static FIFO queue, one of the                  achieves a robust and predictable quick demotion speed and\nsimplest designs to filter out low-value objects, works better              precision. As S size increases, the speed decreases mono-\nthan many more advanced alternatives.                                       tonically (moving towards the left in the figure), and the\n    But why? We take a closer look at demotion speed and                    precision also increases until it reaches a peak. When S\nprecision using the same trace from §3 to get a deeper un-                  is very small, popular objects do not have enough time to\nderstanding. The normalized quick demotion speed measures                   accumulate a hit before being evicted, so the precision is\nhow long objects stay in S before they are evicted or moved                 low. Increasing S size leads to higher precision. When S is\nto M. We use the LRU eviction age as a baseline and calcu-                  very large, many unpopular objects are requested in S and\n                   LRU eviction age\nlate the speed as time in S . We use logical time measured                  moved to M, leading to reduced precision as well. Table 2\nin request count. The quick demotion precision measures how                 shows that at similar quick demotion speed, higher precision\nmany objects evicted from S are not reused soon. Using an                   always leads to lower miss ratios.\nidea similar to previous work [126], if the number of requests                 In summary, S3-FIFO guarantees that newly inserted un-\ntill an object’s next reuse is larger than cache size\n                                           miss ratio , then we say\n                                                                            popular objects are evicted in a predictably short time. The\nthe quick demotion results in a correct early eviction.                     quick demotion is often more precise and robust compared\n    An algorithm with both faster and more precise quick                    to existing approaches. This combination allows S3-FIFO to\ndemotion exhibits a lower miss ratio. Fig. 10 shows that                    obtain better than state-of-the-art miss ratios.\nARC, TinyLFU, and S3-FIFO can quickly demote new objects\nand have lower miss ratios compared to LRU (Table 2).                       6.2 How about adaptive eviction algorithms?\nARC uses an adaptive algorithm to decide the size of S. We                  Is queue size sensitive? We chose S to use 10% of the cache\nfind that the algorithm can identify the correct direction to               size based on results from ten traces and found that it gener-\nadjust the size, but the size it finds is often too large or too            alizes well across the 6594 traces. Fig. 11 shows how the miss\nsmall. For example, Fig. 10a shows that ARC chooses a very                  ratios change with S size. We observe that a smaller S leads\nsmall S on the Twitter trace, causing most new objects to be                to larger miss ratio reductions, confirming the importance of\nevicted too quickly with low precision. This happens because                quick demotion. For example, when the cache size is large,\nof two trace properties. First, objects in the Twitter trace of-            the best-performing traces (P90) have the largest reduction\nten have many requests; Second, new objects are constantly                  when S uses 1% of the cache size. However, a smaller S also\ngenerated. Therefore, objects evicted from M are requested                  causes more traces to have miss ratios higher than FIFO. This\nvery soon, causing S to shrink to a very small size (around                 aligns with the observation in §6.1 where we see smaller S\n0.01% of cache size). Meanwhile, constantly generated new                   leads to faster quick demotion, but the precision decreases\n(and popular) objects in S face more competition and of-                    after the peak. Overall, the predictability between efficiency\nten have to suffer a miss before being inserted in M, which                 and S size makes it easy to choose the S size. And the ef-\ncauses low precision and a high miss ratio (Table 2). On the                ficiency does not change much for most traces if S size is\nMSR trace, ARC has a reasonable speed with relatively high                  between 5% and 20% of the cache size.\nprecision, which correlates with its low miss ratio.                        Making queue size adaptive! We designed and imple-\nTinyLFU and S3-FIFO have a predictable quick demotion                       mented an algorithm that adaptively changes the FIFO queue\nspeed — reducing the size of S always increases the demo-                   sizes, which we call S3-FIFO-d, S3-FIFO with dynamic queue\ntion speed. When using the same S size, TinyLFU demotes                     sizes. S3-FIFO-d maintains a balance between marginal hits\nslightly faster than S3-FIFO because it uses LRU, which keeps               on the evicted objects from S and M. It uses two small ghost\nsome old but recently-accessed objects, squeezing the avail-                queues to track objects evicted from S and M. Each ghost\nable space for newly-inserted objects.                                      queue is sized to store 5% of the cached objects (without data).\n    Besides, S3-FIFO often shows higher precision than                      Each time the two ghost queues have more than 100 hits, and\nTinyLFU at a similar quick demotion speed, which explains                   one has 2× more hits than the other, S3-FIFO-d moves 0.1%\nwhy S3-FIFO has a lower miss ratio. TinyLFU compares                        of cache space to the queue whose evicted objects receive\nthe eviction candidates from S and M, then evicts the less-                 more hits. By balancing the marginal hits on the evicted ob-\nfrequently-used candidate. When the eviction candidate from                 jects, S3-FIFO minimizes the gradient of hits on the evicted\nM has a high frequency, it causes many worth-to-keep ob-                    objects. If S is too small, its evicted objects will receive many\njects from S to be evicted. This causes not only a low pre-                 hits causing an expansion of S. Vice versa. Besides the algo-\ncision but also unpredictable precision and miss ratio cliffs.              rithm described above, we also experimented with another\nFor example, the precision shows a large dip at 5% and 10%                  adaptive algorithm similar to ARC, which increases queue\n                                                                            size by one upon a hit on the ghost. However, we find this",
+      "relation_type": "support",
+      "confidence": 0.8,
+      "metadata": {
+        "document_title": "s3fifo-paper.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Quick Demotion Precision Measurement",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "measure_eviction_correctness",
+        "task_family": "cache_analysis",
+        "method_family": "precision_measurement",
+        "stage": "evaluation",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 3,
+        "window_id": "2b87b0e8-18c9-5228-9202-e9b092d02c04",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "0                                                                  0.0"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "20 pages. https://doi.org/10.1145/3600006.3613147",
+          "4   Design and implementation",
+          "40                                                                     24",
+          "24                                                                                                                             beyond two cores. Compared to LRU, TinyLFU needs to",
+          "1        2     4       8             16",
+          "1        2     4       8           16"
+        ],
+        "subsection_headings": [
+          "0.4                                                                                                                          0.3"
+        ],
+        "context_snippets": [],
+        "heading_number": "0",
+        "heading_kind": "decimal",
+        "section_summary": "0.2     0.3      0.4        0.5                                  0.2         0.4      0.6     0.8"
+      },
+      "created_at": "2026-09-14T21:38:29+00:00"
+    }
+  ],
+  "skill_drafts": [
+    {
+      "draft_id": "1c388fff-c137-52c0-8ed3-d8907661f4eb",
+      "doc_id": "c714606b-4a4a-566c-acaf-25b924e5d713",
+      "name": "S3-FIFO Quick Demotion Tuning",
+      "description": "Adjust the static FIFO queue size (S) as a percentage of cache size to balance demotion speed and precision, filtering out low-value objects while preserving popular ones.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "optimize_cache_eviction_policy",
+      "domain": "default",
+      "task_family": "cache_management",
+      "method_family": "queue_sizing_tuning",
+      "stage": "configuration",
+      "applicable_signals": [
+        "elevated miss ratio compared to LRU",
+        "availability of trace data or workload profile",
+        "need for predictable demotion behavior"
+      ],
+      "contraindications": [
+        "cache size is extremely small (< 100 objects)",
+        "workload is purely random with no temporal locality",
+        "real-time latency constraints prohibit ghost queue overhead"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Establish baseline miss ratio using LRU eviction age as reference.'}",
+        "{'step': 2, 'action': 'Set S to 10% of cache size as initial configuration.'}",
+        "{'step': 3, 'action': 'Measure quick demotion speed: calculate (time in S) / (LRU eviction age) using logical time in request count.'}",
+        "{'step': 4, 'action': 'Measure quick demotion precision: count objects evicted from S that are not reused within (cache size / miss ratio) requests.'}",
+        "{'step': 5, 'action': 'Record miss ratio and compare to baseline.'}",
+        "{'step': 6, 'action': 'If miss ratio is not improved, adjust S within 5–20% range and repeat steps 3–5.'}",
+        "{'step': 7, 'action': 'Confirm that both speed and precision metrics are logged and that miss ratio is lower than LRU baseline.'}"
+      ],
+      "triggers": [
+        "cache miss ratio is suboptimal relative to baseline",
+        "workload characteristics are known or measurable",
+        "S size adjustment is needed across multiple traces"
+      ],
+      "constraints": [
+        "S must be a static percentage of cache size",
+        "S size should remain between 5% and 20% for most workloads to avoid precision cliffs",
+        "Smaller S increases demotion speed but reduces precision; larger S increases precision but slows demotion"
+      ],
+      "cautions": [
+        "When S is very small, popular objects may not accumulate enough hits before eviction, reducing precision.",
+        "When S is very large, many unpopular objects are moved to M, reducing precision and increasing miss ratio.",
+        "Precision shows non-monotonic behavior; peak precision occurs at an intermediate S size."
+      ],
+      "output_contract": [
+        "S size is set to a percentage of cache size (typically 5–20%, or 1–10% for large caches); miss ratio is reduced compared to LRU baseline; demotion speed and precision metrics are measured and logged."
+      ],
+      "examples": [
+        {
+          "input": "Cache size 1000 objects, Twitter trace with many requests per object and constant new object generation.",
+          "output": "S set to 1% of cache size (10 objects) for maximum demotion speed; miss ratio reduced by ~15% compared to LRU.",
+          "notes": "Smaller S is effective when workload has high object reuse frequency."
+        },
+        {
+          "input": "Cache size 10000 objects, MSR trace with moderate request patterns.",
+          "output": "S set to 10% of cache size (1000 objects); miss ratio reduced by ~8% compared to LRU; precision and speed both balanced.",
+          "notes": "10% is a robust default that generalizes across diverse traces."
+        }
+      ],
+      "risk_class": "low",
+      "confidence": 0.85,
+      "support_ids": [
+        "8bf07c72-af76-515d-a499-53d22b2a61f1"
+      ],
+      "metadata": {
+        "prompt": "Set S to a percentage of total cache size. Start with 10% as a baseline. Measure miss ratio, demotion speed (time in S before eviction), and precision (fraction of evicted objects not reused soon). Adjust S within the range 5–20% for most workloads, or 1–10% for large caches. Log both speed and precision metrics to confirm improvement over LRU baseline.",
+        "tags": [
+          "cache_eviction",
+          "queue_sizing",
+          "performance_tuning",
+          "fifo_algorithm",
+          "demotion_precision"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "0                                                                  0.0"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "candidate_slot": 1,
+        "window_id": "2b87b0e8-18c9-5228-9202-e9b092d02c04",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "0                                                                  0.0"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "20 pages. https://doi.org/10.1145/3600006.3613147",
+          "4   Design and implementation",
+          "40                                                                     24",
+          "24                                                                                                                             beyond two cores. Compared to LRU, TinyLFU needs to",
+          "1        2     4       8             16",
+          "1        2     4       8           16"
+        ],
+        "subsection_headings": [
+          "0.4                                                                                                                          0.3"
+        ],
+        "context_snippets": [],
+        "heading_number": "0",
+        "heading_kind": "decimal",
+        "section_summary": "0.2     0.3      0.4        0.5                                  0.2         0.4      0.6     0.8"
+      }
+    },
+    {
+      "draft_id": "8154f1aa-4215-5dd8-bf08-e0bac7bd1f76",
+      "doc_id": "c714606b-4a4a-566c-acaf-25b924e5d713",
+      "name": "S3-FIFO-d Adaptive Queue Sizing",
+      "description": "Dynamically adjust FIFO queue sizes (S and M) using ghost queues that track evicted objects and balance marginal hits, automatically expanding or contracting queue space to minimize miss ratio gradient.",
+      "asset_type": "macro_protocol",
+      "granularity": "macro",
+      "asset_node_id": "macro_skill",
+      "asset_path": "family_root/macro_skill",
+      "asset_level": 1,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "automate_cache_queue_adaptation",
+      "domain": "default",
+      "task_family": "cache_management",
+      "method_family": "adaptive_queue_sizing",
+      "stage": "runtime_optimization",
+      "applicable_signals": [
+        "Ghost queue hit count exceeds 100",
+        "Disparity between S and M ghost queue hits reaches 2× ratio",
+        "Miss ratio shows instability or degradation over time"
+      ],
+      "contraindications": [
+        "Memory is extremely constrained and ghost queue overhead (5% per queue) cannot be afforded",
+        "Workload is static and pre-tuned S size is sufficient",
+        "Latency-critical systems cannot tolerate ghost queue lookups",
+        "Cache size is very small (ghost queues may consume prohibitive fraction)"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Initialize ghost queues', 'detail': 'Create two ghost queues, each sized to store 5% of the cached objects (metadata only, no data)'}",
+        "{'step': 2, 'action': 'Track evictions', 'detail': 'Log object IDs evicted from S to ghost_S and from M to ghost_M'}",
+        "{'step': 3, 'action': 'Monitor ghost queue hits', 'detail': 'Increment hit counter for ghost_S or ghost_M when an evicted object is requested again'}",
+        "{'step': 4, 'action': 'Check adjustment trigger', 'detail': 'Evaluate: (hits_S + hits_M > 100) AND (max(hits_S, hits_M) >= 2 × min(hits_S, hits_M))'}",
+        "{'step': 5, 'action': 'Rebalance queue sizes', 'detail': 'If trigger is true, move 0.1% of cache space from the queue with fewer hits to the queue with more hits'}",
+        "{'step': 6, 'action': 'Reset ghost queue counters', 'detail': 'Reset hit counters to 0 after adjustment; continue monitoring'}"
+      ],
+      "triggers": [
+        "Workload characteristics are unknown or highly variable",
+        "Manual queue size tuning is impractical or unavailable",
+        "Hit/miss patterns change over time",
+        "System requires continuous optimization without human intervention"
+      ],
+      "constraints": [
+        "Ghost queues must be maintained at exactly 5% of cached objects",
+        "Adjustment trigger requires both conditions: hits > 100 AND 2× disparity",
+        "Each adjustment moves exactly 0.1% of cache space",
+        "Ghost queues store metadata only, not object data"
+      ],
+      "cautions": [
+        "Ghost queue overhead increases memory footprint by ~10% (two 5% queues)",
+        "Adjustment frequency depends on workload hit rate; low-hit workloads may never trigger rebalancing",
+        "Convergence time varies; system may take multiple adjustment cycles to stabilize"
+      ],
+      "output_contract": [
+        "Ghost queues maintained at 5% of cached objects; queue size adjustments executed when trigger conditions are met; miss ratio stabilized and gradient minimized over time; system converges toward workload-optimal S and M sizes without manual intervention."
+      ],
+      "examples": [
+        {
+          "input": "Workload with dynamic access patterns; initial S=10% of cache, M=90%; ghost_S hits=120, ghost_M hits=45 over observation window",
+          "output": "Trigger condition met (120+45>100 and 120≥2×45). Move 0.1% of cache from M to S. New S≈10.1%, M≈89.9%. Reset counters.",
+          "notes": "S receives more hits on evicted objects, indicating S is too small; expansion improves precision."
+        },
+        {
+          "input": "Workload with stable access patterns; S=8%, M=92%; ghost_S hits=60, ghost_M hits=55 over observation window",
+          "output": "Trigger condition not met (60+55=115>100 but 60<2×55). No adjustment. Continue monitoring.",
+          "notes": "Hit disparity is insufficient; system is near equilibrium."
+        }
+      ],
+      "risk_class": "low",
+      "confidence": 0.82,
+      "support_ids": [
+        "34c00a49-176f-55a2-a9e5-3fd8592c3fd9"
+      ],
+      "metadata": {
+        "prompt": "Maintain two ghost queues, each sized to 5% of cached objects (without data), to track objects evicted from S and M respectively. Monitor cumulative hits on each ghost queue. When both ghost queues accumulate more than 100 hits and one queue has 2× more hits than the other, move 0.1% of cache space from the lower-hit queue to the higher-hit queue. This balancing minimizes the gradient of hits on evicted objects, allowing the system to automatically converge toward optimal queue sizes.",
+        "tags": [
+          "cache_eviction",
+          "adaptive_algorithm",
+          "queue_management",
+          "ghost_queue",
+          "runtime_optimization",
+          "s3fifo"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "0                                                                  0.0"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "macro_skill",
+        "asset_path": "family_root/macro_skill",
+        "asset_level": 1,
+        "visible_role": "parent",
+        "candidate_slot": 2,
+        "window_id": "2b87b0e8-18c9-5228-9202-e9b092d02c04",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "0                                                                  0.0"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "20 pages. https://doi.org/10.1145/3600006.3613147",
+          "4   Design and implementation",
+          "40                                                                     24",
+          "24                                                                                                                             beyond two cores. Compared to LRU, TinyLFU needs to",
+          "1        2     4       8             16",
+          "1        2     4       8           16"
+        ],
+        "subsection_headings": [
+          "0.4                                                                                                                          0.3"
+        ],
+        "context_snippets": [],
+        "heading_number": "0",
+        "heading_kind": "decimal",
+        "section_summary": "0.2     0.3      0.4        0.5                                  0.2         0.4      0.6     0.8"
+      }
+    },
+    {
+      "draft_id": "59589f0e-e9d9-50d4-bc41-98419224ba37",
+      "doc_id": "c714606b-4a4a-566c-acaf-25b924e5d713",
+      "name": "Quick Demotion Precision Measurement",
+      "description": "Measure the precision of object eviction from a FIFO queue by determining what fraction of evicted objects are not reused within a threshold window. Use to validate that demotion decisions are correct and not prematurely evicting reusable objects.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "measure_eviction_correctness",
+      "domain": "default",
+      "task_family": "cache_analysis",
+      "method_family": "precision_measurement",
+      "stage": "evaluation",
+      "applicable_signals": [
+        "Trace data with request sequence and object reuse patterns available",
+        "Need to correlate demotion speed with eviction correctness",
+        "Investigating why certain queue size settings produce unexpected miss ratios"
+      ],
+      "contraindications": [
+        "Trace data is unavailable or incomplete",
+        "Reuse distance cannot be computed from available logs",
+        "Only throughput or latency metrics matter; correctness is not a concern"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Extract eviction events from FIFO queue S', 'detail': 'Record each object evicted from S and the logical time (request count) at eviction'}",
+        "{'step': 2, 'action': 'Compute reuse distance for each evicted object', 'detail': 'For each evicted object, find the next request to that object in the trace and calculate the number of requests between eviction and reuse'}",
+        "{'step': 3, 'action': 'Calculate threshold', 'detail': 'Compute threshold as cache_size / miss_ratio (in request counts)'}",
+        "{'step': 4, 'action': 'Classify evictions as correct or incorrect', 'detail': 'Mark eviction as correct early eviction if reuse distance > threshold; otherwise mark as incorrect (object was needed soon)'}",
+        "{'step': 5, 'action': 'Compute precision score', 'detail': 'Precision = (count of correct early evictions) / (total evictions from S)'}",
+        "{'step': 6, 'action': 'Plot and analyze', 'detail': 'Plot precision against queue size parameter S; identify peak precision; correlate with miss ratio curve'}"
+      ],
+      "triggers": [
+        "Comparing cache eviction algorithms",
+        "Tuning FIFO queue size parameter",
+        "Validating that quick demotion is not too aggressive",
+        "Analyzing miss ratio cliffs or performance anomalies"
+      ],
+      "constraints": [
+        "Requires complete request trace with object identifiers and timestamps",
+        "Threshold calculation depends on accurate miss ratio measurement",
+        "Logical time (request count) must be used consistently throughout measurement"
+      ],
+      "cautions": [
+        "Small S leads to faster demotion but lower precision (objects evicted before accumulating hits)",
+        "Large S leads to higher precision but slower demotion (unpopular objects accumulate hits before eviction)",
+        "Precision peak occurs at intermediate S values; both extremes degrade performance"
+      ],
+      "output_contract": [
+        "Precision score (0.0–1.0) representing fraction of correctly early-evicted objects; precision curve plotted against S size; peak precision value identified; correlation between precision and miss ratio confirmed or noted"
+      ],
+      "examples": [
+        {
+          "input": "Trace with 1M requests; cache size 10K; S size 1K (10% of cache); computed miss ratio 0.05",
+          "output": "Precision = 0.78; threshold = 10K / 0.05 = 200K requests; 78% of objects evicted from S are not reused within 200K requests",
+          "notes": "Moderate precision indicates balanced demotion; correlates with lower miss ratio compared to LRU"
+        },
+        {
+          "input": "Same trace; S size 100 (1% of cache)",
+          "output": "Precision = 0.62; faster demotion but lower precision; more objects evicted before accumulating hits",
+          "notes": "Smaller S increases miss ratio on some traces due to precision loss"
+        }
+      ],
+      "risk_class": "low",
+      "confidence": 0.8,
+      "support_ids": [
+        "64de786c-4de9-500c-920f-1cca1ed6b202"
+      ],
+      "metadata": {
+        "prompt": "For each object evicted from the FIFO queue (S), check if it is reused within a threshold of (cache_size / miss_ratio) requests. Count objects that are NOT reused within this threshold as correctly early-evicted. Compute precision as the fraction of evicted objects that meet this criterion. Plot precision against queue size parameter to identify peak precision and correlate with miss ratio changes.",
+        "tags": [
+          "cache_eviction",
+          "measurement",
+          "precision",
+          "fifo",
+          "demotion",
+          "correctness"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "0                                                                  0.0"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 3,
+        "window_id": "2b87b0e8-18c9-5228-9202-e9b092d02c04",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "0                                                                  0.0"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "20 pages. https://doi.org/10.1145/3600006.3613147",
+          "4   Design and implementation",
+          "40                                                                     24",
+          "24                                                                                                                             beyond two cores. Compared to LRU, TinyLFU needs to",
+          "1        2     4       8             16",
+          "1        2     4       8           16"
+        ],
+        "subsection_headings": [
+          "0.4                                                                                                                          0.3"
+        ],
+        "context_snippets": [],
+        "heading_number": "0",
+        "heading_kind": "decimal",
+        "section_summary": "0.2     0.3      0.4        0.5                                  0.2         0.4      0.6     0.8"
+      }
+    }
+  ],
+  "failed": false,
+  "complete": true,
+  "error": {}
+}

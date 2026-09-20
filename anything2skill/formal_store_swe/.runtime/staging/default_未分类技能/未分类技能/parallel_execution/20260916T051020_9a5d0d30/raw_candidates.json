@@ -1,0 +1,1330 @@
+{
+  "schema": "autoskill.document.staging.raw_candidates.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "parallel_execution",
+  "run_id": "20260916T051020_9a5d0d30",
+  "documents": [
+    {
+      "doc_id": "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+      "source_type": "document",
+      "title": "python312-parallelism.md",
+      "authors": [],
+      "year": null,
+      "domain": "",
+      "raw_text": "concurrent.futures — Launching parallel tasks — Python 3.12.14 documentation\n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n\n \n\n \n\n \n\n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n\n Theme\n\n Auto\n Light\n Dark\n\n\n### Table of Contents\n\n\n- `concurrent.futures` — Launching parallel tasks\n\n\n- Executor Objects\n\n- ThreadPoolExecutor\n\n\n- ThreadPoolExecutor Example\n\n\n- ProcessPoolExecutor\n\n\n- ProcessPoolExecutor Example\n\n\n- Future Objects\n\n- Module Functions\n\n- Exception classes\n\n\n \n\n\n#### Previous topic\n\n\nThe `concurrent` package\n\n\n \n\n\n#### Next topic\n\n\n`subprocess` — Subprocess management\n\n\n \n\n\n### This Page\n\n\n- Report a Bug\n\n- \n Show Source\n\n \n\n \n\n \n\n\n \n\n\n### Navigation\n\n\n- \n index\n\n- \n modules |\n\n- \n next |\n\n- \n previous |\n\n\n- \n\n- Python »\n\n- \n\n\n \n- \n\n \n\n- \n 3.12.14 Documentation »\n\n\n- The Python Standard Library »\n\n- Concurrent Execution »\n\n- `concurrent.futures` — Launching parallel tasks\n\n- \n\n\n \n\n \n\n |\n\n \n- \n\n Theme\n\n Auto\n Light\n Dark\n\n |\n\n \n\n\n \n\n\n# `concurrent.futures` — Launching parallel tasks¶\n\n\nAdded in version 3.2.\n\n\nSource code: Lib/concurrent/futures/thread.py\nand Lib/concurrent/futures/process.py\n\n\nThe `concurrent.futures` module provides a high-level interface for\nasynchronously executing callables.\n\n\nThe asynchronous execution can be performed with threads, using\n`ThreadPoolExecutor`, or separate processes, using\n`ProcessPoolExecutor`. Both implement the same interface, which is\ndefined by the abstract `Executor` class.\n\n\nAvailability: not Emscripten, not WASI.\n\n\nThis module does not work or is not available on WebAssembly platforms\n`wasm32-emscripten` and `wasm32-wasi`. See\nWebAssembly platforms for more information.\n\n\n## Executor Objects¶\n\n\nclass concurrent.futures.Executor¶\n\n\nAn abstract class that provides methods to execute calls asynchronously. It\nshould not be used directly, but through its concrete subclasses.\n\n\nsubmit(fn, /, *args, **kwargs)¶\n\n\nSchedules the callable, fn, to be executed as `fn(*args, **kwargs)`\nand returns a `Future` object representing the execution of the\ncallable.\n\n\n```\nwith ThreadPoolExecutor(max_workers=1) as executor:\n    future = executor.submit(pow, 323, 1235)\n    print(future.result())\n\n```\n\n\nmap(fn, *iterables, timeout=None, chunksize=1)¶\n\n\nSimilar to `map(fn, *iterables)` except:\n\n\n- \n\nthe iterables are collected immediately rather than lazily;\n\n\n- \n\nfn is executed asynchronously and several calls to\nfn may be made concurrently.\n\n\nThe returned iterator raises a `TimeoutError`\nif `__next__()` is called and the result isn’t available\nafter timeout seconds from the original call to `Executor.map()`.\ntimeout can be an int or a float. If timeout is not specified or\n`None`, there is no limit to the wait time.\n\n\nIf a fn call raises an exception, then that exception will be\nraised when its value is retrieved from the iterator.\n\n\nWhen using `ProcessPoolExecutor`, this method chops iterables\ninto a number of chunks which it submits to the pool as separate\ntasks. The (approximate) size of these chunks can be specified by\nsetting chunksize to a positive integer. For very long iterables,\nusing a large value for chunksize can significantly improve\nperformance compared to the default size of 1. With\n`ThreadPoolExecutor`, chunksize has no effect.\n\n\nChanged in version 3.5: Added the chunksize argument.\n\n\nshutdown(wait=True, *, cancel_futures=False)¶\n\n\nSignal the executor that it should free any resources that it is using\nwhen the currently pending futures are done executing. Calls to\n`Executor.submit()` and `Executor.map()` made after shutdown will\nraise `RuntimeError`.\n\n\nIf wait is `True` then this method will not return until all the\npending futures are done executing and the resources associated with the\nexecutor have been freed. If wait is `False` then this method will\nreturn immediately and the resources associated with the executor will be\nfreed when all pending futures are done executing. Regardless of the\nvalue of wait, the entire Python program will not exit until all\npending futures are done executing.\n\n\nIf cancel_futures is `True`, this method will cancel all pending\nfutures that the executor has not started running. Any futures that\nare completed or running won’t be cancelled, regardless of the value\nof cancel_futures.\n\n\nIf both cancel_futures and wait are `True`, all futures that the\nexecutor has started running will be completed prior to this method\nreturning. The remaining futures are cancelled.\n\n\nYou can avoid having to call this method explicitly if you use the\n`with` statement, which will shutdown the `Executor`\n(waiting as if `Executor.shutdown()` were called with wait set to\n`True`):\n\n\n```\nimport shutil\nwith ThreadPoolExecutor(max_workers=4) as e:\n    e.submit(shutil.copy, 'src1.txt', 'dest1.txt')\n    e.submit(shutil.copy, 'src2.txt', 'dest2.txt')\n    e.submit(shutil.copy, 'src3.txt', 'dest3.txt')\n    e.submit(shutil.copy, 'src4.txt', 'dest4.txt')\n\n```\n\n\nChanged in version 3.9: Added cancel_futures.\n\n\n## ThreadPoolExecutor¶\n\n\n`ThreadPoolExecutor` is an `Executor` subclass that uses a pool of\nthreads to execute calls asynchronously.\n\n\nDeadlocks can occur when the callable associated with a `Future` waits on\nthe results of another `Future`. For example:\n\n\n```\nimport time\ndef wait_on_b():\n    time.sleep(5)\n    print(b.result())  # b will never complete because it is waiting on a.\n    return 5\n\ndef wait_on_a():\n    time.sleep(5)\n    print(a.result())  # a will never complete because it is waiting on b.\n    return 6\n\n\nexecutor = ThreadPoolExecutor(max_workers=2)\na = executor.submit(wait_on_b)\nb = executor.submit(wait_on_a)\n\n```\n\n\nAnd:\n\n\n```\ndef wait_on_future():\n    f = executor.submit(pow, 5, 2)\n    # This will never complete because there is only one worker thread and\n    # it is executing this function.\n    print(f.result())\n\nexecutor = ThreadPoolExecutor(max_workers=1)\nexecutor.submit(wait_on_future)\n\n```\n\n\nclass concurrent.futures.ThreadPoolExecutor(max_workers=None, thread_name_prefix='', initializer=None, initargs=())¶\n\n\nAn `Executor` subclass that uses a pool of at most max_workers\nthreads to execute calls asynchronously.\n\n\nAll threads enqueued to `ThreadPoolExecutor` will be joined before the\ninterpreter can exit. Note that the exit handler which does this is\nexecuted before any exit handlers added using `atexit`. This means\nexceptions in the main thread must be caught and handled in order to\nsignal threads to exit gracefully. For this reason, it is recommended\nthat `ThreadPoolExecutor` not be used for long-running tasks.\n\n\ninitializer is an optional callable that is called at the start of\neach worker thread; initargs is a tuple of arguments passed to the\ninitializer. Should initializer raise an exception, all currently\npending jobs will raise a `BrokenThreadPool`,\nas well as any attempt to submit more jobs to the pool.\n\n\nChanged in version 3.5: If max_workers is `None` or\nnot given, it will default to the number of processors on the machine,\nmultiplied by `5`, assuming that `ThreadPoolExecutor` is often\nused to overlap I/O instead of CPU work and the number of workers\nshould be higher than the number of workers\nfor `ProcessPoolExecutor`.\n\n\nChanged in version 3.6: Added the thread_name_prefix parameter to allow users to\ncontrol the `threading.Thread` names for worker threads created by\nthe pool for easier debugging.\n\n\nChanged in version 3.7: Added the initializer and initargs arguments.\n\n\nChanged in version 3.8: Default value of max_workers is changed to `min(32, os.cpu_count() + 4)`.\nThis default value preserves at least 5 workers for I/O bound tasks.\nIt utilizes at most 32 CPU cores for CPU bound tasks which release the GIL.\nAnd it avoids using very large resources implicitly on many-core machines.\n\n\nThreadPoolExecutor now reuses idle worker threads before starting\nmax_workers worker threads too.\n\n\n### ThreadPoolExecutor Example¶\n\n\n```\nimport concurrent.futures\nimport urllib.request\n\nURLS = ['http://www.foxnews.com/',\n        'http://www.cnn.com/',\n        'http://europe.wsj.com/',\n        'http://www.bbc.co.uk/',\n        'http://nonexistant-subdomain.python.org/']\n\n# Retrieve a single page and report the URL and contents\ndef load_url(url, timeout):\n    with urllib.request.urlopen(url, timeout=timeout) as conn:\n        return conn.read()\n\n# We can use a with statement to ensure threads are cleaned up promptly\nwith concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:\n    # Start the load operations and mark each future with its URL\n    future_to_url = {executor.submit(load_url, url, 60): url for url in URLS}\n    for future in concurrent.futures.as_completed(future_to_url):\n        url = future_to_url[future]\n        try:\n            data = future.result()\n        except Exception as exc:\n            print('%r generated an exception: %s' % (url, exc))\n        else:\n            print('%r page is %d bytes' % (url, len(data)))\n\n```\n\n\n## ProcessPoolExecutor¶\n\n\nThe `ProcessPoolExecutor` class is an `Executor` subclass that\nuses a pool of processes to execute calls asynchronously.\n`ProcessPoolExecutor` uses the `multiprocessing` module, which\nallows it to side-step the Global Interpreter Lock but also means that\nonly picklable objects can be executed and returned.\n\n\nThe `__main__` module must be importable by worker subprocesses. This means\nthat `ProcessPoolExecutor` will not work in the interactive interpreter.\n\n\nCalling `Executor` or `Future` methods from a callable submitted\nto a `ProcessPoolExecutor` will result in deadlock.\n\n\nclass concurrent.futures.ProcessPoolExecutor(max_workers=None, mp_context=None, initializer=None, initargs=(), max_tasks_per_child=None)¶\n\n\nAn `Executor` subclass that executes calls asynchronously using a pool\nof at most max_workers processes. If max_workers is `None` or not\ngiven, it will default to the number of processors on the machine.\nIf max_workers is less than or equal to `0`, then a `ValueError`\nwill be raised.\nOn Windows, max_workers must be less than or equal to `61`. If it is not\nthen `ValueError` will be raised. If max_workers is `None`, then\nthe default chosen will be at most `61`, even if more processors are\navailable.\nmp_context can be a `multiprocessing` context or `None`. It will be\nused to launch the workers. If mp_context is `None` or not given, the\ndefault `multiprocessing` context is used.\nSee Contexts and start methods.\n\n\ninitializer is an optional callable that is called at the start of\neach worker process; initargs is a tuple of arguments passed to the\ninitializer. Should initializer raise an exception, all currently\npending jobs will raise a `BrokenProcessPool`,\nas well as any attempt to submit more jobs to the pool.\n\n\nmax_tasks_per_child is an optional argument that specifies the maximum\nnumber of tasks a single process can execute before it will exit and be\nreplaced with a fresh worker process. By default max_tasks_per_child is\n`None` which means worker processes will live as long as the pool. When\na max is specified, the “spawn” multiprocessing start method will be used by\ndefault in absence of a mp_context parameter. This feature is incompatible\nwith the “fork” start method.\n\n\nChanged in version 3.3: When one of the worker processes terminates abruptly, a\n`BrokenProcessPool` error is now raised.\nPreviously, behaviour\nwas undefined but operations on the executor or its futures would often\nfreeze or deadlock.\n\n\nChanged in version 3.7: The mp_context argument was added to allow users to control the\nstart_method for worker processes created by the pool.\n\n\nAdded the initializer and initargs arguments.\n\n\nNote\n\n\nThe default `multiprocessing` start method\n(see Contexts and start methods) will change away from\nfork in Python 3.14. Code that requires fork be used for their\n`ProcessPoolExecutor` should explicitly specify that by\npassing a `mp_context=multiprocessing.get_context(\"fork\")`\nparameter.\n\n\nChanged in version 3.11: The max_tasks_per_child argument was added to allow users to\ncontrol the lifetime of workers in the pool.\n\n\nChanged in version 3.12: On POSIX systems, if your application has multiple threads and the\n`multiprocessing` context uses the `\"fork\"` start method:\nThe `os.fork()` function called internally to spawn workers may raise a\n`DeprecationWarning`. Pass a mp_context configured to use a\ndifferent start method. See the `os.fork()` documentation for\nfurther explanation.\n\n\n### ProcessPoolExecutor Example¶\n\n\n```\nimport concurrent.futures\nimport math\n\nPRIMES = [\n    112272535095293,\n    112582705942171,\n    112272535095293,\n    115280095190773,\n    115797848077099,\n    1099726899285419]\n\ndef is_prime(n):\n    if n < 2:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n\n    sqrt_n = int(math.floor(math.sqrt(n)))\n    for i in range(3, sqrt_n + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n\ndef main():\n    with concurrent.futures.ProcessPoolExecutor() as executor:\n        for number, prime in zip(PRIMES, executor.map(is_prime, PRIMES)):\n            print('%d is prime: %s' % (number, prime))\n\nif __name__ == '__main__':\n    main()\n\n```\n\n\n## Future Objects¶\n\n\nThe `Future` class encapsulates the asynchronous execution of a callable.\n`Future` instances are created by `Executor.submit()`.\n\n\nclass concurrent.futures.Future¶\n\n\nEncapsulates the asynchronous execution of a callable. `Future`\ninstances are created by `Executor.submit()` and should not be created\ndirectly except for testing.\n\n\ncancel()¶\n\n\nAttempt to cancel the call. If the call is currently being executed or\nfinished running and cannot be cancelled then the method will return\n`False`, otherwise the call will be cancelled and the method will\nreturn `True`.\n\n\ncancelled()¶\n\n\nReturn `True` if the call was successfully cancelled.\n\n\nrunning()¶\n\n\nReturn `True` if the call is currently being executed and cannot be\ncancelled.\n\n\ndone()¶\n\n\nReturn `True` if the call was successfully cancelled or finished\nrunning.\n\n\nresult(timeout=None)¶\n\n\nReturn the value returned by the call. If the call hasn’t yet completed\nthen this method will wait up to timeout seconds. If the call hasn’t\ncompleted in timeout seconds, then a\n`TimeoutError` will be raised. timeout can be\nan int or float. If timeout is not specified or `None`, there is no\nlimit to the wait time.\n\n\nIf the future is cancelled before completing then `CancelledError`\nwill be raised.\n\n\nIf the call raised an exception, this method will raise the same exception.\n\n\nexception(timeout=None)¶\n\n\nReturn the exception raised by the call. If the call hasn’t yet\ncompleted then this method will wait up to timeout seconds. If the\ncall hasn’t completed in timeout seconds, then a\n`TimeoutError` will be raised. timeout can be\nan int or float. If timeout is not specified or `None`, there is no\nlimit to the wait time.\n\n\nIf the future is cancelled before completing then `CancelledError`\nwill be raised.\n\n\nIf the call completed without raising, `None` is returned.\n\n\nadd_done_callback(fn)¶\n\n\nAttaches the callable fn to the future. fn will be called, with the\nfuture as its only argument, when the future is cancelled or finishes\nrunning.\n\n\nAdded callables are called in the order that they were added and are\nalways called in a thread belonging to the process that added them. If\nthe callable raises an `Exception` subclass, it will be logged and\nignored. If the callable raises a `BaseException` subclass, the\nbehavior is undefined.\n\n\nIf the future has already completed or been cancelled, fn will be\ncalled immediately.\n\n\nThe following `Future` methods are meant for use in unit tests and\n`Executor` implementations.\n\n\nset_running_or_notify_cancel()¶\n\n\nThis method should only be called by `Executor` implementations\nbefore executing the work associated with the `Future` and by unit\ntests.\n\n\nIf the method returns `False` then the `Future` was cancelled,\ni.e. `Future.cancel()` was called and returned `True`. Any threads\nwaiting on the `Future` completing (i.e. through\n`as_completed()` or `wait()`) will be woken up.\n\n\nIf the method returns `True` then the `Future` was not cancelled\nand has been put in the running state, i.e. calls to\n`Future.running()` will return `True`.\n\n\nThis method can only be called once and cannot be called after\n`Future.set_result()` or `Future.set_exception()` have been\ncalled.\n\n\nset_result(result)¶\n\n\nSets the result of the work associated with the `Future` to\nresult.\n\n\nThis method should only be used by `Executor` implementations and\nunit tests.\n\n\nChanged in version 3.8: This method raises\n`concurrent.futures.InvalidStateError` if the `Future` is\nalready done.\n\n\nset_exception(exception)¶\n\n\nSets the result of the work associated with the `Future` to the\n`Exception` exception.\n\n\nThis method should only be used by `Executor` implementations and\nunit tests.\n\n\nChanged in version 3.8: This method raises\n`concurrent.futures.InvalidStateError` if the `Future` is\nalready done.\n\n\n## Module Functions¶\n\n\nconcurrent.futures.wait(fs, timeout=None, return_when=ALL_COMPLETED)¶\n\n\nWait for the `Future` instances (possibly created by different\n`Executor` instances) given by fs to complete. Duplicate futures\ngiven to fs are removed and will be returned only once. Returns a named\n2-tuple of sets. The first set, named `done`, contains the futures that\ncompleted (finished or cancelled futures) before the wait completed. The\nsecond set, named `not_done`, contains the futures that did not complete\n(pending or running futures).\n\n\ntimeout can be used to control the maximum number of seconds to wait before\nreturning. timeout can be an int or float. If timeout is not specified\nor `None`, there is no limit to the wait time.\n\n\nreturn_when indicates when this function should return. It must be one of\nthe following constants:\n\n\nConstant\n\n\nDescription\n\n\nconcurrent.futures.FIRST_COMPLETED¶\n\n\nThe function will return when any future finishes or is cancelled.\n\n\nconcurrent.futures.FIRST_EXCEPTION¶\n\n\nThe function will return when any future finishes by raising an\nexception. If no future raises an exception\nthen it is equivalent to `ALL_COMPLETED`.\n\n\nconcurrent.futures.ALL_COMPLETED¶\n\n\nThe function will return when all futures finish or are cancelled.\n\n\nconcurrent.futures.as_completed(fs, timeout=None)¶\n\n\nReturns an iterator over the `Future` instances (possibly created by\ndifferent `Executor` instances) given by fs that yields futures as\nthey complete (finished or cancelled futures). Any futures given by fs that\nare duplicated will be returned once. Any futures that completed before\n`as_completed()` is called will be yielded first. The returned iterator\nraises a `TimeoutError` if `__next__()`\nis called and the result isn’t available after timeout seconds from the\noriginal call to `as_completed()`. timeout can be an int or float. If\ntimeout is not specified or `None`, there is no limit to the wait time.\n\n\nSee also\n\n\nPEP 3148 – futures - execute computations asynchronously\n\nThe proposal which described this feature for inclusion in the Python\nstandard library.\n\n\n## Exception classes¶\n\n\nexception concurrent.futures.CancelledError¶\n\n\nRaised when a future is cancelled.\n\n\nexception concurrent.futures.TimeoutError¶\n\n\nA deprecated alias of `TimeoutError`,\nraised when a future operation exceeds the given timeout.\n\n\nChanged in version 3.11: This class was made an alias of `TimeoutError`.\n\n\nexception concurrent.futures.BrokenExecutor¶\n\n\nDerived from `RuntimeError`, this exception class is raised\nwhen an executor is broken for some reason, and cannot be used\nto submit or execute new tasks.\n\n\nAdded in version 3.7.\n\n\nexception concurrent.futures.InvalidStateError¶\n\n\nRaised when an operation is performed on a future that is not allowed\nin the current state.\n\n\nAdded in version 3.8.\n\n\nexception concurrent.futures.thread.BrokenThreadPool¶\n\n\nDerived from `BrokenExecutor`, this exception\nclass is raised when one of the workers\nof a `ThreadPoolExecutor`\nhas failed initializing.\n\n\nAdded in version 3.7.\n\n\nexception concurrent.futures.process.BrokenProcessPool¶\n\n\nDerived from `BrokenExecutor` (formerly\n`RuntimeError`), this exception class is raised when one of the\nworkers of a `ProcessPoolExecutor`\nhas terminated in a non-clean\nfashion (for example, if it was killed from the outside).\n\n\nAdded in version 3.3.\n\n\n \n\n \n\n\n### Table of Contents\n\n\n- `concurrent.futures` — Launching parallel tasks\n\n\n- Executor Objects\n\n- ThreadPoolExecutor\n\n\n- ThreadPoolExecutor Example\n\n\n- ProcessPoolExecutor\n\n\n- ProcessPoolExecutor Example\n\n\n- Future Objects\n\n- Module Functions\n\n- Exception classes\n\n\n \n\n\n#### Previous topic\n\n\nThe `concurrent` package\n\n\n \n\n\n#### Next topic\n\n\n`subprocess` — Subprocess management\n\n\n \n\n\n### This Page\n\n\n- Report a Bug\n\n- \n Show Source\n\n \n\n \n\n\n«\n\n\n \n\n\n \n\n\n### Navigation\n\n\n- \n index\n\n- \n modules |\n\n- \n next |\n\n- \n previous |\n\n\n- \n\n- Python »\n\n- \n\n\n \n- \n\n \n\n- \n 3.12.14 Documentation »\n\n\n- The Python Standard Library »\n\n- Concurrent Execution »\n\n- `concurrent.futures` — Launching parallel tasks\n\n- \n\n\n \n\n \n\n |\n\n \n- \n\n Theme\n\n Auto\n Light\n Dark\n\n |\n\n \n\n \n\n © Copyright 2001-2026, Python Software Foundation.\n\n\n This page is licensed under the Python Software Foundation License Version 2.\n\n\n Examples, recipes, and other code in the documentation are additionally licensed under the Zero Clause BSD License.\n\n\n See History and License for more information.\n\n\n \n\n\n The Python Software Foundation is a non-profit corporation.\nPlease donate.\n\n\n Last updated on Sep 07, 2026 (19:38 UTC).\n\n Found a bug?\n\n \n\n\n Created using Sphinx 8.2.3.",
+      "sections": [
+        {
+          "heading": "python312-parallelism.md",
+          "text": "concurrent.futures — Launching parallel tasks — Python 3.12.14 documentation\n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n\n \n\n \n\n \n\n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n \n\n\n \n\n\n Theme\n\n Auto\n Light\n Dark\n\n\n### Table of Contents\n\n\n- `concurrent.futures` — Launching parallel tasks\n\n\n- Executor Objects\n\n- ThreadPoolExecutor\n\n\n- ThreadPoolExecutor Example\n\n\n- ProcessPoolExecutor\n\n\n- ProcessPoolExecutor Example\n\n\n- Future Objects\n\n- Module Functions\n\n- Exception classes\n\n\n \n\n\n#### Previous topic\n\n\nThe `concurrent` package\n\n\n \n\n\n#### Next topic\n\n\n`subprocess` — Subprocess management\n\n\n \n\n\n### This Page\n\n\n- Report a Bug\n\n- \n Show Source\n\n \n\n \n\n \n\n\n \n\n\n### Navigation\n\n\n- \n index\n\n- \n modules |\n\n- \n next |\n\n- \n previous |\n\n\n- \n\n- Python »\n\n- \n\n\n \n- \n\n \n\n- \n 3.12.14 Documentation »\n\n\n- The Python Standard Library »\n\n- Concurrent Execution »\n\n- `concurrent.futures` — Launching parallel tasks\n\n- \n\n\n \n\n \n\n |\n\n \n- \n\n Theme\n\n Auto\n Light\n Dark\n\n |",
+          "level": 1,
+          "span": {
+            "start": 0,
+            "end": 943
+          },
+          "metadata": {
+            "heading_path": [
+              "python312-parallelism.md"
+            ],
+            "parent_heading": "",
+            "section_summary": "concurrent.futures — Launching parallel tasks — Python 3.12.14 documentation",
+            "sibling_headings": [
+              "`concurrent.futures` — Launching parallel tasks¶"
+            ]
+          }
+        },
+        {
+          "heading": "`concurrent.futures` — Launching parallel tasks¶",
+          "text": "Added in version 3.2.\n\n\nSource code: Lib/concurrent/futures/thread.py\nand Lib/concurrent/futures/process.py\n\n\nThe `concurrent.futures` module provides a high-level interface for\nasynchronously executing callables.\n\n\nThe asynchronous execution can be performed with threads, using\n`ThreadPoolExecutor`, or separate processes, using\n`ProcessPoolExecutor`. Both implement the same interface, which is\ndefined by the abstract `Executor` class.\n\n\nAvailability: not Emscripten, not WASI.\n\n\nThis module does not work or is not available on WebAssembly platforms\n`wasm32-emscripten` and `wasm32-wasi`. See\nWebAssembly platforms for more information.",
+          "level": 1,
+          "span": {
+            "start": 994,
+            "end": 1640
+          },
+          "metadata": {
+            "heading_path": [
+              "`concurrent.futures` — Launching parallel tasks¶"
+            ],
+            "parent_heading": "",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "Added in version 3.2.",
+            "sibling_headings": [
+              "python312-parallelism.md"
+            ]
+          }
+        },
+        {
+          "heading": "## Executor Objects¶",
+          "text": "class concurrent.futures.Executor¶\n\n\nAn abstract class that provides methods to execute calls asynchronously. It\nshould not be used directly, but through its concrete subclasses.\n\n\nsubmit(fn, /, *args, **kwargs)¶\n\n\nSchedules the callable, fn, to be executed as `fn(*args, **kwargs)`\nand returns a `Future` object representing the execution of the\ncallable.\n\n\n```\nwith ThreadPoolExecutor(max_workers=1) as executor:\n    future = executor.submit(pow, 323, 1235)\n    print(future.result())\n\n```\n\n\nmap(fn, *iterables, timeout=None, chunksize=1)¶\n\n\nSimilar to `map(fn, *iterables)` except:\n\n\n- \n\nthe iterables are collected immediately rather than lazily;\n\n\n- \n\nfn is executed asynchronously and several calls to\nfn may be made concurrently.\n\n\nThe returned iterator raises a `TimeoutError`\nif `__next__()` is called and the result isn’t available\nafter timeout seconds from the original call to `Executor.map()`.\ntimeout can be an int or a float. If timeout is not specified or\n`None`, there is no limit to the wait time.\n\n\nIf a fn call raises an exception, then that exception will be\nraised when its value is retrieved from the iterator.\n\n\nWhen using `ProcessPoolExecutor`, this method chops iterables\ninto a number of chunks which it submits to the pool as separate\ntasks. The (approximate) size of these chunks can be specified by\nsetting chunksize to a positive integer. For very long iterables,\nusing a large value for chunksize can significantly improve\nperformance compared to the default size of 1. With\n`ThreadPoolExecutor`, chunksize has no effect.\n\n\nChanged in version 3.5: Added the chunksize argument.\n\n\nshutdown(wait=True, *, cancel_futures=False)¶\n\n\nSignal the executor that it should free any resources that it is using\nwhen the currently pending futures are done executing. Calls to\n`Executor.submit()` and `Executor.map()` made after shutdown will\nraise `RuntimeError`.\n\n\nIf wait is `True` then this method will not return until all the\npending futures are done executing and the resources associated with the\nexecutor have been freed. If wait is `False` then this method will\nreturn immediately and the resources associated with the executor will be\nfreed when all pending futures are done executing. Regardless of the\nvalue of wait, the entire Python program will not exit until all\npending futures are done executing.\n\n\nIf cancel_futures is `True`, this method will cancel all pending\nfutures that the executor has not started running. Any futures that\nare completed or running won’t be cancelled, regardless of the value\nof cancel_futures.\n\n\nIf both cancel_futures and wait are `True`, all futures that the\nexecutor has started running will be completed prior to this method\nreturning. The remaining futures are cancelled.\n\n\nYou can avoid having to call this method explicitly if you use the\n`with` statement, which will shutdown the `Executor`\n(waiting as if `Executor.shutdown()` were called with wait set to\n`True`):\n\n\n```\nimport shutil\nwith ThreadPoolExecutor(max_workers=4) as e:\n    e.submit(shutil.copy, 'src1.txt', 'dest1.txt')\n    e.submit(shutil.copy, 'src2.txt', 'dest2.txt')\n    e.submit(shutil.copy, 'src3.txt', 'dest3.txt')\n    e.submit(shutil.copy, 'src4.txt', 'dest4.txt')\n\n```\n\n\nChanged in version 3.9: Added cancel_futures.",
+          "level": 2,
+          "span": {
+            "start": 1661,
+            "end": 4925
+          },
+          "metadata": {
+            "heading_path": [
+              "`concurrent.futures` — Launching parallel tasks¶",
+              "## Executor Objects¶"
+            ],
+            "parent_heading": "`concurrent.futures` — Launching parallel tasks¶",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "class concurrent.futures.Executor¶",
+            "sibling_headings": [
+              "ProcessPoolExecutor¶",
+              "Future Objects¶",
+              "Module Functions¶",
+              "Exception classes¶"
+            ]
+          }
+        },
+        {
+          "heading": "ThreadPoolExecutor¶",
+          "text": "`ThreadPoolExecutor` is an `Executor` subclass that uses a pool of\nthreads to execute calls asynchronously.\n\n\nDeadlocks can occur when the callable associated with a `Future` waits on\nthe results of another `Future`. For example:\n\n\n```\nimport time\ndef wait_on_b():\n    time.sleep(5)\n    print(b.result())  # b will never complete because it is waiting on a.\n    return 5\n\ndef wait_on_a():\n    time.sleep(5)\n    print(a.result())  # a will never complete because it is waiting on b.\n    return 6\n\n\nexecutor = ThreadPoolExecutor(max_workers=2)\na = executor.submit(wait_on_b)\nb = executor.submit(wait_on_a)\n\n```\n\n\nAnd:\n\n\n```\ndef wait_on_future():\n    f = executor.submit(pow, 5, 2)\n    # This will never complete because there is only one worker thread and\n    # it is executing this function.\n    print(f.result())\n\nexecutor = ThreadPoolExecutor(max_workers=1)\nexecutor.submit(wait_on_future)\n\n```\n\n\nclass concurrent.futures.ThreadPoolExecutor(max_workers=None, thread_name_prefix='', initializer=None, initargs=())¶\n\n\nAn `Executor` subclass that uses a pool of at most max_workers\nthreads to execute calls asynchronously.\n\n\nAll threads enqueued to `ThreadPoolExecutor` will be joined before the\ninterpreter can exit. Note that the exit handler which does this is\nexecuted before any exit handlers added using `atexit`. This means\nexceptions in the main thread must be caught and handled in order to\nsignal threads to exit gracefully. For this reason, it is recommended\nthat `ThreadPoolExecutor` not be used for long-running tasks.\n\n\ninitializer is an optional callable that is called at the start of\neach worker thread; initargs is a tuple of arguments passed to the\ninitializer. Should initializer raise an exception, all currently\npending jobs will raise a `BrokenThreadPool`,\nas well as any attempt to submit more jobs to the pool.\n\n\nChanged in version 3.5: If max_workers is `None` or\nnot given, it will default to the number of processors on the machine,\nmultiplied by `5`, assuming that `ThreadPoolExecutor` is often\nused to overlap I/O instead of CPU work and the number of workers\nshould be higher than the number of workers\nfor `ProcessPoolExecutor`.\n\n\nChanged in version 3.6: Added the thread_name_prefix parameter to allow users to\ncontrol the `threading.Thread` names for worker threads created by\nthe pool for easier debugging.\n\n\nChanged in version 3.7: Added the initializer and initargs arguments.\n\n\nChanged in version 3.8: Default value of max_workers is changed to `min(32, os.cpu_count() + 4)`.\nThis default value preserves at least 5 workers for I/O bound tasks.\nIt utilizes at most 32 CPU cores for CPU bound tasks which release the GIL.\nAnd it avoids using very large resources implicitly on many-core machines.\n\n\nThreadPoolExecutor now reuses idle worker threads before starting\nmax_workers worker threads too.",
+          "level": 3,
+          "span": {
+            "start": 4948,
+            "end": 7784
+          },
+          "metadata": {
+            "heading_path": [
+              "`concurrent.futures` — Launching parallel tasks¶",
+              "## Executor Objects¶",
+              "ThreadPoolExecutor¶"
+            ],
+            "parent_heading": "## Executor Objects¶",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "`ThreadPoolExecutor` is an `Executor` subclass that uses a pool of",
+            "sibling_headings": [
+              "ThreadPoolExecutor Example¶"
+            ]
+          }
+        },
+        {
+          "heading": "ThreadPoolExecutor Example¶",
+          "text": "```\nimport concurrent.futures\nimport urllib.request\n\nURLS = ['http://www.foxnews.com/',\n        'http://www.cnn.com/',\n        'http://europe.wsj.com/',\n        'http://www.bbc.co.uk/',\n        'http://nonexistant-subdomain.python.org/']\n\n# Retrieve a single page and report the URL and contents\ndef load_url(url, timeout):\n    with urllib.request.urlopen(url, timeout=timeout) as conn:\n        return conn.read()\n\n# We can use a with statement to ensure threads are cleaned up promptly\nwith concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:\n    # Start the load operations and mark each future with its URL\n    future_to_url = {executor.submit(load_url, url, 60): url for url in URLS}\n    for future in concurrent.futures.as_completed(future_to_url):\n        url = future_to_url[future]\n        try:\n            data = future.result()\n        except Exception as exc:\n            print('%r generated an exception: %s' % (url, exc))\n        else:\n            print('%r page is %d bytes' % (url, len(data)))\n\n```",
+          "level": 3,
+          "span": {
+            "start": 7816,
+            "end": 8848
+          },
+          "metadata": {
+            "heading_path": [
+              "`concurrent.futures` — Launching parallel tasks¶",
+              "## Executor Objects¶",
+              "ThreadPoolExecutor Example¶"
+            ],
+            "parent_heading": "## Executor Objects¶",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "```",
+            "sibling_headings": [
+              "ThreadPoolExecutor¶"
+            ]
+          }
+        },
+        {
+          "heading": "ProcessPoolExecutor¶",
+          "text": "The `ProcessPoolExecutor` class is an `Executor` subclass that\nuses a pool of processes to execute calls asynchronously.\n`ProcessPoolExecutor` uses the `multiprocessing` module, which\nallows it to side-step the Global Interpreter Lock but also means that\nonly picklable objects can be executed and returned.\n\n\nThe `__main__` module must be importable by worker subprocesses. This means\nthat `ProcessPoolExecutor` will not work in the interactive interpreter.\n\n\nCalling `Executor` or `Future` methods from a callable submitted\nto a `ProcessPoolExecutor` will result in deadlock.\n\n\nclass concurrent.futures.ProcessPoolExecutor(max_workers=None, mp_context=None, initializer=None, initargs=(), max_tasks_per_child=None)¶\n\n\nAn `Executor` subclass that executes calls asynchronously using a pool\nof at most max_workers processes. If max_workers is `None` or not\ngiven, it will default to the number of processors on the machine.\nIf max_workers is less than or equal to `0`, then a `ValueError`\nwill be raised.\nOn Windows, max_workers must be less than or equal to `61`. If it is not\nthen `ValueError` will be raised. If max_workers is `None`, then\nthe default chosen will be at most `61`, even if more processors are\navailable.\nmp_context can be a `multiprocessing` context or `None`. It will be\nused to launch the workers. If mp_context is `None` or not given, the\ndefault `multiprocessing` context is used.\nSee Contexts and start methods.\n\n\ninitializer is an optional callable that is called at the start of\neach worker process; initargs is a tuple of arguments passed to the\ninitializer. Should initializer raise an exception, all currently\npending jobs will raise a `BrokenProcessPool`,\nas well as any attempt to submit more jobs to the pool.\n\n\nmax_tasks_per_child is an optional argument that specifies the maximum\nnumber of tasks a single process can execute before it will exit and be\nreplaced with a fresh worker process. By default max_tasks_per_child is\n`None` which means worker processes will live as long as the pool. When\na max is specified, the “spawn” multiprocessing start method will be used by\ndefault in absence of a mp_context parameter. This feature is incompatible\nwith the “fork” start method.\n\n\nChanged in version 3.3: When one of the worker processes terminates abruptly, a\n`BrokenProcessPool` error is now raised.\nPreviously, behaviour\nwas undefined but operations on the executor or its futures would often\nfreeze or deadlock.\n\n\nChanged in version 3.7: The mp_context argument was added to allow users to control the\nstart_method for worker processes created by the pool.\n\n\nAdded the initializer and initargs arguments.\n\n\nNote\n\n\nThe default `multiprocessing` start method\n(see Contexts and start methods) will change away from\nfork in Python 3.14. Code that requires fork be used for their\n`ProcessPoolExecutor` should explicitly specify that by\npassing a `mp_context=multiprocessing.get_context(\"fork\")`\nparameter.\n\n\nChanged in version 3.11: The max_tasks_per_child argument was added to allow users to\ncontrol the lifetime of workers in the pool.\n\n\nChanged in version 3.12: On POSIX systems, if your application has multiple threads and the\n`multiprocessing` context uses the `\"fork\"` start method:\nThe `os.fork()` function called internally to spawn workers may raise a\n`DeprecationWarning`. Pass a mp_context configured to use a\ndifferent start method. See the `os.fork()` documentation for\nfurther explanation.",
+          "level": 2,
+          "span": {
+            "start": 8872,
+            "end": 12315
+          },
+          "metadata": {
+            "heading_path": [
+              "`concurrent.futures` — Launching parallel tasks¶",
+              "ProcessPoolExecutor¶"
+            ],
+            "parent_heading": "`concurrent.futures` — Launching parallel tasks¶",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "The `ProcessPoolExecutor` class is an `Executor` subclass that",
+            "sibling_headings": [
+              "## Executor Objects¶",
+              "Future Objects¶",
+              "Module Functions¶",
+              "Exception classes¶"
+            ]
+          }
+        },
+        {
+          "heading": "ProcessPoolExecutor Example¶",
+          "text": "```\nimport concurrent.futures\nimport math\n\nPRIMES = [\n    112272535095293,\n    112582705942171,\n    112272535095293,\n    115280095190773,\n    115797848077099,\n    1099726899285419]\n\ndef is_prime(n):\n    if n < 2:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n\n    sqrt_n = int(math.floor(math.sqrt(n)))\n    for i in range(3, sqrt_n + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n\ndef main():\n    with concurrent.futures.ProcessPoolExecutor() as executor:\n        for number, prime in zip(PRIMES, executor.map(is_prime, PRIMES)):\n            print('%d is prime: %s' % (number, prime))\n\nif __name__ == '__main__':\n    main()\n\n```",
+          "level": 3,
+          "span": {
+            "start": 12348,
+            "end": 13056
+          },
+          "metadata": {
+            "heading_path": [
+              "`concurrent.futures` — Launching parallel tasks¶",
+              "ProcessPoolExecutor¶",
+              "ProcessPoolExecutor Example¶"
+            ],
+            "parent_heading": "ProcessPoolExecutor¶",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "```"
+          }
+        },
+        {
+          "heading": "Future Objects¶",
+          "text": "The `Future` class encapsulates the asynchronous execution of a callable.\n`Future` instances are created by `Executor.submit()`.\n\n\nclass concurrent.futures.Future¶\n\n\nEncapsulates the asynchronous execution of a callable. `Future`\ninstances are created by `Executor.submit()` and should not be created\ndirectly except for testing.\n\n\ncancel()¶\n\n\nAttempt to cancel the call. If the call is currently being executed or\nfinished running and cannot be cancelled then the method will return\n`False`, otherwise the call will be cancelled and the method will\nreturn `True`.\n\n\ncancelled()¶\n\n\nReturn `True` if the call was successfully cancelled.\n\n\nrunning()¶\n\n\nReturn `True` if the call is currently being executed and cannot be\ncancelled.\n\n\ndone()¶\n\n\nReturn `True` if the call was successfully cancelled or finished\nrunning.\n\n\nresult(timeout=None)¶\n\n\nReturn the value returned by the call. If the call hasn’t yet completed\nthen this method will wait up to timeout seconds. If the call hasn’t\ncompleted in timeout seconds, then a\n`TimeoutError` will be raised. timeout can be\nan int or float. If timeout is not specified or `None`, there is no\nlimit to the wait time.\n\n\nIf the future is cancelled before completing then `CancelledError`\nwill be raised.\n\n\nIf the call raised an exception, this method will raise the same exception.\n\n\nexception(timeout=None)¶\n\n\nReturn the exception raised by the call. If the call hasn’t yet\ncompleted then this method will wait up to timeout seconds. If the\ncall hasn’t completed in timeout seconds, then a\n`TimeoutError` will be raised. timeout can be\nan int or float. If timeout is not specified or `None`, there is no\nlimit to the wait time.\n\n\nIf the future is cancelled before completing then `CancelledError`\nwill be raised.\n\n\nIf the call completed without raising, `None` is returned.\n\n\nadd_done_callback(fn)¶\n\n\nAttaches the callable fn to the future. fn will be called, with the\nfuture as its only argument, when the future is cancelled or finishes\nrunning.\n\n\nAdded callables are called in the order that they were added and are\nalways called in a thread belonging to the process that added them. If\nthe callable raises an `Exception` subclass, it will be logged and\nignored. If the callable raises a `BaseException` subclass, the\nbehavior is undefined.\n\n\nIf the future has already completed or been cancelled, fn will be\ncalled immediately.\n\n\nThe following `Future` methods are meant for use in unit tests and\n`Executor` implementations.\n\n\nset_running_or_notify_cancel()¶\n\n\nThis method should only be called by `Executor` implementations\nbefore executing the work associated with the `Future` and by unit\ntests.\n\n\nIf the method returns `False` then the `Future` was cancelled,\ni.e. `Future.cancel()` was called and returned `True`. Any threads\nwaiting on the `Future` completing (i.e. through\n`as_completed()` or `wait()`) will be woken up.\n\n\nIf the method returns `True` then the `Future` was not cancelled\nand has been put in the running state, i.e. calls to\n`Future.running()` will return `True`.\n\n\nThis method can only be called once and cannot be called after\n`Future.set_result()` or `Future.set_exception()` have been\ncalled.\n\n\nset_result(result)¶\n\n\nSets the result of the work associated with the `Future` to\nresult.\n\n\nThis method should only be used by `Executor` implementations and\nunit tests.\n\n\nChanged in version 3.8: This method raises\n`concurrent.futures.InvalidStateError` if the `Future` is\nalready done.\n\n\nset_exception(exception)¶\n\n\nSets the result of the work associated with the `Future` to the\n`Exception` exception.\n\n\nThis method should only be used by `Executor` implementations and\nunit tests.\n\n\nChanged in version 3.8: This method raises\n`concurrent.futures.InvalidStateError` if the `Future` is\nalready done.",
+          "level": 2,
+          "span": {
+            "start": 13075,
+            "end": 16846
+          },
+          "metadata": {
+            "heading_path": [
+              "`concurrent.futures` — Launching parallel tasks¶",
+              "Future Objects¶"
+            ],
+            "parent_heading": "`concurrent.futures` — Launching parallel tasks¶",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "The `Future` class encapsulates the asynchronous execution of a callable.",
+            "sibling_headings": [
+              "## Executor Objects¶",
+              "ProcessPoolExecutor¶",
+              "Module Functions¶",
+              "Exception classes¶"
+            ]
+          }
+        },
+        {
+          "heading": "Module Functions¶",
+          "text": "concurrent.futures.wait(fs, timeout=None, return_when=ALL_COMPLETED)¶\n\n\nWait for the `Future` instances (possibly created by different\n`Executor` instances) given by fs to complete. Duplicate futures\ngiven to fs are removed and will be returned only once. Returns a named\n2-tuple of sets. The first set, named `done`, contains the futures that\ncompleted (finished or cancelled futures) before the wait completed. The\nsecond set, named `not_done`, contains the futures that did not complete\n(pending or running futures).\n\n\ntimeout can be used to control the maximum number of seconds to wait before\nreturning. timeout can be an int or float. If timeout is not specified\nor `None`, there is no limit to the wait time.\n\n\nreturn_when indicates when this function should return. It must be one of\nthe following constants:\n\n\nConstant\n\n\nDescription\n\n\nconcurrent.futures.FIRST_COMPLETED¶\n\n\nThe function will return when any future finishes or is cancelled.\n\n\nconcurrent.futures.FIRST_EXCEPTION¶\n\n\nThe function will return when any future finishes by raising an\nexception. If no future raises an exception\nthen it is equivalent to `ALL_COMPLETED`.\n\n\nconcurrent.futures.ALL_COMPLETED¶\n\n\nThe function will return when all futures finish or are cancelled.\n\n\nconcurrent.futures.as_completed(fs, timeout=None)¶\n\n\nReturns an iterator over the `Future` instances (possibly created by\ndifferent `Executor` instances) given by fs that yields futures as\nthey complete (finished or cancelled futures). Any futures given by fs that\nare duplicated will be returned once. Any futures that completed before\n`as_completed()` is called will be yielded first. The returned iterator\nraises a `TimeoutError` if `__next__()`\nis called and the result isn’t available after timeout seconds from the\noriginal call to `as_completed()`. timeout can be an int or float. If\ntimeout is not specified or `None`, there is no limit to the wait time.\n\n\nSee also\n\n\nPEP 3148 – futures - execute computations asynchronously\n\nThe proposal which described this feature for inclusion in the Python\nstandard library.",
+          "level": 2,
+          "span": {
+            "start": 16867,
+            "end": 18939
+          },
+          "metadata": {
+            "heading_path": [
+              "`concurrent.futures` — Launching parallel tasks¶",
+              "Module Functions¶"
+            ],
+            "parent_heading": "`concurrent.futures` — Launching parallel tasks¶",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "concurrent.futures.wait(fs, timeout=None, return_when=ALL_COMPLETED)¶",
+            "sibling_headings": [
+              "## Executor Objects¶",
+              "ProcessPoolExecutor¶",
+              "Future Objects¶",
+              "Exception classes¶"
+            ]
+          }
+        },
+        {
+          "heading": "Exception classes¶",
+          "text": "exception concurrent.futures.CancelledError¶\n\n\nRaised when a future is cancelled.\n\n\nexception concurrent.futures.TimeoutError¶\n\n\nA deprecated alias of `TimeoutError`,\nraised when a future operation exceeds the given timeout.\n\n\nChanged in version 3.11: This class was made an alias of `TimeoutError`.\n\n\nexception concurrent.futures.BrokenExecutor¶\n\n\nDerived from `RuntimeError`, this exception class is raised\nwhen an executor is broken for some reason, and cannot be used\nto submit or execute new tasks.\n\n\nAdded in version 3.7.\n\n\nexception concurrent.futures.InvalidStateError¶\n\n\nRaised when an operation is performed on a future that is not allowed\nin the current state.\n\n\nAdded in version 3.8.\n\n\nexception concurrent.futures.thread.BrokenThreadPool¶\n\n\nDerived from `BrokenExecutor`, this exception\nclass is raised when one of the workers\nof a `ThreadPoolExecutor`\nhas failed initializing.\n\n\nAdded in version 3.7.\n\n\nexception concurrent.futures.process.BrokenProcessPool¶\n\n\nDerived from `BrokenExecutor` (formerly\n`RuntimeError`), this exception class is raised when one of the\nworkers of a `ProcessPoolExecutor`\nhas terminated in a non-clean\nfashion (for example, if it was killed from the outside).\n\n\nAdded in version 3.3.\n\n\n \n\n \n\n\n### Table of Contents\n\n\n- `concurrent.futures` — Launching parallel tasks\n\n\n- Executor Objects\n\n- ThreadPoolExecutor\n\n\n- ThreadPoolExecutor Example\n\n\n- ProcessPoolExecutor\n\n\n- ProcessPoolExecutor Example\n\n\n- Future Objects\n\n- Module Functions\n\n- Exception classes\n\n\n \n\n\n#### Previous topic\n\n\nThe `concurrent` package\n\n\n \n\n\n#### Next topic\n\n\n`subprocess` — Subprocess management\n\n\n \n\n\n### This Page\n\n\n- Report a Bug\n\n- \n Show Source\n\n \n\n \n\n\n«\n\n\n \n\n\n \n\n\n### Navigation\n\n\n- \n index\n\n- \n modules |\n\n- \n next |\n\n- \n previous |\n\n\n- \n\n- Python »\n\n- \n\n\n \n- \n\n \n\n- \n 3.12.14 Documentation »\n\n\n- The Python Standard Library »\n\n- Concurrent Execution »\n\n- `concurrent.futures` — Launching parallel tasks\n\n- \n\n\n \n\n \n\n |\n\n \n- \n\n Theme\n\n Auto\n Light\n Dark\n\n |\n\n \n\n \n\n © Copyright 2001-2026, Python Software Foundation.\n\n\n This page is licensed under the Python Software Foundation License Version 2.\n\n\n Examples, recipes, and other code in the documentation are additionally licensed under the Zero Clause BSD License.\n\n\n See History and License for more information.\n\n\n \n\n\n The Python Software Foundation is a non-profit corporation.\nPlease donate.\n\n\n Last updated on Sep 07, 2026 (19:38 UTC).\n\n Found a bug?\n\n \n\n\n Created using Sphinx 8.2.3.",
+          "level": 2,
+          "span": {
+            "start": 18961,
+            "end": 21427
+          },
+          "metadata": {
+            "heading_path": [
+              "`concurrent.futures` — Launching parallel tasks¶",
+              "Exception classes¶"
+            ],
+            "parent_heading": "`concurrent.futures` — Launching parallel tasks¶",
+            "heading_number": "",
+            "heading_kind": "outline_llm",
+            "section_summary": "exception concurrent.futures.CancelledError¶",
+            "sibling_headings": [
+              "## Executor Objects¶",
+              "ProcessPoolExecutor¶",
+              "Future Objects¶",
+              "Module Functions¶"
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "channel": "offline_extract_from_doc",
+        "source_type": "document",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "resume_key": "356069d925eaa27e5f4d20531765bffb5e2282429404b8f5c1bb27bd5b893c4c",
+        "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/python312-parallelism.md",
+        "family_name": "未分类技能",
+        "family_confidence": 0.5,
+        "family_source": "default",
+        "family_reason": "taxonomy has no constrained family candidates",
+        "profile_id": "default::未分类技能",
+        "taxonomy_id": "default",
+        "domain_type": "default"
+      },
+      "checksum": "a96c320e1ebc6abacd9c8e6269e8b71de5e954a9",
+      "content_hash": "a96c320e1ebc6abacd9c8e6269e8b71de5e954a9",
+      "imported_at": "2026-09-15T18:56:37+00:00"
+    }
+  ],
+  "support_records": [
+    {
+      "support_id": "90589035-31c4-5821-ad0e-2791897b16d1",
+      "doc_id": "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+      "skill_id": "02fc6046-51b1-5ba3-844d-4afab871d7a1",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/python312-parallelism.md",
+      "section": "`concurrent.futures` — Launching parallel tasks¶",
+      "span": {
+        "start": 4218,
+        "end": 7350
+      },
+      "excerpt": "If both cancel_futures and wait are `True`, all futures that the\nexecutor has started running will be completed prior to this method\nreturning. The remaining futures are cancelled.\n\nYou can avoid having to call this method explicitly if you use the\n`with` statement, which will shutdown the `Executor`\n(waiting as if `Executor.shutdown()` were called with wait set to\n`True`):\n\n```\nimport shutil\nwith ThreadPoolExecutor(max_workers=4) as e:\n    e.submit(shutil.copy, 'src1.txt', 'dest1.txt')\n    e.submit(shutil.copy, 'src2.txt', 'dest2.txt')\n    e.submit(shutil.copy, 'src3.txt', 'dest3.txt')\n    e.submit(shutil.copy, 'src4.txt', 'dest4.txt')\n\n```\n\nChanged in version 3.9: Added cancel_futures.\n\nThreadPoolExecutor¶\n`ThreadPoolExecutor` is an `Executor` subclass that uses a pool of\nthreads to execute calls asynchronously.\n\nDeadlocks can occur when the callable associated with a `Future` waits on\nthe results of another `Future`. For example:\n\n```\nimport time\ndef wait_on_b():\n    time.sleep(5)\n    print(b.result())  # b will never complete because it is waiting on a.\n    return 5\n\ndef wait_on_a():\n    time.sleep(5)\n    print(a.result())  # a will never complete because it is waiting on b.\n    return 6\n\nexecutor = ThreadPoolExecutor(max_workers=2)\na = executor.submit(wait_on_b)\nb = executor.submit(wait_on_a)\n\n```\n\nAnd:\n\n```\ndef wait_on_future():\n    f = executor.submit(pow, 5, 2)\n    # This will never complete because there is only one worker thread and\n    # it is executing this function.\n    print(f.result())\n\nexecutor = ThreadPoolExecutor(max_workers=1)\nexecutor.submit(wait_on_future)\n\n```\n\nclass concurrent.futures.ThreadPoolExecutor(max_workers=None, thread_name_prefix='', initializer=None, initargs=())¶\n\nAn `Executor` subclass that uses a pool of at most max_workers\nthreads to execute calls asynchronously.\n\ninitializer is an optional callable that is called at the start of\neach worker thread; initargs is a tuple of arguments passed to the\ninitializer. Should initializer raise an exception, all currently\npending jobs will raise a `BrokenThreadPool`,\nas well as any attempt to submit more jobs to the pool.\n\nChanged in version 3.6: Added the thread_name_prefix parameter to allow users to\ncontrol the `threading.Thread` names for worker threads created by\nthe pool for easier debugging.\n\nChanged in version 3.7: Added the initializer and initargs arguments.",
+      "relation_type": "support",
+      "confidence": 0.92,
+      "metadata": {
+        "document_title": "python312-parallelism.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "ThreadPoolExecutor Context Manager Setup",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "Safely initialize and teardown a thread pool executor for parallel task execution",
+        "task_family": "parallel_execution",
+        "method_family": "context_manager_pattern",
+        "stage": "initialization_and_cleanup",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "e324cb44-81de-5972-bc69-de973591e505",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 26,
+        "paragraph_end": 47,
+        "heading_path": [
+          "`concurrent.futures` — Launching parallel tasks¶"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "python312-parallelism.md"
+        ],
+        "subsection_headings": [
+          "## Executor Objects¶",
+          "ThreadPoolExecutor¶",
+          "ThreadPoolExecutor Example¶",
+          "ProcessPoolExecutor¶",
+          "ProcessPoolExecutor Example¶",
+          "Future Objects¶",
+          "Module Functions¶",
+          "Exception classes¶"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Added in version 3.2."
+      },
+      "created_at": "2026-09-15T18:58:10+00:00"
+    },
+    {
+      "support_id": "9a66794f-61f2-5dbe-9ea5-a0ac86eef70c",
+      "doc_id": "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+      "skill_id": "9533f43e-b370-52fc-97e8-f364f1d5fe6a",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/python312-parallelism.md",
+      "section": "`concurrent.futures` — Launching parallel tasks¶",
+      "span": {
+        "start": 4218,
+        "end": 7350
+      },
+      "excerpt": "If both cancel_futures and wait are `True`, all futures that the\nexecutor has started running will be completed prior to this method\nreturning. The remaining futures are cancelled.\n\nYou can avoid having to call this method explicitly if you use the\n`with` statement, which will shutdown the `Executor`\n(waiting as if `Executor.shutdown()` were called with wait set to\n`True`):\n\n```\nimport shutil\nwith ThreadPoolExecutor(max_workers=4) as e:\n    e.submit(shutil.copy, 'src1.txt', 'dest1.txt')\n    e.submit(shutil.copy, 'src2.txt', 'dest2.txt')\n    e.submit(shutil.copy, 'src3.txt', 'dest3.txt')\n    e.submit(shutil.copy, 'src4.txt', 'dest4.txt')\n\n```\n\nChanged in version 3.9: Added cancel_futures.\n\nThreadPoolExecutor¶\n`ThreadPoolExecutor` is an `Executor` subclass that uses a pool of\nthreads to execute calls asynchronously.\n\nDeadlocks can occur when the callable associated with a `Future` waits on\nthe results of another `Future`. For example:\n\n```\nimport time\ndef wait_on_b():\n    time.sleep(5)\n    print(b.result())  # b will never complete because it is waiting on a.\n    return 5\n\ndef wait_on_a():\n    time.sleep(5)\n    print(a.result())  # a will never complete because it is waiting on b.\n    return 6\n\nexecutor = ThreadPoolExecutor(max_workers=2)\na = executor.submit(wait_on_b)\nb = executor.submit(wait_on_a)\n\n```\n\nAnd:\n\n```\ndef wait_on_future():\n    f = executor.submit(pow, 5, 2)\n    # This will never complete because there is only one worker thread and\n    # it is executing this function.\n    print(f.result())\n\nexecutor = ThreadPoolExecutor(max_workers=1)\nexecutor.submit(wait_on_future)\n\n```\n\nclass concurrent.futures.ThreadPoolExecutor(max_workers=None, thread_name_prefix='', initializer=None, initargs=())¶\n\nAn `Executor` subclass that uses a pool of at most max_workers\nthreads to execute calls asynchronously.\n\ninitializer is an optional callable that is called at the start of\neach worker thread; initargs is a tuple of arguments passed to the\ninitializer. Should initializer raise an exception, all currently\npending jobs will raise a `BrokenThreadPool`,\nas well as any attempt to submit more jobs to the pool.\n\nChanged in version 3.6: Added the thread_name_prefix parameter to allow users to\ncontrol the `threading.Thread` names for worker threads created by\nthe pool for easier debugging.\n\nChanged in version 3.7: Added the initializer and initargs arguments.",
+      "relation_type": "constraint",
+      "confidence": 0.88,
+      "metadata": {
+        "document_title": "python312-parallelism.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Detect and Avoid ThreadPoolExecutor Deadlock",
+        "asset_type": "safety_rule",
+        "granularity": "session",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "objective": "Prevent task interdependency deadlocks in thread pool execution",
+        "task_family": "parallel_execution",
+        "method_family": "deadlock_prevention",
+        "stage": "task_design_and_submission",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "e324cb44-81de-5972-bc69-de973591e505",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 26,
+        "paragraph_end": 47,
+        "heading_path": [
+          "`concurrent.futures` — Launching parallel tasks¶"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "python312-parallelism.md"
+        ],
+        "subsection_headings": [
+          "## Executor Objects¶",
+          "ThreadPoolExecutor¶",
+          "ThreadPoolExecutor Example¶",
+          "ProcessPoolExecutor¶",
+          "ProcessPoolExecutor Example¶",
+          "Future Objects¶",
+          "Module Functions¶",
+          "Exception classes¶"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Added in version 3.2."
+      },
+      "created_at": "2026-09-15T18:58:10+00:00"
+    },
+    {
+      "support_id": "ff9014ed-196e-5214-84ff-9befb117c749",
+      "doc_id": "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+      "skill_id": "5599899d-93fe-5947-af9f-b0d9a014440f",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/python312-parallelism.md",
+      "section": "`concurrent.futures` — Launching parallel tasks¶",
+      "span": {
+        "start": 4218,
+        "end": 7350
+      },
+      "excerpt": "If both cancel_futures and wait are `True`, all futures that the\nexecutor has started running will be completed prior to this method\nreturning. The remaining futures are cancelled.\n\nYou can avoid having to call this method explicitly if you use the\n`with` statement, which will shutdown the `Executor`\n(waiting as if `Executor.shutdown()` were called with wait set to\n`True`):\n\n```\nimport shutil\nwith ThreadPoolExecutor(max_workers=4) as e:\n    e.submit(shutil.copy, 'src1.txt', 'dest1.txt')\n    e.submit(shutil.copy, 'src2.txt', 'dest2.txt')\n    e.submit(shutil.copy, 'src3.txt', 'dest3.txt')\n    e.submit(shutil.copy, 'src4.txt', 'dest4.txt')\n\n```\n\nChanged in version 3.9: Added cancel_futures.\n\nThreadPoolExecutor¶\n`ThreadPoolExecutor` is an `Executor` subclass that uses a pool of\nthreads to execute calls asynchronously.\n\nDeadlocks can occur when the callable associated with a `Future` waits on\nthe results of another `Future`. For example:\n\n```\nimport time\ndef wait_on_b():\n    time.sleep(5)\n    print(b.result())  # b will never complete because it is waiting on a.\n    return 5\n\ndef wait_on_a():\n    time.sleep(5)\n    print(a.result())  # a will never complete because it is waiting on b.\n    return 6\n\nexecutor = ThreadPoolExecutor(max_workers=2)\na = executor.submit(wait_on_b)\nb = executor.submit(wait_on_a)\n\n```\n\nAnd:\n\n```\ndef wait_on_future():\n    f = executor.submit(pow, 5, 2)\n    # This will never complete because there is only one worker thread and\n    # it is executing this function.\n    print(f.result())\n\nexecutor = ThreadPoolExecutor(max_workers=1)\nexecutor.submit(wait_on_future)\n\n```\n\nclass concurrent.futures.ThreadPoolExecutor(max_workers=None, thread_name_prefix='', initializer=None, initargs=())¶\n\nAn `Executor` subclass that uses a pool of at most max_workers\nthreads to execute calls asynchronously.\n\ninitializer is an optional callable that is called at the start of\neach worker thread; initargs is a tuple of arguments passed to the\ninitializer. Should initializer raise an exception, all currently\npending jobs will raise a `BrokenThreadPool`,\nas well as any attempt to submit more jobs to the pool.\n\nChanged in version 3.6: Added the thread_name_prefix parameter to allow users to\ncontrol the `threading.Thread` names for worker threads created by\nthe pool for easier debugging.\n\nChanged in version 3.7: Added the initializer and initargs arguments.",
+      "relation_type": "support",
+      "confidence": 0.85,
+      "metadata": {
+        "document_title": "python312-parallelism.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "ThreadPoolExecutor Initialization with Worker Setup",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Initialize worker thread state and resources before task execution",
+        "task_family": "parallel_execution",
+        "method_family": "worker_initialization",
+        "stage": "pool_configuration",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 3,
+        "window_id": "e324cb44-81de-5972-bc69-de973591e505",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 26,
+        "paragraph_end": 47,
+        "heading_path": [
+          "`concurrent.futures` — Launching parallel tasks¶"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "python312-parallelism.md"
+        ],
+        "subsection_headings": [
+          "## Executor Objects¶",
+          "ThreadPoolExecutor¶",
+          "ThreadPoolExecutor Example¶",
+          "ProcessPoolExecutor¶",
+          "ProcessPoolExecutor Example¶",
+          "Future Objects¶",
+          "Module Functions¶",
+          "Exception classes¶"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Added in version 3.2."
+      },
+      "created_at": "2026-09-15T18:58:10+00:00"
+    },
+    {
+      "support_id": "a3bf87df-924f-51cc-be2c-18d28f167040",
+      "doc_id": "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+      "skill_id": "1aaea44c-47b6-537f-99b8-44c0de67c697",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/python312-parallelism.md",
+      "section": "`concurrent.futures` — Launching parallel tasks¶",
+      "span": {
+        "start": 11065,
+        "end": 13779
+      },
+      "excerpt": "Changed in version 3.3: When one of the worker processes terminates abruptly, a\n`BrokenProcessPool` error is now raised.\nPreviously, behaviour\nwas undefined but operations on the executor or its futures would often\nfreeze or deadlock.\n\nChanged in version 3.7: The mp_context argument was added to allow users to control the\nstart_method for worker processes created by the pool.\n\nAdded the initializer and initargs arguments.\n\nNote\n\nThe default `multiprocessing` start method\n(see Contexts and start methods) will change away from\nfork in Python 3.14. Code that requires fork be used for their\n`ProcessPoolExecutor` should explicitly specify that by\npassing a `mp_context=multiprocessing.get_context(\"fork\")`\nparameter.\n\nChanged in version 3.11: The max_tasks_per_child argument was added to allow users to\ncontrol the lifetime of workers in the pool.\n\nProcessPoolExecutor Example¶\n```\nimport concurrent.futures\nimport math\n\nPRIMES = [\n    112272535095293,\n    112582705942171,\n    112272535095293,\n    115280095190773,\n    115797848077099,\n    1099726899285419]\n\ndef is_prime(n):\n    if n < 2:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n\nsqrt_n = int(math.floor(math.sqrt(n)))\n    for i in range(3, sqrt_n + 1, 2):\n        if n % i == 0:\n            return False\n    return True\n\ndef main():\n    with concurrent.futures.ProcessPoolExecutor() as executor:\n        for number, prime in zip(PRIMES, executor.map(is_prime, PRIMES)):\n            print('%d is prime: %s' % (number, prime))\n\nif __name__ == '__main__':\n    main()\n\n```\n\nFuture Objects¶\nThe `Future` class encapsulates the asynchronous execution of a callable.\n`Future` instances are created by `Executor.submit()`.\n\nclass concurrent.futures.Future¶\n\nEncapsulates the asynchronous execution of a callable. `Future`\ninstances are created by `Executor.submit()` and should not be created\ndirectly except for testing.\n\ncancel()¶\n\nAttempt to cancel the call. If the call is currently being executed or\nfinished running and cannot be cancelled then the method will return\n`False`, otherwise the call will be cancelled and the method will\nreturn `True`.\n\ncancelled()¶\n\nReturn `True` if the call was successfully cancelled.\n\nrunning()¶\n\nReturn `True` if the call is currently being executed and cannot be\ncancelled.\n\ndone()¶",
+      "relation_type": "support",
+      "confidence": 0.92,
+      "metadata": {
+        "document_title": "python312-parallelism.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "ProcessPoolExecutor Setup and Execution",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "Execute multiple independent CPU-bound function calls across worker processes and aggregate results in order.",
+        "task_family": "parallel_execution",
+        "method_family": "process_pool",
+        "stage": "execution",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "0c557d65-dc3c-5357-9531-b354a312ff0d",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 1,
+        "paragraph_end": 24,
+        "heading_path": [
+          "`concurrent.futures` — Launching parallel tasks¶"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "python312-parallelism.md"
+        ],
+        "subsection_headings": [
+          "## Executor Objects¶",
+          "ThreadPoolExecutor¶",
+          "ThreadPoolExecutor Example¶",
+          "ProcessPoolExecutor¶",
+          "ProcessPoolExecutor Example¶",
+          "Future Objects¶",
+          "Module Functions¶",
+          "Exception classes¶"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Added in version 3.2."
+      },
+      "created_at": "2026-09-15T19:00:17+00:00"
+    },
+    {
+      "support_id": "3d692617-4a84-5a30-a0e0-a43d51b4f492",
+      "doc_id": "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+      "skill_id": "14f81fa3-e5cd-5b13-88aa-32621a04cbe3",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/python312-parallelism.md",
+      "section": "`concurrent.futures` — Launching parallel tasks¶",
+      "span": {
+        "start": 19494,
+        "end": 20590
+      },
+      "excerpt": "Raised when an operation is performed on a future that is not allowed\nin the current state.\n\nAdded in version 3.8.\n\nexception concurrent.futures.thread.BrokenThreadPool¶\n\nDerived from `BrokenExecutor`, this exception\nclass is raised when one of the workers\nof a `ThreadPoolExecutor`\nhas failed initializing.\n\nAdded in version 3.7.\n\nexception concurrent.futures.process.BrokenProcessPool¶\n\nDerived from `BrokenExecutor` (formerly\n`RuntimeError`), this exception class is raised when one of the\nworkers of a `ProcessPoolExecutor`\nhas terminated in a non-clean\nfashion (for example, if it was killed from the outside).\n\nAdded in version 3.3.\n\n### Table of Contents\n\n- `concurrent.futures` — Launching parallel tasks\n\n- Executor Objects\n\n- ThreadPoolExecutor\n\n- ThreadPoolExecutor Example\n\n- ProcessPoolExecutor\n\n- ProcessPoolExecutor Example\n\n- Future Objects\n\n- Module Functions\n\n- Exception classes\n\n#### Previous topic\n\nThe `concurrent` package\n\n#### Next topic\n\n`subprocess` — Subprocess management\n\n### This Page\n\n- Report a Bug\n\n- \n Show Source\n\n«",
+      "relation_type": "constraint",
+      "confidence": 0.75,
+      "metadata": {
+        "document_title": "python312-parallelism.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Detect and Handle BrokenThreadPool Exception",
+        "asset_type": "safety_rule",
+        "granularity": "session",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "objective": "Safely handle thread pool worker initialization failures",
+        "task_family": "parallel_execution",
+        "method_family": "exception_handling",
+        "stage": "execution_monitoring",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "ea339311-5d34-5fe8-b8fe-d481128821e9",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 78,
+        "paragraph_end": 103,
+        "heading_path": [
+          "`concurrent.futures` — Launching parallel tasks¶"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "python312-parallelism.md"
+        ],
+        "subsection_headings": [
+          "## Executor Objects¶",
+          "ThreadPoolExecutor¶",
+          "ThreadPoolExecutor Example¶",
+          "ProcessPoolExecutor¶",
+          "ProcessPoolExecutor Example¶",
+          "Future Objects¶",
+          "Module Functions¶",
+          "Exception classes¶"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Added in version 3.2."
+      },
+      "created_at": "2026-09-15T19:02:31+00:00"
+    },
+    {
+      "support_id": "a869af6b-0931-5bdf-9363-fbca243e4de1",
+      "doc_id": "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+      "skill_id": "07979eac-f1a1-5bda-8fb4-e448888f946c",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/python312-parallelism.md",
+      "section": "`concurrent.futures` — Launching parallel tasks¶",
+      "span": {
+        "start": 19494,
+        "end": 20590
+      },
+      "excerpt": "Raised when an operation is performed on a future that is not allowed\nin the current state.\n\nAdded in version 3.8.\n\nexception concurrent.futures.thread.BrokenThreadPool¶\n\nDerived from `BrokenExecutor`, this exception\nclass is raised when one of the workers\nof a `ThreadPoolExecutor`\nhas failed initializing.\n\nAdded in version 3.7.\n\nexception concurrent.futures.process.BrokenProcessPool¶\n\nDerived from `BrokenExecutor` (formerly\n`RuntimeError`), this exception class is raised when one of the\nworkers of a `ProcessPoolExecutor`\nhas terminated in a non-clean\nfashion (for example, if it was killed from the outside).\n\nAdded in version 3.3.\n\n### Table of Contents\n\n- `concurrent.futures` — Launching parallel tasks\n\n- Executor Objects\n\n- ThreadPoolExecutor\n\n- ThreadPoolExecutor Example\n\n- ProcessPoolExecutor\n\n- ProcessPoolExecutor Example\n\n- Future Objects\n\n- Module Functions\n\n- Exception classes\n\n#### Previous topic\n\nThe `concurrent` package\n\n#### Next topic\n\n`subprocess` — Subprocess management\n\n### This Page\n\n- Report a Bug\n\n- \n Show Source\n\n«",
+      "relation_type": "constraint",
+      "confidence": 0.75,
+      "metadata": {
+        "document_title": "python312-parallelism.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Detect and Handle BrokenProcessPool Exception",
+        "asset_type": "safety_rule",
+        "granularity": "session",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "objective": "Safely handle process pool worker termination failures",
+        "task_family": "parallel_execution",
+        "method_family": "exception_handling",
+        "stage": "execution_monitoring",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "ea339311-5d34-5fe8-b8fe-d481128821e9",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 78,
+        "paragraph_end": 103,
+        "heading_path": [
+          "`concurrent.futures` — Launching parallel tasks¶"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "python312-parallelism.md"
+        ],
+        "subsection_headings": [
+          "## Executor Objects¶",
+          "ThreadPoolExecutor¶",
+          "ThreadPoolExecutor Example¶",
+          "ProcessPoolExecutor¶",
+          "ProcessPoolExecutor Example¶",
+          "Future Objects¶",
+          "Module Functions¶",
+          "Exception classes¶"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "Added in version 3.2."
+      },
+      "created_at": "2026-09-15T19:02:31+00:00"
+    }
+  ],
+  "skills": [
+    {
+      "skill_id": "02fc6046-51b1-5ba3-844d-4afab871d7a1",
+      "name": "ThreadPoolExecutor Context Manager Setup",
+      "description": "Use ThreadPoolExecutor with a context manager (with statement) to automatically shutdown the executor and wait for all submitted tasks to complete, avoiding explicit shutdown() calls and resource leaks.",
+      "skill_body": "Initialize a ThreadPoolExecutor using the `with` statement. Submit your tasks within the context block. The context manager automatically calls shutdown(wait=True) on exit, ensuring all running tasks complete before the executor is destroyed and resources are released.\n\n## Objective\n\nSafely initialize and teardown a thread pool executor for parallel task execution\n## Applicable Signals\n\n- Multiple independent I/O-bound tasks ready for parallel execution\n- No inter-task dependencies or manual shutdown timing requirements\n- Resource cleanup must be guaranteed\n\n## Contraindications\n\n- Tasks have inter-dependencies (risk of deadlock)\n- Require manual control over shutdown timing or partial cancellation\n- CPU-bound workloads (use ProcessPoolExecutor instead)\n- Need to reuse executor across multiple context blocks\n\n## Intervention Moves\n\n- Enter context block with ThreadPoolExecutor(max_workers=N)\n- Submit tasks using executor.submit(callable, *args)\n- Exit context block to trigger automatic shutdown(wait=True)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Create ThreadPoolExecutor context manager', 'detail': 'Use `with ThreadPoolExecutor(max_workers=N) as executor:` where N is the number of worker threads'}\n- {'step': 2, 'action': 'Submit tasks within context block', 'detail': 'Call executor.submit(callable, *args) for each independent task'}\n- {'step': 3, 'action': 'Exit context block', 'detail': 'Automatic shutdown(wait=True) is called; all running tasks complete before proceeding'}\n\n## Constraints\n\n- max_workers must be set appropriately for the workload\n- All task submissions must occur within the context block\n- Context manager will block until all running tasks complete\n\n## Cautions\n\n- Avoid nested Future.result() calls within submitted tasks to prevent deadlock\n- Do not submit tasks that wait on other futures in the same pool\n- With max_workers=1, a task cannot submit and wait on another task in the same pool\n\n## Output Contract\n\n- All submitted tasks complete execution; executor resources are released; no hanging threads remain; execution returns to caller after all tasks finish\n\n## Example Executions\n\n### Example 1\n\n- Input: Submit 4 file copy tasks to a thread pool with max_workers=4\n- Output: All 4 copy operations execute in parallel; context manager exits after all complete; resources freed\n- Notes: Typical I/O-bound use case; no explicit shutdown() call needed",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Safely initialize and teardown a thread pool executor for parallel task execution",
+      "domain": "default",
+      "task_family": "parallel_execution",
+      "method_family": "context_manager_pattern",
+      "stage": "initialization_and_cleanup",
+      "applicable_signals": [
+        "Multiple independent I/O-bound tasks ready for parallel execution",
+        "No inter-task dependencies or manual shutdown timing requirements",
+        "Resource cleanup must be guaranteed"
+      ],
+      "contraindications": [
+        "Tasks have inter-dependencies (risk of deadlock)",
+        "Require manual control over shutdown timing or partial cancellation",
+        "CPU-bound workloads (use ProcessPoolExecutor instead)",
+        "Need to reuse executor across multiple context blocks"
+      ],
+      "intervention_moves": [
+        "Enter context block with ThreadPoolExecutor(max_workers=N)",
+        "Submit tasks using executor.submit(callable, *args)",
+        "Exit context block to trigger automatic shutdown(wait=True)"
+      ],
+      "triggers": [
+        "Need to submit multiple independent I/O-bound tasks (file operations, network calls) to a thread pool",
+        "Require guaranteed cleanup and resource release without manual shutdown() calls",
+        "Want to avoid resource leaks from forgotten or conditional shutdown logic"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Create ThreadPoolExecutor context manager', 'detail': 'Use `with ThreadPoolExecutor(max_workers=N) as executor:` where N is the number of worker threads'}",
+        "{'step': 2, 'action': 'Submit tasks within context block', 'detail': 'Call executor.submit(callable, *args) for each independent task'}",
+        "{'step': 3, 'action': 'Exit context block', 'detail': 'Automatic shutdown(wait=True) is called; all running tasks complete before proceeding'}"
+      ],
+      "constraints": [
+        "max_workers must be set appropriately for the workload",
+        "All task submissions must occur within the context block",
+        "Context manager will block until all running tasks complete"
+      ],
+      "cautions": [
+        "Avoid nested Future.result() calls within submitted tasks to prevent deadlock",
+        "Do not submit tasks that wait on other futures in the same pool",
+        "With max_workers=1, a task cannot submit and wait on another task in the same pool"
+      ],
+      "output_contract": [
+        "All submitted tasks complete execution; executor resources are released; no hanging threads remain; execution returns to caller after all tasks finish"
+      ],
+      "examples": [
+        {
+          "input": "Submit 4 file copy tasks to a thread pool with max_workers=4",
+          "output": "All 4 copy operations execute in parallel; context manager exits after all complete; resources freed",
+          "notes": "Typical I/O-bound use case; no explicit shutdown() call needed"
+        }
+      ],
+      "tags": [
+        "concurrency",
+        "thread_pool",
+        "context_manager",
+        "resource_management",
+        "python312"
+      ],
+      "support_ids": [
+        "90589035-31c4-5821-ad0e-2791897b16d1"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "d7e1b3e6-4c95-5f08-95ff-15d09f046915"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.92,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|safely initialize and teardown a thread pool executor for parallel task execution|default|parallel_execution|context_manager_pattern|initialization_and_cleanup|threadpoolexecutor context manager setup"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "9533f43e-b370-52fc-97e8-f364f1d5fe6a",
+      "name": "Detect and Avoid ThreadPoolExecutor Deadlock",
+      "description": "Identify and prevent deadlock scenarios in ThreadPoolExecutor where a task waits on another task's result within the same pool, or a single-worker pool task submits and waits on a child task.",
+      "skill_body": "Review task callables before submission to ThreadPoolExecutor. Check for any calls to .result() on futures within the callable body. Ensure that if a task waits on another future, sufficient worker threads exist to execute both tasks concurrently. For single-worker pools, never submit a task that internally submits and waits on a child task.\n\n## Objective\n\nPrevent task interdependency deadlocks in thread pool execution\n## Applicable Signals\n\n- Designing task callables that may call .result() on other futures\n- Submitting tasks to a pool with limited workers\n- Using ThreadPoolExecutor with max_workers < number of interdependent tasks\n\n## Contraindications\n\n- Tasks are guaranteed independent with no inter-task result waits\n- Using separate executor instances for parent and child tasks\n- Pool has sufficient workers to execute all potentially concurrent tasks\n\n## Intervention Moves\n\n- Refactor task callables to eliminate inter-task result waits\n- Use separate executor instances for parent and child tasks\n- Increase max_workers to accommodate all potentially concurrent tasks\n- Restructure task hierarchy to avoid nested submissions with waits\n\n## Workflow Steps\n\n- Inspect task callable source code for .result() calls on futures\n- Identify all futures that a given task may wait on\n- Count maximum concurrent tasks that may execute simultaneously\n- Verify max_workers >= maximum concurrent task count\n- For single-worker pools, confirm no task submits and waits on child tasks\n- Approve task design or recommend refactoring\n\n## Constraints\n\n- Do not call .result() on a future within a task callable submitted to the same executor\n- If a task must wait on another task's result, ensure max_workers >= 2 and account for all concurrent waits\n- Single-worker pools (max_workers=1) must never submit a task that internally submits and waits on another task\n\n## Cautions\n\n- Deadlocks may not manifest immediately; they occur only when task scheduling causes a wait-on-wait cycle\n- Circular waits between two or more tasks in the same pool will hang indefinitely\n- Initializer exceptions in ThreadPoolExecutor will raise BrokenThreadPool on all pending jobs\n\n## Output Contract\n\n- Task design review confirms no circular waits and no result() calls within task callables\n- All submitted tasks execute to completion without blocking\n- Pool shutdown completes successfully\n\n## Example Executions\n\n### Example 1\n\n- Input: Task callable that calls .result() on another future in the same pool\n- Output: Deadlock detected; refactor to avoid inter-task result waits or use separate executors\n- Notes: Example: wait_on_b() calls b.result() while b is waiting on a.result() in the same 2-worker pool\n\n### Example 2\n\n- Input: Single-worker pool submitting a task that internally submits and waits on a child task\n- Output: Deadlock detected; increase max_workers or restructure task hierarchy\n- Notes: Example: max_workers=1 executor submitting wait_on_future() which calls executor.submit(pow, 5, 2).result()",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Prevent task interdependency deadlocks in thread pool execution",
+      "domain": "default",
+      "task_family": "parallel_execution",
+      "method_family": "deadlock_prevention",
+      "stage": "task_design_and_submission",
+      "applicable_signals": [
+        "Designing task callables that may call .result() on other futures",
+        "Submitting tasks to a pool with limited workers",
+        "Using ThreadPoolExecutor with max_workers < number of interdependent tasks"
+      ],
+      "contraindications": [
+        "Tasks are guaranteed independent with no inter-task result waits",
+        "Using separate executor instances for parent and child tasks",
+        "Pool has sufficient workers to execute all potentially concurrent tasks"
+      ],
+      "intervention_moves": [
+        "Refactor task callables to eliminate inter-task result waits",
+        "Use separate executor instances for parent and child tasks",
+        "Increase max_workers to accommodate all potentially concurrent tasks",
+        "Restructure task hierarchy to avoid nested submissions with waits"
+      ],
+      "triggers": [
+        "Designing task callables that may call .result() on other futures",
+        "Submitting tasks to a pool with limited workers"
+      ],
+      "workflow_steps": [
+        "Inspect task callable source code for .result() calls on futures",
+        "Identify all futures that a given task may wait on",
+        "Count maximum concurrent tasks that may execute simultaneously",
+        "Verify max_workers >= maximum concurrent task count",
+        "For single-worker pools, confirm no task submits and waits on child tasks",
+        "Approve task design or recommend refactoring"
+      ],
+      "constraints": [
+        "Do not call .result() on a future within a task callable submitted to the same executor",
+        "If a task must wait on another task's result, ensure max_workers >= 2 and account for all concurrent waits",
+        "Single-worker pools (max_workers=1) must never submit a task that internally submits and waits on another task"
+      ],
+      "cautions": [
+        "Deadlocks may not manifest immediately; they occur only when task scheduling causes a wait-on-wait cycle",
+        "Circular waits between two or more tasks in the same pool will hang indefinitely",
+        "Initializer exceptions in ThreadPoolExecutor will raise BrokenThreadPool on all pending jobs"
+      ],
+      "output_contract": [
+        "Task design review confirms no circular waits and no result() calls within task callables",
+        "All submitted tasks execute to completion without blocking",
+        "Pool shutdown completes successfully"
+      ],
+      "examples": [
+        {
+          "input": "Task callable that calls .result() on another future in the same pool",
+          "output": "Deadlock detected; refactor to avoid inter-task result waits or use separate executors",
+          "notes": "Example: wait_on_b() calls b.result() while b is waiting on a.result() in the same 2-worker pool"
+        },
+        {
+          "input": "Single-worker pool submitting a task that internally submits and waits on a child task",
+          "output": "Deadlock detected; increase max_workers or restructure task hierarchy",
+          "notes": "Example: max_workers=1 executor submitting wait_on_future() which calls executor.submit(pow, 5, 2).result()"
+        }
+      ],
+      "tags": [
+        "concurrency",
+        "thread_pool",
+        "deadlock_prevention",
+        "task_design",
+        "safety_guardrail"
+      ],
+      "support_ids": [
+        "9a66794f-61f2-5dbe-9ea5-a0ac86eef70c"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "048f3f2b-fe00-514a-8be4-8cc7fe8ebdbe"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.88,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|prevent task interdependency deadlocks in thread pool execution|default|parallel_execution|deadlock_prevention|task_design_and_submission|detect and avoid threadpoolexecutor deadlock"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "5599899d-93fe-5947-af9f-b0d9a014440f",
+      "name": "ThreadPoolExecutor Initialization with Worker Setup",
+      "description": "Configure ThreadPoolExecutor with initializer and initargs to run setup code once per worker thread at startup. Handles resource allocation, logging, or thread-local state initialization with exception safety.",
+      "skill_body": "Pass an initializer callable and initargs tuple to ThreadPoolExecutor constructor. The initializer runs once at the start of each worker thread before any tasks execute. If initializer raises an exception, all pending jobs will raise BrokenThreadPool and further submissions are rejected.\n\n## Objective\n\nInitialize worker thread state and resources before task execution\n## Applicable Signals\n\n- Executor creation with max_workers > 1\n- Tasks depend on thread-local state or resources\n- Setup cost is amortized across many tasks\n\n## Contraindications\n\n- No per-worker setup needed\n- Initialization is task-specific rather than thread-specific\n- Setup must vary per task (use task wrapper instead)\n\n## Workflow Steps\n\n- Define initializer callable with signature matching initargs\n- Create ThreadPoolExecutor with initializer and initargs parameters\n- Submit tasks; initializer runs once per worker before first task\n- Handle BrokenThreadPool exception if initializer fails\n\n## Constraints\n\n- Initializer must be callable and accept only initargs\n- initargs must be a tuple of arguments to pass to initializer\n- Initializer exception blocks all pending and future submissions\n\n## Cautions\n\n- If initializer raises an exception, all currently pending jobs raise BrokenThreadPool\n- Any attempt to submit more jobs after initializer failure is rejected\n- Initializer runs in worker thread context; use thread-safe operations only\n\n## Output Contract\n\n- Initializer callable executes exactly once per worker thread at startup. On success, worker is ready for task execution. On failure, all pending jobs raise BrokenThreadPool and executor rejects further submissions.\n\n## Example Executions\n\n### Example 1\n\n- Input: initializer=setup_db, initargs=('connection_string',), max_workers=4\n- Output: Each of 4 worker threads calls setup_db('connection_string') once at startup; workers then execute submitted tasks with initialized state\n- Notes: Typical use case for database connection pooling per worker\n\n### Example 2\n\n- Input: initializer raises ValueError during startup\n- Output: All pending jobs raise BrokenThreadPool; executor.submit() rejects new submissions\n- Notes: Failure mode: initialization exception propagates to all jobs",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Initialize worker thread state and resources before task execution",
+      "domain": "default",
+      "task_family": "parallel_execution",
+      "method_family": "worker_initialization",
+      "stage": "pool_configuration",
+      "applicable_signals": [
+        "Executor creation with max_workers > 1",
+        "Tasks depend on thread-local state or resources",
+        "Setup cost is amortized across many tasks"
+      ],
+      "contraindications": [
+        "No per-worker setup needed",
+        "Initialization is task-specific rather than thread-specific",
+        "Setup must vary per task (use task wrapper instead)"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Each worker thread requires shared state setup before executing tasks",
+        "Need to allocate per-thread resources (database connections, caches, handlers)",
+        "Logging or instrumentation must be initialized per worker"
+      ],
+      "workflow_steps": [
+        "Define initializer callable with signature matching initargs",
+        "Create ThreadPoolExecutor with initializer and initargs parameters",
+        "Submit tasks; initializer runs once per worker before first task",
+        "Handle BrokenThreadPool exception if initializer fails"
+      ],
+      "constraints": [
+        "Initializer must be callable and accept only initargs",
+        "initargs must be a tuple of arguments to pass to initializer",
+        "Initializer exception blocks all pending and future submissions"
+      ],
+      "cautions": [
+        "If initializer raises an exception, all currently pending jobs raise BrokenThreadPool",
+        "Any attempt to submit more jobs after initializer failure is rejected",
+        "Initializer runs in worker thread context; use thread-safe operations only"
+      ],
+      "output_contract": [
+        "Initializer callable executes exactly once per worker thread at startup. On success, worker is ready for task execution. On failure, all pending jobs raise BrokenThreadPool and executor rejects further submissions."
+      ],
+      "examples": [
+        {
+          "input": "initializer=setup_db, initargs=('connection_string',), max_workers=4",
+          "output": "Each of 4 worker threads calls setup_db('connection_string') once at startup; workers then execute submitted tasks with initialized state",
+          "notes": "Typical use case for database connection pooling per worker"
+        },
+        {
+          "input": "initializer raises ValueError during startup",
+          "output": "All pending jobs raise BrokenThreadPool; executor.submit() rejects new submissions",
+          "notes": "Failure mode: initialization exception propagates to all jobs"
+        }
+      ],
+      "tags": [
+        "concurrent.futures",
+        "ThreadPoolExecutor",
+        "worker_setup",
+        "initialization",
+        "thread_safety",
+        "resource_allocation"
+      ],
+      "support_ids": [
+        "ff9014ed-196e-5214-84ff-9befb117c749"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "f9d95d03-15eb-59c6-8a67-a51eaf34aa95"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|initialize worker thread state and resources before task execution|default|parallel_execution|worker_initialization|pool_configuration|threadpoolexecutor initialization with worker setup"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "1aaea44c-47b6-537f-99b8-44c0de67c697",
+      "name": "ProcessPoolExecutor Setup and Execution",
+      "description": "Initialize a ProcessPoolExecutor with context control and execute a batch of CPU-bound tasks in parallel, collecting results via map() in order.",
+      "skill_body": "Use ProcessPoolExecutor to parallelize CPU-intensive operations across worker processes. Create the executor using a context manager, submit tasks via map() with an iterable of inputs, and collect results in order. Specify mp_context if fork behavior must be controlled; use max_tasks_per_child to manage worker lifetime. Handle BrokenProcessPool exceptions if a worker terminates abruptly.\n\n## Objective\n\nExecute multiple independent CPU-bound function calls across worker processes and aggregate results in order.\n## Applicable Signals\n\n- Workload is compute-bound (e.g., mathematical computation, primality testing)\n- Input data is iterable and can be mapped to a single function\n- Results must be collected in the same order as input\n\n## Contraindications\n\n- Tasks are I/O-bound; use ThreadPoolExecutor instead\n- Tasks require frequent inter-process communication or shared mutable state\n- Worker processes may terminate abruptly without proper exception handling\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Create ProcessPoolExecutor context', 'detail': \"Use 'with concurrent.futures.ProcessPoolExecutor() as executor:' to initialize the pool. Optionally pass mp_context=multiprocessing.get_context('fork') to control start method, or max_tasks_per_child to limit worker lifetime.\"}\n- {'step': 2, 'action': 'Define the CPU-bound function', 'detail': 'Write a pure function that accepts a single input and returns a result. Ensure the function is picklable (defined at module level, not nested).'}\n- {'step': 3, 'action': 'Submit tasks via map()', 'detail': 'Call executor.map(function, iterable) to submit all tasks. Results are returned as an iterator in the same order as the input iterable.'}\n- {'step': 4, 'action': 'Collect and process results', 'detail': 'Iterate over the result iterator or convert to a list. Handle any exceptions raised by individual tasks.'}\n- {'step': 5, 'action': 'Exit context and cleanup', 'detail': \"The 'with' block automatically waits for all tasks to complete and shuts down the executor.\"}\n\n## Constraints\n\n- ProcessPoolExecutor requires tasks to be picklable\n- Default multiprocessing start method will change from fork to spawn in Python 3.14; explicitly specify mp_context if fork is required\n- BrokenProcessPool exception is raised if a worker process terminates unexpectedly\n\n## Cautions\n\n- Do not create Future instances directly; use Executor.submit() or map()\n- Ensure the executor is used within a context manager (with statement) to guarantee proper cleanup\n- Monitor worker lifetime with max_tasks_per_child to prevent resource exhaustion\n\n## Output Contract\n\n- All tasks complete successfully and results are collected in order matching the input sequence\n- No deadlock or BrokenProcessPool exception occurs\n- The executor is properly cleaned up upon context exit\n\n## Example Executions\n\n### Example 1\n\n- Input: PRIMES = [112272535095293, 112582705942171, 115280095190773]; is_prime function defined at module level\n- Output: Executor.map() returns iterator of boolean results: [True, True, True] in order\n- Notes: Results are printed as '112272535095293 is prime: True', etc. Context manager ensures cleanup.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Execute multiple independent CPU-bound function calls across worker processes and aggregate results in order.",
+      "domain": "default",
+      "task_family": "parallel_execution",
+      "method_family": "process_pool",
+      "stage": "execution",
+      "applicable_signals": [
+        "Workload is compute-bound (e.g., mathematical computation, primality testing)",
+        "Input data is iterable and can be mapped to a single function",
+        "Results must be collected in the same order as input"
+      ],
+      "contraindications": [
+        "Tasks are I/O-bound; use ThreadPoolExecutor instead",
+        "Tasks require frequent inter-process communication or shared mutable state",
+        "Worker processes may terminate abruptly without proper exception handling"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Need to parallelize CPU-intensive operations across multiple cores",
+        "Tasks are independent and do not require shared mutable state",
+        "GIL contention is a performance bottleneck"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Create ProcessPoolExecutor context', 'detail': \"Use 'with concurrent.futures.ProcessPoolExecutor() as executor:' to initialize the pool. Optionally pass mp_context=multiprocessing.get_context('fork') to control start method, or max_tasks_per_child to limit worker lifetime.\"}",
+        "{'step': 2, 'action': 'Define the CPU-bound function', 'detail': 'Write a pure function that accepts a single input and returns a result. Ensure the function is picklable (defined at module level, not nested).'}",
+        "{'step': 3, 'action': 'Submit tasks via map()', 'detail': 'Call executor.map(function, iterable) to submit all tasks. Results are returned as an iterator in the same order as the input iterable.'}",
+        "{'step': 4, 'action': 'Collect and process results', 'detail': 'Iterate over the result iterator or convert to a list. Handle any exceptions raised by individual tasks.'}",
+        "{'step': 5, 'action': 'Exit context and cleanup', 'detail': \"The 'with' block automatically waits for all tasks to complete and shuts down the executor.\"}"
+      ],
+      "constraints": [
+        "ProcessPoolExecutor requires tasks to be picklable",
+        "Default multiprocessing start method will change from fork to spawn in Python 3.14; explicitly specify mp_context if fork is required",
+        "BrokenProcessPool exception is raised if a worker process terminates unexpectedly"
+      ],
+      "cautions": [
+        "Do not create Future instances directly; use Executor.submit() or map()",
+        "Ensure the executor is used within a context manager (with statement) to guarantee proper cleanup",
+        "Monitor worker lifetime with max_tasks_per_child to prevent resource exhaustion"
+      ],
+      "output_contract": [
+        "All tasks complete successfully and results are collected in order matching the input sequence",
+        "No deadlock or BrokenProcessPool exception occurs",
+        "The executor is properly cleaned up upon context exit"
+      ],
+      "examples": [
+        {
+          "input": "PRIMES = [112272535095293, 112582705942171, 115280095190773]; is_prime function defined at module level",
+          "output": "Executor.map() returns iterator of boolean results: [True, True, True] in order",
+          "notes": "Results are printed as '112272535095293 is prime: True', etc. Context manager ensures cleanup."
+        }
+      ],
+      "tags": [
+        "parallelism",
+        "process_pool",
+        "cpu_bound",
+        "concurrent.futures",
+        "python312"
+      ],
+      "support_ids": [
+        "a3bf87df-924f-51cc-be2c-18d28f167040"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "e0731660-0805-51f5-a7ab-28f35411c915"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.92,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|execute multiple independent cpu-bound function calls across worker processes and aggregate results in order.|default|parallel_execution|process_pool|execution|processpoolexecutor setup and execution"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "14f81fa3-e5cd-5b13-88aa-32621a04cbe3",
+      "name": "Detect and Handle BrokenThreadPool Exception",
+      "description": "Catch and respond to BrokenThreadPool exceptions raised when a ThreadPoolExecutor worker fails during initialization. Implements recovery logic or graceful degradation when thread pool workers become unavailable.",
+      "skill_body": "When a ThreadPoolExecutor worker fails to initialize, catch the BrokenThreadPool exception. Log the failure, assess the impact on pending tasks, and execute a recovery action: retry with a new executor, fall back to sequential execution, or gracefully shut down dependent operations.\n\n## Objective\n\nSafely handle thread pool worker initialization failures\n## Applicable Signals\n\n- BrokenThreadPool exception raised by concurrent.futures.thread module\n- Worker process or thread exits abnormally during pool initialization\n\n## Contraindications\n\n- Worker failure is expected and should propagate uncaught\n- No recovery action is needed or desired\n- Caller explicitly requires exception to bubble up for external handling\n\n## Intervention Moves\n\n- Wrap ThreadPoolExecutor task submission or execution in try-except block\n- Catch concurrent.futures.thread.BrokenThreadPool exception\n- Log exception details including worker state and pending tasks\n- Execute recovery action: retry with new executor, fall back to sequential execution, or initiate graceful shutdown\n- Notify caller of recovery status and any task state changes\n\n## Workflow Steps\n\n- Wrap ThreadPoolExecutor task submission or execution in try-except block\n- Catch concurrent.futures.thread.BrokenThreadPool exception\n- Log exception details including worker state and pending tasks\n- Execute recovery action: retry with new executor, fall back to sequential execution, or initiate graceful shutdown\n- Notify caller of recovery status and any task state changes\n\n## Constraints\n\n- Exception is derived from BrokenExecutor\n- Applies only to ThreadPoolExecutor, not ProcessPoolExecutor\n- Recovery action must be initiated before dependent tasks timeout\n\n## Cautions\n\n- Do not silently swallow the exception without logging or alerting\n- Retry logic should include backoff to avoid rapid re-initialization cycles\n- Fallback to sequential execution may significantly impact performance\n\n## Output Contract\n\n- Exception caught and logged; recovery action (retry, fallback, or graceful shutdown) initiated; caller receives status indicating whether tasks will be retried, executed sequentially, or abandoned",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Safely handle thread pool worker initialization failures",
+      "domain": "default",
+      "task_family": "parallel_execution",
+      "method_family": "exception_handling",
+      "stage": "execution_monitoring",
+      "applicable_signals": [
+        "BrokenThreadPool exception raised by concurrent.futures.thread module",
+        "Worker process or thread exits abnormally during pool initialization"
+      ],
+      "contraindications": [
+        "Worker failure is expected and should propagate uncaught",
+        "No recovery action is needed or desired",
+        "Caller explicitly requires exception to bubble up for external handling"
+      ],
+      "intervention_moves": [
+        "Wrap ThreadPoolExecutor task submission or execution in try-except block",
+        "Catch concurrent.futures.thread.BrokenThreadPool exception",
+        "Log exception details including worker state and pending tasks",
+        "Execute recovery action: retry with new executor, fall back to sequential execution, or initiate graceful shutdown",
+        "Notify caller of recovery status and any task state changes"
+      ],
+      "triggers": [
+        "ThreadPoolExecutor worker initialization fails",
+        "Thread pool becomes unusable during task submission",
+        "Thread pool becomes unusable during task execution"
+      ],
+      "workflow_steps": [
+        "Wrap ThreadPoolExecutor task submission or execution in try-except block",
+        "Catch concurrent.futures.thread.BrokenThreadPool exception",
+        "Log exception details including worker state and pending tasks",
+        "Execute recovery action: retry with new executor, fall back to sequential execution, or initiate graceful shutdown",
+        "Notify caller of recovery status and any task state changes"
+      ],
+      "constraints": [
+        "Exception is derived from BrokenExecutor",
+        "Applies only to ThreadPoolExecutor, not ProcessPoolExecutor",
+        "Recovery action must be initiated before dependent tasks timeout"
+      ],
+      "cautions": [
+        "Do not silently swallow the exception without logging or alerting",
+        "Retry logic should include backoff to avoid rapid re-initialization cycles",
+        "Fallback to sequential execution may significantly impact performance"
+      ],
+      "output_contract": [
+        "Exception caught and logged; recovery action (retry, fallback, or graceful shutdown) initiated; caller receives status indicating whether tasks will be retried, executed sequentially, or abandoned"
+      ],
+      "examples": [],
+      "tags": [
+        "exception_handling",
+        "thread_pool",
+        "concurrent_futures",
+        "worker_failure",
+        "recovery",
+        "python312"
+      ],
+      "support_ids": [
+        "3d692617-4a84-5a30-a0e0-a43d51b4f492"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "c7f88edd-6d7e-5b42-812c-7b973f40fe2c"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|safely handle thread pool worker initialization failures|default|parallel_execution|exception_handling|execution_monitoring|detect and handle brokenthreadpool exception"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "07979eac-f1a1-5bda-8fb4-e448888f946c",
+      "name": "Detect and Handle BrokenProcessPool Exception",
+      "description": "Catch BrokenProcessPool exceptions raised when a ProcessPoolExecutor worker terminates abnormally (killed externally, crash, or resource exhaustion). Implement recovery or escalation to restore task execution capability.",
+      "skill_body": "When a ProcessPoolExecutor worker terminates in a non-clean fashion, a BrokenProcessPool exception is raised. Catch this exception, log the failure with worker identity and termination cause, determine an appropriate recovery strategy (task resubmission, pool restart, or escalation), and execute the recovery action or escalate to the caller.\n\n## Objective\n\nSafely handle process pool worker termination failures and restore execution capability\n## Applicable Signals\n\n- BrokenProcessPool exception raised by concurrent.futures.process module\n- Worker process exit code indicates non-clean termination\n\n## Contraindications\n\n- Worker termination is intentional and should not trigger recovery\n- No escalation or recovery action is required by design\n- Caller explicitly handles pool lifecycle and does not expect automatic recovery\n\n## Intervention Moves\n\n- Catch BrokenProcessPool exception from ProcessPoolExecutor.submit() or result retrieval\n- Log exception details including worker identity, timestamp, affected task, and exception message\n- Validate pool state before attempting recovery\n- Execute recovery action: resubmit task to new pool, restart pool, or escalate upstream\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Catch BrokenProcessPool exception', 'detail': 'Use try-except block around ProcessPoolExecutor.submit() or result retrieval to intercept exception from concurrent.futures.process module'}\n- {'step': 2, 'action': 'Log exception details', 'detail': 'Record timestamp, affected task identity, worker information, and exception message for diagnostics and audit trail'}\n- {'step': 3, 'action': 'Determine recovery strategy', 'detail': 'Analyze failure pattern and choose between task resubmission, pool restart, or escalation based on context and failure frequency'}\n- {'step': 4, 'action': 'Execute recovery or escalate', 'detail': 'Resubmit task to new pool instance, restart pool, or raise exception upstream with context preserved'}\n\n## Constraints\n\n- Exception is derived from BrokenExecutor; catch at appropriate hierarchy level\n- Recovery action must be idempotent to avoid duplicate task execution\n- Pool state must be validated before resubmitting tasks\n- Do not silently ignore BrokenProcessPool; always log and escalate or recover\n\n## Cautions\n\n- Resubmitting tasks without pool restart may fail; validate pool health first\n- External process kills may indicate system-level issues; escalate if repeated\n- Ensure recovery logic does not mask underlying resource or configuration problems\n\n## Output Contract\n\n- Exception caught and logged with full context. Recovery action initiated (task resubmission, pool restart, or escalation to caller). Caller receives either successful task result after recovery or re-raised exception with diagnostic context preserved.",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Safely handle process pool worker termination failures and restore execution capability",
+      "domain": "default",
+      "task_family": "parallel_execution",
+      "method_family": "exception_handling",
+      "stage": "execution_monitoring",
+      "applicable_signals": [
+        "BrokenProcessPool exception raised by concurrent.futures.process module",
+        "Worker process exit code indicates non-clean termination"
+      ],
+      "contraindications": [
+        "Worker termination is intentional and should not trigger recovery",
+        "No escalation or recovery action is required by design",
+        "Caller explicitly handles pool lifecycle and does not expect automatic recovery"
+      ],
+      "intervention_moves": [
+        "Catch BrokenProcessPool exception from ProcessPoolExecutor.submit() or result retrieval",
+        "Log exception details including worker identity, timestamp, affected task, and exception message",
+        "Validate pool state before attempting recovery",
+        "Execute recovery action: resubmit task to new pool, restart pool, or escalate upstream"
+      ],
+      "triggers": [
+        "ProcessPoolExecutor worker terminates abnormally during task execution",
+        "External process kill or crash detected",
+        "Resource exhaustion causes worker termination"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Catch BrokenProcessPool exception', 'detail': 'Use try-except block around ProcessPoolExecutor.submit() or result retrieval to intercept exception from concurrent.futures.process module'}",
+        "{'step': 2, 'action': 'Log exception details', 'detail': 'Record timestamp, affected task identity, worker information, and exception message for diagnostics and audit trail'}",
+        "{'step': 3, 'action': 'Determine recovery strategy', 'detail': 'Analyze failure pattern and choose between task resubmission, pool restart, or escalation based on context and failure frequency'}",
+        "{'step': 4, 'action': 'Execute recovery or escalate', 'detail': 'Resubmit task to new pool instance, restart pool, or raise exception upstream with context preserved'}"
+      ],
+      "constraints": [
+        "Exception is derived from BrokenExecutor; catch at appropriate hierarchy level",
+        "Recovery action must be idempotent to avoid duplicate task execution",
+        "Pool state must be validated before resubmitting tasks",
+        "Do not silently ignore BrokenProcessPool; always log and escalate or recover"
+      ],
+      "cautions": [
+        "Resubmitting tasks without pool restart may fail; validate pool health first",
+        "External process kills may indicate system-level issues; escalate if repeated",
+        "Ensure recovery logic does not mask underlying resource or configuration problems"
+      ],
+      "output_contract": [
+        "Exception caught and logged with full context. Recovery action initiated (task resubmission, pool restart, or escalation to caller). Caller receives either successful task result after recovery or re-raised exception with diagnostic context preserved."
+      ],
+      "examples": [],
+      "tags": [
+        "concurrent.futures",
+        "ProcessPoolExecutor",
+        "exception_handling",
+        "worker_failure",
+        "recovery",
+        "escalation"
+      ],
+      "support_ids": [
+        "a869af6b-0931-5bdf-9363-fbca243e4de1"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "badbb958-45a4-58f5-b0c6-63eaa2a4988a"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|safely handle process pool worker termination failures and restore execution capability|default|parallel_execution|exception_handling|execution_monitoring|detect and handle brokenprocesspool exception"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "schema": "autoskill.document.staging.existing_active.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "transaction_concurrency_control",
+  "run_id": "20260916T092343_72ca7be4",
+  "skills": [
+    {
+      "skill_id": "cdd22de9-5de9-5117-acad-5df117ce2e82",
+      "name": "TicToc Concurrency Control Protocol",
+      "description": "A timestamp-based optimistic concurrency control protocol that detects conflicts and aborts transactions to maintain serializability without traditional locking. Executes multi-phase transaction validation and conflict detection across concurrent workloads to achieve high throughput with controlled abort rates.",
+      "skill_body": "Implement TicToc by executing three phases: (1) Read phase: assign read timestamp, collect read set; (2) Validation phase: check for conflicts using timestamp comparisons; (3) Commit phase: assign commit timestamp and persist if no conflicts detected. Abort and retry if validation fails. Monitor abort rate and throughput metrics against baseline protocols.\n\n## Objective\n\nExecute multi-phase transaction validation and conflict detection across concurrent workloads to maintain serializability\n## Applicable Signals\n\n- Workload exhibits concurrent read-write patterns\n- System targets low abort rates with high throughput\n- Serializable isolation requirement present\n\n## Contraindications\n\n- Distributed transactions requiring cross-node coordination\n- Workloads with very high abort rates (>50%)\n- Systems requiring strict two-phase locking semantics\n- Single-node transaction scope not guaranteed\n\n## Workflow Steps\n\n- {'step': 1, 'name': 'Read Phase', 'action': 'Assign read timestamp to transaction; collect all data items into read set with their current versions'}\n- {'step': 2, 'name': 'Validation Phase', 'action': 'For each item in read set, verify no concurrent write occurred between read timestamp and current time; check for conflicts with other active transactions'}\n- {'step': 3, 'name': 'Commit Phase', 'action': 'If validation succeeds, assign commit timestamp and persist changes; if validation fails, abort transaction and signal retry to caller'}\n\n## Constraints\n\n- Timestamp assignment must be monotonically increasing\n- Read and write sets must be tracked per transaction\n- Conflict detection requires comparison of transaction timestamps\n- Abort and retry logic must be implemented at caller level\n\n## Cautions\n\n- High contention may increase abort rates; monitor and tune timestamp allocation strategy\n- Timestamp overflow possible in long-running systems; implement wraparound handling\n- Validation phase complexity grows with transaction size; consider batching for very large workloads\n\n## Output Contract\n\n- Transaction either commits with serializable isolation guarantee and updated state persisted, or aborts with clear retry signal. Metrics returned: commit/abort status, abort rate, throughput (million transactions per second), and timestamp assignment overhead.\n\n## Example Executions\n\n### Example 1\n\n- Input: Transaction T1 reads items {A, B} at timestamp 100; concurrent transaction T2 writes to item A at timestamp 105\n- Output: T1 validation fails at step 2 (conflict detected on A); T1 aborts and returns retry signal to caller\n- Notes: Demonstrates conflict detection and abort mechanism\n\n### Example 2\n\n- Input: Transaction T3 reads items {C, D} at timestamp 200; no concurrent writes to C or D before commit\n- Output: T3 validation succeeds; commits at timestamp 210 with serializable guarantee; throughput incremented\n- Notes: Demonstrates successful commit path",
+      "asset_type": "macro_protocol",
+      "granularity": "macro",
+      "asset_node_id": "macro_skill",
+      "asset_path": "family_root/macro_skill",
+      "asset_level": 1,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [
+        "aab1e698-9ca9-55db-8608-420ba3428975",
+        "e8ccc028-f9db-5b45-9858-59c114c0a66a"
+      ],
+      "hierarchy_confidence": 1.0,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Execute multi-phase transaction validation and conflict detection across concurrent workloads to maintain serializability",
+      "domain": "default",
+      "task_family": "transaction_concurrency_control",
+      "method_family": "timestamp_based_optimistic_validation",
+      "stage": "transaction_execution_and_validation",
+      "applicable_signals": [
+        "Workload exhibits concurrent read-write patterns",
+        "System targets low abort rates with high throughput",
+        "Serializable isolation requirement present"
+      ],
+      "contraindications": [
+        "Distributed transactions requiring cross-node coordination",
+        "Workloads with very high abort rates (>50%)",
+        "Systems requiring strict two-phase locking semantics",
+        "Single-node transaction scope not guaranteed"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "High-concurrency OLTP workload detected",
+        "Variable contention levels across transaction mix",
+        "Need to compare concurrency control protocols",
+        "In-memory database transaction management required"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'name': 'Read Phase', 'action': 'Assign read timestamp to transaction; collect all data items into read set with their current versions'}",
+        "{'step': 2, 'name': 'Validation Phase', 'action': 'For each item in read set, verify no concurrent write occurred between read timestamp and current time; check for conflicts with other active transactions'}",
+        "{'step': 3, 'name': 'Commit Phase', 'action': 'If validation succeeds, assign commit timestamp and persist changes; if validation fails, abort transaction and signal retry to caller'}"
+      ],
+      "constraints": [
+        "Timestamp assignment must be monotonically increasing",
+        "Read and write sets must be tracked per transaction",
+        "Conflict detection requires comparison of transaction timestamps",
+        "Abort and retry logic must be implemented at caller level"
+      ],
+      "cautions": [
+        "High contention may increase abort rates; monitor and tune timestamp allocation strategy",
+        "Timestamp overflow possible in long-running systems; implement wraparound handling",
+        "Validation phase complexity grows with transaction size; consider batching for very large workloads"
+      ],
+      "output_contract": [
+        "Transaction either commits with serializable isolation guarantee and updated state persisted, or aborts with clear retry signal. Metrics returned: commit/abort status, abort rate, throughput (million transactions per second), and timestamp assignment overhead."
+      ],
+      "examples": [
+        {
+          "input": "Transaction T1 reads items {A, B} at timestamp 100; concurrent transaction T2 writes to item A at timestamp 105",
+          "output": "T1 validation fails at step 2 (conflict detected on A); T1 aborts and returns retry signal to caller",
+          "notes": "Demonstrates conflict detection and abort mechanism"
+        },
+        {
+          "input": "Transaction T3 reads items {C, D} at timestamp 200; no concurrent writes to C or D before commit",
+          "output": "T3 validation succeeds; commits at timestamp 210 with serializable guarantee; throughput incremented",
+          "notes": "Demonstrates successful commit path"
+        }
+      ],
+      "tags": [
+        "concurrency_control",
+        "optimistic_locking",
+        "timestamp_based",
+        "transaction_management",
+        "serializability",
+        "OLTP"
+      ],
+      "support_ids": [
+        "577f2eb1-db4f-59fb-9d43-c1f973208a6d"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "a910d320-0303-5495-97ca-40b66dfd44ea"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||macro_protocol|macro|macro_skill|execute multi-phase transaction validation and conflict detection across concurrent workloads to maintain serializability|default|transaction_concurrency_control|timestamp_based_optimistic_validation|transaction_execution_and_validation|tictoc concurrency control protocol",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 1.0,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "child_skill_ids": [
+          "aab1e698-9ca9-55db-8608-420ba3428975",
+          "e8ccc028-f9db-5b45-9858-59c114c0a66a"
+        ]
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ]
+}

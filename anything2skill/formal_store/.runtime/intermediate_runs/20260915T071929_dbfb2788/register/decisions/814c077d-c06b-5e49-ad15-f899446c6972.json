@@ -1,0 +1,122 @@
+{
+  "skill_id": "814c077d-c06b-5e49-ad15-f899446c6972",
+  "action": "merge",
+  "matched_skill_ids": [
+    "ee42057a-3ada-5055-9c21-aa1f0645e482"
+  ],
+  "reason": "Candidate 'DataStream Sink Writing' and existing 'DataStream Sink Configuration' (f2084a63) represent the same semantic capability: attaching output sinks to finalize DataStream pipelines. Both are session_skill, granularity=session, asset_node_id=workflow_skill, asset_level=2, domain=default, task_family=data_output, and stage=output/pipeline_finalization. The candidate is narrower (focused on write/print execution) while the peer is broader (covers sink selection and configuration). The peer candidate already subsumes the candidate's workflow steps and constraints. Merge the candidate into the existing broader skill to avoid duplication.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "814c077d-c06b-5e49-ad15-f899446c6972",
+    "name": "DataStream Sink Writing",
+    "description": "Write processed DataStream results to external systems (files, stdout, databases). Finalizes the pipeline by persisting or outputting results.",
+    "skill_body": "After all transformations are complete, attach a sink to the DataStream to write results to an external system. Use writeAsText(path) to write to a file or print() to output to console. The sink must be called on the final DataStream before execute() is invoked.\n\n## Objective\n\nOutput final DataStream results to external sink\n## Applicable Signals\n\n- All intermediate transformations applied\n- DataStream contains final output data\n- Caller has target output path or destination\n\n## Contraindications\n\n- Still in intermediate transformation stages\n- Results not yet finalized or validated\n- Sink already attached to this DataStream\n\n## Intervention Moves\n\n- Call writeAsText(path: String) to write DataStream to file\n- Call print() to output DataStream to console/stdout\n- Attach sink before calling execute() on StreamExecutionEnvironment\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Obtain final DataStream after all transformations', 'detail': 'Ensure all map, filter, and other transformations are complete'}\n- {'step': 2, 'action': 'Choose sink method based on output destination', 'detail': 'Use writeAsText(path) for file output or print() for console output'}\n- {'step': 3, 'action': 'Call sink method on final DataStream', 'detail': 'Example: finalStream.writeAsText(\"file:///path/to/output\") or finalStream.print()'}\n- {'step': 4, 'action': 'Trigger execution', 'detail': 'Call env.execute() or env.executeAsync() to start the pipeline and write results'}\n\n## Constraints\n\n- Sink must be attached to final DataStream, not intermediate streams\n- execute() or executeAsync() must be called after sink attachment to trigger output\n- File paths must be valid and writable\n\n## Cautions\n\n- Calling sink on intermediate DataStream may cause unexpected output\n- Without execute(), sink is configured but not executed\n- Multiple sinks can be attached to same DataStream for multiple outputs\n\n## Output Contract\n\n- Sink is configured and attached to DataStream; ready for execution. Upon execute(), results are written to specified external system (file or stdout). JobExecutionResult returned contains execution metadata.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Final DataStream[String] with processed results\n- Therapist/Output: writeAsText(\"file:///output/results.txt\") attaches sink; execute() writes results to file\n- Notes: File path must be accessible; output format is one record per line\n\n### Example 2\n\n- Client/Input: Final DataStream[Int] with aggregated counts\n- Therapist/Output: print() attaches sink; execute() outputs results to console\n- Notes: Useful for testing and debugging; all records printed to stdout",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Output final DataStream results to external sink",
+    "domain": "default",
+    "task_family": "data_output",
+    "method_family": "sink_writing",
+    "stage": "output",
+    "applicable_signals": [
+      "All intermediate transformations applied",
+      "DataStream contains final output data",
+      "Caller has target output path or destination"
+    ],
+    "contraindications": [
+      "Still in intermediate transformation stages",
+      "Results not yet finalized or validated",
+      "Sink already attached to this DataStream"
+    ],
+    "intervention_moves": [
+      "Call writeAsText(path: String) to write DataStream to file",
+      "Call print() to output DataStream to console/stdout",
+      "Attach sink before calling execute() on StreamExecutionEnvironment"
+    ],
+    "triggers": [
+      "Final DataStream containing processed results is ready",
+      "Need to persist results to external system",
+      "Pipeline transformations are complete"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Obtain final DataStream after all transformations', 'detail': 'Ensure all map, filter, and other transformations are complete'}",
+      "{'step': 2, 'action': 'Choose sink method based on output destination', 'detail': 'Use writeAsText(path) for file output or print() for console output'}",
+      "{'step': 3, 'action': 'Call sink method on final DataStream', 'detail': 'Example: finalStream.writeAsText(\"file:///path/to/output\") or finalStream.print()'}",
+      "{'step': 4, 'action': 'Trigger execution', 'detail': 'Call env.execute() or env.executeAsync() to start the pipeline and write results'}"
+    ],
+    "constraints": [
+      "Sink must be attached to final DataStream, not intermediate streams",
+      "execute() or executeAsync() must be called after sink attachment to trigger output",
+      "File paths must be valid and writable"
+    ],
+    "cautions": [
+      "Calling sink on intermediate DataStream may cause unexpected output",
+      "Without execute(), sink is configured but not executed",
+      "Multiple sinks can be attached to same DataStream for multiple outputs"
+    ],
+    "output_contract": [
+      "Sink is configured and attached to DataStream; ready for execution. Upon execute(), results are written to specified external system (file or stdout). JobExecutionResult returned contains execution metadata."
+    ],
+    "examples": [
+      {
+        "input": "Final DataStream[String] with processed results",
+        "output": "writeAsText(\"file:///output/results.txt\") attaches sink; execute() writes results to file",
+        "notes": "File path must be accessible; output format is one record per line"
+      },
+      {
+        "input": "Final DataStream[Int] with aggregated counts",
+        "output": "print() attaches sink; execute() outputs results to console",
+        "notes": "Useful for testing and debugging; all records printed to stdout"
+      }
+    ],
+    "tags": [
+      "datastream",
+      "sink",
+      "output",
+      "flink",
+      "pipeline_finalization"
+    ],
+    "support_ids": [
+      "13913c72-8dcf-567b-a285-f2306ce3ef26"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "6c04c3e9-5631-50f3-9176-438561f8e205"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.86,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|output final datastream results to external sink|default|data_output|sink_writing|output|datastream sink writing"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

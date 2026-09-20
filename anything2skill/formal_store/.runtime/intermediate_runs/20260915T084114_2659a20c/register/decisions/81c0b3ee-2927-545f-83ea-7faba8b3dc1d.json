@@ -1,0 +1,113 @@
+{
+  "skill_id": "81c0b3ee-2927-545f-83ea-7faba8b3dc1d",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct session_skill for trace lifecycle management during client re-initialization. It differs semantically from peer candidates (shutdown handler, nested operation tracking, Claude API integration) and existing skills (which are in different domains: metrics instrumentation, database timestamp management). The re-initialization stage, API key change detection, and conditional span termination represent a unique capability not covered by existing registry.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "81c0b3ee-2927-545f-83ea-7faba8b3dc1d",
+    "name": "Trace Context Lifecycle Management on Re-initialization",
+    "description": "Detects active trace recording and cleanly ends the trace context when Client is re-initialized with a different API key. Logs warnings and resets trace state to prevent orphaned spans.",
+    "skill_body": "When Client re-initialization is triggered with a different API key, check if _init_trace_context exists and its span is actively recording. If so, end the trace with reason 'Reinitialized', log a warning, and reset _init_trace_context to None. This prevents trace corruption and orphaned spans.\n\n## Objective\n\nClean up active trace spans before re-initialization to avoid trace corruption\n## Applicable Signals\n\n- provided_api_key differs from self.config.api_key\n- self._init_trace_context exists\n- self._init_trace_context.span.is_recording() returns True\n\n## Contraindications\n\n- API key has not changed\n- trace context is None\n- span is not recording\n- trace cleanup is managed externally\n\n## Intervention Moves\n\n- Detect API key change and log warning\n- Verify trace span is actively recording before cleanup\n- End trace with explicit reason code\n- Reset trace state variables to prevent stale references\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if provided_api_key differs from self.config.api_key', 'condition': 'provided_api_key is not None and provided_api_key != self.config.api_key'}\n- {'step': 2, 'action': \"Log warning: 'AgentOps Client being re-initialized with a different API key. This is unusual.'\", 'condition': 'API key change detected'}\n- {'step': 3, 'action': 'Check if _init_trace_context exists and span is recording', 'condition': 'self._init_trace_context is not None and self._init_trace_context.span.is_recording()'}\n- {'step': 4, 'action': \"Log warning: 'Ending previously auto-started trace due to re-initialization.'\", 'condition': 'Trace context is active and recording'}\n- {'step': 5, 'action': \"Call tracer.end_trace(self._init_trace_context, 'Reinitialized')\", 'condition': 'Trace span is actively recording'}\n- {'step': 6, 'action': 'Set self._init_trace_context = None', 'condition': 'After trace has been ended'}\n- {'step': 7, 'action': 'Set self._legacy_session_for_init_trace = None', 'condition': 'After trace context reset'}\n\n## Constraints\n\n- Must check API key change before attempting trace cleanup\n- Must verify span is recording before calling end_trace\n- Must reset _init_trace_context to None after ending trace\n\n## Cautions\n\n- Calling end_trace on a non-recording span may raise an exception\n- Failure to reset _init_trace_context may cause subsequent initialization to reference stale trace state\n\n## Output Contract\n\n- Active trace span is ended with reason 'Reinitialized'; _init_trace_context is set to None; _legacy_session_for_init_trace is set to None; warning logs are emitted; subsequent initialization can proceed without trace conflicts.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Clean up active trace spans before re-initialization to avoid trace corruption",
+    "domain": "default",
+    "task_family": "trace_lifecycle_management",
+    "method_family": "conditional_span_termination",
+    "stage": "re_initialization",
+    "applicable_signals": [
+      "provided_api_key differs from self.config.api_key",
+      "self._init_trace_context exists",
+      "self._init_trace_context.span.is_recording() returns True"
+    ],
+    "contraindications": [
+      "API key has not changed",
+      "trace context is None",
+      "span is not recording",
+      "trace cleanup is managed externally"
+    ],
+    "intervention_moves": [
+      "Detect API key change and log warning",
+      "Verify trace span is actively recording before cleanup",
+      "End trace with explicit reason code",
+      "Reset trace state variables to prevent stale references"
+    ],
+    "triggers": [
+      "Client re-initialization initiated with a different API key",
+      "_init_trace_context is not None",
+      "trace span is actively recording"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Check if provided_api_key differs from self.config.api_key', 'condition': 'provided_api_key is not None and provided_api_key != self.config.api_key'}",
+      "{'step': 2, 'action': \"Log warning: 'AgentOps Client being re-initialized with a different API key. This is unusual.'\", 'condition': 'API key change detected'}",
+      "{'step': 3, 'action': 'Check if _init_trace_context exists and span is recording', 'condition': 'self._init_trace_context is not None and self._init_trace_context.span.is_recording()'}",
+      "{'step': 4, 'action': \"Log warning: 'Ending previously auto-started trace due to re-initialization.'\", 'condition': 'Trace context is active and recording'}",
+      "{'step': 5, 'action': \"Call tracer.end_trace(self._init_trace_context, 'Reinitialized')\", 'condition': 'Trace span is actively recording'}",
+      "{'step': 6, 'action': 'Set self._init_trace_context = None', 'condition': 'After trace has been ended'}",
+      "{'step': 7, 'action': 'Set self._legacy_session_for_init_trace = None', 'condition': 'After trace context reset'}"
+    ],
+    "constraints": [
+      "Must check API key change before attempting trace cleanup",
+      "Must verify span is recording before calling end_trace",
+      "Must reset _init_trace_context to None after ending trace"
+    ],
+    "cautions": [
+      "Calling end_trace on a non-recording span may raise an exception",
+      "Failure to reset _init_trace_context may cause subsequent initialization to reference stale trace state"
+    ],
+    "output_contract": [
+      "Active trace span is ended with reason 'Reinitialized'; _init_trace_context is set to None; _legacy_session_for_init_trace is set to None; warning logs are emitted; subsequent initialization can proceed without trace conflicts."
+    ],
+    "examples": [],
+    "tags": [
+      "trace_management",
+      "re_initialization",
+      "span_lifecycle",
+      "cleanup",
+      "state_reset"
+    ],
+    "support_ids": [
+      "aa580809-588f-5047-b098-f91b7f58b1da"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "dc0313f6-5a3c-5fb1-8e5a-b9af53bfd93e"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.7,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|micro_skill_node|clean up active trace spans before re-initialization to avoid trace corruption|default|trace_lifecycle_management|conditional_span_termination|re_initialization|trace context lifecycle management on re-initialization"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

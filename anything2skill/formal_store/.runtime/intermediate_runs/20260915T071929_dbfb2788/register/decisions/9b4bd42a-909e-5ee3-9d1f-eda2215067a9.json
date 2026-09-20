@@ -1,0 +1,118 @@
+{
+  "skill_id": "9b4bd42a-909e-5ee3-9d1f-eda2215067a9",
+  "action": "merge",
+  "matched_skill_ids": [
+    "07ee569c-0bbd-51f7-af08-1fc359001c7e"
+  ],
+  "reason": "Candidate 'DataStream Source Reading' is a specialized file-based source creation workflow that semantically belongs within the broader 'DataStream Source Creation' skill. Both are session_skill layer, data_ingestion task_family, and stage input/pipeline_setup. File reading (readTextFile) is one specific source method among the collection of source creation patterns (fromElements, fromParallelCollection, generateSequence, addSource). Merging consolidates source initialization patterns under one reusable skill and avoids fragmentation of the source_configuration method_family.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "9b4bd42a-909e-5ee3-9d1f-eda2215067a9",
+    "name": "DataStream Source Reading",
+    "description": "Reusable workflow for initializing data streams from various sources in Flink: in-memory collections, parallel iterators, generated sequences, file-based sources (text files, CSV), or custom connectors. Use when setting up the input stage of a streaming pipeline.",
+    "skill_body": "Use StreamExecutionEnvironment methods to read from file-based sources. Call readTextFile() or equivalent source method on the execution environment, passing the file path. The result is a typed DataStream[T] that can be passed to transformations (map, filter, etc.) or sinks.\n\n## Objective\n\nIngest data from file-based sources into a streaming pipeline as a reusable DataStream\n## Applicable Signals\n\n- Need to read text files line-by-line into a stream\n- CSV or other file-based source data must be ingested\n- Initial data source for a streaming pipeline is a local or remote file\n\n## Contraindications\n\n- Data already exists as an in-memory DataStream\n- Using Kafka, message queue, or other streaming source connectors\n- Batch processing with DataSet API instead of DataStream\n\n## Intervention Moves\n\n- Select fromElements for uniform-type collections\n- Select fromParallelCollection for iterator-based parallel ingestion\n- Select generateSequence for numeric range generation\n- Select readTextFile(path) for text file ingestion into DataStream[String]\n- Select appropriate file source method matching data format (text, CSV, etc.)\n- Select addSource with appropriate connector for external systems\n\n## Workflow Steps\n\n- Identify the data source type (collection, iterator, sequence, file-based, or external system)\n- Select the corresponding source creation method\n- Configure method parameters (elements, iterator, range, file path, or connector)\n- Verify data type consistency\n- Return the initialized DataStream object\n\n## Constraints\n\n- All elements in fromElements must be of the same type\n- SplittableIterator must specify the data type of returned elements\n- generateSequence operates on numeric intervals only\n- File path must be accessible (local or remote URI format)\n- Source method must match data format (text, CSV, etc.)\n- Execution environment must be initialized before calling source methods\n- Custom source functions must implement the appropriate Flink source interface\n\n## Cautions\n\n- File I/O may block; ensure file is available before execution\n- Large files may require memory and parallelism tuning\n- Path format must follow URI scheme (file://, hdfs://, etc.)\n\n## Output Contract\n\n- Returns a typed DataStream[T] object (e.g., DataStream[String] for text files) that is ready to accept downstream transformations (map, filter, etc.) or be written to a sink. The stream represents the complete sequence of records from the source file.",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "parent",
+    "objective": "Ingest data from file-based sources into a streaming pipeline as a reusable DataStream",
+    "domain": "default",
+    "task_family": "data_ingestion",
+    "method_family": "source_reading",
+    "stage": "input",
+    "applicable_signals": [
+      "Need to read text files line-by-line into a stream",
+      "CSV or other file-based source data must be ingested",
+      "Initial data source for a streaming pipeline is a local or remote file"
+    ],
+    "contraindications": [
+      "Data already exists as an in-memory DataStream",
+      "Using Kafka, message queue, or other streaming source connectors",
+      "Batch processing with DataSet API instead of DataStream"
+    ],
+    "intervention_moves": [
+      "Select fromElements for uniform-type collections",
+      "Select fromParallelCollection for iterator-based parallel ingestion",
+      "Select generateSequence for numeric range generation",
+      "Select readTextFile(path) for text file ingestion into DataStream[String]",
+      "Select appropriate file source method matching data format (text, CSV, etc.)",
+      "Select addSource with appropriate connector for external systems"
+    ],
+    "triggers": [
+      "Need to read text files, CSV, or other file-based sources as the initial data stream"
+    ],
+    "workflow_steps": [
+      "Identify the data source type (collection, iterator, sequence, file-based, or external system)",
+      "Select the corresponding source creation method",
+      "Configure method parameters (elements, iterator, range, file path, or connector)",
+      "Verify data type consistency",
+      "Return the initialized DataStream object"
+    ],
+    "constraints": [
+      "All elements in fromElements must be of the same type",
+      "SplittableIterator must specify the data type of returned elements",
+      "generateSequence operates on numeric intervals only",
+      "File path must be accessible (local or remote URI format)",
+      "Source method must match data format (text, CSV, etc.)",
+      "Execution environment must be initialized before calling source methods",
+      "Custom source functions must implement the appropriate Flink source interface"
+    ],
+    "cautions": [
+      "File I/O may block; ensure file is available before execution",
+      "Large files may require memory and parallelism tuning",
+      "Path format must follow URI scheme (file://, hdfs://, etc.)"
+    ],
+    "output_contract": [
+      "Returns a typed DataStream[T] object (e.g., DataStream[String] for text files) that is ready to accept downstream transformations (map, filter, etc.) or be written to a sink. The stream represents the complete sequence of records from the source file."
+    ],
+    "examples": [],
+    "tags": [
+      "data_ingestion",
+      "source_reading",
+      "file_input",
+      "datastream_api",
+      "streaming_pipeline"
+    ],
+    "support_ids": [
+      "c3b3465a-7c86-5fc3-b114-f2703573fb91"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "f44abbc0-5472-5d7d-8c54-20f9b2330183"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.88,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|ingest data from file-based sources into a streaming pipeline as a reusable datastream|default|data_ingestion|source_reading|input|datastream source reading",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

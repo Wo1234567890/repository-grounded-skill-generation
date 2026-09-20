@@ -1,0 +1,125 @@
+{
+  "skill_id": "221b12bc-4082-5dda-ba28-0a8424fb4c0f",
+  "name": "Graceful Trace Shutdown on Process Exit",
+  "description": "Registers and executes a global atexit handler to cleanly end an auto-initialized trace context when the application shuts down, preventing resource leaks and incomplete trace records.",
+  "skill_body": "When the process is terminating, check if an auto-initialized trace context exists. If it does and the tracer is initialized with an active recording span, call tracer.end_trace() with end_state='Shutdown'. Wrap the operation in try-except to log warnings on failure. Clear global references to the trace context and legacy session wrapper in the finally block to ensure cleanup occurs regardless of success or failure.\n\n## Objective\n\nEnd trace context safely during process shutdown\n## Applicable Signals\n\n- Auto-initialized trace context exists\n- Process is in shutdown phase\n- Tracer is initialized and span is recording\n\n## Contraindications\n\n- Trace context is already explicitly ended by user code\n- Manual shutdown is preferred over automatic atexit handling\n- Tracer is not initialized\n\n## Intervention Moves\n\n- Check if _client_init_trace_context is not None\n- Verify tracer.initialized and span.is_recording() before ending\n- Call tracer.end_trace() with end_state='Shutdown'\n- Clear _client_init_trace_context and _client_legacy_session_for_init_trace references\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if _client_init_trace_context is not None', 'condition': 'Trace context exists'}\n- {'step': 2, 'action': 'Log debug message indicating auto-ending of init trace', 'condition': 'Always'}\n- {'step': 3, 'action': 'Verify tracer.initialized and _client_init_trace_context.span.is_recording()', 'condition': 'Before attempting to end trace'}\n- {'step': 4, 'action': \"Call tracer.end_trace(_client_init_trace_context, end_state='Shutdown')\", 'condition': 'Tracer is initialized and span is recording'}\n- {'step': 5, 'action': 'Catch exceptions and log warning', 'condition': 'Any exception occurs during trace ending'}\n- {'step': 6, 'action': 'Clear _client_init_trace_context and _client_legacy_session_for_init_trace', 'condition': 'In finally block, always'}\n\n## Constraints\n\n- Must be registered as a global atexit handler before application shutdown\n- Must use try-except-finally to prevent exceptions from propagating to atexit\n- Must clear global state in finally block to ensure cleanup\n\n## Cautions\n\n- Atexit handlers run in a limited environment; avoid complex I/O or external calls\n- Log warnings instead of raising exceptions to prevent shutdown hangs\n- Ensure global references are cleared to avoid dangling pointers\n\n## Output Contract\n\n- Trace context is ended with end_state='Shutdown', global references (_client_init_trace_context and _client_legacy_session_for_init_trace) are set to None, and no exceptions propagate to the atexit handler.",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [
+    "d5bcd64f-230a-531e-a11f-ede793929a13",
+    "2088b931-a182-5233-b4ad-880545601196"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "End trace context safely during process shutdown",
+  "domain": "default",
+  "task_family": "trace_lifecycle_management",
+  "method_family": "atexit_handler_pattern",
+  "stage": "shutdown",
+  "applicable_signals": [
+    "Auto-initialized trace context exists",
+    "Process is in shutdown phase",
+    "Tracer is initialized and span is recording"
+  ],
+  "contraindications": [
+    "Trace context is already explicitly ended by user code",
+    "Manual shutdown is preferred over automatic atexit handling",
+    "Tracer is not initialized"
+  ],
+  "intervention_moves": [
+    "Check if _client_init_trace_context is not None",
+    "Verify tracer.initialized and span.is_recording() before ending",
+    "Call tracer.end_trace() with end_state='Shutdown'",
+    "Clear _client_init_trace_context and _client_legacy_session_for_init_trace references"
+  ],
+  "triggers": [
+    "Process termination signal received",
+    "Application exit initiated",
+    "atexit handler invoked by Python runtime"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Check if _client_init_trace_context is not None', 'condition': 'Trace context exists'}",
+    "{'step': 2, 'action': 'Log debug message indicating auto-ending of init trace', 'condition': 'Always'}",
+    "{'step': 3, 'action': 'Verify tracer.initialized and _client_init_trace_context.span.is_recording()', 'condition': 'Before attempting to end trace'}",
+    "{'step': 4, 'action': \"Call tracer.end_trace(_client_init_trace_context, end_state='Shutdown')\", 'condition': 'Tracer is initialized and span is recording'}",
+    "{'step': 5, 'action': 'Catch exceptions and log warning', 'condition': 'Any exception occurs during trace ending'}",
+    "{'step': 6, 'action': 'Clear _client_init_trace_context and _client_legacy_session_for_init_trace', 'condition': 'In finally block, always'}"
+  ],
+  "constraints": [
+    "Must be registered as a global atexit handler before application shutdown",
+    "Must use try-except-finally to prevent exceptions from propagating to atexit",
+    "Must clear global state in finally block to ensure cleanup"
+  ],
+  "cautions": [
+    "Atexit handlers run in a limited environment; avoid complex I/O or external calls",
+    "Log warnings instead of raising exceptions to prevent shutdown hangs",
+    "Ensure global references are cleared to avoid dangling pointers"
+  ],
+  "output_contract": [
+    "Trace context is ended with end_state='Shutdown', global references (_client_init_trace_context and _client_legacy_session_for_init_trace) are set to None, and no exceptions propagate to the atexit handler."
+  ],
+  "examples": [],
+  "tags": [
+    "lifecycle_management",
+    "cleanup",
+    "shutdown",
+    "trace_context",
+    "atexit_handler",
+    "resource_management"
+  ],
+  "support_ids": [
+    "bca53ae9-2911-5e13-8345-bb09df6b073a"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "1f56ad01-1a54-5b72-95a1-f010a40a351c"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.75,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|micro_skill_node|end trace context safely during process shutdown|default|trace_lifecycle_management|atexit_handler_pattern|shutdown|graceful trace shutdown on process exit",
+    "change_action": "create",
+    "llm_reason": "create",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [
+      "d5bcd64f-230a-531e-a11f-ede793929a13",
+      "2088b931-a182-5233-b4ad-880545601196"
+    ],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

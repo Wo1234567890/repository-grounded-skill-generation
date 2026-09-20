@@ -1,0 +1,169 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "document_ranking",
+  "run_id": "20260916T064416_09edf17a",
+  "skills": [
+    {
+      "skill_id": "1b393658-6561-5a40-a7d1-03be45e195d3",
+      "name": "Term-at-a-Time Score Accumulation",
+      "description": "Iteratively update document scores by processing one query term at a time, adding weighted contributions from each term to accumulators. This micro-skill implements the inner loop of vector space scoring, where each query term's weight is multiplied by its term weight in each document and accumulated into a score array.",
+      "skill_body": "For each query term t in sequence: (1) Calculate the weight of term t in the query vector. (2) For each document d in the collection: retrieve the term frequency or tf-idf weight of term t in document d from the postings list, multiply by the query term weight, and add the result to the accumulator (score) for document d. Repeat until all query terms have been processed. The Scores array now holds the accumulated contributions ready for top-K extraction.\n\n## Objective\n\nAccumulate document scores by iterating over query terms and updating score array in a single pass\n## Applicable Signals\n\n- Multiple query terms present in the query\n- Postings lists with term frequency or tf-idf weights are available\n- Need to rank all documents in the collection against the query\n- Memory efficiency is a priority\n\n## Contraindications\n\n- Single-term queries (document-at-a-time processing is more efficient)\n- When postings lists do not store term weights (tf or tf-idf)\n- When only a small subset of documents need scoring (use inverted index directly)\n\n## Intervention Moves\n\n- Initialize Scores array with zeros for each document\n- Iterate over each query term t\n- Calculate query vector weight for term t\n- For each document, retrieve term weight from postings and multiply by query weight\n- Add weighted contribution to document accumulator\n- Proceed to next query term\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Initialize Scores array with zero for each of N documents'}\n- {'step': 2, 'action': 'For each query term t in the query (outermost loop)'}\n- {'step': 3, 'action': 'Calculate weight of term t in the query vector'}\n- {'step': 4, 'action': 'For each document d in the collection (inner loop)'}\n- {'step': 5, 'action': 'Retrieve term weight (tf or tf-idf) for term t in document d from postings'}\n- {'step': 6, 'action': 'Multiply query term weight by document term weight'}\n- {'step': 7, 'action': 'Add result to Scores[d] accumulator'}\n- {'step': 8, 'action': 'Proceed to next document'}\n- {'step': 9, 'action': 'Proceed to next query term'}\n\n## Constraints\n\n- Postings entries must include term frequency or pre-computed weight for each term-document pair\n- Length array (document normalization factors) must be available for final score normalization\n- Query term weights must be pre-calculated before accumulation begins\n\n## Cautions\n\n- Storing floating-point weights in postings can be space-inefficient; consider storing N/dft (inverse document frequency) at the head of postings and term frequency per entry instead\n- Ensure accumulators are initialized to zero before processing begins\n- Document length normalization should be applied after all terms have been accumulated\n\n## Output Contract\n\n- Scores array with accumulated contributions from all query terms, normalized by document length factors, ready for top-K extraction. Each Scores[d] contains the dot product of the query vector and document d vector.\n\n## Example Executions\n\n### Example 1\n\n- Input: Query: ['cat', 'dog']; Postings: {cat: {doc1: tf=2, doc2: tf=1}, dog: {doc1: tf=1, doc2: tf=3}}; Query weights: {cat: 0.5, dog: 0.3}\n- Output: Scores: {doc1: 2*0.5 + 1*0.3 = 1.3, doc2: 1*0.5 + 3*0.3 = 1.4}\n- Notes: Simple term frequency accumulation; scores ready for normalization and top-K selection",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "e7308f6d-3afc-58b8-9cc8-ce069b1e7c5f",
+      "parent_candidate_ids": [
+        "e7308f6d-3afc-58b8-9cc8-ce069b1e7c5f"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Accumulate document scores by iterating over query terms and updating score array in a single pass",
+      "domain": "information_retrieval",
+      "task_family": "document_ranking",
+      "method_family": "vector_space_model",
+      "stage": "score_accumulation",
+      "applicable_signals": [
+        "Multiple query terms present in the query",
+        "Postings lists with term frequency or tf-idf weights are available",
+        "Need to rank all documents in the collection against the query",
+        "Memory efficiency is a priority"
+      ],
+      "contraindications": [
+        "Single-term queries (document-at-a-time processing is more efficient)",
+        "When postings lists do not store term weights (tf or tf-idf)",
+        "When only a small subset of documents need scoring (use inverted index directly)"
+      ],
+      "intervention_moves": [
+        "Initialize Scores array with zeros for each document",
+        "Iterate over each query term t",
+        "Calculate query vector weight for term t",
+        "For each document, retrieve term weight from postings and multiply by query weight",
+        "Add weighted contribution to document accumulator",
+        "Proceed to next query term"
+      ],
+      "triggers": [
+        "Processing multiple query terms and need to update scores for all documents in a single pass; memory-efficient approach when postings lists are available"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Initialize Scores array with zero for each of N documents'}",
+        "{'step': 2, 'action': 'For each query term t in the query (outermost loop)'}",
+        "{'step': 3, 'action': 'Calculate weight of term t in the query vector'}",
+        "{'step': 4, 'action': 'For each document d in the collection (inner loop)'}",
+        "{'step': 5, 'action': 'Retrieve term weight (tf or tf-idf) for term t in document d from postings'}",
+        "{'step': 6, 'action': 'Multiply query term weight by document term weight'}",
+        "{'step': 7, 'action': 'Add result to Scores[d] accumulator'}",
+        "{'step': 8, 'action': 'Proceed to next document'}",
+        "{'step': 9, 'action': 'Proceed to next query term'}"
+      ],
+      "constraints": [
+        "Postings entries must include term frequency or pre-computed weight for each term-document pair",
+        "Length array (document normalization factors) must be available for final score normalization",
+        "Query term weights must be pre-calculated before accumulation begins"
+      ],
+      "cautions": [
+        "Storing floating-point weights in postings can be space-inefficient; consider storing N/dft (inverse document frequency) at the head of postings and term frequency per entry instead",
+        "Ensure accumulators are initialized to zero before processing begins",
+        "Document length normalization should be applied after all terms have been accumulated"
+      ],
+      "output_contract": [
+        "Scores array with accumulated contributions from all query terms, normalized by document length factors, ready for top-K extraction. Each Scores[d] contains the dot product of the query vector and document d vector."
+      ],
+      "examples": [
+        {
+          "input": "Query: ['cat', 'dog']; Postings: {cat: {doc1: tf=2, doc2: tf=1}, dog: {doc1: tf=1, doc2: tf=3}}; Query weights: {cat: 0.5, dog: 0.3}",
+          "output": "Scores: {doc1: 2*0.5 + 1*0.3 = 1.3, doc2: 1*0.5 + 3*0.3 = 1.4}",
+          "notes": "Simple term frequency accumulation; scores ready for normalization and top-K selection"
+        }
+      ],
+      "tags": [
+        "vector_space_model",
+        "scoring",
+        "accumulation",
+        "term_weighting",
+        "document_ranking",
+        "information_retrieval"
+      ],
+      "support_ids": [
+        "14a00e19-4d14-59f5-9114-cd68b836d52f"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "16481c9d-207d-51e0-889e-c694ba24b39f"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|micro_skill_node|accumulate document scores by iterating over query terms and updating score array in a single pass|information_retrieval|document_ranking|vector_space_model|score_accumulation|term-at-a-time score accumulation",
+        "change_action": "create",
+        "llm_reason": "This candidate is a distinct micro-skill (asset_level 3) that implements the inner computational loop of vector space scoring. While peer candidates cover higher-level workflow skills (asset_level 2) for overall document ranking and cosine similarity, this skill focuses specifically on the term-at-a-time score accumulation algorithm—a lower-level, reusable component. It has clear support from the reference material, no conflicts, and provides granular implementation guidance that complements but does not duplicate the peer candidates. The micro-skill level and specific focus on accumulator updates make it a valuable distinct capability.",
+        "parent_skill_id": "e7308f6d-3afc-58b8-9cc8-ce069b1e7c5f",
+        "parent_candidate_ids": [
+          "e7308f6d-3afc-58b8-9cc8-ce069b1e7c5f"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "01199a3c-3a9d-46aa-9edf-798d87072e9f",
+      "entity_type": "skill",
+      "entity_id": "1b393658-6561-5a40-a7d1-03be45e195d3",
+      "action": "create",
+      "changed_at": "2026-09-15T20:42:48+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "This candidate is a distinct micro-skill (asset_level 3) that implements the inner computational loop of vector space scoring. While peer candidates cover higher-level workflow skills (asset_level 2) for overall document ranking and cosine similarity, this skill focuses specifically on the term-at-a-time score accumulation algorithm—a lower-level, reusable component. It has clear support from the reference material, no conflicts, and provides granular implementation guidance that complements but does not duplicate the peer candidates. The micro-skill level and specific focus on accumulator updates make it a valuable distinct capability.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "1b393658-6561-5a40-a7d1-03be45e195d3",
+        "doc_ids": [
+          "fc9056b5-59f5-5e1a-9452-59d955d52e19"
+        ],
+        "support_added": [
+          "14a00e19-4d14-59f5-9114-cd68b836d52f"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

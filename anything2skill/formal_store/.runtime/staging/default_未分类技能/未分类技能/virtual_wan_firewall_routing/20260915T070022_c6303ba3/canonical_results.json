@@ -1,0 +1,164 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "virtual_wan_firewall_routing",
+  "run_id": "20260915T070022_c6303ba3",
+  "skills": [
+    {
+      "skill_id": "dc38a859-38f1-55bc-9391-873c4f853157",
+      "name": "Validate Azure Firewall Multi-Region Route Table Alignment",
+      "description": "Enforce that all spoke virtual networks in a multi-region Azure Firewall deployment within a single virtual hub are associated to the same route table. This prevents partial bypass of firewall inspection and ensures consistent security posture across all traffic flows.",
+      "skill_body": "When deploying Azure Firewall across multiple regions in a Virtual WAN hub, verify that all spoke virtual networks are associated to the same route table. Do not allow a subset of VNets to bypass the firewall while others route through it in the same hub. Confirm the association before finalizing the configuration.\n\n## Objective\n\nenforce_firewall_inspection_consistency\n## Applicable Signals\n\n- Azure Firewall deployed across multiple regions\n- Spoke virtual networks being associated to route tables in a virtual hub\n- Configuration review before firewall activation\n\n## Contraindications\n\n- Firewall is not deployed in the hub\n- Single-region hub deployment\n- Intentional traffic segmentation requiring some VNets to bypass firewall inspection\n\n## Intervention Moves\n\n- Identify all spoke virtual networks in the virtual hub and list all VNets connected to the hub\n- Verify the route table association for each spoke VNet and confirm all VNets are associated to the same route table\n- If associations differ, reassociate all VNets to a single route table\n- Validate firewall inspection path for sample traffic flows to confirm traffic from all VNets routes through the firewall\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify all spoke virtual networks in the virtual hub', 'check': 'List all VNets connected to the hub'}\n- {'step': 2, 'action': 'Verify the route table association for each spoke VNet', 'check': 'Confirm all VNets are associated to the same route table'}\n- {'step': 3, 'action': 'If associations differ, reassociate all VNets to a single route table', 'check': 'No VNet is left with a different route table association'}\n- {'step': 4, 'action': 'Validate firewall inspection path for sample traffic flows', 'check': 'Traffic from all VNets routes through the firewall'}\n\n## Constraints\n\n- All spoke VNets in the same hub must use the same route table\n- Partial firewall bypass within a single hub is not supported\n- This constraint applies only within a single virtual hub; different hubs may have different configurations\n\n## Cautions\n\n- Verify route table association before traffic flows begin\n- Changing route table associations after deployment may cause traffic disruption\n- Audit spoke VNet associations regularly to detect configuration drift\n\n## Output Contract\n\n- All spoke virtual networks in the hub are confirmed associated to the same route table\n- Firewall inspection path is verified for all traffic flows\n- Configuration is locked to prevent partial bypass\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Virtual hub with Azure Firewall deployed; three spoke VNets (VNet-A, VNet-B, VNet-C) with VNet-A and VNet-B associated to route table 'RT-Firewall' and VNet-C associated to 'RT-Direct'\n- Therapist/Output: Configuration rejected; VNet-C must be reassociated to 'RT-Firewall' to ensure all traffic routes through the firewall\n- Notes: Partial bypass creates a security gap\n\n### Example 2\n\n- Client/Input: Virtual hub with Azure Firewall; all three spoke VNets (VNet-A, VNet-B, VNet-C) associated to route table 'RT-Firewall'\n- Therapist/Output: Configuration validated; all VNets route through firewall inspection\n- Notes: Consistent security posture confirmed",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "enforce_firewall_inspection_consistency",
+      "domain": "default",
+      "task_family": "virtual_wan_firewall_routing",
+      "method_family": "security_policy_enforcement",
+      "stage": "configuration_validation",
+      "applicable_signals": [
+        "Azure Firewall deployed across multiple regions",
+        "Spoke virtual networks being associated to route tables in a virtual hub",
+        "Configuration review before firewall activation"
+      ],
+      "contraindications": [
+        "Firewall is not deployed in the hub",
+        "Single-region hub deployment",
+        "Intentional traffic segmentation requiring some VNets to bypass firewall inspection"
+      ],
+      "intervention_moves": [
+        "Identify all spoke virtual networks in the virtual hub and list all VNets connected to the hub",
+        "Verify the route table association for each spoke VNet and confirm all VNets are associated to the same route table",
+        "If associations differ, reassociate all VNets to a single route table",
+        "Validate firewall inspection path for sample traffic flows to confirm traffic from all VNets routes through the firewall"
+      ],
+      "triggers": [
+        "deploying Azure Firewall across multiple regions",
+        "configuring spoke virtual network associations in a virtual hub"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Identify all spoke virtual networks in the virtual hub', 'check': 'List all VNets connected to the hub'}",
+        "{'step': 2, 'action': 'Verify the route table association for each spoke VNet', 'check': 'Confirm all VNets are associated to the same route table'}",
+        "{'step': 3, 'action': 'If associations differ, reassociate all VNets to a single route table', 'check': 'No VNet is left with a different route table association'}",
+        "{'step': 4, 'action': 'Validate firewall inspection path for sample traffic flows', 'check': 'Traffic from all VNets routes through the firewall'}"
+      ],
+      "constraints": [
+        "All spoke VNets in the same hub must use the same route table",
+        "Partial firewall bypass within a single hub is not supported",
+        "This constraint applies only within a single virtual hub; different hubs may have different configurations"
+      ],
+      "cautions": [
+        "Verify route table association before traffic flows begin",
+        "Changing route table associations after deployment may cause traffic disruption",
+        "Audit spoke VNet associations regularly to detect configuration drift"
+      ],
+      "output_contract": [
+        "All spoke virtual networks in the hub are confirmed associated to the same route table",
+        "Firewall inspection path is verified for all traffic flows",
+        "Configuration is locked to prevent partial bypass"
+      ],
+      "examples": [
+        {
+          "input": "Virtual hub with Azure Firewall deployed; three spoke VNets (VNet-A, VNet-B, VNet-C) with VNet-A and VNet-B associated to route table 'RT-Firewall' and VNet-C associated to 'RT-Direct'",
+          "output": "Configuration rejected; VNet-C must be reassociated to 'RT-Firewall' to ensure all traffic routes through the firewall",
+          "notes": "Partial bypass creates a security gap"
+        },
+        {
+          "input": "Virtual hub with Azure Firewall; all three spoke VNets (VNet-A, VNet-B, VNet-C) associated to route table 'RT-Firewall'",
+          "output": "Configuration validated; all VNets route through firewall inspection",
+          "notes": "Consistent security posture confirmed"
+        }
+      ],
+      "tags": [
+        "azure_firewall",
+        "virtual_wan",
+        "multi_region",
+        "route_table",
+        "security_constraint"
+      ],
+      "support_ids": [
+        "e0e5f4b6-b970-5a38-b668-756463c8f92b"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "e96abbfe-3cba-5f7e-aef6-5e2c75233fbf"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.9,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|enforce_firewall_inspection_consistency|default|virtual_wan_firewall_routing|security_policy_enforcement|configuration_validation|validate azure firewall multi-region route table alignment",
+        "change_action": "create",
+        "llm_reason": "Candidate addresses a distinct and critical safety concern: enforcing consistent route table association across all spoke VNets within a single virtual hub to prevent partial firewall bypass. While peer candidates cover branch connection routing, route prefix specificity, and next hop validation, none directly address the spoke VNet route table alignment requirement. The constraint that 'all spoke VNets in the same hub must use the same route table' is specific to this firewall inspection consistency objective and represents a separate validation concern from branch routing or route injection conflicts. The skill is well-structured, supported by documentation, and fills a necessary gap in Virtual WAN firewall security policy enforcement.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "dbdcede7-5c8c-4477-8db5-9daab551bfec",
+      "entity_type": "skill",
+      "entity_id": "dc38a859-38f1-55bc-9391-873c4f853157",
+      "action": "create",
+      "changed_at": "2026-09-14T21:00:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate addresses a distinct and critical safety concern: enforcing consistent route table association across all spoke VNets within a single virtual hub to prevent partial firewall bypass. While peer candidates cover branch connection routing, route prefix specificity, and next hop validation, none directly address the spoke VNet route table alignment requirement. The constraint that 'all spoke VNets in the same hub must use the same route table' is specific to this firewall inspection consistency objective and represents a separate validation concern from branch routing or route injection conflicts. The skill is well-structured, supported by documentation, and fills a necessary gap in Virtual WAN firewall security policy enforcement.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "dc38a859-38f1-55bc-9391-873c4f853157",
+        "doc_ids": [
+          "3937f901-1162-503e-8dde-3cd1a710796b"
+        ],
+        "support_added": [
+          "e0e5f4b6-b970-5a38-b668-756463c8f92b"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

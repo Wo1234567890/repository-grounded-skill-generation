@@ -1,0 +1,132 @@
+{
+  "schema": "autoskill.document.evidence_manifest.v1",
+  "generated_at": "2026-09-14T23:36:53+00:00",
+  "family_name": "未分类技能",
+  "skill_id": "a600fbef-41ac-5267-a405-97b2503d08a6",
+  "skill_name": "Custom Reward Function Design",
+  "support_count": 2,
+  "supports": [
+    {
+      "support_id": "75a1663e-b07e-58d8-bebd-3c70a8e7beb3",
+      "doc_id": "1b1cfe5e-1be5-5bc1-9b07-6e37f39e1ae1",
+      "document_title": "trl-grpo-017.md",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/trl-grpo-017.md",
+      "section": "GRPO Trainer",
+      "span": {
+        "start": 2527,
+        "end": 4917
+      },
+      "relation_type": "support",
+      "confidence": 0.8,
+      "quote": "Overview\nTRL supports the GRPO Trainer for training language models, as described in the paper DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models by Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Mingchuan Zhang, Y. K. Li, Y. Wu, Daya Guo.\n\nThe abstract from the paper is the following:\n\nMathematical reasoning poses a significant challenge for language models due to its complex and structured nature. In this paper, we introduce DeepSeekMath 7B, which continues pre-training DeepSeek-Coder-Base-v1.5 7B with 120B math-related tokens sourced from Common Crawl, together with natural language and code data. DeepSeekMath 7B has achieved an impressive score of 51.7% on the competition-level MATH benchmark without relying on external toolkits and voting techniques, approaching the performance level of Gemini-Ultra and GPT-4. Self-consistency over 64 samples from DeepSeekMath 7B achieves 60.9% on MATH. The mathematical reasoning capability of DeepSeekMath is attributed to two key factors: First, we harness the significant potential of publicly available web data through a meticulously engineered data selection pipeline. Second, we introduce Group Relative Policy Optimization (GRPO), a variant of Proximal Policy Optimization (PPO), that enhances mathematical reasoning abilities while concurrently optimizing the memory usage of PPO.\n\nThis post-training method was contributed by Quentin Gallouédec.\n\nQuick start\nThis example demonstrates how to train a model using the GRPO method. We train a Qwen 0.5B Instruct model with the prompts from the TLDR dataset (completion column is ignored!). You can view the data in the dataset here:\n\nBelow is the script to train the model.\n\nCopied\n\n```\n\ntrain_grpo.py\nfrom datasets import load_dataset\nfrom trl import GRPOConfig, GRPOTrainer\n\ndataset = load_dataset(\"trl-lib/tldr\", split=\"train\")\n\n# Define the reward function, which rewards completions that are close to 20 characters\ndef reward_len(completions, **kwargs):\n    return [-abs(20 - len(completion)) for completion in completions]\n\ntraining_args = GRPOConfig(output_dir=\"Qwen2-0.5B-GRPO\", logging_steps=10)\ntrainer = GRPOTrainer(\n    model=\"Qwen/Qwen2-0.5B-Instruct\",\n    reward_funcs=reward_len,\n    args=training_args,\n    train_dataset=dataset,\n)\ntrainer.train()\n```\n\nExecute the script using the following command:\n\nCopied",
+      "metadata": {
+        "document_title": "trl-grpo-017.md",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Custom Reward Function Design",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Create a callable reward function that maps completions to scalar reward scores",
+        "task_family": "reward_engineering",
+        "method_family": "scoring_function",
+        "stage": "training_preparation",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "cd88517f-0652-577a-8fb4-050d079bf1c8",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 13,
+        "heading_path": [
+          "GRPO Trainer"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "trl-grpo-017.md"
+        ],
+        "subsection_headings": [
+          "Overview",
+          "Quick start",
+          "train_grpo.py",
+          "Looking deeper into the GRPO method",
+          "Generating completions",
+          "Computing the advantage",
+          "Estimating the KL divergence",
+          "Computing the loss",
+          "Logged metrics",
+          "Speed up training with vLLM-powered generation",
+          "GRPO at scale: train a 70B+ Model on multiple nodes",
+          "Example dataset from TLDR",
+          "Using a custom reward function",
+          "Example 1: Reward longer completions",
+          "Example 2: Reward completions with specific format"
+        ],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "TRL supports the GRPO Trainer for training language models, as described in the paper DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models by Zhihong"
+      }
+    },
+    {
+      "support_id": "26815d11-4fdd-59b0-8460-0464dd85640e",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "document_title": "agentops-docs.txt",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 81765,
+        "end": 82282
+      },
+      "relation_type": "support",
+      "confidence": 0.85,
+      "quote": "## More basic functionality\n\nYou can instrument functions inside your code with the `@operation` decorator, which will create spans that track function execution, parameters, and return values. These operations will be displayed in your session visualization alongside LLM calls.\n  ```python python\n  # Instrument a function as an operation\n  from agentops.sdk.decorators import operation\n\n@operation\n  def process_data(data):\n      # Your function logic here\n      result = data.upper()\n      return result\n```",
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Function Instrumentation with Operation Decorator",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Track function execution and parameters as instrumented spans",
+        "task_family": "code_instrumentation",
+        "method_family": "decorator_pattern",
+        "stage": "development_debugging",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "401660f5-dccd-5eb8-a2ac-bfc80a3422b0",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "session"
+        ],
+        "paragraph_start": 52,
+        "paragraph_end": 54,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    }
+  ]
+}

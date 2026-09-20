@@ -1,0 +1,335 @@
+{
+  "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+  "title": "agentops-docs.txt",
+  "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+  "window_id": "e6cacf1a-6123-5527-8311-49d45ff8a5f7",
+  "section_heading": "Debugging Roadmap",
+  "strategy": "strict",
+  "supports": [
+    {
+      "support_id": "2ff55fcb-08ea-54ff-a64d-d0dc1d452332",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 85278,
+        "end": 93443
+      },
+      "excerpt": "from opentelemetry.instrumentation.instrumentor import BaseInstrumentor  # type: ignore\n\nfrom agentops.logging import logger\nfrom agentops.sdk.core import tracer\nfrom agentops.instrumentation.common import get_library_version\n\n# Define the structure for instrumentor configurations\nclass InstrumentorConfig(TypedDict):\n    module_name: str\n    class_name: str\n    min_version: str\n    package_name: NotRequired[str]  # Optional: actual pip package name if different from module\n\n# Combine all target packages for monitoring\nTARGET_PACKAGES = set(PROVIDERS.keys()) | set(AGENTIC_LIBRARIES.keys())\n\n# Create a single instance of the manager\n# _manager = InstrumentationManager() # Removed\n\n# Module-level state variables\n_active_instrumentors: list[BaseInstrumentor] = []\n_original_builtins_import = builtins.__import__  # Store original import\n_instrumenting_packages: Set[str] = set()\n_has_agentic_library: bool = False\n\nmodule_path = os.path.normcase(os.path.realpath(os.path.abspath(module_obj.__file__)))\n\n# Priority 1: Check if it's in any site-packages directory.\n    site_packages_dirs = site.getsitepackages()\n    if isinstance(site_packages_dirs, str):\n        site_packages_dirs = [site_packages_dirs]\n\nif hasattr(site, \"USER_SITE\") and site.USER_SITE and os.path.exists(site.USER_SITE):\n        site_packages_dirs.append(site.USER_SITE)\n\nnormalized_site_packages_dirs = [\n        os.path.normcase(os.path.realpath(p)) for p in site_packages_dirs if p and os.path.exists(p)\n    ]\n\nfor sp_dir in normalized_site_packages_dirs:\n        if module_path.startswith(sp_dir):\n            logger.debug(\n                f\"_is_installed_package: Module '{package_name_key}' is a library, instrumenting '{package_name_key}'.\"\n            )\n            return True\n\n# Priority 2: If not in site-packages, it's highly likely a local module or not an SDK we target.\n    logger.debug(f\"_is_installed_package: Module '{package_name_key}' is a local module, skipping instrumentation.\")\n    return False\n\nreturn False\n\ndef _should_instrument_package(package_name: str) -> bool:\n    \"\"\"\n    Determine if a package should be instrumented based on current state.\n    Handles special cases for agentic libraries and providers.\n    \"\"\"\n    global _has_agentic_library",
+      "relation_type": "support",
+      "confidence": 0.75,
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Package Installation Detection",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "classify_module_origin",
+        "task_family": "instrumentation_setup",
+        "method_family": "path_inspection",
+        "stage": "initialization",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "e6cacf1a-6123-5527-8311-49d45ff8a5f7",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 21,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      },
+      "created_at": "2026-09-14T23:01:40+00:00"
+    },
+    {
+      "support_id": "0bc80afd-1dc7-5fc9-a0ef-bda4677ceec0",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/agentops-docs.txt",
+      "section": "Debugging Roadmap",
+      "span": {
+        "start": 85278,
+        "end": 93443
+      },
+      "excerpt": "from opentelemetry.instrumentation.instrumentor import BaseInstrumentor  # type: ignore\n\nfrom agentops.logging import logger\nfrom agentops.sdk.core import tracer\nfrom agentops.instrumentation.common import get_library_version\n\n# Define the structure for instrumentor configurations\nclass InstrumentorConfig(TypedDict):\n    module_name: str\n    class_name: str\n    min_version: str\n    package_name: NotRequired[str]  # Optional: actual pip package name if different from module\n\n# Combine all target packages for monitoring\nTARGET_PACKAGES = set(PROVIDERS.keys()) | set(AGENTIC_LIBRARIES.keys())\n\n# Create a single instance of the manager\n# _manager = InstrumentationManager() # Removed\n\n# Module-level state variables\n_active_instrumentors: list[BaseInstrumentor] = []\n_original_builtins_import = builtins.__import__  # Store original import\n_instrumenting_packages: Set[str] = set()\n_has_agentic_library: bool = False\n\nmodule_path = os.path.normcase(os.path.realpath(os.path.abspath(module_obj.__file__)))\n\n# Priority 1: Check if it's in any site-packages directory.\n    site_packages_dirs = site.getsitepackages()\n    if isinstance(site_packages_dirs, str):\n        site_packages_dirs = [site_packages_dirs]\n\nif hasattr(site, \"USER_SITE\") and site.USER_SITE and os.path.exists(site.USER_SITE):\n        site_packages_dirs.append(site.USER_SITE)\n\nnormalized_site_packages_dirs = [\n        os.path.normcase(os.path.realpath(p)) for p in site_packages_dirs if p and os.path.exists(p)\n    ]\n\nfor sp_dir in normalized_site_packages_dirs:\n        if module_path.startswith(sp_dir):\n            logger.debug(\n                f\"_is_installed_package: Module '{package_name_key}' is a library, instrumenting '{package_name_key}'.\"\n            )\n            return True\n\n# Priority 2: If not in site-packages, it's highly likely a local module or not an SDK we target.\n    logger.debug(f\"_is_installed_package: Module '{package_name_key}' is a local module, skipping instrumentation.\")\n    return False\n\nreturn False\n\ndef _should_instrument_package(package_name: str) -> bool:\n    \"\"\"\n    Determine if a package should be instrumented based on current state.\n    Handles special cases for agentic libraries and providers.\n    \"\"\"\n    global _has_agentic_library",
+      "relation_type": "support",
+      "confidence": 0.7,
+      "metadata": {
+        "document_title": "agentops-docs.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Conditional Package Instrumentation Decision",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "route_instrumentation_eligibility",
+        "task_family": "instrumentation_setup",
+        "method_family": "state_based_routing",
+        "stage": "initialization",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "e6cacf1a-6123-5527-8311-49d45ff8a5f7",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 21,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      },
+      "created_at": "2026-09-14T23:01:40+00:00"
+    }
+  ],
+  "skill_drafts": [
+    {
+      "draft_id": "03f7725a-b507-57b6-909b-0a81494f2a42",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "name": "Package Installation Detection",
+      "description": "Determine whether a Python module is an installed library (in site-packages) or a local module, to decide whether to apply instrumentation. Uses normalized path comparison against site-packages directories.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "classify_module_origin",
+      "domain": "default",
+      "task_family": "instrumentation_setup",
+      "method_family": "path_inspection",
+      "stage": "initialization",
+      "applicable_signals": [
+        "module object with __file__ attribute available",
+        "package name to be classified"
+      ],
+      "contraindications": [
+        "module path already known to be local or excluded",
+        "built-in modules (skip instrumentation detection)",
+        "module __file__ attribute is None or unavailable"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "Retrieve site-packages directories using site.getsitepackages() and site.USER_SITE",
+        "Normalize module path: os.path.normcase(os.path.realpath(os.path.abspath(module_obj.__file__)))",
+        "Normalize each site-packages directory path",
+        "Iterate through normalized site-packages directories",
+        "Check if module_path starts with any site-packages directory path",
+        "Return True if match found; return False if no match after all directories checked"
+      ],
+      "triggers": [
+        "module import interception during dynamic package loading",
+        "need to decide whether to apply instrumentation to a package"
+      ],
+      "constraints": [
+        "module_path must be normalized using os.path.normcase and os.path.realpath",
+        "site-packages directories must be retrieved via site.getsitepackages() and site.USER_SITE",
+        "all path comparisons must use normalized paths",
+        "handle case where site.getsitepackages() returns a string instead of list"
+      ],
+      "cautions": [
+        "Path normalization is critical for cross-platform compatibility",
+        "site.USER_SITE may be None; check existence before adding to list",
+        "site.getsitepackages() may return string or list; handle both cases"
+      ],
+      "output_contract": [
+        "Boolean return value: True if module is an installed library in site-packages; False if module is local or not in any site-packages directory."
+      ],
+      "examples": [],
+      "risk_class": "low",
+      "confidence": 0.75,
+      "support_ids": [
+        "2ff55fcb-08ea-54ff-a64d-d0dc1d452332"
+      ],
+      "metadata": {
+        "prompt": "Check if a module's file path is located within any site-packages directory. Normalize both the module path and site-packages directories using os.path.normcase and os.path.realpath. Compare the module path against all normalized site-packages directories (including user site if present). Return True if the module is found in any site-packages directory; return False if it is a local module or not in any site-packages location.",
+        "tags": [
+          "path_inspection",
+          "module_classification",
+          "instrumentation_gating",
+          "initialization"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "Debugging Roadmap"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 1,
+        "window_id": "e6cacf1a-6123-5527-8311-49d45ff8a5f7",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 21,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    },
+    {
+      "draft_id": "77f76974-0137-5ce0-bb6e-ee07d0505585",
+      "doc_id": "e68d8672-d178-51a3-a14e-d77ffc8c80e1",
+      "name": "Conditional Package Instrumentation Decision",
+      "description": "Determine whether a specific package should be instrumented based on current state, target package lists, and agentic library presence. Routes instrumentation eligibility by checking if a package is in TARGET_PACKAGES and evaluating agentic library state.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "route_instrumentation_eligibility",
+      "domain": "default",
+      "task_family": "instrumentation_setup",
+      "method_family": "state_based_routing",
+      "stage": "initialization",
+      "applicable_signals": [
+        "package_name provided",
+        "_has_agentic_library flag is set",
+        "TARGET_PACKAGES set is populated"
+      ],
+      "contraindications": [
+        "package is already instrumented",
+        "package is not in target list",
+        "agentic library check is not yet complete"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "Receive package_name as input",
+        "Check if package_name is in TARGET_PACKAGES set",
+        "Consult global _has_agentic_library state",
+        "Apply special-case logic for agentic libraries and providers",
+        "Return boolean decision"
+      ],
+      "triggers": [
+        "evaluating whether to activate instrumentation for a package",
+        "checking TARGET_PACKAGES membership",
+        "agentic library state is available"
+      ],
+      "constraints": [
+        "Requires global _has_agentic_library flag to be initialized",
+        "Requires TARGET_PACKAGES set to be populated before invocation",
+        "Must not re-instrument already-active instrumentors"
+      ],
+      "cautions": [],
+      "output_contract": [
+        "Returns boolean: True if package should be instrumented, False if instrumentation should be skipped. Caller uses result to decide whether to activate instrumentation for the package."
+      ],
+      "examples": [],
+      "risk_class": "medium",
+      "confidence": 0.7,
+      "support_ids": [
+        "0bc80afd-1dc7-5fc9-a0ef-bda4677ceec0"
+      ],
+      "metadata": {
+        "prompt": "Given a package_name, check if it should be instrumented. Consult the global _has_agentic_library flag and TARGET_PACKAGES set. Return True if the package is eligible for instrumentation (in target list and not already instrumented), False otherwise. Handle special cases for agentic libraries and providers.",
+        "tags": [
+          "instrumentation",
+          "package_routing",
+          "state_aware",
+          "initialization"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "Debugging Roadmap"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 2,
+        "window_id": "e6cacf1a-6123-5527-8311-49d45ff8a5f7",
+        "window_strategy": "strict",
+        "anchor_hits": [],
+        "paragraph_start": 0,
+        "paragraph_end": 21,
+        "heading_path": [
+          "Debugging Roadmap"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "agentops-docs.txt",
+          "Repository Overview",
+          "Quick Start",
+          "First class Developer Experience",
+          "Integrations"
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "### Why AgentOps?"
+      }
+    }
+  ],
+  "failed": false,
+  "complete": true,
+  "error": {}
+}

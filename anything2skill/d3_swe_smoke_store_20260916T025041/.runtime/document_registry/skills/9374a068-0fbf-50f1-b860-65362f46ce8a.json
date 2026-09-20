@@ -1,0 +1,135 @@
+{
+  "skill_id": "9374a068-0fbf-50f1-b860-65362f46ce8a",
+  "name": "Curve Segment Lifecycle Management",
+  "description": "Manage the lifecycle of line and area segments by starting, adding points, and ending segments in the correct sequence. This micro-skill ensures proper state transitions when rendering continuous shapes with explicit segment boundaries.",
+  "skill_body": "Execute the segment lifecycle in order: call lineStart() or areaStart() to initialize, add one or more points via point(x, y), then call lineEnd() or areaEnd() to close the segment. Do not interleave segment starts/ends or omit boundary markers.\n\n## Objective\n\nExecute point-addition sequence with proper segment boundary markers\n## Applicable Signals\n\n- Rendering a line or area shape\n- Need to add multiple points in sequence\n- Explicit segment boundaries required\n- Using d3 curve API for shape interpolation\n\n## Contraindications\n\n- Single isolated point rendering without segment structure\n- No segment boundaries required\n- Rendering complete pre-computed paths\n- Using alternative rendering methods that do not require explicit lifecycle calls\n\n## Intervention Moves\n\n- Call lineStart() to begin a new line segment\n- Call areaStart() to begin a new area segment\n- Call point(x, y) to add a coordinate to the current segment\n- Call lineEnd() to finalize the current line segment\n- Call areaEnd() to finalize the current area segment\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Initialize segment', 'detail': 'Call curve.lineStart() for line segments or curve.areaStart() for filled area segments'}\n- {'step': 2, 'action': 'Add points', 'detail': 'Call curve.point(x, y) for each coordinate in sequence'}\n- {'step': 3, 'action': 'Finalize segment', 'detail': 'Call curve.lineEnd() or curve.areaEnd() to close the segment'}\n\n## Constraints\n\n- lineStart/areaStart must be called before any point() calls\n- lineEnd/areaEnd must be called after all point() calls for that segment\n- Do not call lineStart and areaStart in the same segment\n- Do not call lineEnd and areaEnd in the same segment\n- At least one point() must be added between start and end\n\n## Cautions\n\n- Omitting start or end calls will result in incomplete or malformed shapes\n- Interleaving multiple segments without proper end markers may cause rendering errors\n- Ensure coordinate values are valid numbers before passing to point()\n\n## Output Contract\n\n- Sequence of lineStart → point(x,y) → point(x,y) → ... → lineEnd (or areaStart/areaEnd for filled regions) executed without error; segment is ready for rendering or handoff to downstream shape consumer\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Curve object and array of points: [(10, 20), (30, 40), (50, 60)]\n- Therapist/Output: curve.lineStart(); curve.point(10, 20); curve.point(30, 40); curve.point(50, 60); curve.lineEnd();\n- Notes: Line segment with three points rendered in sequence\n\n### Example 2\n\n- Client/Input: Curve object and array of points for filled area: [(0, 0), (100, 50), (200, 0)]\n- Therapist/Output: curve.areaStart(); curve.point(0, 0); curve.point(100, 50); curve.point(200, 0); curve.areaEnd();\n- Notes: Area segment with three points for filled shape rendering",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [
+    "22d2c5e0-7764-54f9-8a29-c939f45cc0d5",
+    "a3e2f109-bce4-589c-8d16-668135711221"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "Execute point-addition sequence with proper segment boundary markers",
+  "domain": "default",
+  "task_family": "curve_rendering",
+  "method_family": "segment_control",
+  "stage": "point_rendering",
+  "applicable_signals": [
+    "Rendering a line or area shape",
+    "Need to add multiple points in sequence",
+    "Explicit segment boundaries required",
+    "Using d3 curve API for shape interpolation"
+  ],
+  "contraindications": [
+    "Single isolated point rendering without segment structure",
+    "No segment boundaries required",
+    "Rendering complete pre-computed paths",
+    "Using alternative rendering methods that do not require explicit lifecycle calls"
+  ],
+  "intervention_moves": [
+    "Call lineStart() to begin a new line segment",
+    "Call areaStart() to begin a new area segment",
+    "Call point(x, y) to add a coordinate to the current segment",
+    "Call lineEnd() to finalize the current line segment",
+    "Call areaEnd() to finalize the current area segment"
+  ],
+  "triggers": [
+    "Rendering a line or area shape; need to add multiple points in sequence with explicit segment boundaries"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Initialize segment', 'detail': 'Call curve.lineStart() for line segments or curve.areaStart() for filled area segments'}",
+    "{'step': 2, 'action': 'Add points', 'detail': 'Call curve.point(x, y) for each coordinate in sequence'}",
+    "{'step': 3, 'action': 'Finalize segment', 'detail': 'Call curve.lineEnd() or curve.areaEnd() to close the segment'}"
+  ],
+  "constraints": [
+    "lineStart/areaStart must be called before any point() calls",
+    "lineEnd/areaEnd must be called after all point() calls for that segment",
+    "Do not call lineStart and areaStart in the same segment",
+    "Do not call lineEnd and areaEnd in the same segment",
+    "At least one point() must be added between start and end"
+  ],
+  "cautions": [
+    "Omitting start or end calls will result in incomplete or malformed shapes",
+    "Interleaving multiple segments without proper end markers may cause rendering errors",
+    "Ensure coordinate values are valid numbers before passing to point()"
+  ],
+  "output_contract": [
+    "Sequence of lineStart → point(x,y) → point(x,y) → ... → lineEnd (or areaStart/areaEnd for filled regions) executed without error; segment is ready for rendering or handoff to downstream shape consumer"
+  ],
+  "examples": [
+    {
+      "input": "Curve object and array of points: [(10, 20), (30, 40), (50, 60)]",
+      "output": "curve.lineStart(); curve.point(10, 20); curve.point(30, 40); curve.point(50, 60); curve.lineEnd();",
+      "notes": "Line segment with three points rendered in sequence"
+    },
+    {
+      "input": "Curve object and array of points for filled area: [(0, 0), (100, 50), (200, 0)]",
+      "output": "curve.areaStart(); curve.point(0, 0); curve.point(100, 50); curve.point(200, 0); curve.areaEnd();",
+      "notes": "Area segment with three points for filled shape rendering"
+    }
+  ],
+  "tags": [
+    "curve",
+    "segment",
+    "lifecycle",
+    "rendering",
+    "state_management"
+  ],
+  "support_ids": [
+    "3055b33e-3716-5d4c-9dc6-061667f04558"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "6446c144-73e9-51e4-a838-365b7c8d1d3d"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.9,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|execute point-addition sequence with proper segment boundary markers|default|curve_rendering|segment_control|point_rendering|curve segment lifecycle management",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct micro-skill focused on curve segment lifecycle (lineStart/areaStart → point → lineEnd/areaEnd) within D3 curve rendering. Peer candidates address different domains: Path Command Execution (generic path drawing primitives), and timer scheduling (animation). No redundancy detected. Support evidence confirms the skill's relevance to curve interpolation APIs.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [
+      "22d2c5e0-7764-54f9-8a29-c939f45cc0d5",
+      "a3e2f109-bce4-589c-8d16-668135711221"
+    ],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

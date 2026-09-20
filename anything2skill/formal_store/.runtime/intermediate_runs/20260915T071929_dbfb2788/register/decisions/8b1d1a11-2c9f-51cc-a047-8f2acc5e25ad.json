@@ -1,0 +1,127 @@
+{
+  "skill_id": "8b1d1a11-2c9f-51cc-a047-8f2acc5e25ad",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct session_skill for collection-based data source creation in Flink, semantically separate from file-based sources, custom source functions, and socket sources represented in peer_candidates. No existing skill in the registry matches this capability. The peer_candidates are sibling skills in the same task_family (data_source_setup) but cover different source types (files, custom functions, sockets). The existing_skills registry contains unrelated domains (GRPO training, ProcessPoolExecutor). This is a new, non-overlapping capability.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "8b1d1a11-2c9f-51cc-a047-8f2acc5e25ad",
+    "name": "Collection-based Data Source Creation",
+    "description": "Create in-memory data streams from Java collections, iterators, or element sequences in Flink, with type safety and parallel generation support. Use for test data, prototyping, or small reference datasets.",
+    "skill_body": "Instantiate a bounded DataStream<T> from a local collection, iterator, or sequence. Choose the appropriate method based on data source type and parallelization need. Ensure all elements are of the same type. Verify the resulting DataStream is ready for downstream operators.\n\n## Objective\n\nInstantiate bounded data streams from local collections for testing or small-scale processing\n## Applicable Signals\n\n- Data is bounded and fits in memory\n- All elements are homogeneous type\n- Source is local (not external file, socket, or message queue)\n- Pipeline is in development, testing, or small-scale mode\n\n## Contraindications\n\n- Data volume is large or unbounded\n- Source is external (files, sockets, Kafka, databases)\n- Elements have heterogeneous types\n- Production pipeline requiring scalable data ingestion\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify data source type', 'detail': 'Determine whether source is a Collection, Iterator, element sequence, or numeric range'}\n- {'step': 2, 'action': 'Select appropriate method', 'detail': 'fromCollection(Collection) for Java collections; fromCollection(Iterator, Class) for iterators; fromElements(T...) for varargs; fromParallelCollection(SplittableIterator, Class) for parallel iteration; generateSequence(from, to) for numeric ranges'}\n- {'step': 3, 'action': 'Ensure type consistency', 'detail': 'Verify all elements are of the same type; provide explicit type class when required by method signature'}\n- {'step': 4, 'action': 'Invoke method on StreamExecutionEnvironment', 'detail': 'Call selected method on env instance to create DataStream<T>'}\n- {'step': 5, 'action': 'Verify DataStream creation', 'detail': 'Confirm DataStream<T> object is created with correct type parameter and is ready for downstream operators'}\n\n## Constraints\n\n- All elements in the collection must be of the same type\n- Collection must fit entirely in memory\n- Iterator-based sources require explicit type class parameter\n- Parallel collection methods require SplittableIterator implementation\n\n## Cautions\n\n- Re-processing entire file contents on modification can break exactly-once semantics; use only for bounded, static collections\n- Large collections may cause memory exhaustion; validate data size before execution\n- Type mismatches will cause runtime errors; ensure homogeneous types\n\n## Output Contract\n\n- DataStream<T> object created from collection/iterator/sequence with correct type parameter; ready for downstream operators (map, filter, window, sink, etc.)\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Java List<Integer> containing [1, 2, 3, 4, 5]\n- Therapist/Output: DataStream<Integer> env.fromCollection(list)\n- Notes: Bounded stream suitable for testing aggregations or joins\n\n### Example 2\n\n- Client/Input: Numeric range from 0 to 100\n- Therapist/Output: DataStream<Long> env.generateSequence(0, 100)\n- Notes: Parallel generation of sequence; useful for load testing\n\n### Example 3\n\n- Client/Input: Custom Iterator<String> with explicit type class\n- Therapist/Output: DataStream<String> env.fromCollection(iterator, String.class)\n- Notes: Type class required when type cannot be inferred from iterator",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Instantiate bounded data streams from local collections for testing or small-scale processing",
+    "domain": "default",
+    "task_family": "data_source_setup",
+    "method_family": "flink_api_configuration",
+    "stage": "initialization",
+    "applicable_signals": [
+      "Data is bounded and fits in memory",
+      "All elements are homogeneous type",
+      "Source is local (not external file, socket, or message queue)",
+      "Pipeline is in development, testing, or small-scale mode"
+    ],
+    "contraindications": [
+      "Data volume is large or unbounded",
+      "Source is external (files, sockets, Kafka, databases)",
+      "Elements have heterogeneous types",
+      "Production pipeline requiring scalable data ingestion"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Creating test data streams for unit or integration tests",
+      "Prototyping Flink pipelines with synthetic data",
+      "Loading small reference datasets into memory for join or broadcast operations",
+      "Generating numeric sequences for demonstration or validation"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Identify data source type', 'detail': 'Determine whether source is a Collection, Iterator, element sequence, or numeric range'}",
+      "{'step': 2, 'action': 'Select appropriate method', 'detail': 'fromCollection(Collection) for Java collections; fromCollection(Iterator, Class) for iterators; fromElements(T...) for varargs; fromParallelCollection(SplittableIterator, Class) for parallel iteration; generateSequence(from, to) for numeric ranges'}",
+      "{'step': 3, 'action': 'Ensure type consistency', 'detail': 'Verify all elements are of the same type; provide explicit type class when required by method signature'}",
+      "{'step': 4, 'action': 'Invoke method on StreamExecutionEnvironment', 'detail': 'Call selected method on env instance to create DataStream<T>'}",
+      "{'step': 5, 'action': 'Verify DataStream creation', 'detail': 'Confirm DataStream<T> object is created with correct type parameter and is ready for downstream operators'}"
+    ],
+    "constraints": [
+      "All elements in the collection must be of the same type",
+      "Collection must fit entirely in memory",
+      "Iterator-based sources require explicit type class parameter",
+      "Parallel collection methods require SplittableIterator implementation"
+    ],
+    "cautions": [
+      "Re-processing entire file contents on modification can break exactly-once semantics; use only for bounded, static collections",
+      "Large collections may cause memory exhaustion; validate data size before execution",
+      "Type mismatches will cause runtime errors; ensure homogeneous types"
+    ],
+    "output_contract": [
+      "DataStream<T> object created from collection/iterator/sequence with correct type parameter; ready for downstream operators (map, filter, window, sink, etc.)"
+    ],
+    "examples": [
+      {
+        "input": "Java List<Integer> containing [1, 2, 3, 4, 5]",
+        "output": "DataStream<Integer> env.fromCollection(list)",
+        "notes": "Bounded stream suitable for testing aggregations or joins"
+      },
+      {
+        "input": "Numeric range from 0 to 100",
+        "output": "DataStream<Long> env.generateSequence(0, 100)",
+        "notes": "Parallel generation of sequence; useful for load testing"
+      },
+      {
+        "input": "Custom Iterator<String> with explicit type class",
+        "output": "DataStream<String> env.fromCollection(iterator, String.class)",
+        "notes": "Type class required when type cannot be inferred from iterator"
+      }
+    ],
+    "tags": [
+      "data_source",
+      "collection",
+      "initialization",
+      "testing",
+      "bounded_stream",
+      "flink_api"
+    ],
+    "support_ids": [
+      "6bc1210a-5b45-520a-9279-168423f7c20f"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "4ea5754c-babf-57ea-b881-cb33b9e79750"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.78,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|instantiate bounded data streams from local collections for testing or small-scale processing|default|data_source_setup|flink_api_configuration|initialization|collection-based data source creation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

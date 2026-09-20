@@ -1,0 +1,111 @@
+{
+  "skill_id": "7f9f9df7-b179-5977-baf3-083d978c314f",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro-skill focused on term-at-a-time score accumulation algorithm with clear operational steps (initialize scores, iterate terms, retrieve TF, compute/retrieve IDF, accumulate). Peer candidates address complementary but separate concerns: Weighted Zone Scoring applies zone-specific multipliers (orthogonal concern), IDF Lookup is a sub-component (not the full accumulation procedure), and Vector Space Similarity computes document-to-document similarity (different use case). No redundancy detected. Support evidence confirms relevance to vector space scoring methodology.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "7f9f9df7-b179-5977-baf3-083d978c314f",
+    "name": "Term-at-a-Time Score Accumulation",
+    "description": "Micro-procedure to iteratively update document scores by processing one query term at a time, adding the weighted contribution of each term to accumulators. Reduces redundant storage by computing inverse document frequency on-the-fly and storing only term frequency in postings entries.",
+    "skill_body": "For each query term t in turn, calculate its weight in the query vector. Then iterate over all documents in the postings list for term t and update each document's score by adding the contribution from term t. Store term frequency tft,d in postings entries and compute idft on-the-fly as N/dft rather than precomputing weights. Accumulate scores in the Scores array (accumulators) until all query terms are processed.\n\n## Objective\n\nefficiently accumulate document scores term-by-term while minimizing memory footprint\n## Applicable Signals\n\n- query contains multiple terms\n- postings list available for each query term\n- document collection size N is known\n\n## Contraindications\n\n- all document scores must be computed in parallel without term-by-term iteration\n- term weights are pre-computed and stored in postings (defeats space optimization)\n- single-term queries (no accumulation benefit)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Initialize Scores array to zero for all N documents'}\n- {'step': 2, 'action': 'For each query term t (outermost loop)'}\n- {'step': 3, 'action': 'Calculate weight wt in query vector for term t'}\n- {'step': 4, 'action': 'For each document d in postings list of term t'}\n- {'step': 5, 'action': 'Retrieve term frequency tft,d from postings entry'}\n- {'step': 6, 'action': 'Compute or retrieve idft (as N/dft from postings head)'}\n- {'step': 7, 'action': 'Calculate contribution: wt × tft,d × idft (or equivalent weight function)'}\n- {'step': 8, 'action': 'Add contribution to Scores[d]'}\n- {'step': 9, 'action': 'After all query terms processed, normalize scores using Length array if required'}\n\n## Constraints\n\n- Scores array must be initialized to zero for all N documents before processing\n- Length array (document normalization factors) must be available\n- Term frequency tft,d must be stored in postings entries\n- Inverse document frequency computed as N/dft at postings head\n\n## Cautions\n\n- Floating-point precision may accumulate across multiple term contributions; consider rounding strategy for final scores\n- Memory access patterns are sequential over Scores array; cache efficiency depends on N and available memory\n\n## Output Contract\n\n- Scores array with accumulated contributions from all query terms, ready for top-K extraction. Each Scores[d] contains the final vector space score for document d.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "efficiently accumulate document scores term-by-term while minimizing memory footprint",
+    "domain": "information_retrieval",
+    "task_family": "score_accumulation",
+    "method_family": "term_at_a_time_scoring",
+    "stage": "score_computation",
+    "applicable_signals": [
+      "query contains multiple terms",
+      "postings list available for each query term",
+      "document collection size N is known"
+    ],
+    "contraindications": [
+      "all document scores must be computed in parallel without term-by-term iteration",
+      "term weights are pre-computed and stored in postings (defeats space optimization)",
+      "single-term queries (no accumulation benefit)"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "iterating over query terms in vector space scoring",
+      "need to minimize memory footprint for postings storage",
+      "computing vector space scores for top-K document retrieval"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Initialize Scores array to zero for all N documents'}",
+      "{'step': 2, 'action': 'For each query term t (outermost loop)'}",
+      "{'step': 3, 'action': 'Calculate weight wt in query vector for term t'}",
+      "{'step': 4, 'action': 'For each document d in postings list of term t'}",
+      "{'step': 5, 'action': 'Retrieve term frequency tft,d from postings entry'}",
+      "{'step': 6, 'action': 'Compute or retrieve idft (as N/dft from postings head)'}",
+      "{'step': 7, 'action': 'Calculate contribution: wt × tft,d × idft (or equivalent weight function)'}",
+      "{'step': 8, 'action': 'Add contribution to Scores[d]'}",
+      "{'step': 9, 'action': 'After all query terms processed, normalize scores using Length array if required'}"
+    ],
+    "constraints": [
+      "Scores array must be initialized to zero for all N documents before processing",
+      "Length array (document normalization factors) must be available",
+      "Term frequency tft,d must be stored in postings entries",
+      "Inverse document frequency computed as N/dft at postings head"
+    ],
+    "cautions": [
+      "Floating-point precision may accumulate across multiple term contributions; consider rounding strategy for final scores",
+      "Memory access patterns are sequential over Scores array; cache efficiency depends on N and available memory"
+    ],
+    "output_contract": [
+      "Scores array with accumulated contributions from all query terms, ready for top-K extraction. Each Scores[d] contains the final vector space score for document d."
+    ],
+    "examples": [],
+    "tags": [
+      "vector_space_model",
+      "scoring",
+      "term_weighting",
+      "accumulator",
+      "memory_optimization",
+      "information_retrieval"
+    ],
+    "support_ids": [
+      "14a00e19-4d14-59f5-9114-cd68b836d52f"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "dcf4c97e-168f-59e2-8d27-d7525e300992"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|efficiently accumulate document scores term-by-term while minimizing memory footprint|information_retrieval|score_accumulation|term_at_a_time_scoring|score_computation|term-at-a-time score accumulation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 0,
+  "branch": "hits0"
+}

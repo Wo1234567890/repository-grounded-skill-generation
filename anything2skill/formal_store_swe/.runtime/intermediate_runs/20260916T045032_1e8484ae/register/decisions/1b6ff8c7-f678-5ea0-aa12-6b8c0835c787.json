@@ -1,0 +1,122 @@
+{
+  "skill_id": "1b6ff8c7-f678-5ea0-aa12-6b8c0835c787",
+  "action": "split",
+  "matched_skill_ids": [
+    "23b4d169-3404-56ef-bab2-b728019aad04"
+  ],
+  "reason": "Candidate 'GRPO Training Execution' represents the training loop execution phase, while peer 'Initialize GRPO Training Session' covers setup/initialization. Together they form a complete GRPO workflow split from a broader parent. The candidate focuses on distributed execution (steps 2-6: launch, generation, advantage, KL, loss), while the peer handles pre-training setup (steps 1-5: dataset, reward, config, trainer instantiation). Both are session_skill at asset_level 2 with complementary stages (training_execution vs initialization) and should coexist as child workflows of a unified GRPO training capability.",
+  "split_parent_id": "23b4d169-3404-56ef-bab2-b728019aad04",
+  "skill": {
+    "skill_id": "1b6ff8c7-f678-5ea0-aa12-6b8c0835c787",
+    "name": "GRPO Training Execution",
+    "description": "Execute distributed GRPO model training across multiple GPUs using the TRL trainer framework. Orchestrates completion generation, advantage computation, KL divergence estimation, and loss calculation in a single training loop.",
+    "skill_body": "Launch GRPO training using accelerate with a pre-configured GRPOConfig and dataset. The trainer will sample prompts, generate G completions per prompt, compute scaled advantages, estimate KL divergence from the reference policy, and apply the GRPO loss. Monitor logged metrics (loss, KL divergence, reward statistics) throughout the session.\n\n## Objective\n\nTrain a language model using Group Relative Policy Optimization\n## Applicable Signals\n\n- Training run initiated with accelerate launch\n- Batch of prompts ready for sampling\n- Completion generation step triggered at each training step\n\n## Contraindications\n\n- Single-GPU inference or evaluation mode only\n- No training dataset available\n- GRPOConfig not initialized or incomplete\n- Reference policy model not loaded\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Initialize GRPOConfig with training parameters, loss type, and reward scaling settings', 'input': 'Configuration dict with model, dataset, learning rate, num_train_epochs, loss_type, scale_rewards flag', 'output': 'GRPOConfig object ready for trainer instantiation'}\n- {'step': 2, 'action': 'Launch distributed training using accelerate', 'input': 'train_grpo.py script, GRPOConfig, dataset', 'output': 'Training process running across available GPUs'}\n- {'step': 3, 'action': 'At each training step, sample batch of prompts and generate G completions per prompt', 'input': 'Prompt batch, generation parameters', 'output': 'Set of G completions (o_i) for each prompt'}\n- {'step': 4, 'action': 'Compute scaled advantage for each completion using reward signal', 'input': 'Rewards, reference baseline, scaling factor (std(r) if enabled)', 'output': 'Scaled advantage values per token'}\n- {'step': 5, 'action': 'Estimate KL divergence between current policy and reference policy', 'input': 'Current policy logits, reference policy logits', 'output': 'KL divergence penalty term'}\n- {'step': 6, 'action': 'Compute GRPO loss combining scaled advantage and KL penalty', 'input': 'Scaled advantages, KL divergence, loss type setting', 'output': 'Loss value for backpropagation'}\n- {'step': 7, 'action': 'Log training metrics and save checkpoints', 'input': 'Loss, KL divergence, reward statistics, step count', 'output': 'Training logs and model checkpoint files'}\n\n## Constraints\n\n- Distributed training requires 2 or more GPUs\n- Completion length must be specified (recommended: maximum completion length)\n- Reward scaling can be disabled by setting scale_rewards=False to mitigate question-level difficulty bias\n- Loss type must be selected (e.g., loss_type='dr_grpo' for specific formulation)\n\n## Cautions\n\n- Scaling rewards by std(r) may introduce question-level difficulty bias; consider disabling if observed\n- Training time scales with model size and GPU count (e.g., ~1 day on 8 GPUs for typical models)\n- KL divergence penalty must be tuned to balance policy improvement and reference policy adherence\n\n## Output Contract\n\n- Trained model checkpoint saved to disk\n- Training logs containing loss, KL divergence, and reward metrics recorded for each training step\n- Session completes when num_train_epochs reached or early stopping triggered\n\n## Example Executions\n\n### Example 1\n\n- Input: GRPOConfig with loss_type='dr_grpo', scale_rewards=True, num_train_epochs=3, dataset with 1000 prompts\n- Output: Model checkpoint after 3 epochs; training logs showing decreasing loss and stable KL divergence\n- Notes: Typical distributed training across 8 GPUs takes approximately 1 day",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Train a language model using Group Relative Policy Optimization",
+    "domain": "default",
+    "task_family": "model_training",
+    "method_family": "policy_optimization",
+    "stage": "training_execution",
+    "applicable_signals": [
+      "Training run initiated with accelerate launch",
+      "Batch of prompts ready for sampling",
+      "Completion generation step triggered at each training step"
+    ],
+    "contraindications": [
+      "Single-GPU inference or evaluation mode only",
+      "No training dataset available",
+      "GRPOConfig not initialized or incomplete",
+      "Reference policy model not loaded"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "GRPOConfig initialized with training hyperparameters",
+      "Training dataset loaded and available",
+      "Distributed GPU environment (2+ GPUs) confirmed",
+      "Reference policy model checkpoint accessible"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Initialize GRPOConfig with training parameters, loss type, and reward scaling settings', 'input': 'Configuration dict with model, dataset, learning rate, num_train_epochs, loss_type, scale_rewards flag', 'output': 'GRPOConfig object ready for trainer instantiation'}",
+      "{'step': 2, 'action': 'Launch distributed training using accelerate', 'input': 'train_grpo.py script, GRPOConfig, dataset', 'output': 'Training process running across available GPUs'}",
+      "{'step': 3, 'action': 'At each training step, sample batch of prompts and generate G completions per prompt', 'input': 'Prompt batch, generation parameters', 'output': 'Set of G completions (o_i) for each prompt'}",
+      "{'step': 4, 'action': 'Compute scaled advantage for each completion using reward signal', 'input': 'Rewards, reference baseline, scaling factor (std(r) if enabled)', 'output': 'Scaled advantage values per token'}",
+      "{'step': 5, 'action': 'Estimate KL divergence between current policy and reference policy', 'input': 'Current policy logits, reference policy logits', 'output': 'KL divergence penalty term'}",
+      "{'step': 6, 'action': 'Compute GRPO loss combining scaled advantage and KL penalty', 'input': 'Scaled advantages, KL divergence, loss type setting', 'output': 'Loss value for backpropagation'}",
+      "{'step': 7, 'action': 'Log training metrics and save checkpoints', 'input': 'Loss, KL divergence, reward statistics, step count', 'output': 'Training logs and model checkpoint files'}"
+    ],
+    "constraints": [
+      "Distributed training requires 2 or more GPUs",
+      "Completion length must be specified (recommended: maximum completion length)",
+      "Reward scaling can be disabled by setting scale_rewards=False to mitigate question-level difficulty bias",
+      "Loss type must be selected (e.g., loss_type='dr_grpo' for specific formulation)"
+    ],
+    "cautions": [
+      "Scaling rewards by std(r) may introduce question-level difficulty bias; consider disabling if observed",
+      "Training time scales with model size and GPU count (e.g., ~1 day on 8 GPUs for typical models)",
+      "KL divergence penalty must be tuned to balance policy improvement and reference policy adherence"
+    ],
+    "output_contract": [
+      "Trained model checkpoint saved to disk",
+      "Training logs containing loss, KL divergence, and reward metrics recorded for each training step",
+      "Session completes when num_train_epochs reached or early stopping triggered"
+    ],
+    "examples": [
+      {
+        "input": "GRPOConfig with loss_type='dr_grpo', scale_rewards=True, num_train_epochs=3, dataset with 1000 prompts",
+        "output": "Model checkpoint after 3 epochs; training logs showing decreasing loss and stable KL divergence",
+        "notes": "Typical distributed training across 8 GPUs takes approximately 1 day"
+      }
+    ],
+    "tags": [
+      "policy_optimization",
+      "distributed_training",
+      "language_model",
+      "reinforcement_learning",
+      "GRPO",
+      "TRL"
+    ],
+    "support_ids": [
+      "ed58f886-b0c4-5def-bfa3-a0c248757f7e"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "35b6cd35-af94-5a25-83e2-389c6419f5f5"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|train a language model using group relative policy optimization|default|model_training|policy_optimization|training_execution|grpo training execution"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

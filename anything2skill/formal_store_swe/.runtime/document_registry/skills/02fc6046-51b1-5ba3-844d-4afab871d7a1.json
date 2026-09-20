@@ -1,0 +1,121 @@
+{
+  "skill_id": "02fc6046-51b1-5ba3-844d-4afab871d7a1",
+  "name": "ThreadPoolExecutor Context Manager Setup",
+  "description": "Use ThreadPoolExecutor with a context manager (with statement) to automatically shutdown the executor and wait for all submitted tasks to complete, avoiding explicit shutdown() calls and resource leaks.",
+  "skill_body": "Initialize a ThreadPoolExecutor using the `with` statement. Submit your tasks within the context block. The context manager automatically calls shutdown(wait=True) on exit, ensuring all running tasks complete before the executor is destroyed and resources are released.\n\n## Objective\n\nSafely initialize and teardown a thread pool executor for parallel task execution\n## Applicable Signals\n\n- Multiple independent I/O-bound tasks ready for parallel execution\n- No inter-task dependencies or manual shutdown timing requirements\n- Resource cleanup must be guaranteed\n\n## Contraindications\n\n- Tasks have inter-dependencies (risk of deadlock)\n- Require manual control over shutdown timing or partial cancellation\n- CPU-bound workloads (use ProcessPoolExecutor instead)\n- Need to reuse executor across multiple context blocks\n\n## Intervention Moves\n\n- Enter context block with ThreadPoolExecutor(max_workers=N)\n- Submit tasks using executor.submit(callable, *args)\n- Exit context block to trigger automatic shutdown(wait=True)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Create ThreadPoolExecutor context manager', 'detail': 'Use `with ThreadPoolExecutor(max_workers=N) as executor:` where N is the number of worker threads'}\n- {'step': 2, 'action': 'Submit tasks within context block', 'detail': 'Call executor.submit(callable, *args) for each independent task'}\n- {'step': 3, 'action': 'Exit context block', 'detail': 'Automatic shutdown(wait=True) is called; all running tasks complete before proceeding'}\n\n## Constraints\n\n- max_workers must be set appropriately for the workload\n- All task submissions must occur within the context block\n- Context manager will block until all running tasks complete\n\n## Cautions\n\n- Avoid nested Future.result() calls within submitted tasks to prevent deadlock\n- Do not submit tasks that wait on other futures in the same pool\n- With max_workers=1, a task cannot submit and wait on another task in the same pool\n\n## Output Contract\n\n- All submitted tasks complete execution; executor resources are released; no hanging threads remain; execution returns to caller after all tasks finish\n\n## Example Executions\n\n### Example 1\n\n- Input: Submit 4 file copy tasks to a thread pool with max_workers=4\n- Output: All 4 copy operations execute in parallel; context manager exits after all complete; resources freed\n- Notes: Typical I/O-bound use case; no explicit shutdown() call needed",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "parent",
+  "objective": "Safely initialize and teardown a thread pool executor for parallel task execution",
+  "domain": "default",
+  "task_family": "parallel_execution",
+  "method_family": "context_manager_pattern",
+  "stage": "initialization_and_cleanup",
+  "applicable_signals": [
+    "Multiple independent I/O-bound tasks ready for parallel execution",
+    "No inter-task dependencies or manual shutdown timing requirements",
+    "Resource cleanup must be guaranteed"
+  ],
+  "contraindications": [
+    "Tasks have inter-dependencies (risk of deadlock)",
+    "Require manual control over shutdown timing or partial cancellation",
+    "CPU-bound workloads (use ProcessPoolExecutor instead)",
+    "Need to reuse executor across multiple context blocks"
+  ],
+  "intervention_moves": [
+    "Enter context block with ThreadPoolExecutor(max_workers=N)",
+    "Submit tasks using executor.submit(callable, *args)",
+    "Exit context block to trigger automatic shutdown(wait=True)"
+  ],
+  "triggers": [
+    "Need to submit multiple independent I/O-bound tasks (file operations, network calls) to a thread pool",
+    "Require guaranteed cleanup and resource release without manual shutdown() calls",
+    "Want to avoid resource leaks from forgotten or conditional shutdown logic"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Create ThreadPoolExecutor context manager', 'detail': 'Use `with ThreadPoolExecutor(max_workers=N) as executor:` where N is the number of worker threads'}",
+    "{'step': 2, 'action': 'Submit tasks within context block', 'detail': 'Call executor.submit(callable, *args) for each independent task'}",
+    "{'step': 3, 'action': 'Exit context block', 'detail': 'Automatic shutdown(wait=True) is called; all running tasks complete before proceeding'}"
+  ],
+  "constraints": [
+    "max_workers must be set appropriately for the workload",
+    "All task submissions must occur within the context block",
+    "Context manager will block until all running tasks complete"
+  ],
+  "cautions": [
+    "Avoid nested Future.result() calls within submitted tasks to prevent deadlock",
+    "Do not submit tasks that wait on other futures in the same pool",
+    "With max_workers=1, a task cannot submit and wait on another task in the same pool"
+  ],
+  "output_contract": [
+    "All submitted tasks complete execution; executor resources are released; no hanging threads remain; execution returns to caller after all tasks finish"
+  ],
+  "examples": [
+    {
+      "input": "Submit 4 file copy tasks to a thread pool with max_workers=4",
+      "output": "All 4 copy operations execute in parallel; context manager exits after all complete; resources freed",
+      "notes": "Typical I/O-bound use case; no explicit shutdown() call needed"
+    }
+  ],
+  "tags": [
+    "concurrency",
+    "thread_pool",
+    "context_manager",
+    "resource_management",
+    "python312"
+  ],
+  "support_ids": [
+    "90589035-31c4-5821-ad0e-2791897b16d1"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "d7e1b3e6-4c95-5f08-95ff-15d09f046915"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.92,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|safely initialize and teardown a thread pool executor for parallel task execution|default|parallel_execution|context_manager_pattern|initialization_and_cleanup|threadpoolexecutor context manager setup",
+    "llm_reason": "Candidate is a distinct session_skill focused on ThreadPoolExecutor context manager pattern for safe initialization and teardown. Peer candidates cover ProcessPoolExecutor variants and ThreadPoolExecutor configuration, but none address the specific context manager lifecycle pattern (automatic shutdown with wait=True). Existing skills are unrelated (virtual hub routing, Next.js optimization). Candidate has clear semantic identity, strong support evidence, and no conflicts.",
+    "change_action": "create",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

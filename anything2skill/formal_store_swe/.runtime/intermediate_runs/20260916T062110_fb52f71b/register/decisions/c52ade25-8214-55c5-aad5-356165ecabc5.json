@@ -1,0 +1,116 @@
+{
+  "skill_id": "c52ade25-8214-55c5-aad5-356165ecabc5",
+  "action": "discard",
+  "matched_skill_ids": [],
+  "reason": "Candidate skill 'Quantize Relevance Judgments to Binary Labels' operates in task_family 'data_preparation' / method_family 'label_discretization' with objective focused on converting graded relevance assessments to binary labels for supervised learning. This is semantically distinct from all existing skills and peer candidates, which operate in term weighting, distribution analysis, outlier detection, data streaming, and loss formulation—none of which involve relevance judgment discretization. The single support reference (section 6 on scoring/term weighting) does not substantiate the candidate's core capability. The candidate represents a valid micro-skill but lacks sufficient evidence grounding in the provided support materials to warrant persistence in the registry at this time.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "c52ade25-8214-55c5-aad5-356165ecabc5",
+    "name": "Quantize Relevance Judgments to Binary Labels",
+    "description": "Convert graded or nuanced relevance assessments into binary (Relevant/Non-relevant) labels for use in supervised weight learning. This micro-skill simplifies training data preparation by discretizing multi-level judgments into 0 or 1 values.",
+    "skill_body": "Take a set of training examples, each containing a query-document pair with a relevance judgment. If the judgment is graded or multi-level, map it to binary: assign 1 for Relevant and 0 for Non-relevant. Preserve the query-document pair identity and ensure the binary label is recorded for downstream weight-learning algorithms.\n\n## Objective\n\nPrepare binary relevance labels from raw judgments\n## Applicable Signals\n\n- Input: set of (query, document, relevance_judgment) tuples\n- Judgment scale is ordinal or continuous (e.g., 0–5, 0–100)\n- Downstream task requires binary classification labels\n\n## Contraindications\n\n- Relevance judgments are already binary\n- Fine-grained relevance distinctions must be preserved\n- Judgment scale is undefined or inconsistent\n- Loss of granularity would harm downstream model performance\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Inspect the relevance judgment scale and define a discretization rule (e.g., threshold, mapping table).'}\n- {'step': 2, 'action': 'For each training example (query q, document d, judgment r), apply the rule to produce binary label: r_binary ∈ {0, 1}.'}\n- {'step': 3, 'action': 'Record the binary label alongside the query-document pair in the training set.'}\n- {'step': 4, 'action': 'Validate that all training examples have been assigned a binary label and no examples are missing.'}\n\n## Constraints\n\n- Mapping rule must be consistent across all training examples\n- Binary labels must be deterministic given the input judgment\n- Query-document pair identity must be preserved\n\n## Cautions\n\n- Discretization may lose information; document the mapping rule for reproducibility\n- Ensure the threshold or rule for assigning 0 vs. 1 is justified by domain requirements\n\n## Output Contract\n\n- A set of training examples, each containing (query, document, binary_relevance_label), where binary_relevance_label is 0 (Non-relevant) or 1 (Relevant). This output is ready for input to supervised weight-learning algorithms.\n\n## Example Executions\n\n### Example 1\n\n- Input: Training example: query='information retrieval', document='doc_123', relevance_judgment=3 (on a 0–5 scale)\n- Output: binary_relevance_label=1 (Relevant), assuming threshold ≥ 3 maps to Relevant\n- Notes: Threshold rule must be pre-defined and applied consistently\n\n### Example 2\n\n- Input: Training example: query='machine learning', document='doc_456', relevance_judgment=1 (on a 0–5 scale)\n- Output: binary_relevance_label=0 (Non-relevant), assuming threshold < 3 maps to Non-relevant\n- Notes: Same threshold rule applied",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Prepare binary relevance labels from raw judgments",
+    "domain": "default",
+    "task_family": "data_preparation",
+    "method_family": "label_discretization",
+    "stage": "preprocessing",
+    "applicable_signals": [
+      "Input: set of (query, document, relevance_judgment) tuples",
+      "Judgment scale is ordinal or continuous (e.g., 0–5, 0–100)",
+      "Downstream task requires binary classification labels"
+    ],
+    "contraindications": [
+      "Relevance judgments are already binary",
+      "Fine-grained relevance distinctions must be preserved",
+      "Judgment scale is undefined or inconsistent",
+      "Loss of granularity would harm downstream model performance"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Multi-level or graded relevance judgments are available",
+      "Training data for supervised weight learning is being prepared",
+      "Relevance assessment scale needs simplification"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Inspect the relevance judgment scale and define a discretization rule (e.g., threshold, mapping table).'}",
+      "{'step': 2, 'action': 'For each training example (query q, document d, judgment r), apply the rule to produce binary label: r_binary ∈ {0, 1}.'}",
+      "{'step': 3, 'action': 'Record the binary label alongside the query-document pair in the training set.'}",
+      "{'step': 4, 'action': 'Validate that all training examples have been assigned a binary label and no examples are missing.'}"
+    ],
+    "constraints": [
+      "Mapping rule must be consistent across all training examples",
+      "Binary labels must be deterministic given the input judgment",
+      "Query-document pair identity must be preserved"
+    ],
+    "cautions": [
+      "Discretization may lose information; document the mapping rule for reproducibility",
+      "Ensure the threshold or rule for assigning 0 vs. 1 is justified by domain requirements"
+    ],
+    "output_contract": [
+      "A set of training examples, each containing (query, document, binary_relevance_label), where binary_relevance_label is 0 (Non-relevant) or 1 (Relevant). This output is ready for input to supervised weight-learning algorithms."
+    ],
+    "examples": [
+      {
+        "input": "Training example: query='information retrieval', document='doc_123', relevance_judgment=3 (on a 0–5 scale)",
+        "output": "binary_relevance_label=1 (Relevant), assuming threshold ≥ 3 maps to Relevant",
+        "notes": "Threshold rule must be pre-defined and applied consistently"
+      },
+      {
+        "input": "Training example: query='machine learning', document='doc_456', relevance_judgment=1 (on a 0–5 scale)",
+        "output": "binary_relevance_label=0 (Non-relevant), assuming threshold < 3 maps to Non-relevant",
+        "notes": "Same threshold rule applied"
+      }
+    ],
+    "tags": [
+      "data_preparation",
+      "label_discretization",
+      "training_data",
+      "weight_learning",
+      "relevance_judgment"
+    ],
+    "support_ids": [
+      "771139a9-f21d-5034-a36a-292c62dfd433"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "b7a3cf53-3314-5edd-829b-6d144d76fe96"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|prepare binary relevance labels from raw judgments|default|data_preparation|label_discretization|preprocessing|quantize relevance judgments to binary labels"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

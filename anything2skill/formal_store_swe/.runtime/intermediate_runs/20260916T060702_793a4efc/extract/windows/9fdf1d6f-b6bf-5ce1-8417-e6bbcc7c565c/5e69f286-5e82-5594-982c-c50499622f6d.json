@@ -1,0 +1,700 @@
+{
+  "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+  "title": "tictoc-paper.txt",
+  "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/tictoc-paper.txt",
+  "window_id": "5e69f286-5e82-5594-982c-c50499622f6d",
+  "section_heading": "3.2     Protocol Specification",
+  "strategy": "strict",
+  "supports": [
+    {
+      "support_id": "96b8020a-9e17-5e30-b34b-c75939af50f4",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/tictoc-paper.txt",
+      "section": "3.2     Protocol Specification",
+      "span": {
+        "start": 46032,
+        "end": 53496
+      },
+      "excerpt": "1633\n\f   Algorithm 5: Read-Set Validation                                               termine the serial order. In TicToc, however, the commit times-\n    Data: read set entry r, write set W , commit timestamp                        tamp is derived from the accessed tuples and no global coordination\n           commit_ts                                                              takes place, and thus two transactions may commit with the same\n 1 do\n                                                                                  timestamp. Therefore, transactions cannot be fully ordered based\n 2     success = true                                                             on their commit timestamps alone.\n 3     v2 = v1 = r.tuple.read_ts_word()                                              Our proof instead uses a combination of the timestamp and phys-\n 4     if r.wts 6= v1.wts or (v1.rts ≤ commit_ts and                              ical time orders [38]. A transaction’s logical commit time is its\n       isLocked(r.tuple)) and r.tuple not in W then                               commit timestamp; its physical commit time is the physical time\n 5          Abort()                                                               between a transaction’s validation phase and write phase. We de-\n 6     end                                                                        fine the following specific serial order.\n       # Extend the rts of the tuple\n                                                                                     D EFINITION 1 (S ERIAL O RDER ). Using <s , <ts and <ps to\n 7     if v1.rts ≤ commit_ts then\n                                                                                  indicate serial order, commit timestamp order, and physical commit\n            # Handle delta overflow\n                                                                                  time order, respectively, the serial order between transaction A and\n 8          delta = commit_ts − v1.wts\n                                                                                  B is defined as follows:\n 9          shift = delta − delta ∧ 0x7fff\n10          v2.wts = v2.wts + shift                                                         A <s B , A <ts B ∨ (A =ts B ∧ A ≤pt B)\n11          v2.delta = delta − shift\n            # Set the new TS word                                                    The serial order defined in Definition 1 is a total order among all\n12          success = compare_and_swap(r.tuple.ts_word, v1, v2)                   the transactions. Transaction A is ordered before transaction B if\n13     end                                                                        A has a smaller commit timestamp or if they have the same commit\n14 while not success;                                                             timestamp but A commits before B in physical time. If A and B\n                                                                                  both have the same logical and physical commit time, then they can\n                                                                                  have arbitrary serial order.\n3.7     Logging and Durability                                                       The goal of the correctness proof is summarized as follows:\n   The TicToc algorithm can support logging and crash recovery\nin a similar way as traditional concurrency control algorithms. The                  T HEOREM 1. Any schedule in TicToc is equivalent to the serial\nDBMS can use the canonical ARIES approach if there is only a sin-                 schedule defined in Definition 1.\ngle log file [27]. But ARIES cannot provide the bandwidth required\n                                                                                     To prove this, we show that the dependencies in the actual sched-\nin today’s multi-core systems [39]. Implementing arbitrarily scal-\n                                                                                  ule are maintained as the dependencies in the equivalent serial sched-\nable logging is out of the scope of this paper and is left for future\n                                                                                  ule. Specifically, a read in the actual schedule always returns the\nwork. In this section, we briefly discuss one idea of implementing\n                                                                                  value of the last store in the serial schedule. We also prove that\nparallel logging with multiple log files on TicToc.\n                                                                                  transactions having the same commit timestamp and physical com-\n   Parallel logging has been studied in other DBMSs [36, 39]. The\n                                                                                  mit time do not have conflicts.\nbasic idea is to perform logging in batches. All transactions in a\nprevious batch must be ordered before any transaction in a later                  4.2     Formal Proofs\nbatch, but the relative ordering among transactions within the same\n                                                                                    We first prove a useful lemma that will be used to prove subse-\nbatch can be arbitrary. For each batch, logs are written to multiple\n                                                                                  quent Lemmas 2 and 3.\nfiles in parallel. A batch is considered durable only after all the logs\nwithin that batch have been written to files.                                        L EMMA 1. Transactions writing to the same tuple must have\n   In TicToc, the batching scheme requires that transactions in a                 different commit timestamps.\nlater batch must have commit timestamps greater than transactions\nin a previous batch. This can be achieved by setting a minimum                       P ROOF. According to Algorithms 2 and 3, a tuple is locked\ncommit timestamp for transactions belonging to the new batch. To                  while being written, therefore only one transaction can write to that\nstart a new batch, each worker thread should coordinate to compute                tuple at any time. According to line 3 in Algorithm 3, both wts and\nthe minimum commit timestamp that is greater than the commit                      rts of the modified tuple become its commit timestamp.\ntimestamps of all transactions in previous batches. Each transac-                    According to line 7 in Algorithm 2, if another transaction writes\ntion in the new batch has a commit timestamp greater than this                    to the same tuple at a later time, its commit timestamp must be\nminimum timestamp. Setting a minimum timestamp does not af-                       strictly greater than the tuple’s current rts. Since rts never decreases\nfect the correctness of TicToc since timestamps only increase in this             in the TicToc algorithm, the commit timestamp of the later trans-\nprocess, and transactions are properly ordered based on their times-              action must be greater than the commit timestamp of the earlier\ntamps. The performance of this parallel logging scheme should be                  transaction. Therefore, transactions writing to the same tuple must\nthe same as with other concurrency control algorithms [36, 39].                   have different commit timestamps.",
+      "relation_type": "support",
+      "confidence": 0.85,
+      "metadata": {
+        "document_title": "tictoc-paper.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Read-Set Validation with Timestamp Overflow Handling",
+        "asset_type": "micro_skill",
+        "granularity": "micro",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "objective": "Atomically validate and update tuple read timestamps without conflicts",
+        "task_family": "transaction_validation",
+        "method_family": "optimistic_concurrency_control",
+        "stage": "validation_phase",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 1,
+        "window_id": "5e69f286-5e82-5594-982c-c50499622f6d",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "goal"
+        ],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "3.2     Protocol Specification"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "4.1     Proof Idea",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads",
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "DBMS to exploit more parallelism in the workload, thereby reduc-                    Like standard OCC algorithms, each transaction in TicToc ac-"
+      },
+      "created_at": "2026-09-15T20:09:56+00:00"
+    },
+    {
+      "support_id": "60fc0c1e-3dad-5e56-b79f-106732c3c21b",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/tictoc-paper.txt",
+      "section": "3.2     Protocol Specification",
+      "span": {
+        "start": 46032,
+        "end": 53496
+      },
+      "excerpt": "1633\n\f   Algorithm 5: Read-Set Validation                                               termine the serial order. In TicToc, however, the commit times-\n    Data: read set entry r, write set W , commit timestamp                        tamp is derived from the accessed tuples and no global coordination\n           commit_ts                                                              takes place, and thus two transactions may commit with the same\n 1 do\n                                                                                  timestamp. Therefore, transactions cannot be fully ordered based\n 2     success = true                                                             on their commit timestamps alone.\n 3     v2 = v1 = r.tuple.read_ts_word()                                              Our proof instead uses a combination of the timestamp and phys-\n 4     if r.wts 6= v1.wts or (v1.rts ≤ commit_ts and                              ical time orders [38]. A transaction’s logical commit time is its\n       isLocked(r.tuple)) and r.tuple not in W then                               commit timestamp; its physical commit time is the physical time\n 5          Abort()                                                               between a transaction’s validation phase and write phase. We de-\n 6     end                                                                        fine the following specific serial order.\n       # Extend the rts of the tuple\n                                                                                     D EFINITION 1 (S ERIAL O RDER ). Using <s , <ts and <ps to\n 7     if v1.rts ≤ commit_ts then\n                                                                                  indicate serial order, commit timestamp order, and physical commit\n            # Handle delta overflow\n                                                                                  time order, respectively, the serial order between transaction A and\n 8          delta = commit_ts − v1.wts\n                                                                                  B is defined as follows:\n 9          shift = delta − delta ∧ 0x7fff\n10          v2.wts = v2.wts + shift                                                         A <s B , A <ts B ∨ (A =ts B ∧ A ≤pt B)\n11          v2.delta = delta − shift\n            # Set the new TS word                                                    The serial order defined in Definition 1 is a total order among all\n12          success = compare_and_swap(r.tuple.ts_word, v1, v2)                   the transactions. Transaction A is ordered before transaction B if\n13     end                                                                        A has a smaller commit timestamp or if they have the same commit\n14 while not success;                                                             timestamp but A commits before B in physical time. If A and B\n                                                                                  both have the same logical and physical commit time, then they can\n                                                                                  have arbitrary serial order.\n3.7     Logging and Durability                                                       The goal of the correctness proof is summarized as follows:\n   The TicToc algorithm can support logging and crash recovery\nin a similar way as traditional concurrency control algorithms. The                  T HEOREM 1. Any schedule in TicToc is equivalent to the serial\nDBMS can use the canonical ARIES approach if there is only a sin-                 schedule defined in Definition 1.\ngle log file [27]. But ARIES cannot provide the bandwidth required\n                                                                                     To prove this, we show that the dependencies in the actual sched-\nin today’s multi-core systems [39]. Implementing arbitrarily scal-\n                                                                                  ule are maintained as the dependencies in the equivalent serial sched-\nable logging is out of the scope of this paper and is left for future\n                                                                                  ule. Specifically, a read in the actual schedule always returns the\nwork. In this section, we briefly discuss one idea of implementing\n                                                                                  value of the last store in the serial schedule. We also prove that\nparallel logging with multiple log files on TicToc.\n                                                                                  transactions having the same commit timestamp and physical com-\n   Parallel logging has been studied in other DBMSs [36, 39]. The\n                                                                                  mit time do not have conflicts.\nbasic idea is to perform logging in batches. All transactions in a\nprevious batch must be ordered before any transaction in a later                  4.2     Formal Proofs\nbatch, but the relative ordering among transactions within the same\n                                                                                    We first prove a useful lemma that will be used to prove subse-\nbatch can be arbitrary. For each batch, logs are written to multiple\n                                                                                  quent Lemmas 2 and 3.\nfiles in parallel. A batch is considered durable only after all the logs\nwithin that batch have been written to files.                                        L EMMA 1. Transactions writing to the same tuple must have\n   In TicToc, the batching scheme requires that transactions in a                 different commit timestamps.\nlater batch must have commit timestamps greater than transactions\nin a previous batch. This can be achieved by setting a minimum                       P ROOF. According to Algorithms 2 and 3, a tuple is locked\ncommit timestamp for transactions belonging to the new batch. To                  while being written, therefore only one transaction can write to that\nstart a new batch, each worker thread should coordinate to compute                tuple at any time. According to line 3 in Algorithm 3, both wts and\nthe minimum commit timestamp that is greater than the commit                      rts of the modified tuple become its commit timestamp.\ntimestamps of all transactions in previous batches. Each transac-                    According to line 7 in Algorithm 2, if another transaction writes\ntion in the new batch has a commit timestamp greater than this                    to the same tuple at a later time, its commit timestamp must be\nminimum timestamp. Setting a minimum timestamp does not af-                       strictly greater than the tuple’s current rts. Since rts never decreases\nfect the correctness of TicToc since timestamps only increase in this             in the TicToc algorithm, the commit timestamp of the later trans-\nprocess, and transactions are properly ordered based on their times-              action must be greater than the commit timestamp of the earlier\ntamps. The performance of this parallel logging scheme should be                  transaction. Therefore, transactions writing to the same tuple must\nthe same as with other concurrency control algorithms [36, 39].                   have different commit timestamps.",
+      "relation_type": "support",
+      "confidence": 0.9,
+      "metadata": {
+        "document_title": "tictoc-paper.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Serial Order Definition with Hybrid Timestamp-Physical Time Ordering",
+        "asset_type": "knowledge_reference",
+        "granularity": "session",
+        "asset_node_id": "knowledge_reference_node",
+        "asset_path": "family_root/knowledge_reference_node",
+        "asset_level": 1,
+        "visible_role": "leaf",
+        "objective": "Define canonical serial order for schedule equivalence proofs in decentralized timestamp systems",
+        "task_family": "concurrency_correctness",
+        "method_family": "formal_verification",
+        "stage": "specification",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 2,
+        "window_id": "5e69f286-5e82-5594-982c-c50499622f6d",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "goal"
+        ],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "3.2     Protocol Specification"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "4.1     Proof Idea",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads",
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "DBMS to exploit more parallelism in the workload, thereby reduc-                    Like standard OCC algorithms, each transaction in TicToc ac-"
+      },
+      "created_at": "2026-09-15T20:09:56+00:00"
+    },
+    {
+      "support_id": "14cd4ad2-3080-52fc-a5a6-ab78dd60a942",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/tictoc-paper.txt",
+      "section": "3.2     Protocol Specification",
+      "span": {
+        "start": 46032,
+        "end": 53496
+      },
+      "excerpt": "1633\n\f   Algorithm 5: Read-Set Validation                                               termine the serial order. In TicToc, however, the commit times-\n    Data: read set entry r, write set W , commit timestamp                        tamp is derived from the accessed tuples and no global coordination\n           commit_ts                                                              takes place, and thus two transactions may commit with the same\n 1 do\n                                                                                  timestamp. Therefore, transactions cannot be fully ordered based\n 2     success = true                                                             on their commit timestamps alone.\n 3     v2 = v1 = r.tuple.read_ts_word()                                              Our proof instead uses a combination of the timestamp and phys-\n 4     if r.wts 6= v1.wts or (v1.rts ≤ commit_ts and                              ical time orders [38]. A transaction’s logical commit time is its\n       isLocked(r.tuple)) and r.tuple not in W then                               commit timestamp; its physical commit time is the physical time\n 5          Abort()                                                               between a transaction’s validation phase and write phase. We de-\n 6     end                                                                        fine the following specific serial order.\n       # Extend the rts of the tuple\n                                                                                     D EFINITION 1 (S ERIAL O RDER ). Using <s , <ts and <ps to\n 7     if v1.rts ≤ commit_ts then\n                                                                                  indicate serial order, commit timestamp order, and physical commit\n            # Handle delta overflow\n                                                                                  time order, respectively, the serial order between transaction A and\n 8          delta = commit_ts − v1.wts\n                                                                                  B is defined as follows:\n 9          shift = delta − delta ∧ 0x7fff\n10          v2.wts = v2.wts + shift                                                         A <s B , A <ts B ∨ (A =ts B ∧ A ≤pt B)\n11          v2.delta = delta − shift\n            # Set the new TS word                                                    The serial order defined in Definition 1 is a total order among all\n12          success = compare_and_swap(r.tuple.ts_word, v1, v2)                   the transactions. Transaction A is ordered before transaction B if\n13     end                                                                        A has a smaller commit timestamp or if they have the same commit\n14 while not success;                                                             timestamp but A commits before B in physical time. If A and B\n                                                                                  both have the same logical and physical commit time, then they can\n                                                                                  have arbitrary serial order.\n3.7     Logging and Durability                                                       The goal of the correctness proof is summarized as follows:\n   The TicToc algorithm can support logging and crash recovery\nin a similar way as traditional concurrency control algorithms. The                  T HEOREM 1. Any schedule in TicToc is equivalent to the serial\nDBMS can use the canonical ARIES approach if there is only a sin-                 schedule defined in Definition 1.\ngle log file [27]. But ARIES cannot provide the bandwidth required\n                                                                                     To prove this, we show that the dependencies in the actual sched-\nin today’s multi-core systems [39]. Implementing arbitrarily scal-\n                                                                                  ule are maintained as the dependencies in the equivalent serial sched-\nable logging is out of the scope of this paper and is left for future\n                                                                                  ule. Specifically, a read in the actual schedule always returns the\nwork. In this section, we briefly discuss one idea of implementing\n                                                                                  value of the last store in the serial schedule. We also prove that\nparallel logging with multiple log files on TicToc.\n                                                                                  transactions having the same commit timestamp and physical com-\n   Parallel logging has been studied in other DBMSs [36, 39]. The\n                                                                                  mit time do not have conflicts.\nbasic idea is to perform logging in batches. All transactions in a\nprevious batch must be ordered before any transaction in a later                  4.2     Formal Proofs\nbatch, but the relative ordering among transactions within the same\n                                                                                    We first prove a useful lemma that will be used to prove subse-\nbatch can be arbitrary. For each batch, logs are written to multiple\n                                                                                  quent Lemmas 2 and 3.\nfiles in parallel. A batch is considered durable only after all the logs\nwithin that batch have been written to files.                                        L EMMA 1. Transactions writing to the same tuple must have\n   In TicToc, the batching scheme requires that transactions in a                 different commit timestamps.\nlater batch must have commit timestamps greater than transactions\nin a previous batch. This can be achieved by setting a minimum                       P ROOF. According to Algorithms 2 and 3, a tuple is locked\ncommit timestamp for transactions belonging to the new batch. To                  while being written, therefore only one transaction can write to that\nstart a new batch, each worker thread should coordinate to compute                tuple at any time. According to line 3 in Algorithm 3, both wts and\nthe minimum commit timestamp that is greater than the commit                      rts of the modified tuple become its commit timestamp.\ntimestamps of all transactions in previous batches. Each transac-                    According to line 7 in Algorithm 2, if another transaction writes\ntion in the new batch has a commit timestamp greater than this                    to the same tuple at a later time, its commit timestamp must be\nminimum timestamp. Setting a minimum timestamp does not af-                       strictly greater than the tuple’s current rts. Since rts never decreases\nfect the correctness of TicToc since timestamps only increase in this             in the TicToc algorithm, the commit timestamp of the later trans-\nprocess, and transactions are properly ordered based on their times-              action must be greater than the commit timestamp of the earlier\ntamps. The performance of this parallel logging scheme should be                  transaction. Therefore, transactions writing to the same tuple must\nthe same as with other concurrency control algorithms [36, 39].                   have different commit timestamps.",
+      "relation_type": "support",
+      "confidence": 0.78,
+      "metadata": {
+        "document_title": "tictoc-paper.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Parallel Logging Batch Coordination with Minimum Timestamp Enforcement",
+        "asset_type": "session_skill",
+        "granularity": "session",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "objective": "Establish durable batch boundaries with correct timestamp ordering across parallel log files",
+        "task_family": "logging_durability",
+        "method_family": "batch_coordination",
+        "stage": "commit_and_durability",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 3,
+        "window_id": "5e69f286-5e82-5594-982c-c50499622f6d",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "goal"
+        ],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "3.2     Protocol Specification"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "4.1     Proof Idea",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads",
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "DBMS to exploit more parallelism in the workload, thereby reduc-                    Like standard OCC algorithms, each transaction in TicToc ac-"
+      },
+      "created_at": "2026-09-15T20:09:56+00:00"
+    },
+    {
+      "support_id": "142290af-0ceb-5dca-b36d-21f41238742b",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "skill_id": "",
+      "source_file": "/Users/ttal0464/Desktop/skill-generation/anything2skill/corpus_normalized/tictoc-paper.txt",
+      "section": "3.2     Protocol Specification",
+      "span": {
+        "start": 46032,
+        "end": 53496
+      },
+      "excerpt": "1633\n\f   Algorithm 5: Read-Set Validation                                               termine the serial order. In TicToc, however, the commit times-\n    Data: read set entry r, write set W , commit timestamp                        tamp is derived from the accessed tuples and no global coordination\n           commit_ts                                                              takes place, and thus two transactions may commit with the same\n 1 do\n                                                                                  timestamp. Therefore, transactions cannot be fully ordered based\n 2     success = true                                                             on their commit timestamps alone.\n 3     v2 = v1 = r.tuple.read_ts_word()                                              Our proof instead uses a combination of the timestamp and phys-\n 4     if r.wts 6= v1.wts or (v1.rts ≤ commit_ts and                              ical time orders [38]. A transaction’s logical commit time is its\n       isLocked(r.tuple)) and r.tuple not in W then                               commit timestamp; its physical commit time is the physical time\n 5          Abort()                                                               between a transaction’s validation phase and write phase. We de-\n 6     end                                                                        fine the following specific serial order.\n       # Extend the rts of the tuple\n                                                                                     D EFINITION 1 (S ERIAL O RDER ). Using <s , <ts and <ps to\n 7     if v1.rts ≤ commit_ts then\n                                                                                  indicate serial order, commit timestamp order, and physical commit\n            # Handle delta overflow\n                                                                                  time order, respectively, the serial order between transaction A and\n 8          delta = commit_ts − v1.wts\n                                                                                  B is defined as follows:\n 9          shift = delta − delta ∧ 0x7fff\n10          v2.wts = v2.wts + shift                                                         A <s B , A <ts B ∨ (A =ts B ∧ A ≤pt B)\n11          v2.delta = delta − shift\n            # Set the new TS word                                                    The serial order defined in Definition 1 is a total order among all\n12          success = compare_and_swap(r.tuple.ts_word, v1, v2)                   the transactions. Transaction A is ordered before transaction B if\n13     end                                                                        A has a smaller commit timestamp or if they have the same commit\n14 while not success;                                                             timestamp but A commits before B in physical time. If A and B\n                                                                                  both have the same logical and physical commit time, then they can\n                                                                                  have arbitrary serial order.\n3.7     Logging and Durability                                                       The goal of the correctness proof is summarized as follows:\n   The TicToc algorithm can support logging and crash recovery\nin a similar way as traditional concurrency control algorithms. The                  T HEOREM 1. Any schedule in TicToc is equivalent to the serial\nDBMS can use the canonical ARIES approach if there is only a sin-                 schedule defined in Definition 1.\ngle log file [27]. But ARIES cannot provide the bandwidth required\n                                                                                     To prove this, we show that the dependencies in the actual sched-\nin today’s multi-core systems [39]. Implementing arbitrarily scal-\n                                                                                  ule are maintained as the dependencies in the equivalent serial sched-\nable logging is out of the scope of this paper and is left for future\n                                                                                  ule. Specifically, a read in the actual schedule always returns the\nwork. In this section, we briefly discuss one idea of implementing\n                                                                                  value of the last store in the serial schedule. We also prove that\nparallel logging with multiple log files on TicToc.\n                                                                                  transactions having the same commit timestamp and physical com-\n   Parallel logging has been studied in other DBMSs [36, 39]. The\n                                                                                  mit time do not have conflicts.\nbasic idea is to perform logging in batches. All transactions in a\nprevious batch must be ordered before any transaction in a later                  4.2     Formal Proofs\nbatch, but the relative ordering among transactions within the same\n                                                                                    We first prove a useful lemma that will be used to prove subse-\nbatch can be arbitrary. For each batch, logs are written to multiple\n                                                                                  quent Lemmas 2 and 3.\nfiles in parallel. A batch is considered durable only after all the logs\nwithin that batch have been written to files.                                        L EMMA 1. Transactions writing to the same tuple must have\n   In TicToc, the batching scheme requires that transactions in a                 different commit timestamps.\nlater batch must have commit timestamps greater than transactions\nin a previous batch. This can be achieved by setting a minimum                       P ROOF. According to Algorithms 2 and 3, a tuple is locked\ncommit timestamp for transactions belonging to the new batch. To                  while being written, therefore only one transaction can write to that\nstart a new batch, each worker thread should coordinate to compute                tuple at any time. According to line 3 in Algorithm 3, both wts and\nthe minimum commit timestamp that is greater than the commit                      rts of the modified tuple become its commit timestamp.\ntimestamps of all transactions in previous batches. Each transac-                    According to line 7 in Algorithm 2, if another transaction writes\ntion in the new batch has a commit timestamp greater than this                    to the same tuple at a later time, its commit timestamp must be\nminimum timestamp. Setting a minimum timestamp does not af-                       strictly greater than the tuple’s current rts. Since rts never decreases\nfect the correctness of TicToc since timestamps only increase in this             in the TicToc algorithm, the commit timestamp of the later trans-\nprocess, and transactions are properly ordered based on their times-              action must be greater than the commit timestamp of the earlier\ntamps. The performance of this parallel logging scheme should be                  transaction. Therefore, transactions writing to the same tuple must\nthe same as with other concurrency control algorithms [36, 39].                   have different commit timestamps.",
+      "relation_type": "constraint",
+      "confidence": 0.82,
+      "metadata": {
+        "document_title": "tictoc-paper.txt",
+        "domain": "",
+        "extraction_unit": "window",
+        "skill_name": "Conflict Detection for Same-Tuple Writes via Timestamp Monotonicity",
+        "asset_type": "safety_rule",
+        "granularity": "session",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "objective": "Guarantee write-write conflict prevention through timestamp ordering",
+        "task_family": "conflict_prevention",
+        "method_family": "timestamp_ordering",
+        "stage": "write_phase",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "candidate_slot": 4,
+        "window_id": "5e69f286-5e82-5594-982c-c50499622f6d",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "goal"
+        ],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "3.2     Protocol Specification"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "4.1     Proof Idea",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads",
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "DBMS to exploit more parallelism in the workload, thereby reduc-                    Like standard OCC algorithms, each transaction in TicToc ac-"
+      },
+      "created_at": "2026-09-15T20:09:56+00:00"
+    }
+  ],
+  "skill_drafts": [
+    {
+      "draft_id": "1e424058-0748-54ba-857d-0ea29ebc7568",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "name": "Read-Set Validation with Timestamp Overflow Handling",
+      "description": "Validates read-set entries against write-set conflicts and extends read timestamps with delta overflow correction using compare-and-swap atomicity during optimistic concurrency control commit phase.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Atomically validate and update tuple read timestamps without conflicts",
+      "domain": "default",
+      "task_family": "transaction_validation",
+      "method_family": "optimistic_concurrency_control",
+      "stage": "validation_phase",
+      "applicable_signals": [
+        "commit_ts provided and read_ts_word accessible",
+        "read-set entry r with tuple reference and recorded write timestamp r.wts",
+        "write-set W available for membership check"
+      ],
+      "contraindications": [
+        "Tuple is locked by another transaction AND entry is not in write-set (abort immediately)",
+        "Write timestamp mismatch detected (r.wts ≠ v1.wts) (abort immediately)",
+        "Pessimistic locking is active on the tuple"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Read tuple timestamp word (v1 = v2 = r.tuple.read_ts_word())'}",
+        "{'step': 2, 'action': 'Check abort conditions: if r.wts ≠ v1.wts OR (v1.rts ≤ commit_ts AND tuple is locked AND r.tuple not in W), then Abort()'}",
+        "{'step': 3, 'action': 'If v1.rts ≤ commit_ts, compute delta = commit_ts − v1.wts'}",
+        "{'step': 4, 'action': 'Extract overflow: shift = delta − (delta AND 0x7fff)'}",
+        "{'step': 5, 'action': 'Update v2: v2.wts = v2.wts + shift; v2.delta = delta − shift'}",
+        "{'step': 6, 'action': 'Atomically swap: success = compare_and_swap(r.tuple.ts_word, v1, v2)'}",
+        "{'step': 7, 'action': 'If success is false, retry from step 1; if true, validation complete'}"
+      ],
+      "triggers": [
+        "Transaction enters commit validation phase",
+        "Read-set entry must be checked against current tuple state",
+        "Tuple timestamp word requires extension due to delta accumulation"
+      ],
+      "constraints": [
+        "Timestamp word must support atomic compare-and-swap operation",
+        "Delta overflow correction requires bit-masking with 0x7fff boundary",
+        "Loop must retry until compare-and-swap succeeds (no early exit on contention)"
+      ],
+      "cautions": [
+        "If validation aborts, transaction must roll back all changes",
+        "Timestamp overflow handling assumes fixed bit-width representation (15-bit delta field)",
+        "Physical time ordering is used only when commit timestamps are equal; this validation does not enforce physical time ordering"
+      ],
+      "output_contract": [
+        "Validation succeeds with read timestamp extended and timestamp word atomically updated, or validation aborts with transaction rollback. Compare-and-swap loop guarantees eventual success or explicit abort signal."
+      ],
+      "examples": [
+        {
+          "input": "read-set entry r with r.wts=100, tuple with v1.wts=100, v1.rts=50, commit_ts=120, tuple not locked, not in write-set",
+          "output": "delta=20, shift=0, v2.wts=100, v2.delta=20, compare-and-swap succeeds, validation passes",
+          "notes": "No overflow; delta fits in 15-bit field"
+        },
+        {
+          "input": "read-set entry r with r.wts=100, tuple with v1.wts=100, v1.rts=120, commit_ts=120, tuple not locked",
+          "output": "v1.rts ≤ commit_ts is false, skip delta handling, validation passes without timestamp update",
+          "notes": "Read timestamp already at or beyond commit timestamp; no extension needed"
+        },
+        {
+          "input": "read-set entry r with r.wts=100, tuple with v1.wts=105, v1.rts=50, commit_ts=120",
+          "output": "r.wts ≠ v1.wts (100 ≠ 105), Abort()",
+          "notes": "Write timestamp mismatch indicates tuple was modified by another transaction"
+        }
+      ],
+      "risk_class": "medium",
+      "confidence": 0.85,
+      "support_ids": [
+        "96b8020a-9e17-5e30-b34b-c75939af50f4"
+      ],
+      "metadata": {
+        "prompt": "For each read-set entry, check if the tuple's write timestamp matches the entry's recorded write timestamp, or if the tuple is locked and not in the write-set (abort condition). If the read timestamp is less than or equal to the commit timestamp, compute the delta between commit timestamp and write timestamp, extract the overflow portion, update the write timestamp with the shifted delta, and atomically swap the timestamp word using compare-and-swap. Retry the loop until the swap succeeds.",
+        "tags": [
+          "optimistic_concurrency_control",
+          "timestamp_validation",
+          "atomic_operation",
+          "overflow_handling",
+          "commit_phase"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "3.2     Protocol Specification"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "micro_skill_node",
+        "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+        "asset_level": 3,
+        "visible_role": "leaf",
+        "candidate_slot": 1,
+        "window_id": "5e69f286-5e82-5594-982c-c50499622f6d",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "goal"
+        ],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "3.2     Protocol Specification"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "4.1     Proof Idea",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads",
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "DBMS to exploit more parallelism in the workload, thereby reduc-                    Like standard OCC algorithms, each transaction in TicToc ac-"
+      }
+    },
+    {
+      "draft_id": "55d3488a-7c70-562c-a661-a55faa37246f",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "name": "Serial Order Definition with Hybrid Timestamp-Physical Time Ordering",
+      "description": "Establishes a total order among transactions using commit timestamp as primary key and physical commit time as tiebreaker when timestamps are equal. Defines the canonical serial order for proving schedule equivalence in optimistic concurrency control systems where no global timestamp coordination occurs.",
+      "asset_type": "knowledge_reference",
+      "granularity": "session",
+      "asset_node_id": "knowledge_reference_node",
+      "asset_path": "family_root/knowledge_reference_node",
+      "asset_level": 1,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Define canonical serial order for schedule equivalence proofs in decentralized timestamp systems",
+      "domain": "default",
+      "task_family": "concurrency_correctness",
+      "method_family": "formal_verification",
+      "stage": "specification",
+      "applicable_signals": [
+        "Proving schedule serializability in OCC systems",
+        "Comparing actual concurrent execution against reference serial schedule",
+        "Validating correctness when transactions may commit with identical logical timestamps"
+      ],
+      "contraindications": [
+        "Global timestamp coordination is available and enforces unique commit timestamps",
+        "Transactions must be ordered by commit timestamp alone without tiebreaker",
+        "System uses strict serialization timestamp assignment"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [],
+      "triggers": [
+        "Proving schedule serializability; comparing actual concurrent execution against a reference serial schedule"
+      ],
+      "constraints": [
+        "Commit timestamp is derived from accessed tuples, not globally coordinated",
+        "Multiple transactions may have identical commit timestamps",
+        "Physical time order is defined as time between a transaction's validation phase and write phase"
+      ],
+      "cautions": [
+        "Physical time measurement must be consistent across validation and write phases",
+        "Transactions with identical logical and physical times do not create conflicts"
+      ],
+      "output_contract": [
+        "Total order relation <s is defined such that all transactions can be uniquely positioned in serial sequence. For any two transactions A and B: A <s B if and only if (A has smaller commit timestamp) OR (A and B have equal commit timestamp AND A has earlier physical commit time). If A and B have identical logical and physical commit times, arbitrary serial order is acceptable."
+      ],
+      "examples": [],
+      "risk_class": "low",
+      "confidence": 0.9,
+      "support_ids": [
+        "60fc0c1e-3dad-5e56-b79f-106732c3c21b"
+      ],
+      "metadata": {
+        "prompt": "To define serial order for schedule correctness verification: Transaction A is ordered before transaction B if A has a smaller commit timestamp, or if both have the same commit timestamp but A's physical commit time (time between validation and write phase) is earlier. This creates a total order that enables proving actual concurrent schedules are equivalent to a serializable reference schedule.",
+        "tags": [
+          "concurrency_control",
+          "timestamp_ordering",
+          "schedule_equivalence",
+          "formal_verification",
+          "OCC",
+          "serializability"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "3.2     Protocol Specification"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "knowledge_reference_node",
+        "asset_path": "family_root/knowledge_reference_node",
+        "asset_level": 1,
+        "visible_role": "leaf",
+        "candidate_slot": 2,
+        "window_id": "5e69f286-5e82-5594-982c-c50499622f6d",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "goal"
+        ],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "3.2     Protocol Specification"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "4.1     Proof Idea",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads",
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "DBMS to exploit more parallelism in the workload, thereby reduc-                    Like standard OCC algorithms, each transaction in TicToc ac-"
+      }
+    },
+    {
+      "draft_id": "8b4d49da-5bb6-5eea-81da-59c26d9c9586",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "name": "Parallel Logging Batch Coordination with Minimum Timestamp Enforcement",
+      "description": "Coordinates worker threads to compute and enforce minimum commit timestamps for new log batches, ensuring inter-batch ordering while allowing intra-batch parallelism. Enables scalable crash recovery in multi-core DBMS by batching log writes across multiple files while maintaining correct transaction ordering.",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "parent",
+      "objective": "Establish durable batch boundaries with correct timestamp ordering across parallel log files",
+      "domain": "default",
+      "task_family": "logging_durability",
+      "method_family": "batch_coordination",
+      "stage": "commit_and_durability",
+      "applicable_signals": [
+        "Previous batch has completed and all logs are durable",
+        "New transactions are ready to enter a new batch",
+        "Multi-core system requires parallel logging for bandwidth"
+      ],
+      "contraindications": [
+        "Single-log ARIES approach is sufficient for the workload",
+        "Bandwidth constraints do not require parallel logging",
+        "System does not support multi-file concurrent writes"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Coordinate all worker threads', 'detail': 'Each worker thread reports the maximum commit timestamp of transactions in the previous batch'}",
+        "{'step': 2, 'action': 'Compute minimum commit timestamp for new batch', 'detail': 'Set minimum_ts to a value strictly greater than the maximum commit timestamp from the previous batch'}",
+        "{'step': 3, 'action': 'Enforce minimum timestamp', 'detail': 'Assign all transactions in the new batch a commit timestamp >= minimum_ts'}",
+        "{'step': 4, 'action': 'Write logs in parallel', 'detail': 'Distribute log entries from the new batch across multiple log files and write concurrently'}",
+        "{'step': 5, 'action': 'Verify durability', 'detail': 'Confirm that all log files have been written; mark batch as durable only after all writes complete'}"
+      ],
+      "triggers": [
+        "Transitioning from one log batch to the next",
+        "Multiple worker threads must synchronize on batch boundaries",
+        "Crash recovery must preserve commit order across batches"
+      ],
+      "constraints": [
+        "All transactions in a later batch must have commit timestamps strictly greater than all transactions in the previous batch",
+        "Relative ordering among transactions within the same batch can be arbitrary",
+        "A batch is durable only after all logs within that batch have been written to all files",
+        "Each worker thread must participate in minimum timestamp computation"
+      ],
+      "cautions": [
+        "Ensure all worker threads coordinate before computing minimum timestamp; missing coordination can violate inter-batch ordering",
+        "Do not allow transactions to commit with timestamps less than or equal to the batch minimum; this breaks the ordering guarantee",
+        "Verify that all log files have been written before marking a batch as durable"
+      ],
+      "output_contract": [
+        "New batch minimum timestamp is computed and enforced; all transactions in the batch have commit_ts > previous batch maximum commit_ts; logs are written to multiple files in parallel; batch is marked durable only after all log files are persisted."
+      ],
+      "examples": [
+        {
+          "input": "Previous batch completed with max commit_ts = 1000; 4 worker threads ready to start new batch",
+          "output": "Minimum timestamp for new batch set to 1001; all new transactions assigned commit_ts >= 1001; logs written to 4 parallel files; batch marked durable after all files persist",
+          "notes": "Ensures strict ordering: all transactions in new batch have higher timestamps than previous batch"
+        },
+        {
+          "input": "Worker threads report previous batch max timestamps: 1000, 998, 1002, 999",
+          "output": "Global maximum is 1002; new batch minimum_ts set to 1003; all worker threads enforce this minimum for their transactions",
+          "notes": "Coordination step ensures no transaction in new batch can have timestamp <= 1002"
+        }
+      ],
+      "risk_class": "medium",
+      "confidence": 0.78,
+      "support_ids": [
+        "14cd4ad2-3080-52fc-a5a6-ab78dd60a942"
+      ],
+      "metadata": {
+        "prompt": "When starting a new log batch: (1) coordinate all worker threads to compute the minimum commit timestamp that is strictly greater than all commit timestamps in the previous batch; (2) enforce this minimum timestamp for all transactions in the new batch; (3) write logs from the new batch to multiple files in parallel; (4) mark the batch as durable only after all log files have been written. Timestamps only increase in this process, so correctness is preserved.",
+        "tags": [
+          "logging",
+          "durability",
+          "batch_coordination",
+          "parallel_logging",
+          "crash_recovery",
+          "timestamp_ordering"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "3.2     Protocol Specification"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "workflow_skill",
+        "asset_path": "family_root/macro_skill/workflow_skill",
+        "asset_level": 2,
+        "visible_role": "parent",
+        "candidate_slot": 3,
+        "window_id": "5e69f286-5e82-5594-982c-c50499622f6d",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "goal"
+        ],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "3.2     Protocol Specification"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "4.1     Proof Idea",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads",
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "DBMS to exploit more parallelism in the workload, thereby reduc-                    Like standard OCC algorithms, each transaction in TicToc ac-"
+      }
+    },
+    {
+      "draft_id": "17079679-a879-5168-93a6-92c0dcba214a",
+      "doc_id": "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+      "name": "Conflict Detection for Same-Tuple Writes via Timestamp Monotonicity",
+      "description": "Verifies that transactions writing to the same tuple must have strictly increasing commit timestamps by enforcing tuple locking and read-timestamp monotonicity. Acts as a safety invariant to prevent write-write conflicts in optimistic concurrency control.",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Guarantee write-write conflict prevention through timestamp ordering",
+      "domain": "default",
+      "task_family": "conflict_prevention",
+      "method_family": "timestamp_ordering",
+      "stage": "write_phase",
+      "applicable_signals": [
+        "Multiple transactions in flight targeting the same tuple",
+        "Write-phase entry for a tuple with existing write-timestamp (wts)"
+      ],
+      "contraindications": [
+        "Tuple locking is disabled or not enforced during write phase",
+        "Read-timestamp can decrease (violates monotonicity assumption)",
+        "Pessimistic write locks are not held during write phase",
+        "Global timestamp coordination is used instead of per-tuple timestamps"
+      ],
+      "intervention_moves": [],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check tuple lock status', 'detail': 'Verify that the tuple is locked and only one transaction holds the write lock'}",
+        "{'step': 2, 'action': 'Retrieve current tuple timestamps', 'detail': \"Read the tuple's current write-timestamp (wts) and read-timestamp (rts)\"}",
+        "{'step': 3, 'action': 'Verify rts monotonicity', 'detail': 'Confirm that rts has not decreased since the last write to this tuple'}",
+        "{'step': 4, 'action': 'Compare commit timestamps', 'detail': \"Ensure the current transaction's commit_ts is strictly greater than the tuple's current rts\"}",
+        "{'step': 5, 'action': 'Update tuple timestamps', 'detail': \"If all checks pass, set both wts and rts of the modified tuple to the transaction's commit_ts\"}"
+      ],
+      "triggers": [
+        "Transaction attempts to write to a tuple that has been written by a prior transaction",
+        "Write-phase validation must confirm no two transactions can commit with equal or decreasing timestamps to the same tuple"
+      ],
+      "constraints": [
+        "Tuple must be locked while being written (only one transaction can hold write lock at a time)",
+        "Read-timestamp of a tuple must never decrease across transactions",
+        "Commit timestamp of a later-writing transaction must be strictly greater than the earlier transaction's commit timestamp"
+      ],
+      "cautions": [
+        "This invariant assumes optimistic concurrency control with per-tuple timestamp tracking",
+        "Requires that tuple locking is correctly implemented and enforced",
+        "Does not apply if global timestamp coordination is used instead of derived timestamps"
+      ],
+      "output_contract": [
+        "Invariant verified: if transaction A writes tuple at logical time t1 and transaction B writes the same tuple at logical time t2 > t1, then commit_ts(B) > commit_ts(A). Write-write conflict is prevented."
+      ],
+      "examples": [
+        {
+          "input": "Transaction T1 writes tuple X with commit_ts=100; tuple X now has wts=100, rts=100. Transaction T2 later attempts to write tuple X.",
+          "output": "T2's commit_ts must be > 100 (e.g., 101 or higher). If T2's commit_ts ≤ 100, the write is rejected to maintain timestamp monotonicity.",
+          "notes": "Tuple locking ensures T1 and T2 do not write concurrently; timestamp check ensures serial order."
+        },
+        {
+          "input": "Tuple Y has wts=50, rts=50. Transaction T3 with commit_ts=50 attempts to write tuple Y.",
+          "output": "Write is rejected because commit_ts(T3) is not strictly greater than rts(Y). T3 must abort or retry with a higher timestamp.",
+          "notes": "Equality is not allowed; strict inequality is required to maintain total order."
+        }
+      ],
+      "risk_class": "high",
+      "confidence": 0.82,
+      "support_ids": [
+        "142290af-0ceb-5dca-b36d-21f41238742b"
+      ],
+      "metadata": {
+        "prompt": "When a transaction enters the write phase for a tuple, check that: (1) the tuple is locked (only one writer at a time), (2) the tuple's read-timestamp (rts) never decreases, and (3) any subsequent transaction writing to the same tuple has a commit timestamp strictly greater than the current tuple's rts. If all conditions hold, the write-write conflict invariant is maintained.",
+        "tags": [
+          "timestamp_ordering",
+          "write_write_conflict",
+          "optimistic_concurrency_control",
+          "tuple_locking",
+          "invariant_verification"
+        ],
+        "files": {},
+        "resources": {},
+        "source_sections": [
+          "3.2     Protocol Specification"
+        ],
+        "extraction_unit": "window",
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "asset_node_id": "safety_rule_node",
+        "asset_path": "family_root/safety_module/safety_rule_node",
+        "asset_level": 2,
+        "visible_role": "leaf",
+        "candidate_slot": 4,
+        "window_id": "5e69f286-5e82-5594-982c-c50499622f6d",
+        "window_strategy": "strict",
+        "anchor_hits": [
+          "goal"
+        ],
+        "paragraph_start": 1,
+        "paragraph_end": 1,
+        "heading_path": [
+          "3.2     Protocol Specification"
+        ],
+        "parent_heading": "",
+        "sibling_headings": [
+          "4.1     Proof Idea",
+          "5.4               Lower Isolation Levels                                                       6.1     Workloads",
+          "6.4                                  TicToc Optimizations                                                              caused by these locks."
+        ],
+        "subsection_headings": [],
+        "context_snippets": [],
+        "heading_number": "",
+        "heading_kind": "outline_llm",
+        "section_summary": "DBMS to exploit more parallelism in the workload, thereby reduc-                    Like standard OCC algorithms, each transaction in TicToc ac-"
+      }
+    }
+  ],
+  "failed": false,
+  "complete": true,
+  "error": {}
+}

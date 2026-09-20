@@ -1,0 +1,317 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "term_weighting",
+  "run_id": "20260916T070029_433543ec",
+  "skills": [
+    {
+      "skill_id": "30d72c77-fba4-5b7c-b89a-1ff0a77a8cc1",
+      "name": "Inverse Document Frequency (IDF) Lookup",
+      "description": "Calculate a missing image dimension using the aspect ratio formula to enable layout space reservation before the image loads. Given one known dimension (height) and an aspect ratio (e.g., 16:9), compute the other dimension (width) to prevent cumulative layout shift.",
+      "skill_body": "Use the aspect ratio formula: width = height × (aspect_width / aspect_height). Substitute the known height value and the aspect ratio components to derive the missing width. Return the calculated dimension in the same units as the input.\n\n## Objective\n\nderive_missing_dimension\n## Applicable Signals\n\n- Image element with height specified but width missing\n- CSS aspect-ratio property or intrinsic aspect ratio available\n- Responsive design context where one dimension is constrained\n\n## Contraindications\n\n- Aspect ratio is unknown or variable\n- Image is truly fluid with no intrinsic dimensions or aspect ratio\n- Dimension is already explicitly specified in markup or CSS\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Identify the known dimension (height) and the aspect ratio (width:height)', 'input': 'height value, aspect_width, aspect_height'}\n- {'step': 2, 'action': 'Apply the formula: width = height × (aspect_width / aspect_height)', 'input': 'height, aspect_width, aspect_height'}\n- {'step': 3, 'action': 'Return the calculated width value', 'output': 'width in same units as input height'}\n\n## Constraints\n\n- Aspect ratio must be expressed as two positive numbers (width:height)\n- Known dimension must be a valid numeric value in consistent units\n- Calculated dimension should be rounded or truncated to match browser layout precision\n\n## Cautions\n\n- Ensure aspect ratio matches the actual image; mismatched ratios will distort the image or reserve incorrect space\n- Use consistent units (pixels, percentages, or relative units) for input and output\n\n## Output Contract\n\n- Calculated dimension value (in pixels or relative units) that matches or approximates the actual image size; layout space correctly reserved before image load\n\n## Example Executions\n\n### Example 1\n\n- Input: {'height': 360, 'aspect_ratio': '16:9'}\n- Output: {'width': 640}\n- Notes: 16:9 aspect ratio with 360px height yields 640px width\n\n### Example 2\n\n- Input: {'height': 300, 'aspect_ratio': '4:3'}\n- Output: {'width': 400}\n- Notes: 4:3 aspect ratio with 300px height yields 400px width",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "4f0a3132-518c-5793-a81e-0a9e22c9ec82",
+      "parent_candidate_ids": [
+        "4f0a3132-518c-5793-a81e-0a9e22c9ec82"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Obtain idf value for a term given collection statistics",
+      "domain": "default",
+      "task_family": "term_weighting",
+      "method_family": "statistical_scoring",
+      "stage": "scoring",
+      "applicable_signals": [
+        "Image element with height specified but width missing",
+        "CSS aspect-ratio property or intrinsic aspect ratio available",
+        "Responsive design context where one dimension is constrained"
+      ],
+      "contraindications": [
+        "Aspect ratio is unknown or variable",
+        "Image is truly fluid with no intrinsic dimensions or aspect ratio",
+        "Dimension is already explicitly specified in markup or CSS"
+      ],
+      "intervention_moves": [
+        "Compute idf_t = log(N / df_t) or equivalent inverse frequency formula",
+        "Validate that idf is finite and non-negative",
+        "Return idf value for downstream tf-idf multiplication"
+      ],
+      "triggers": [
+        "Building tf-idf weights",
+        "Analyzing term rarity or discriminative power across document collection"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Identify the known dimension (height) and the aspect ratio (width:height)', 'input': 'height value, aspect_width, aspect_height'}",
+        "{'step': 2, 'action': 'Apply the formula: width = height × (aspect_width / aspect_height)', 'input': 'height, aspect_width, aspect_height'}",
+        "{'step': 3, 'action': 'Return the calculated width value', 'output': 'width in same units as input height'}"
+      ],
+      "constraints": [
+        "Aspect ratio must be expressed as two positive numbers (width:height)",
+        "Known dimension must be a valid numeric value in consistent units",
+        "Calculated dimension should be rounded or truncated to match browser layout precision"
+      ],
+      "cautions": [
+        "Ensure aspect ratio matches the actual image; mismatched ratios will distort the image or reserve incorrect space",
+        "Use consistent units (pixels, percentages, or relative units) for input and output"
+      ],
+      "output_contract": [
+        "Calculated dimension value (in pixels or relative units) that matches or approximates the actual image size; layout space correctly reserved before image load"
+      ],
+      "examples": [
+        {
+          "input": "{'height': 360, 'aspect_ratio': '16:9'}",
+          "output": "{'width': 640}",
+          "notes": "16:9 aspect ratio with 360px height yields 640px width"
+        },
+        {
+          "input": "{'height': 300, 'aspect_ratio': '4:3'}",
+          "output": "{'width': 400}",
+          "notes": "4:3 aspect ratio with 300px height yields 400px width"
+        }
+      ],
+      "tags": [
+        "layout_shift_prevention",
+        "responsive_images",
+        "aspect_ratio",
+        "dimension_calculation",
+        "space_reservation"
+      ],
+      "support_ids": [
+        "024ebfd5-02d4-52d2-85fc-4e964f7c6893",
+        "c349ea68-4f4c-5291-8556-b50789396796"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "4b8228f4-008e-57ea-9ad5-b3b8ae236fe9"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.88,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|obtain idf value for a term given collection statistics|default|term_weighting|statistical_scoring|scoring|inverse document frequency (idf) lookup",
+        "change_action": "merge",
+        "llm_reason": "The candidate skill 'Compute image width from aspect ratio and known height' is a narrow computational sub-step within the broader 'Reserve space for images' and 'Set image dimensions' workflows. It performs a single formula application (width = height × aspect_width/aspect_height) that is already implicit in peer skills that handle dimension declaration and space reservation. The candidate should merge into the existing dimension-declaration and attribute-setting skills, where aspect-ratio calculation is a supporting detail rather than a standalone capability. The peer candidates already cover the full workflow from diagnosis through remediation; the candidate adds no distinct capability.",
+        "parent_skill_id": "4f0a3132-518c-5793-a81e-0a9e22c9ec82",
+        "parent_candidate_ids": [
+          "4f0a3132-518c-5793-a81e-0a9e22c9ec82"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf",
+        "merged_from_skill_ids": []
+      },
+      "version": "0.1.1",
+      "status": "active"
+    },
+    {
+      "skill_id": "ee77b9a1-3922-5f79-86bb-9e4ac606d104",
+      "name": "TF Normalization Stability Assessment and Mitigation",
+      "description": "Eliminate unexpected layout shifts from auto-inserted UI elements (banners, forms, notifications) by deferring DOM insertion or visibility changes until explicit user interaction occurs, or by positioning late-loading content below the initial viewport.",
+      "skill_body": "When implementing modal dialogs, notification banners, or form overlays, ensure they do not insert into the DOM or become visible without explicit user action (click, scroll, focus). If immediate appearance is unavoidable, position the element below the initial viewport to minimize impact on visible content. Validate that no unplanned cumulative layout shift (CLS) is recorded for the inserted element.\n\n## Objective\n\nEliminate unexpected layout shifts from auto-inserted UI elements\n## Applicable Signals\n\n- Designing modal dialogs, notification banners, or form overlays\n- Page load or user navigation events that may trigger UI appearance\n- Risk of unplanned content pop-in at viewport top or bottom\n\n## Contraindications\n\n- Content must appear immediately for accessibility or critical user warnings\n- Space has already been reserved for the element via min-height or placeholder\n- Element is part of critical path that requires synchronous rendering\n\n## Intervention Moves\n\n- Defer DOM insertion or visibility change until user interaction event fires\n- Position late-loading content below the fold to avoid shifting visible viewport content\n- Show placeholder or maintain min-height to prevent space collapse\n\n## Workflow Steps\n\n- Identify UI elements that may auto-insert during page load or navigation\n- Determine if user interaction is required before element visibility\n- If deferral is not possible, position element below initial viewport\n- Maintain reserved space with min-height or placeholder to prevent collapse\n- Validate CLS metric post-insertion to confirm no unplanned shift occurred\n\n## Constraints\n\n- UI insertion must be deferred until after user interaction (click, scroll, focus) or positioned below initial viewport\n- Do not collapse reserved space by removing placeholder; maintain allocated height\n- Validate CLS metric for the inserted element post-insertion\n\n## Cautions\n\n- Removing space set aside for elements can cause as much CLS as inserting content; preserve reserved space even if content is not loaded\n- Banners and forms that shift page content are common sources of unexpected layout shifts\n\n## Output Contract\n\n- UI element inserted only after user interaction or positioned below initial viewport; no unplanned CLS recorded for that element; reserved space maintained or placeholder shown to prevent collapse.",
+      "asset_type": "safety_rule",
+      "granularity": "micro",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "avoid or mitigate ranking instability caused by stop word list changes in maximum tf normalization",
+      "domain": "default",
+      "task_family": "term_weighting",
+      "method_family": "tf_normalization",
+      "stage": "scoring",
+      "applicable_signals": [
+        "Designing modal dialogs, notification banners, or form overlays",
+        "Page load or user navigation events that may trigger UI appearance",
+        "Risk of unplanned content pop-in at viewport top or bottom"
+      ],
+      "contraindications": [
+        "Content must appear immediately for accessibility or critical user warnings",
+        "Space has already been reserved for the element via min-height or placeholder",
+        "Element is part of critical path that requires synchronous rendering"
+      ],
+      "intervention_moves": [
+        "Defer DOM insertion or visibility change until user interaction event fires",
+        "Position late-loading content below the fold to avoid shifting visible viewport content",
+        "Show placeholder or maintain min-height to prevent space collapse"
+      ],
+      "triggers": [
+        "deploying maximum tf normalization in production",
+        "planning to update or tune stop word lists",
+        "when ranking consistency across system versions is required"
+      ],
+      "workflow_steps": [
+        "Identify UI elements that may auto-insert during page load or navigation",
+        "Determine if user interaction is required before element visibility",
+        "If deferral is not possible, position element below initial viewport",
+        "Maintain reserved space with min-height or placeholder to prevent collapse",
+        "Validate CLS metric post-insertion to confirm no unplanned shift occurred"
+      ],
+      "constraints": [
+        "UI insertion must be deferred until after user interaction (click, scroll, focus) or positioned below initial viewport",
+        "Do not collapse reserved space by removing placeholder; maintain allocated height",
+        "Validate CLS metric for the inserted element post-insertion"
+      ],
+      "cautions": [
+        "Removing space set aside for elements can cause as much CLS as inserting content; preserve reserved space even if content is not loaded",
+        "Banners and forms that shift page content are common sources of unexpected layout shifts"
+      ],
+      "output_contract": [
+        "UI element inserted only after user interaction or positioned below initial viewport; no unplanned CLS recorded for that element; reserved space maintained or placeholder shown to prevent collapse."
+      ],
+      "examples": [],
+      "tags": [
+        "layout_shift",
+        "CLS",
+        "content_insertion",
+        "user_interaction",
+        "viewport_stability"
+      ],
+      "support_ids": [
+        "aa64fa63-e0b9-53cc-ba91-04f3c9936a20",
+        "ac6da6ac-505e-50e7-bfbd-683f71abb0be"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "dd868a54-e995-53d9-8647-1b0b3fd5b6c7"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|micro|safety_rule_node|avoid or mitigate ranking instability caused by stop word list changes in maximum tf normalization|default|term_weighting|tf_normalization|scoring|tf normalization stability assessment and mitigation",
+        "change_action": "merge",
+        "llm_reason": "Candidate skill combines two distinct semantic capabilities: (1) gating content insertion behind user interaction (peer 2b4b1a7a), and (2) pre-allocating space to prevent layout shifts (peer 0b718101). The candidate integrates both approaches as complementary intervention moves. Merge into the interaction-gating safety_rule (2b4b1a7a) as primary target since it addresses the root cause (unsolicited insertion), and reference space reservation (0b718101) as a secondary mitigation. The candidate's asset_type (safety_rule) and stage (implementation) align with 2b4b1a7a; 0b718101 is a micro_skill at stage implementation and should remain distinct but linked.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf",
+        "merged_from_skill_ids": []
+      },
+      "version": "0.1.1",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "58a63ba0-5d35-499f-adf5-8225b871434f",
+      "entity_type": "skill",
+      "entity_id": "30d72c77-fba4-5b7c-b89a-1ff0a77a8cc1",
+      "action": "merge",
+      "changed_at": "2026-09-15T20:59:25+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "The candidate skill 'Compute image width from aspect ratio and known height' is a narrow computational sub-step within the broader 'Reserve space for images' and 'Set image dimensions' workflows. It performs a single formula application (width = height × aspect_width/aspect_height) that is already implicit in peer skills that handle dimension declaration and space reservation. The candidate should merge into the existing dimension-declaration and attribute-setting skills, where aspect-ratio calculation is a supporting detail rather than a standalone capability. The peer candidates already cover the full workflow from diagnosis through remediation; the candidate adds no distinct capability.",
+      "related_entity_ids": [
+        "30d72c77-fba4-5b7c-b89a-1ff0a77a8cc1"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "30d72c77-fba4-5b7c-b89a-1ff0a77a8cc1",
+        "doc_ids": [
+          "fc9056b5-59f5-5e1a-9452-59d955d52e19",
+          "0551d67e-cae4-5d1f-804a-e4046e4b8739"
+        ],
+        "support_added": [
+          "c349ea68-4f4c-5291-8556-b50789396796"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "30d72c77-fba4-5b7c-b89a-1ff0a77a8cc1"
+        ]
+      }
+    },
+    {
+      "change_id": "afd374bb-8b03-421e-94b5-dcd67dddb5dd",
+      "entity_type": "skill",
+      "entity_id": "ee77b9a1-3922-5f79-86bb-9e4ac606d104",
+      "action": "merge",
+      "changed_at": "2026-09-15T20:59:25+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "Candidate skill combines two distinct semantic capabilities: (1) gating content insertion behind user interaction (peer 2b4b1a7a), and (2) pre-allocating space to prevent layout shifts (peer 0b718101). The candidate integrates both approaches as complementary intervention moves. Merge into the interaction-gating safety_rule (2b4b1a7a) as primary target since it addresses the root cause (unsolicited insertion), and reference space reservation (0b718101) as a secondary mitigation. The candidate's asset_type (safety_rule) and stage (implementation) align with 2b4b1a7a; 0b718101 is a micro_skill at stage implementation and should remain distinct but linked.",
+      "related_entity_ids": [
+        "ee77b9a1-3922-5f79-86bb-9e4ac606d104"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "ee77b9a1-3922-5f79-86bb-9e4ac606d104",
+        "doc_ids": [
+          "fc9056b5-59f5-5e1a-9452-59d955d52e19",
+          "0551d67e-cae4-5d1f-804a-e4046e4b8739"
+        ],
+        "support_added": [
+          "ac6da6ac-505e-50e7-bfbd-683f71abb0be"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "ee77b9a1-3922-5f79-86bb-9e4ac606d104"
+        ]
+      }
+    }
+  ]
+}

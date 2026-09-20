@@ -1,0 +1,134 @@
+{
+  "skill_id": "7bfb3e92-d1fa-551f-b5de-0cb4c8a2a54a",
+  "name": "GRPO Reward Scaling and Advantage Computation",
+  "description": "Compute scaled advantages for each completion by normalizing rewards using standard deviation, with optional disable flag to prevent question-level difficulty bias. This skill normalizes reward signals across a group of G completions per prompt to ensure fair advantage estimates.",
+  "skill_body": "For each prompt with G completions and their corresponding reward scores:\n1. Compute the mean and standard deviation of rewards across the completion group.\n2. If scale_rewards=True (default), normalize each reward by subtracting the mean and dividing by std(r) to produce scaled advantages.\n3. If scale_rewards=False, use raw rewards as advantages without normalization.\n4. Output the advantage matrix indexed by completion and token position for downstream loss computation.\n\n## Objective\n\nNormalize and scale reward signals to compute fair advantage estimates across completion groups\n## Applicable Signals\n\n- Completion batch with reward scores assigned\n- Training step ready to compute advantages\n- GRPOConfig specifies scale_rewards setting\n\n## Contraindications\n\n- Do not apply if scale_rewards=False is set in GRPOConfig\n- Do not use if reward distribution is already normalized upstream\n- Do not apply if uniform weighting across completions is required by policy\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Collect reward scores for all G completions of a given prompt'}\n- {'step': 2, 'action': 'Compute mean(r) and std(r) across the completion group'}\n- {'step': 3, 'action': 'Check GRPOConfig.scale_rewards flag'}\n- {'step': 4, 'action': 'If scale_rewards=True: normalize each reward as (r_i - mean(r)) / std(r)'}\n- {'step': 5, 'action': 'If scale_rewards=False: use raw rewards r_i as advantages'}\n- {'step': 6, 'action': 'Expand advantages to token level: replicate advantage value across all tokens in completion o_i'}\n\n## Constraints\n\n- Scaling by std(r) may introduce question-level difficulty bias; use scale_rewards=False to disable if bias is detected\n- Standard deviation must be computed over the completion group, not globally across batches\n- Advantage values must be computed per token position within each completion\n\n## Cautions\n\n- Verify that reward scores are valid and non-degenerate before computing std(r)\n- If std(r) is zero or near-zero, scaling may produce NaN or Inf; handle gracefully or fall back to unscaled advantages\n\n## Output Contract\n\n- Scaled advantage matrix with shape [G, max_completion_length], where each entry a_{i,t} represents the advantage for token t in completion i. Advantages are ready for use in loss computation (e.g., GRPO loss or KL-penalized loss). Output must be numerically valid (no NaN or Inf unless explicitly handled).\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: G=4 completions with rewards [0.8, 0.5, 0.9, 0.6]; scale_rewards=True\n- Therapist/Output: mean(r)=0.7, std(r)≈0.15; scaled advantages ≈ [0.67, -1.33, 1.33, -0.67] broadcast to token level\n- Notes: Normalization centers rewards and scales by variance, reducing bias from question difficulty\n\n### Example 2\n\n- Client/Input: G=4 completions with rewards [0.8, 0.5, 0.9, 0.6]; scale_rewards=False\n- Therapist/Output: Advantages = [0.8, 0.5, 0.9, 0.6] broadcast to token level without normalization\n- Notes: Raw rewards used directly; useful when reward distribution is already calibrated or uniform weighting is desired",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+  "parent_candidate_ids": [
+    "85e9f4bf-55a0-5330-9bfe-d6575db46c9c"
+  ],
+  "child_skill_ids": [
+    "6dd07394-16b3-556f-9416-14758ccf43ba",
+    "8612fede-8fc7-5e43-bf65-c945865f7b6f"
+  ],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "parent",
+  "visible_role": "parent",
+  "objective": "Normalize and scale reward signals to compute fair advantage estimates across completion groups",
+  "domain": "default",
+  "task_family": "reward_processing",
+  "method_family": "advantage_estimation",
+  "stage": "advantage_computation",
+  "applicable_signals": [
+    "Completion batch with reward scores assigned",
+    "Training step ready to compute advantages",
+    "GRPOConfig specifies scale_rewards setting"
+  ],
+  "contraindications": [
+    "Do not apply if scale_rewards=False is set in GRPOConfig",
+    "Do not use if reward distribution is already normalized upstream",
+    "Do not apply if uniform weighting across completions is required by policy"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "After generating G completions per prompt",
+    "When reward scores are available for all completions in a batch",
+    "Before loss computation in GRPO training loop"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Collect reward scores for all G completions of a given prompt'}",
+    "{'step': 2, 'action': 'Compute mean(r) and std(r) across the completion group'}",
+    "{'step': 3, 'action': 'Check GRPOConfig.scale_rewards flag'}",
+    "{'step': 4, 'action': 'If scale_rewards=True: normalize each reward as (r_i - mean(r)) / std(r)'}",
+    "{'step': 5, 'action': 'If scale_rewards=False: use raw rewards r_i as advantages'}",
+    "{'step': 6, 'action': 'Expand advantages to token level: replicate advantage value across all tokens in completion o_i'}"
+  ],
+  "constraints": [
+    "Scaling by std(r) may introduce question-level difficulty bias; use scale_rewards=False to disable if bias is detected",
+    "Standard deviation must be computed over the completion group, not globally across batches",
+    "Advantage values must be computed per token position within each completion"
+  ],
+  "cautions": [
+    "Verify that reward scores are valid and non-degenerate before computing std(r)",
+    "If std(r) is zero or near-zero, scaling may produce NaN or Inf; handle gracefully or fall back to unscaled advantages"
+  ],
+  "output_contract": [
+    "Scaled advantage matrix with shape [G, max_completion_length], where each entry a_{i,t} represents the advantage for token t in completion i. Advantages are ready for use in loss computation (e.g., GRPO loss or KL-penalized loss). Output must be numerically valid (no NaN or Inf unless explicitly handled)."
+  ],
+  "examples": [
+    {
+      "input": "G=4 completions with rewards [0.8, 0.5, 0.9, 0.6]; scale_rewards=True",
+      "output": "mean(r)=0.7, std(r)≈0.15; scaled advantages ≈ [0.67, -1.33, 1.33, -0.67] broadcast to token level",
+      "notes": "Normalization centers rewards and scales by variance, reducing bias from question difficulty"
+    },
+    {
+      "input": "G=4 completions with rewards [0.8, 0.5, 0.9, 0.6]; scale_rewards=False",
+      "output": "Advantages = [0.8, 0.5, 0.9, 0.6] broadcast to token level without normalization",
+      "notes": "Raw rewards used directly; useful when reward distribution is already calibrated or uniform weighting is desired"
+    }
+  ],
+  "tags": [
+    "grpo",
+    "reward_scaling",
+    "advantage_estimation",
+    "training_pipeline",
+    "reinforcement_learning"
+  ],
+  "support_ids": [
+    "2bc4da4e-22f0-5035-9896-09dab84ff5cf"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "c3d15f57-410e-5a7e-b693-5cb08235c79a"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.8,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|normalize and scale reward signals to compute fair advantage estimates across completion groups|default|reward_processing|advantage_estimation|advantage_computation|grpo reward scaling and advantage computation",
+    "llm_reason": "Candidate is a distinct session_skill in reward_processing/advantage_estimation domain with no semantic overlap to existing skills (which are in monitoring, asset serving, and unrelated domains). Peer candidates are in training setup and infrastructure, not advantage computation. This represents a novel capability for GRPO workflow reward normalization.",
+    "change_action": "create",
+    "parent_skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+    "parent_candidate_ids": [
+      "85e9f4bf-55a0-5330-9bfe-d6575db46c9c"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "parent",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "6dd07394-16b3-556f-9416-14758ccf43ba",
+      "8612fede-8fc7-5e43-bf65-c945865f7b6f"
+    ]
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

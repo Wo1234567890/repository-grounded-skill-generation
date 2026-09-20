@@ -1,0 +1,116 @@
+{
+  "skill_id": "94e67c82-e0ad-51fa-9954-33586fd4a1ca",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "94e67c82-e0ad-51fa-9954-33586fd4a1ca",
+    "name": "Read-Set Validation with Timestamp Overflow Handling",
+    "description": "Validates read-set entries against write-set and commit timestamp, extending read timestamps with delta overflow correction to prevent stale reads in optimistic concurrency control.",
+    "skill_body": "For each read-set entry r with write-set W and commit_ts:\n1. Read the tuple's timestamp word (v1 = v2 = r.tuple.read_ts_word()).\n2. Check if write timestamp (wts) matches or if tuple is locked and not in write-set; abort if violated.\n3. If read timestamp (rts) ≤ commit_ts, compute delta overflow: delta = commit_ts − v1.wts, shift = delta − (delta ∧ 0x7fff).\n4. Update v2.wts += shift and v2.delta = delta − shift.\n5. Atomically swap the timestamp word; retry on failure until success.\n\n## Objective\n\nvalidate_read_consistency\n## Applicable Signals\n\n- read-set entry r with associated tuple and timestamp word\n- write-set W membership status\n- commit_ts value derived from accessed tuples\n\n## Contraindications\n\n- do not invoke during write phase\n- do not invoke if read-set is empty\n- do not invoke if tuple is not locked during write\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Read tuple timestamp word', 'detail': 'v2 = v1 = r.tuple.read_ts_word()'}\n- {'step': 2, 'action': 'Validate write timestamp and lock status', 'detail': 'If r.wts ≠ v1.wts or (v1.rts ≤ commit_ts and isLocked(r.tuple)) and r.tuple not in W, abort transaction'}\n- {'step': 3, 'action': 'Extend read timestamp if needed', 'detail': 'If v1.rts ≤ commit_ts, compute delta = commit_ts − v1.wts'}\n- {'step': 4, 'action': 'Handle delta overflow', 'detail': 'shift = delta − (delta ∧ 0x7fff); v2.wts += shift; v2.delta = delta − shift'}\n- {'step': 5, 'action': 'Atomic timestamp word update', 'detail': 'success = compare_and_swap(r.tuple.ts_word, v1, v2); retry if not success'}\n\n## Constraints\n\n- tuple must be locked while being written\n- read timestamp (rts) never decreases in the algorithm\n- compare_and_swap must succeed atomically; retry on failure\n\n## Cautions\n\n- delta overflow correction requires bitwise masking (0x7fff) to prevent timestamp wraparound\n- concurrent modifications to timestamp word may cause retry loop; ensure bounded retry count\n\n## Output Contract\n\n- Read timestamp extended with overflow correction applied, or validation aborted; compare_and_swap succeeds and retry loop completes with success = true.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: read-set entry r with r.tuple.read_ts_word() = {wts: 100, rts: 105}, commit_ts = 120, r.tuple not in write-set\n- Therapist/Output: delta = 20, shift = 4, v2.wts = 104, v2.delta = 16; compare_and_swap succeeds\n- Notes: Overflow correction applied; read timestamp extended to accommodate commit timestamp.\n\n### Example 2\n\n- Client/Input: read-set entry r with r.wts ≠ v1.wts\n- Therapist/Output: Abort() called\n- Notes: Write timestamp mismatch indicates conflict; transaction aborted.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "validate_read_consistency",
+    "domain": "default",
+    "task_family": "concurrency_control",
+    "method_family": "optimistic_validation",
+    "stage": "validation_phase",
+    "applicable_signals": [
+      "read-set entry r with associated tuple and timestamp word",
+      "write-set W membership status",
+      "commit_ts value derived from accessed tuples"
+    ],
+    "contraindications": [
+      "do not invoke during write phase",
+      "do not invoke if read-set is empty",
+      "do not invoke if tuple is not locked during write"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "transaction enters read-set validation during commit phase",
+      "read tuple timestamp word must be checked against write-set membership",
+      "commit timestamp bounds require validation"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Read tuple timestamp word', 'detail': 'v2 = v1 = r.tuple.read_ts_word()'}",
+      "{'step': 2, 'action': 'Validate write timestamp and lock status', 'detail': 'If r.wts ≠ v1.wts or (v1.rts ≤ commit_ts and isLocked(r.tuple)) and r.tuple not in W, abort transaction'}",
+      "{'step': 3, 'action': 'Extend read timestamp if needed', 'detail': 'If v1.rts ≤ commit_ts, compute delta = commit_ts − v1.wts'}",
+      "{'step': 4, 'action': 'Handle delta overflow', 'detail': 'shift = delta − (delta ∧ 0x7fff); v2.wts += shift; v2.delta = delta − shift'}",
+      "{'step': 5, 'action': 'Atomic timestamp word update', 'detail': 'success = compare_and_swap(r.tuple.ts_word, v1, v2); retry if not success'}"
+    ],
+    "constraints": [
+      "tuple must be locked while being written",
+      "read timestamp (rts) never decreases in the algorithm",
+      "compare_and_swap must succeed atomically; retry on failure"
+    ],
+    "cautions": [
+      "delta overflow correction requires bitwise masking (0x7fff) to prevent timestamp wraparound",
+      "concurrent modifications to timestamp word may cause retry loop; ensure bounded retry count"
+    ],
+    "output_contract": [
+      "Read timestamp extended with overflow correction applied, or validation aborted; compare_and_swap succeeds and retry loop completes with success = true."
+    ],
+    "examples": [
+      {
+        "input": "read-set entry r with r.tuple.read_ts_word() = {wts: 100, rts: 105}, commit_ts = 120, r.tuple not in write-set",
+        "output": "delta = 20, shift = 4, v2.wts = 104, v2.delta = 16; compare_and_swap succeeds",
+        "notes": "Overflow correction applied; read timestamp extended to accommodate commit timestamp."
+      },
+      {
+        "input": "read-set entry r with r.wts ≠ v1.wts",
+        "output": "Abort() called",
+        "notes": "Write timestamp mismatch indicates conflict; transaction aborted."
+      }
+    ],
+    "tags": [
+      "optimistic_concurrency_control",
+      "timestamp_validation",
+      "overflow_handling",
+      "read_consistency",
+      "atomic_operation"
+    ],
+    "support_ids": [
+      "96b8020a-9e17-5e30-b34b-c75939af50f4"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "7126b3fe-7a70-5c0c-aefb-1f3103b447df"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.85,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|validate_read_consistency|default|concurrency_control|optimistic_validation|validation_phase|read-set validation with timestamp overflow handling"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

@@ -1,0 +1,150 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "loss_computation",
+  "run_id": "20260915T070700_4678d3a3",
+  "skills": [
+    {
+      "skill_id": "6dd07394-16b3-556f-9416-14758ccf43ba",
+      "name": "GRPO Loss Formulation Selection",
+      "description": "Select and apply the appropriate GRPO loss formulation (standard or DR-GRPO) based on task requirements and completion length normalization strategy. Computes scalar loss value from scaled advantages and KL divergence penalty for policy gradient updates.",
+      "skill_body": "During the backward pass in a GRPO training loop, choose between two loss formulations:\n1. Standard GRPO: L_GRPO(θ) = -1/G ∑(i=1 to G) 1/|o_i| ∑(t=1 to |o_i|) l_{i,t}\n2. DR-GRPO: Uses maximum completion length as normalization constant (set loss_type=\"dr_grpo\" in GRPOConfig)\n\nThe loss combines scaled advantage (first term) and KL divergence penalty (second term). Ensure completion lengths are normalized and KL penalty weight is non-zero before applying.\n\n## Objective\n\nApply correct loss function variant to compute policy gradient updates\n## Applicable Signals\n\n- Backward pass initiated in training loop\n- Scaled advantages and KL divergence estimates available\n- Batch of completions with varying lengths ready for loss computation\n\n## Contraindications\n\n- Do not mix loss formulations within a single training run\n- Do not apply if completion lengths are not normalized\n- Do not apply if KL penalty weight is zero\n- Do not use without verified advantage scaling\n\n## Intervention Moves\n\n- Verify completion length normalization is applied\n- Select loss formulation: standard GRPO or DR-GRPO variant\n- Set loss_type parameter in GRPOConfig accordingly\n- Compute scalar loss per batch\n- Ensure gradient flow is ready for optimizer step\n\n## Constraints\n\n- Maximum completion length must be defined for DR-GRPO formulation\n- Batch size G must be consistent across loss computation\n- KL divergence penalty term must be non-zero\n\n## Cautions\n\n- Scaling by std(r) may cause question-level difficulty bias; disable with scale_rewards=False if needed\n- Loss formulation choice affects gradient magnitude and training dynamics\n\n## Output Contract\n\n- Scalar loss value per batch; gradients computed and ready for optimizer step; loss value logged for monitoring",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "7bfb3e92-d1fa-551f-b5de-0cb4c8a2a54a",
+      "parent_candidate_ids": [
+        "7bfb3e92-d1fa-551f-b5de-0cb4c8a2a54a"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Apply correct loss function variant to compute policy gradient updates",
+      "domain": "default",
+      "task_family": "loss_computation",
+      "method_family": "policy_gradient",
+      "stage": "loss_calculation",
+      "applicable_signals": [
+        "Backward pass initiated in training loop",
+        "Scaled advantages and KL divergence estimates available",
+        "Batch of completions with varying lengths ready for loss computation"
+      ],
+      "contraindications": [
+        "Do not mix loss formulations within a single training run",
+        "Do not apply if completion lengths are not normalized",
+        "Do not apply if KL penalty weight is zero",
+        "Do not use without verified advantage scaling"
+      ],
+      "intervention_moves": [
+        "Verify completion length normalization is applied",
+        "Select loss formulation: standard GRPO or DR-GRPO variant",
+        "Set loss_type parameter in GRPOConfig accordingly",
+        "Compute scalar loss per batch",
+        "Ensure gradient flow is ready for optimizer step"
+      ],
+      "triggers": [
+        "During backward pass in training loop; need to compute loss from scaled advantages and KL divergence penalty"
+      ],
+      "workflow_steps": [],
+      "constraints": [
+        "Maximum completion length must be defined for DR-GRPO formulation",
+        "Batch size G must be consistent across loss computation",
+        "KL divergence penalty term must be non-zero"
+      ],
+      "cautions": [
+        "Scaling by std(r) may cause question-level difficulty bias; disable with scale_rewards=False if needed",
+        "Loss formulation choice affects gradient magnitude and training dynamics"
+      ],
+      "output_contract": [
+        "Scalar loss value per batch; gradients computed and ready for optimizer step; loss value logged for monitoring"
+      ],
+      "examples": [],
+      "tags": [
+        "GRPO",
+        "loss_function",
+        "policy_gradient",
+        "training",
+        "configuration"
+      ],
+      "support_ids": [
+        "66ab8be8-9a60-5056-82cd-0fecbccdaaab"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "9ffcd3fe-291b-5723-b54a-27c8b57a4aaa"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.75,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|apply correct loss function variant to compute policy gradient updates|default|loss_computation|policy_gradient|loss_calculation|grpo loss formulation selection",
+        "llm_reason": "Candidate skill 'GRPO Loss Formulation Selection' is a distinct micro_skill in the loss_computation task family at the loss_calculation stage. It has no semantic overlap with existing skills (which cover network connections and image optimization in different domains). The peer_candidates (reward function design, vLLM deployment, reward contract definition) are complementary skills in the GRPO training pipeline, not duplicates. The candidate addresses a specific, well-defined capability: selecting and applying the correct GRPO loss variant with proper normalization and KL penalty computation. Support evidence from GRPO Trainer documentation confirms this is a real, documented workflow step.",
+        "change_action": "create",
+        "parent_skill_id": "7bfb3e92-d1fa-551f-b5de-0cb4c8a2a54a",
+        "parent_candidate_ids": [
+          "7bfb3e92-d1fa-551f-b5de-0cb4c8a2a54a"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "ecbf7575-7daa-4c49-a4e9-c3be849b29e5",
+      "entity_type": "skill",
+      "entity_id": "6dd07394-16b3-556f-9416-14758ccf43ba",
+      "action": "create",
+      "changed_at": "2026-09-14T21:06:27+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate skill 'GRPO Loss Formulation Selection' is a distinct micro_skill in the loss_computation task family at the loss_calculation stage. It has no semantic overlap with existing skills (which cover network connections and image optimization in different domains). The peer_candidates (reward function design, vLLM deployment, reward contract definition) are complementary skills in the GRPO training pipeline, not duplicates. The candidate addresses a specific, well-defined capability: selecting and applying the correct GRPO loss variant with proper normalization and KL penalty computation. Support evidence from GRPO Trainer documentation confirms this is a real, documented workflow step.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "6dd07394-16b3-556f-9416-14758ccf43ba",
+        "doc_ids": [
+          "1b1cfe5e-1be5-5bc1-9b07-6e37f39e1ae1"
+        ],
+        "support_added": [
+          "66ab8be8-9a60-5056-82cd-0fecbccdaaab"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

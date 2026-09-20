@@ -1,0 +1,126 @@
+{
+  "skill_id": "648c7587-0e39-525a-93e8-5962fdace0d7",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct safety_rule at session granularity addressing exactly-once semantics validation for file sources. It does not match any existing skill in asset_type, granularity, task_family, or semantic capability. Peer candidates (File-based Data Source Configuration, Collection-based Data Source Creation, Buffer Timeout Configuration) are either broader session_skills or address different constraints (buffer timeout). The candidate fills a gap: enforcing semantic compatibility at configuration validation time before source activation. No merge, split, or revision relationship exists with existing skills.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "648c7587-0e39-525a-93e8-5962fdace0d7",
+    "name": "Validate File Source Semantics Compatibility",
+    "description": "Enforce exactly-once semantics awareness when using FileProcessingMode.PROCESS_CONTINUOUSLY. Detect and flag the risk that full file re-processing on modification breaks exactly-once delivery guarantees. Validate configuration at setup time to prevent unintended semantics violations.",
+    "skill_body": "When a file-based source is configured with watchType=PROCESS_CONTINUOUSLY, validate that the application's semantics requirement is compatible. If exactly-once delivery is required, warn or reject the configuration: continuous file monitoring will re-process entire file contents when modified, violating exactly-once semantics. Appending data to a file triggers full re-processing of all prior contents.\n\n## Objective\n\nPrevent unintended exactly-once semantics violation in continuous file monitoring\n## Applicable Signals\n\n- File-based source configured with watchType=PROCESS_CONTINUOUSLY\n- Application declares exactly-once delivery requirement\n- File source initialization or reconfiguration event\n\n## Contraindications\n\n- File source is not used in the pipeline\n- At-least-once or best-effort semantics is explicitly acceptable\n- Files are immutable after initial write (no append or modification expected)\n\n## Intervention Moves\n\n- Detect watchType=PROCESS_CONTINUOUSLY in file source config\n- Query application semantics requirement (exactly-once vs. at-least-once vs. best-effort)\n- If exactly-once required and continuous mode active: log warning and recommend mode switch or semantics relaxation\n- Optionally block source initialization if conflict is unresolved\n\n## Workflow Steps\n\n- Inspect file source configuration for watchType setting\n- Retrieve application semantics requirement declaration\n- Compare watchType mode against semantics requirement\n- Generate validation result with diagnostic message if conflict detected\n\n## Constraints\n\n- Must validate watchType setting before source activation\n- Must check declared semantics guarantee against file monitoring mode\n- Configuration validation must occur at setup time, not runtime\n\n## Cautions\n\n- Appending data to a monitored file triggers full re-processing of all prior contents\n- File modifications (not just appends) trigger complete file re-read\n- This constraint applies only to PROCESS_CONTINUOUSLY mode; PROCESS_ONCE mode is safe for exactly-once\n\n## Output Contract\n\n- Configuration validated or rejected with explicit status. If conflict detected: warning logged and configuration flagged for review. If compatible: validation passes silently. Caller receives boolean pass/fail and optional diagnostic message.\n\n## Example Executions\n\n### Example 1\n\n- Input: File source with watchType=PROCESS_CONTINUOUSLY; application semantics=EXACTLY_ONCE\n- Output: Validation fails. Warning: 'Continuous file monitoring breaks exactly-once semantics. Switch to PROCESS_ONCE or accept at-least-once delivery.'\n- Notes: Conflict detected; configuration rejected or flagged for manual override.\n\n### Example 2\n\n- Input: File source with watchType=PROCESS_CONTINUOUSLY; application semantics=AT_LEAST_ONCE\n- Output: Validation passes. No conflict.\n- Notes: Semantics are compatible; continuous monitoring is safe.\n\n### Example 3\n\n- Input: File source with watchType=PROCESS_ONCE; application semantics=EXACTLY_ONCE\n- Output: Validation passes. No conflict.\n- Notes: One-time processing preserves exactly-once semantics.",
+    "asset_type": "safety_rule",
+    "granularity": "session",
+    "asset_node_id": "safety_rule_node",
+    "asset_path": "family_root/safety_module/safety_rule_node",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Prevent unintended exactly-once semantics violation in continuous file monitoring",
+    "domain": "default",
+    "task_family": "data_source_setup",
+    "method_family": "semantic_constraint_enforcement",
+    "stage": "configuration_validation",
+    "applicable_signals": [
+      "File-based source configured with watchType=PROCESS_CONTINUOUSLY",
+      "Application declares exactly-once delivery requirement",
+      "File source initialization or reconfiguration event"
+    ],
+    "contraindications": [
+      "File source is not used in the pipeline",
+      "At-least-once or best-effort semantics is explicitly acceptable",
+      "Files are immutable after initial write (no append or modification expected)"
+    ],
+    "intervention_moves": [
+      "Detect watchType=PROCESS_CONTINUOUSLY in file source config",
+      "Query application semantics requirement (exactly-once vs. at-least-once vs. best-effort)",
+      "If exactly-once required and continuous mode active: log warning and recommend mode switch or semantics relaxation",
+      "Optionally block source initialization if conflict is unresolved"
+    ],
+    "triggers": [
+      "File-based source is configured with watchType=PROCESS_CONTINUOUSLY",
+      "Application requires exactly-once delivery guarantee"
+    ],
+    "workflow_steps": [
+      "Inspect file source configuration for watchType setting",
+      "Retrieve application semantics requirement declaration",
+      "Compare watchType mode against semantics requirement",
+      "Generate validation result with diagnostic message if conflict detected"
+    ],
+    "constraints": [
+      "Must validate watchType setting before source activation",
+      "Must check declared semantics guarantee against file monitoring mode",
+      "Configuration validation must occur at setup time, not runtime"
+    ],
+    "cautions": [
+      "Appending data to a monitored file triggers full re-processing of all prior contents",
+      "File modifications (not just appends) trigger complete file re-read",
+      "This constraint applies only to PROCESS_CONTINUOUSLY mode; PROCESS_ONCE mode is safe for exactly-once"
+    ],
+    "output_contract": [
+      "Configuration validated or rejected with explicit status. If conflict detected: warning logged and configuration flagged for review. If compatible: validation passes silently. Caller receives boolean pass/fail and optional diagnostic message."
+    ],
+    "examples": [
+      {
+        "input": "File source with watchType=PROCESS_CONTINUOUSLY; application semantics=EXACTLY_ONCE",
+        "output": "Validation fails. Warning: 'Continuous file monitoring breaks exactly-once semantics. Switch to PROCESS_ONCE or accept at-least-once delivery.'",
+        "notes": "Conflict detected; configuration rejected or flagged for manual override."
+      },
+      {
+        "input": "File source with watchType=PROCESS_CONTINUOUSLY; application semantics=AT_LEAST_ONCE",
+        "output": "Validation passes. No conflict.",
+        "notes": "Semantics are compatible; continuous monitoring is safe."
+      },
+      {
+        "input": "File source with watchType=PROCESS_ONCE; application semantics=EXACTLY_ONCE",
+        "output": "Validation passes. No conflict.",
+        "notes": "One-time processing preserves exactly-once semantics."
+      }
+    ],
+    "tags": [
+      "file_source",
+      "semantics",
+      "exactly_once",
+      "continuous_monitoring",
+      "configuration_validation",
+      "safety_guardrail"
+    ],
+    "support_ids": [
+      "b963c359-8717-503e-9df0-672e9631860e"
+    ],
+    "metadata": {
+      "risk_class": "high",
+      "source_draft_ids": [
+        "59f56f27-ce07-517b-a1ff-819cce467145"
+      ],
+      "support_summary": {
+        "support": 0,
+        "constraint": 1,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.88,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||safety_rule|session|safety_rule_node|prevent unintended exactly-once semantics violation in continuous file monitoring|default|data_source_setup|semantic_constraint_enforcement|configuration_validation|validate file source semantics compatibility"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

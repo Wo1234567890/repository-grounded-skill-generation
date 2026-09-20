@@ -1,0 +1,143 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "instrumentation_safety",
+  "run_id": "20260915T093653_95b5321b",
+  "skills": [
+    {
+      "skill_id": "a4306205-1f72-5158-91e6-122dd38c830c",
+      "name": "Agentic Library Detection and Instrumentation Halt",
+      "description": "Detect when an agentic library (e.g., CrewAI, AutoGen) is instrumented during module iteration and halt further instrumentation to prevent conflicts and redundant instrumentation.",
+      "skill_body": "During module iteration in the instrumentation startup phase, check the _has_agentic_library flag. If it becomes True, immediately break the loop and return to prevent further module instrumentation. This guardrail ensures that once an agentic library is detected and instrumented, no additional instrumentation attempts are made that could cause conflicts.\n\n## Objective\n\nPrevent redundant or conflicting instrumentation of agentic libraries\n## Applicable Signals\n\n- sys.modules iteration is active\n- _has_agentic_library transitions from False to True\n\n## Contraindications\n\n- No agentic libraries are present in the runtime environment\n- Instrumentation startup is already complete\n- Module iteration has not yet begun\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check _has_agentic_library flag at the start of each module iteration', 'condition': 'Loop is active and iterating through sys.modules'}\n- {'step': 2, 'action': 'If _has_agentic_library is True, break the loop immediately', 'condition': 'Flag evaluates to True'}\n- {'step': 3, 'action': 'Return from instrumentation function to halt further processing', 'condition': 'Loop has been broken'}\n\n## Constraints\n\n- The _has_agentic_library flag must be accessible and mutable during iteration\n- The check must occur within the module iteration loop\n- Loop termination must be immediate upon flag detection\n\n## Cautions\n\n- Ensure the flag is set to True only when an agentic library is actually instrumented, not on false positives\n- Verify that breaking the loop does not leave partial instrumentation state\n\n## Output Contract\n\n- Loop breaks immediately when _has_agentic_library becomes True; no further modules are instrumented after agentic library detection. Caller receives confirmation that instrumentation has halted to prevent conflicts.",
+      "asset_type": "safety_rule",
+      "granularity": "micro",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Prevent redundant or conflicting instrumentation of agentic libraries",
+      "domain": "default",
+      "task_family": "instrumentation_safety",
+      "method_family": "conflict_prevention",
+      "stage": "initialization",
+      "applicable_signals": [
+        "sys.modules iteration is active",
+        "_has_agentic_library transitions from False to True"
+      ],
+      "contraindications": [
+        "No agentic libraries are present in the runtime environment",
+        "Instrumentation startup is already complete",
+        "Module iteration has not yet begun"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Module iteration begins during instrumentation startup",
+        "_has_agentic_library flag is checked within the loop"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check _has_agentic_library flag at the start of each module iteration', 'condition': 'Loop is active and iterating through sys.modules'}",
+        "{'step': 2, 'action': 'If _has_agentic_library is True, break the loop immediately', 'condition': 'Flag evaluates to True'}",
+        "{'step': 3, 'action': 'Return from instrumentation function to halt further processing', 'condition': 'Loop has been broken'}"
+      ],
+      "constraints": [
+        "The _has_agentic_library flag must be accessible and mutable during iteration",
+        "The check must occur within the module iteration loop",
+        "Loop termination must be immediate upon flag detection"
+      ],
+      "cautions": [
+        "Ensure the flag is set to True only when an agentic library is actually instrumented, not on false positives",
+        "Verify that breaking the loop does not leave partial instrumentation state"
+      ],
+      "output_contract": [
+        "Loop breaks immediately when _has_agentic_library becomes True; no further modules are instrumented after agentic library detection. Caller receives confirmation that instrumentation has halted to prevent conflicts."
+      ],
+      "examples": [],
+      "tags": [
+        "instrumentation",
+        "safety",
+        "conflict_prevention",
+        "agentic_libraries",
+        "initialization"
+      ],
+      "support_ids": [
+        "97ff8892-3f34-5727-92a6-64e68dc40c0d"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "f251797b-8055-5263-b8f2-21f63597ebfb"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|micro|safety_rule_node|prevent redundant or conflicting instrumentation of agentic libraries|default|instrumentation_safety|conflict_prevention|initialization|agentic library detection and instrumentation halt",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct safety_rule micro_skill addressing agentic library instrumentation conflict prevention during initialization. It does not semantically match any existing skill: the two concurrent_futures and routing_policy skills operate in different domains (error_recovery, routing) and task families. Peer candidates (code style, API key validation, exit handler registration) are unrelated safety rules in different task families. The candidate's specific concern—detecting and halting redundant agentic library instrumentation via a _has_agentic_library flag—is a novel capability with clear support evidence from the Debugging Roadmap.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "70996124-983a-418b-a500-937993bb9da0",
+      "entity_type": "skill",
+      "entity_id": "a4306205-1f72-5158-91e6-122dd38c830c",
+      "action": "create",
+      "changed_at": "2026-09-14T23:32:37+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct safety_rule micro_skill addressing agentic library instrumentation conflict prevention during initialization. It does not semantically match any existing skill: the two concurrent_futures and routing_policy skills operate in different domains (error_recovery, routing) and task families. Peer candidates (code style, API key validation, exit handler registration) are unrelated safety rules in different task families. The candidate's specific concern—detecting and halting redundant agentic library instrumentation via a _has_agentic_library flag—is a novel capability with clear support evidence from the Debugging Roadmap.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "a4306205-1f72-5158-91e6-122dd38c830c",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "97ff8892-3f34-5727-92a6-64e68dc40c0d"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "skill_id": "668f2259-9ad6-5193-b5b0-d334405e5cbf",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for atexit handler registration with idempotent flag checking. It addresses a specific lifecycle hook concern (process termination cleanup) that does not overlap with existing skills. Peer candidates address session compatibility and instrumentation, which are orthogonal concerns. No existing skill covers deterministic trace cleanup via atexit registration.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "668f2259-9ad6-5193-b5b0-d334405e5cbf",
+    "name": "Exit Handler Registration for Trace Cleanup",
+    "description": "Register a single atexit handler to ensure trace cleanup occurs on process termination, preventing duplicate handler registration through idempotent flag checking.",
+    "skill_body": "Check the _atexit_registered flag. If False, register the _end_init_trace_atexit callback with atexit.register() and set the flag to True. This ensures the handler is registered exactly once, even if initialization is called multiple times.\n\n## Objective\n\nEnsure deterministic cleanup of trace resources on process exit\n## Applicable Signals\n\n- Initialization phase entry\n- _atexit_registered flag is False or unset\n\n## Contraindications\n\n- Handler already registered (_atexit_registered is True)\n- Process cleanup not required or disabled\n- Multiple concurrent initialization calls (use flag to serialize)\n\n## Intervention Moves\n\n- Check global _atexit_registered flag\n- If False, call atexit.register(_end_init_trace_atexit)\n- Set _atexit_registered to True\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check global _atexit_registered flag', 'condition': 'Flag exists and is accessible'}\n- {'step': 2, 'action': 'If flag is False, call atexit.register(_end_init_trace_atexit)', 'condition': 'Handler not yet registered'}\n- {'step': 3, 'action': 'Set _atexit_registered to True', 'condition': 'Registration successful'}\n\n## Constraints\n\n- Must check flag before registration to prevent duplicates\n- Flag must be module-level global to persist across calls\n- Registration must occur exactly once per process lifetime\n\n## Cautions\n\n- If flag check is bypassed, duplicate handlers may accumulate\n- Ensure _end_init_trace_atexit callback is defined and callable before registration\n\n## Output Contract\n\n- Handler registered exactly once; _atexit_registered flag set to True; _end_init_trace_atexit will be invoked on process termination.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "",
+    "visible_role": "leaf",
+    "objective": "Ensure deterministic cleanup of trace resources on process exit",
+    "domain": "default",
+    "task_family": "resource_management",
+    "method_family": "lifecycle_hook",
+    "stage": "initialization",
+    "applicable_signals": [
+      "Initialization phase entry",
+      "_atexit_registered flag is False or unset"
+    ],
+    "contraindications": [
+      "Handler already registered (_atexit_registered is True)",
+      "Process cleanup not required or disabled",
+      "Multiple concurrent initialization calls (use flag to serialize)"
+    ],
+    "intervention_moves": [
+      "Check global _atexit_registered flag",
+      "If False, call atexit.register(_end_init_trace_atexit)",
+      "Set _atexit_registered to True"
+    ],
+    "triggers": [
+      "Client or session initialization begins",
+      "Trace context setup required"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Check global _atexit_registered flag', 'condition': 'Flag exists and is accessible'}",
+      "{'step': 2, 'action': 'If flag is False, call atexit.register(_end_init_trace_atexit)', 'condition': 'Handler not yet registered'}",
+      "{'step': 3, 'action': 'Set _atexit_registered to True', 'condition': 'Registration successful'}"
+    ],
+    "constraints": [
+      "Must check flag before registration to prevent duplicates",
+      "Flag must be module-level global to persist across calls",
+      "Registration must occur exactly once per process lifetime"
+    ],
+    "cautions": [
+      "If flag check is bypassed, duplicate handlers may accumulate",
+      "Ensure _end_init_trace_atexit callback is defined and callable before registration"
+    ],
+    "output_contract": [
+      "Handler registered exactly once; _atexit_registered flag set to True; _end_init_trace_atexit will be invoked on process termination."
+    ],
+    "examples": [],
+    "tags": [
+      "lifecycle",
+      "cleanup",
+      "idempotent",
+      "resource_management",
+      "initialization"
+    ],
+    "support_ids": [
+      "6e996b67-bdae-5cd6-9593-8c3954c76f07"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "df4d2c66-e295-5788-b064-8a29e04c8e65"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.78,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|ensure deterministic cleanup of trace resources on process exit|default|resource_management|lifecycle_hook|initialization|exit handler registration for trace cleanup",
+      "llm_reason": ""
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

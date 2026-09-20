@@ -1,0 +1,113 @@
+{
+  "skill_id": "f8ac0674-da50-5e4a-90a1-794b56c8a3ab",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "f8ac0674-da50-5e4a-90a1-794b56c8a3ab",
+    "name": "Conditional Package Instrumentation Dispatch",
+    "description": "Routes a detected package import to the correct instrumentor configuration by consulting the PROVIDERS or AGENTIC_LIBRARIES registry, validates instrumentation eligibility, and instantiates the appropriate InstrumentorLoader with version checking. Handles special-case cascading (e.g., mem0 → concurrent.futures).",
+    "skill_body": "When a package name is detected during import monitoring, check if it should be instrumented by verifying it is not already instrumented and exists in the registry. Retrieve the configuration from PROVIDERS or AGENTIC_LIBRARIES, instantiate an InstrumentorLoader with that config, create the instrumentor instance, and store the package key on the instance for tracking. If the package is mem0 and newly added, also instrument concurrent.futures using the same pattern.\n\n## Objective\n\nRoute a detected package import to the correct instrumentor configuration and instantiate it with version validation.\n## Applicable Signals\n\n- Package name matches entry in PROVIDERS registry\n- Package name matches entry in AGENTIC_LIBRARIES registry\n- Package is not yet in _instrumenting_packages\n- Package is not already instrumented (_is_package_instrumented returns False)\n\n## Contraindications\n\n- Package is already instrumented (_is_package_instrumented returns True)\n- Package is not in PROVIDERS or AGENTIC_LIBRARIES registry\n- _should_instrument_package returns False for the package\n- An agentic library is already instrumented (_has_agentic_library is True)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if package should be instrumented', 'detail': 'Call _should_instrument_package(package_name); if False, return early'}\n- {'step': 2, 'action': 'Retrieve instrumentor configuration', 'detail': 'Look up config = PROVIDERS.get(package_name) or AGENTIC_LIBRARIES.get(package_name); if config is None, return early'}\n- {'step': 3, 'action': 'Instantiate InstrumentorLoader', 'detail': 'Create loader = InstrumentorLoader(**config) with the retrieved configuration'}\n- {'step': 4, 'action': 'Create instrumentor instance', 'detail': 'Call instrument_one(loader) to instantiate the instrumentor'}\n- {'step': 5, 'action': 'Store package tracking key', 'detail': 'Set instrumentor_instance._agentops_instrumented_package_key = package_name'}\n- {'step': 6, 'action': 'Handle special case for mem0', 'detail': \"If package_name == 'mem0' and is_newly_added, retrieve concurrent_config, create concurrent_loader = InstrumentorLoader(**concurrent_config), and call instrument_one(concurrent_loader)\"}\n\n## Constraints\n\n- Must check _is_package_instrumented before attempting instrumentation\n- Must retrieve config from PROVIDERS or AGENTIC_LIBRARIES; if neither exists, skip instrumentation\n- InstrumentorLoader must be instantiated with the retrieved config\n- The instrumentor_instance._agentops_instrumented_package_key must be set to the package_name for tracking\n- Special case: if package_name is 'mem0' and is_newly_added, also instrument concurrent.futures with its own InstrumentorLoader\n\n## Cautions\n\n- Do not attempt instrumentation if _has_agentic_library is already True; defer to the original import function instead.\n- Ensure version checking is performed by InstrumentorLoader during instantiation (min_version validation).\n- The special case for mem0 should only trigger if is_newly_added is True to avoid redundant instrumentation.\n\n## Output Contract\n\n- InstrumentorLoader is successfully instantiated with correct config\n- instrumentor_instance is created and stored in _active_instrumentors\n- _agentops_instrumented_package_key is set on the instance for future tracking\n- If mem0 is instrumented, concurrent.futures is also instrumented with its own InstrumentorLoader",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "Route a detected package import to the correct instrumentor configuration and instantiate it with version validation.",
+    "domain": "default",
+    "task_family": "observability_instrumentation",
+    "method_family": "instrumentor_loading",
+    "stage": "package_detection",
+    "applicable_signals": [
+      "Package name matches entry in PROVIDERS registry",
+      "Package name matches entry in AGENTIC_LIBRARIES registry",
+      "Package is not yet in _instrumenting_packages",
+      "Package is not already instrumented (_is_package_instrumented returns False)"
+    ],
+    "contraindications": [
+      "Package is already instrumented (_is_package_instrumented returns True)",
+      "Package is not in PROVIDERS or AGENTIC_LIBRARIES registry",
+      "_should_instrument_package returns False for the package",
+      "An agentic library is already instrumented (_has_agentic_library is True)"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Package name detected in import statement",
+      "Import monitor (_import_monitor) intercepts a module load"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Check if package should be instrumented', 'detail': 'Call _should_instrument_package(package_name); if False, return early'}",
+      "{'step': 2, 'action': 'Retrieve instrumentor configuration', 'detail': 'Look up config = PROVIDERS.get(package_name) or AGENTIC_LIBRARIES.get(package_name); if config is None, return early'}",
+      "{'step': 3, 'action': 'Instantiate InstrumentorLoader', 'detail': 'Create loader = InstrumentorLoader(**config) with the retrieved configuration'}",
+      "{'step': 4, 'action': 'Create instrumentor instance', 'detail': 'Call instrument_one(loader) to instantiate the instrumentor'}",
+      "{'step': 5, 'action': 'Store package tracking key', 'detail': 'Set instrumentor_instance._agentops_instrumented_package_key = package_name'}",
+      "{'step': 6, 'action': 'Handle special case for mem0', 'detail': \"If package_name == 'mem0' and is_newly_added, retrieve concurrent_config, create concurrent_loader = InstrumentorLoader(**concurrent_config), and call instrument_one(concurrent_loader)\"}"
+    ],
+    "constraints": [
+      "Must check _is_package_instrumented before attempting instrumentation",
+      "Must retrieve config from PROVIDERS or AGENTIC_LIBRARIES; if neither exists, skip instrumentation",
+      "InstrumentorLoader must be instantiated with the retrieved config",
+      "The instrumentor_instance._agentops_instrumented_package_key must be set to the package_name for tracking",
+      "Special case: if package_name is 'mem0' and is_newly_added, also instrument concurrent.futures with its own InstrumentorLoader"
+    ],
+    "cautions": [
+      "Do not attempt instrumentation if _has_agentic_library is already True; defer to the original import function instead.",
+      "Ensure version checking is performed by InstrumentorLoader during instantiation (min_version validation).",
+      "The special case for mem0 should only trigger if is_newly_added is True to avoid redundant instrumentation."
+    ],
+    "output_contract": [
+      "InstrumentorLoader is successfully instantiated with correct config",
+      "instrumentor_instance is created and stored in _active_instrumentors",
+      "_agentops_instrumented_package_key is set on the instance for future tracking",
+      "If mem0 is instrumented, concurrent.futures is also instrumented with its own InstrumentorLoader"
+    ],
+    "examples": [],
+    "tags": [
+      "instrumentation",
+      "package_detection",
+      "import_monitoring",
+      "observability",
+      "configuration_routing"
+    ],
+    "support_ids": [
+      "aacf4279-e9ab-5294-bda8-3dd9d7c8d706"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "690dd9ca-92e3-5f45-a03c-95f021a6e4fe"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|route a detected package import to the correct instrumentor configuration and instantiate it with version validation.|default|observability_instrumentation|instrumentor_loading|package_detection|conditional package instrumentation dispatch"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

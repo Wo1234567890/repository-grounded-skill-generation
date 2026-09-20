@@ -1,0 +1,117 @@
+{
+  "skill_id": "4e80b7c9-5aec-5df6-b91d-b68518669178",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for pinpointing the offending AS in route leak incidents through path tracing and policy boundary analysis. It is semantically different from the peer knowledge_reference skills (which classify leak types post-identification) and has no semantic overlap with existing skills in the registry (which cover unrelated domains: Next.js prefetching and Maven codec derivation). The candidate addresses a specific diagnostic step in route leak analysis with its own intervention moves, constraints, and cautions. Support evidence from RFC documentation validates the capability.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "4e80b7c9-5aec-5df6-b91d-b68518669178",
+    "name": "Identify Offending AS in Route Leak",
+    "description": "Determine which AS announced a route in violation of intended policies by tracing the announcement path and comparing against expected peer/transit relationships.",
+    "skill_body": "To identify the offending AS in a route leak incident:\n1. Obtain the route announcement path (AS_PATH) from BGP data or routing logs.\n2. Identify the originating AS and all intermediate ASes that propagated the route.\n3. Cross-reference each AS's documented relationships (transit provider, lateral peer, customer) against the route's origin and destination.\n4. Locate the AS that announced the route to a peer or provider in violation of its policy (e.g., leaking a transit-provider prefix to a lateral peer, or a peer prefix to its own transit provider).\n5. Document the offending AS, the leaked prefix, the relationship type that was violated, and the incident type (Type 3, Type 4, Type 6, etc.).\n\n## Objective\n\npinpoint_offending_as\n## Applicable Signals\n\n- Route announcement detected outside intended scope\n- BGP path trace shows unexpected AS propagation\n- Prefix appears in peer or transit provider's routing table unexpectedly\n- Monitoring alert indicates route leak candidate\n\n## Contraindications\n\n- Route announcement is policy-compliant\n- AS relationship graph is incomplete or unreliable\n- BGP data or path information is unavailable or corrupted\n- Offending AS cannot be uniquely determined due to ambiguous topology\n\n## Intervention Moves\n\n- Extract AS_PATH from BGP update or routing log\n- Map each AS in path to its relationship type (transit provider, lateral peer, customer)\n- Compare announced prefix origin against expected customer cone\n- Identify first AS that violated policy boundary\n- Classify leak type based on relationship violation\n\n## Constraints\n\n- Requires accurate AS relationship data (peer, transit, customer mappings)\n- Requires complete or near-complete BGP path information\n- Analysis assumes standard BGP propagation rules\n\n## Cautions\n\n- AS relationships may change over time; use relationship data contemporaneous with the incident\n- Multiple ASes in the path may have violated policy; focus on the first AS that crossed the boundary\n- Some leaks may involve route filtering failures rather than intentional announcements\n\n## Output Contract\n\n- Offending AS identified and documented with: (1) AS number, (2) leaked prefix, (3) relationship type violated (transit-to-peer, peer-to-transit, internal-prefix leak), (4) incident type classification (Type 1–6), (5) evidence (AS_PATH, timestamp, source).\n\n## Example Executions\n\n### Example 1\n\n- Input: BGP update: AS_PATH=[65001, 65002, 65003], prefix=192.0.2.0/24. AS 65002 is a transit provider of AS 65001. AS 65003 is a lateral peer of AS 65002.\n- Output: Offending AS: 65002. Violation: leaked transit-provider prefix (192.0.2.0/24 from customer 65001) to lateral peer 65003. Type: Type 3 leak.\n- Notes: AS 65002 announced a route learned from its customer (65001) to a peer (65003), violating peer-to-peer boundary.\n\n### Example 2\n\n- Input: BGP update: AS_PATH=[65010, 65020, 65030], prefix=10.0.0.0/8. AS 65020 is a lateral peer of AS 65010. AS 65030 is the transit provider of AS 65020.\n- Output: Offending AS: 65020. Violation: leaked peer prefix (10.0.0.0/8 from peer 65010) to transit provider 65030. Type: Type 4 leak.\n- Notes: AS 65020 announced a route learned from a peer (65010) to its own transit provider (65030), violating customer-to-provider boundary.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "pinpoint_offending_as",
+    "domain": "default",
+    "task_family": "route_leak_analysis",
+    "method_family": "path_tracing",
+    "stage": "incident_diagnosis",
+    "applicable_signals": [
+      "Route announcement detected outside intended scope",
+      "BGP path trace shows unexpected AS propagation",
+      "Prefix appears in peer or transit provider's routing table unexpectedly",
+      "Monitoring alert indicates route leak candidate"
+    ],
+    "contraindications": [
+      "Route announcement is policy-compliant",
+      "AS relationship graph is incomplete or unreliable",
+      "BGP data or path information is unavailable or corrupted",
+      "Offending AS cannot be uniquely determined due to ambiguous topology"
+    ],
+    "intervention_moves": [
+      "Extract AS_PATH from BGP update or routing log",
+      "Map each AS in path to its relationship type (transit provider, lateral peer, customer)",
+      "Compare announced prefix origin against expected customer cone",
+      "Identify first AS that violated policy boundary",
+      "Classify leak type based on relationship violation"
+    ],
+    "triggers": [
+      "A route announcement has been detected outside its intended scope and the source AS must be identified"
+    ],
+    "workflow_steps": [],
+    "constraints": [
+      "Requires accurate AS relationship data (peer, transit, customer mappings)",
+      "Requires complete or near-complete BGP path information",
+      "Analysis assumes standard BGP propagation rules"
+    ],
+    "cautions": [
+      "AS relationships may change over time; use relationship data contemporaneous with the incident",
+      "Multiple ASes in the path may have violated policy; focus on the first AS that crossed the boundary",
+      "Some leaks may involve route filtering failures rather than intentional announcements"
+    ],
+    "output_contract": [
+      "Offending AS identified and documented with: (1) AS number, (2) leaked prefix, (3) relationship type violated (transit-to-peer, peer-to-transit, internal-prefix leak), (4) incident type classification (Type 1–6), (5) evidence (AS_PATH, timestamp, source)."
+    ],
+    "examples": [
+      {
+        "input": "BGP update: AS_PATH=[65001, 65002, 65003], prefix=192.0.2.0/24. AS 65002 is a transit provider of AS 65001. AS 65003 is a lateral peer of AS 65002.",
+        "output": "Offending AS: 65002. Violation: leaked transit-provider prefix (192.0.2.0/24 from customer 65001) to lateral peer 65003. Type: Type 3 leak.",
+        "notes": "AS 65002 announced a route learned from its customer (65001) to a peer (65003), violating peer-to-peer boundary."
+      },
+      {
+        "input": "BGP update: AS_PATH=[65010, 65020, 65030], prefix=10.0.0.0/8. AS 65020 is a lateral peer of AS 65010. AS 65030 is the transit provider of AS 65020.",
+        "output": "Offending AS: 65020. Violation: leaked peer prefix (10.0.0.0/8 from peer 65010) to transit provider 65030. Type: Type 4 leak.",
+        "notes": "AS 65020 announced a route learned from a peer (65010) to its own transit provider (65030), violating customer-to-provider boundary."
+      }
+    ],
+    "tags": [
+      "route_leak",
+      "bgp_security",
+      "incident_diagnosis",
+      "as_identification",
+      "path_analysis"
+    ],
+    "support_ids": [
+      "16cc5e48-6f61-5dce-bc52-abec22ed2411"
+    ],
+    "metadata": {
+      "risk_class": "medium",
+      "source_draft_ids": [
+        "ac93b3c3-db03-5f85-8d76-2fd2379ac5c9"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.7,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|pinpoint_offending_as|default|route_leak_analysis|path_tracing|incident_diagnosis|identify offending as in route leak"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

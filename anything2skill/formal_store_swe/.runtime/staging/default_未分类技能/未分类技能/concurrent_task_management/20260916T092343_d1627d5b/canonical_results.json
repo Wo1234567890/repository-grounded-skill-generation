@@ -1,0 +1,162 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "concurrent_task_management",
+  "run_id": "20260916T092343_d1627d5b",
+  "skills": [
+    {
+      "skill_id": "6ae95eca-2b03-52fc-bf4e-33e1e79c4fb6",
+      "name": "Executor Failure Detection and Recovery",
+      "description": "Consolidate duplicate global session object references into a single authoritative global (_client_legacy_session_for_init_trace) to prevent state corruption and initialization race conditions. Deprecate old _active_session references and migrate consumers to auto-init trace context.",
+      "skill_body": "Audit the codebase for all global _active_session definitions and references. Verify auto-init trace context (_client_init_trace_context) is initialized. Consolidate legacy session into single global _client_legacy_session_for_init_trace. Update atexit handler to reference only the new consolidated global. Replace all old _active_session references with _client_legacy_session_for_init_trace and add deprecation warnings. Verify no active consumers depend on old global without migration path.\n\n## Objective\n\neliminate_duplicate_global_state\n## Applicable Signals\n\n- duplicate global session variables detected\n- initialization race conditions observed\n- auto-init trace context available\n\n## Contraindications\n\n- active consumers still depend on old global _active_session API without migration path\n- no auto-init trace context available\n- legacy API consumers not yet migrated to agentops.start_trace()\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Audit codebase for all global _active_session definitions and references'}\n- {'step': 2, 'action': 'Verify auto-init trace context (_client_init_trace_context) is initialized and accessible'}\n- {'step': 3, 'action': 'Consolidate legacy session into single global _client_legacy_session_for_init_trace'}\n- {'step': 4, 'action': 'Update atexit handler to reference only new consolidated global'}\n- {'step': 5, 'action': 'Replace all old _active_session references with _client_legacy_session_for_init_trace'}\n- {'step': 6, 'action': 'Add deprecation warnings to old API entry points'}\n- {'step': 7, 'action': 'Verify no active consumers depend on old global without migration path'}\n\n## Constraints\n\n- must maintain backward compatibility during transition period\n- atexit handler must use only new consolidated globals\n- all old _active_session references must be explicitly deprecated\n\n## Cautions\n\n- This is an irreversible global state change; requires explicit deprecation sequencing.\n- Verify all callers have migrated before removing old API.\n- Test atexit handler behavior under concurrent initialization.\n\n## Output Contract\n\n- Single authoritative global _client_legacy_session_for_init_trace replaces all old _active_session references\n- atexit handler uses only new consolidated globals\n- no state corruption or initialization race conditions",
+      "asset_type": "safety_rule",
+      "granularity": "session",
+      "asset_node_id": "safety_rule_node",
+      "asset_path": "family_root/safety_module/safety_rule_node",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "unresolved",
+      "visible_role": "leaf",
+      "objective": "Catch and respond to Executor corruption or shutdown state",
+      "domain": "default",
+      "task_family": "concurrent_task_management",
+      "method_family": "executor_health_check",
+      "stage": "task_submission",
+      "applicable_signals": [
+        "duplicate global session variables detected",
+        "initialization race conditions observed",
+        "auto-init trace context available"
+      ],
+      "contraindications": [
+        "active consumers still depend on old global _active_session API without migration path",
+        "no auto-init trace context available",
+        "legacy API consumers not yet migrated to agentops.start_trace()"
+      ],
+      "intervention_moves": [
+        "Switch to fallback Executor when BrokenExecutor is caught",
+        "Escalate to caller with error context and Executor state information"
+      ],
+      "triggers": [
+        "Task submission attempt to an Executor",
+        "Executor may have been shut down, crashed, or entered an invalid state",
+        "Need to detect and recover gracefully from Executor failure"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Audit codebase for all global _active_session definitions and references'}",
+        "{'step': 2, 'action': 'Verify auto-init trace context (_client_init_trace_context) is initialized and accessible'}",
+        "{'step': 3, 'action': 'Consolidate legacy session into single global _client_legacy_session_for_init_trace'}",
+        "{'step': 4, 'action': 'Update atexit handler to reference only new consolidated global'}",
+        "{'step': 5, 'action': 'Replace all old _active_session references with _client_legacy_session_for_init_trace'}",
+        "{'step': 6, 'action': 'Add deprecation warnings to old API entry points'}",
+        "{'step': 7, 'action': 'Verify no active consumers depend on old global without migration path'}"
+      ],
+      "constraints": [
+        "must maintain backward compatibility during transition period",
+        "atexit handler must use only new consolidated globals",
+        "all old _active_session references must be explicitly deprecated"
+      ],
+      "cautions": [
+        "This is an irreversible global state change; requires explicit deprecation sequencing.",
+        "Verify all callers have migrated before removing old API.",
+        "Test atexit handler behavior under concurrent initialization."
+      ],
+      "output_contract": [
+        "Single authoritative global _client_legacy_session_for_init_trace replaces all old _active_session references",
+        "atexit handler uses only new consolidated globals",
+        "no state corruption or initialization race conditions"
+      ],
+      "examples": [],
+      "tags": [
+        "global_state",
+        "deprecation",
+        "session_management",
+        "refactoring",
+        "initialization"
+      ],
+      "support_ids": [
+        "df62d6da-afcc-55b3-ac11-05f6d6ed4b64",
+        "d11a2365-4bb8-5402-95ee-c784d2c8db81"
+      ],
+      "metadata": {
+        "risk_class": "high",
+        "source_draft_ids": [
+          "48639180-38cb-566c-b9bb-703bccc90fc7"
+        ],
+        "support_summary": {
+          "support": 0,
+          "constraint": 1,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.82,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||safety_rule|session|safety_rule_node|catch and respond to executor corruption or shutdown state|default|concurrent_task_management|executor_health_check|task_submission|executor failure detection and recovery",
+        "change_action": "merge",
+        "llm_reason": "Candidate addresses legacy global state consolidation during session initialization, which is semantically a subset of SDK initialization state validation and credential validation. The peer candidates (SDK Initialization State Check and Recovery, API Key Presence Validation) together cover the broader initialization lifecycle that this legacy cleanup serves. The candidate's consolidation of _active_session into _client_legacy_session_for_init_trace is a refactoring detail that should be merged into the existing initialization precondition checks rather than maintained as a separate safety rule. The support evidence references debugging guidance, not a distinct capability.",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "unresolved",
+        "visible_role": "leaf",
+        "merged_from_skill_ids": []
+      },
+      "version": "0.1.1",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "ec33d589-0153-4a97-99ff-50c6ca2f9e4d",
+      "entity_type": "skill",
+      "entity_id": "6ae95eca-2b03-52fc-bf4e-33e1e79c4fb6",
+      "action": "merge",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "Candidate addresses legacy global state consolidation during session initialization, which is semantically a subset of SDK initialization state validation and credential validation. The peer candidates (SDK Initialization State Check and Recovery, API Key Presence Validation) together cover the broader initialization lifecycle that this legacy cleanup serves. The candidate's consolidation of _active_session into _client_legacy_session_for_init_trace is a refactoring detail that should be merged into the existing initialization precondition checks rather than maintained as a separate safety rule. The support evidence references debugging guidance, not a distinct capability.",
+      "related_entity_ids": [
+        "6ae95eca-2b03-52fc-bf4e-33e1e79c4fb6"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "6ae95eca-2b03-52fc-bf4e-33e1e79c4fb6",
+        "doc_ids": [
+          "771b7202-2a1d-5eea-bda3-df5cd4ea6620",
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "d11a2365-4bb8-5402-95ee-c784d2c8db81"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "6ae95eca-2b03-52fc-bf4e-33e1e79c4fb6"
+        ]
+      }
+    }
+  ]
+}

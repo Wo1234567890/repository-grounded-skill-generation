@@ -1,0 +1,115 @@
+{
+  "skill_id": "b1496473-6df6-5357-bf99-b0a73ae109f1",
+  "name": "Virtual WAN Multiple Next Hop IP Validation",
+  "description": "Validate that multiple next hop IP addresses on a single VNet connection do not include a public IP or 0.0.0.0/0 route pointing to the same network virtual appliance, as this configuration is unsupported and will cause routing failures.",
+  "skill_body": "When configuring multiple next hop IPs on a VNet connection:\n1. Identify all routes targeting the same network virtual appliance in the spoke.\n2. Check if any route uses a public IP address or 0.0.0.0/0 as the next hop.\n3. If yes, reject the configuration or separate routes to different appliances.\n4. Confirm all next hop IPs for the same appliance use private, non-default routes only.\n\n## Objective\n\nPrevent unsupported multiple next hop configurations that could cause routing failures\n## Applicable Signals\n\n- Configuring multiple next hop IP addresses on a single VNet connection\n- Defining routes to network virtual appliances in spoke virtual networks\n- Adding or modifying next hop IPs for the same appliance target\n\n## Contraindications\n\n- Single next hop configurations (no validation needed)\n- Routes to different network virtual appliances (separate validation per appliance)\n- Non-appliance next hop targets\n\n## Intervention Moves\n\n- Validate next hop IP list against appliance target\n- Check for public IP or 0.0.0.0/0 in multi-hop configuration\n- Reject or flag unsupported combinations before deployment\n\n## Workflow Steps\n\n- Identify all routes targeting the same network virtual appliance\n- Enumerate next hop IP addresses for that appliance target\n- Check for presence of public IP addresses in the next hop list\n- Check for presence of 0.0.0.0/0 in the next hop list\n- If public IP or 0.0.0.0/0 found with other next hops to same appliance, flag as unsupported\n- If all next hops are private IPs and no 0.0.0.0/0 to same appliance, confirm as supported\n\n## Constraints\n\n- Multiple next hop IPs to the same appliance must all be private IP addresses\n- 0.0.0.0/0 (internet route) cannot coexist with other next hops to the same appliance\n- Public IP addresses cannot be used as next hop when multiple routes target the same appliance\n\n## Cautions\n\n- This constraint applies only to multiple next hop IPs on the same VNet connection targeting the same appliance\n- Single next hop configurations or routes to different appliances are not subject to this restriction\n\n## Output Contract\n\n- Configuration validation result: either (1) next hop configuration confirmed as supported (all IPs private, no 0.0.0.0/0 to same appliance), or (2) unsupported configuration identified with specific constraint violation details",
+  "asset_type": "safety_rule",
+  "granularity": "session",
+  "asset_node_id": "safety_rule_node",
+  "asset_path": "family_root/safety_module/safety_rule_node",
+  "asset_level": 2,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "unresolved",
+  "visible_role": "leaf",
+  "objective": "Prevent unsupported multiple next hop configurations that could cause routing failures",
+  "domain": "default",
+  "task_family": "virtual_wan_routing",
+  "method_family": "next_hop_validation",
+  "stage": "configuration",
+  "applicable_signals": [
+    "Configuring multiple next hop IP addresses on a single VNet connection",
+    "Defining routes to network virtual appliances in spoke virtual networks",
+    "Adding or modifying next hop IPs for the same appliance target"
+  ],
+  "contraindications": [
+    "Single next hop configurations (no validation needed)",
+    "Routes to different network virtual appliances (separate validation per appliance)",
+    "Non-appliance next hop targets"
+  ],
+  "intervention_moves": [
+    "Validate next hop IP list against appliance target",
+    "Check for public IP or 0.0.0.0/0 in multi-hop configuration",
+    "Reject or flag unsupported combinations before deployment"
+  ],
+  "triggers": [
+    "Configuring multiple next hop IP addresses on VNet connections",
+    "Defining routes to network virtual appliances in spokes"
+  ],
+  "workflow_steps": [
+    "Identify all routes targeting the same network virtual appliance",
+    "Enumerate next hop IP addresses for that appliance target",
+    "Check for presence of public IP addresses in the next hop list",
+    "Check for presence of 0.0.0.0/0 in the next hop list",
+    "If public IP or 0.0.0.0/0 found with other next hops to same appliance, flag as unsupported",
+    "If all next hops are private IPs and no 0.0.0.0/0 to same appliance, confirm as supported"
+  ],
+  "constraints": [
+    "Multiple next hop IPs to the same appliance must all be private IP addresses",
+    "0.0.0.0/0 (internet route) cannot coexist with other next hops to the same appliance",
+    "Public IP addresses cannot be used as next hop when multiple routes target the same appliance"
+  ],
+  "cautions": [
+    "This constraint applies only to multiple next hop IPs on the same VNet connection targeting the same appliance",
+    "Single next hop configurations or routes to different appliances are not subject to this restriction"
+  ],
+  "output_contract": [
+    "Configuration validation result: either (1) next hop configuration confirmed as supported (all IPs private, no 0.0.0.0/0 to same appliance), or (2) unsupported configuration identified with specific constraint violation details"
+  ],
+  "examples": [],
+  "tags": [
+    "virtual_wan",
+    "routing",
+    "next_hop",
+    "network_appliance",
+    "configuration_validation"
+  ],
+  "support_ids": [
+    "7cc4bed8-3b65-5809-b7aa-79eb8be48ced"
+  ],
+  "metadata": {
+    "risk_class": "high",
+    "source_draft_ids": [
+      "91895237-04d1-5e87-aae3-ba1ce93ee998"
+    ],
+    "support_summary": {
+      "support": 0,
+      "constraint": 1,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.83,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||safety_rule|session|safety_rule_node|prevent unsupported multiple next hop configurations that could cause routing failures|default|virtual_wan_routing|next_hop_validation|configuration|virtual wan multiple next hop ip validation",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct safety rule for Virtual WAN multiple next hop IP validation with no semantic overlap to existing skills. Existing skills cover different Virtual WAN routing concerns (branch connection consistency, static route next hop validation with hub router IPs, BGP community propagation) and one unrelated Maven repository security rule. The candidate addresses a specific unsupported configuration pattern (public IP or 0.0.0.0/0 coexisting with other next hops to the same appliance) that is not covered by peer candidates or existing skills.",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

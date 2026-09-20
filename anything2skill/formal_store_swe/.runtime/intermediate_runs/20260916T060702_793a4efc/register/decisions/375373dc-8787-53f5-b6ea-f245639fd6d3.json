@@ -1,0 +1,125 @@
+{
+  "skill_id": "375373dc-8787-53f5-b6ea-f245639fd6d3",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a knowledge_reference at session granularity with distinct semantic identity (spurious abort classification via dependency cycle analysis in OCC systems). It does not match any existing skill in asset_type, task_family, or method_family. Peer candidates address serial order definition, timestamp-based conflict detection, and benchmark execution—all orthogonal concerns. Existing skills cover executor interfaces and model evaluation benchmarks, unrelated to OCC abort analysis. Single support evidence from protocol specification validates the capability. No conflicts detected.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "375373dc-8787-53f5-b6ea-f245639fd6d3",
+    "name": "Spurious Abort Classification via Dependency Cycle Analysis",
+    "description": "Diagnose whether a transaction abort in an OCC system results from serializability violations (dependency cycles among concurrent transactions) or direct timestamp/data conflicts. Enables informed decisions on retry viability and isolation-level adjustments.",
+    "skill_body": "When a transaction fails validation, determine whether the abort is spurious (caused by a dependency cycle among concurrent transactions) or genuine (caused by direct timestamp or data conflicts). Examine the read and write sets of the aborted transaction and any concurrent transactions that committed during its execution window. A spurious abort occurs when: (1) the aborted transaction observes changes from a committed transaction B, (2) another concurrent transaction C observes B's writes and the aborted transaction's original reads, (3) this creates a cycle A → B → C → A in the dependency graph. In contrast, a genuine abort occurs when the tuple's rts cannot be extended to the transaction's commit_ts due to direct timestamp constraints. Use this classification to decide whether retry is likely to succeed (spurious aborts may succeed on retry if the concurrent transaction no longer conflicts) or whether isolation level adjustment is needed.\n\n## Objective\n\nClassify abort root cause as serializability-driven vs. data-driven to inform retry and isolation-level decisions\n## Applicable Signals\n\n- Transaction validation phase fails\n- Tuple read set cannot be extended to commit_ts\n- Multiple concurrent transactions active during validation window\n- Need to determine if abort is transient or persistent\n\n## Contraindications\n\n- Transaction has already committed successfully\n- Isolation level is below serializability (e.g., read committed)\n- Single-threaded or read-only workload with no concurrent writers\n\n## Intervention Moves\n\n- Retry transaction if spurious abort (dependency cycle) is detected and concurrent conflicting transaction is no longer active\n- Escalate to isolation-level adjustment if genuine abort (direct timestamp conflict) is confirmed\n\n## Workflow Steps\n\n- Capture aborted transaction's read set, write set, and intended commit_ts\n- Identify all transactions that committed during aborted transaction's execution window\n- For each committed transaction, check if aborted transaction reads its writes\n- For each committed transaction, check if any other concurrent transaction reads both the committed transaction's writes and the aborted transaction's original reads\n- Construct dependency graph: aborted_txn → committed_txn_B → concurrent_txn_C → aborted_txn\n- If cycle exists, classify as spurious abort; if no cycle and rts cannot extend to commit_ts, classify as genuine abort\n\n## Constraints\n\n- Analysis applies only to aborted transactions in OCC-based systems\n- Requires visibility into concurrent transaction commit order and read/write sets\n- Dependency cycle detection assumes transactions are concurrent (one starts before the other commits)\n- Only concurrent transactions (i.e., one starts before the other commits) can cause aborts; transactions that commit before another starts do not cause aborts\n\n## Cautions\n\n- Spurious aborts are not caused by timestamps or data values alone; they result from serializability constraints\n- A transaction that commits observes all changes from prior transactions; only concurrent transactions can cause aborts\n- Abort reason is not known to the aborted transaction at validation time; external analysis of committed transactions is required\n- Dependency cycle detection requires complete visibility into all concurrent transactions' read/write sets; incomplete information may lead to misclassification\n\n## Output Contract\n\n- Classification of abort cause with one of two outcomes:\n- (1) Serializability violation: dependency cycle exists among aborted transaction and concurrent committed transactions; identifies conflicting transactions and cycle structure; retry may succeed if cycle is broken by non-recurrence of concurrent transaction.\n- (2) Direct conflict: tuple's rts cannot be extended to commit_ts due to timestamp constraints; identifies conflicting tuple and timestamp bounds; retry unlikely to succeed without isolation level change or tuple state modification.\n\n## Example Executions\n\n### Example 1\n\n- Input: Transaction A reads tuples x and y, intends to commit at timestamp 5. Tuple y's rts is 4 (cannot extend to 5). Transaction B wrote to x and committed at timestamp 3. Transaction C read x after B committed and y before A's write, committing at timestamp 4.\n- Output: Spurious abort. Dependency cycle: A → B (A reads B's write to x) → C (C reads B's write to x) → A (C reads A's original value of y). Retry may succeed if C does not re-execute.\n- Notes: Serializability constraint creates abort even though A and C have no direct data conflict. Cycle structure: A observes B's changes, C observes both B's changes and A's original state, creating a cycle.\n\n### Example 2\n\n- Input: Transaction D reads tuple z, attempts to commit at timestamp 10. Tuple z's rts is 9 and cannot be extended to 10 due to delta overflow or prior write constraint.\n- Output: Direct conflict. No concurrent transaction dependency cycle detected. Abort is genuine; retry unlikely to succeed without changing isolation level or tuple state.\n- Notes: Genuine abort caused by timestamp constraint, not serializability violation. Tuple's rts is bounded by prior writes and cannot accommodate commit_ts.",
+    "asset_type": "knowledge_reference",
+    "granularity": "session",
+    "asset_node_id": "knowledge_reference_node",
+    "asset_path": "family_root/knowledge_reference_node",
+    "asset_level": 1,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "Classify abort root cause as serializability-driven vs. data-driven to inform retry and isolation-level decisions",
+    "domain": "default",
+    "task_family": "abort_analysis",
+    "method_family": "dependency_graph_reasoning",
+    "stage": "validation_phase",
+    "applicable_signals": [
+      "Transaction validation phase fails",
+      "Tuple read set cannot be extended to commit_ts",
+      "Multiple concurrent transactions active during validation window",
+      "Need to determine if abort is transient or persistent"
+    ],
+    "contraindications": [
+      "Transaction has already committed successfully",
+      "Isolation level is below serializability (e.g., read committed)",
+      "Single-threaded or read-only workload with no concurrent writers"
+    ],
+    "intervention_moves": [
+      "Retry transaction if spurious abort (dependency cycle) is detected and concurrent conflicting transaction is no longer active",
+      "Escalate to isolation-level adjustment if genuine abort (direct timestamp conflict) is confirmed"
+    ],
+    "triggers": [
+      "Transaction validation fails; need to determine if abort is spurious (caused by concurrent transaction dependency cycle) or genuine (direct conflict)"
+    ],
+    "workflow_steps": [
+      "Capture aborted transaction's read set, write set, and intended commit_ts",
+      "Identify all transactions that committed during aborted transaction's execution window",
+      "For each committed transaction, check if aborted transaction reads its writes",
+      "For each committed transaction, check if any other concurrent transaction reads both the committed transaction's writes and the aborted transaction's original reads",
+      "Construct dependency graph: aborted_txn → committed_txn_B → concurrent_txn_C → aborted_txn",
+      "If cycle exists, classify as spurious abort; if no cycle and rts cannot extend to commit_ts, classify as genuine abort"
+    ],
+    "constraints": [
+      "Analysis applies only to aborted transactions in OCC-based systems",
+      "Requires visibility into concurrent transaction commit order and read/write sets",
+      "Dependency cycle detection assumes transactions are concurrent (one starts before the other commits)",
+      "Only concurrent transactions (i.e., one starts before the other commits) can cause aborts; transactions that commit before another starts do not cause aborts"
+    ],
+    "cautions": [
+      "Spurious aborts are not caused by timestamps or data values alone; they result from serializability constraints",
+      "A transaction that commits observes all changes from prior transactions; only concurrent transactions can cause aborts",
+      "Abort reason is not known to the aborted transaction at validation time; external analysis of committed transactions is required",
+      "Dependency cycle detection requires complete visibility into all concurrent transactions' read/write sets; incomplete information may lead to misclassification"
+    ],
+    "output_contract": [
+      "Classification of abort cause with one of two outcomes:",
+      "(1) Serializability violation: dependency cycle exists among aborted transaction and concurrent committed transactions; identifies conflicting transactions and cycle structure; retry may succeed if cycle is broken by non-recurrence of concurrent transaction.",
+      "(2) Direct conflict: tuple's rts cannot be extended to commit_ts due to timestamp constraints; identifies conflicting tuple and timestamp bounds; retry unlikely to succeed without isolation level change or tuple state modification."
+    ],
+    "examples": [
+      {
+        "input": "Transaction A reads tuples x and y, intends to commit at timestamp 5. Tuple y's rts is 4 (cannot extend to 5). Transaction B wrote to x and committed at timestamp 3. Transaction C read x after B committed and y before A's write, committing at timestamp 4.",
+        "output": "Spurious abort. Dependency cycle: A → B (A reads B's write to x) → C (C reads B's write to x) → A (C reads A's original value of y). Retry may succeed if C does not re-execute.",
+        "notes": "Serializability constraint creates abort even though A and C have no direct data conflict. Cycle structure: A observes B's changes, C observes both B's changes and A's original state, creating a cycle."
+      },
+      {
+        "input": "Transaction D reads tuple z, attempts to commit at timestamp 10. Tuple z's rts is 9 and cannot be extended to 10 due to delta overflow or prior write constraint.",
+        "output": "Direct conflict. No concurrent transaction dependency cycle detected. Abort is genuine; retry unlikely to succeed without changing isolation level or tuple state.",
+        "notes": "Genuine abort caused by timestamp constraint, not serializability violation. Tuple's rts is bounded by prior writes and cannot accommodate commit_ts."
+      }
+    ],
+    "tags": [
+      "abort_diagnosis",
+      "occ",
+      "serializability",
+      "dependency_cycle",
+      "transaction_validation",
+      "concurrency_control"
+    ],
+    "support_ids": [
+      "37a38b59-1fd2-5578-92c1-f4a912039931"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "8a4fb4b8-88a7-53ee-838a-cb1974ee1bdf"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.75,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||knowledge_reference|session|knowledge_reference_node|classify abort root cause as serializability-driven vs. data-driven to inform retry and isolation-level decisions|default|abort_analysis|dependency_graph_reasoning|validation_phase|spurious abort classification via dependency cycle analysis"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

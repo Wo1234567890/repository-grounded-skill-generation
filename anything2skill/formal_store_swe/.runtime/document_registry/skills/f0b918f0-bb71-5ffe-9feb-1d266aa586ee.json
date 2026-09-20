@@ -1,0 +1,132 @@
+{
+  "skill_id": "f0b918f0-bb71-5ffe-9feb-1d266aa586ee",
+  "name": "One-Hit Wonder Eviction Policy",
+  "description": "Quickly demote and remove single-access cache items from the main cache queue before they pollute the working set. This micro-skill targets transient or scan-like requests that would otherwise occupy cache space without contributing to future hits. Uses a probationary queue to test item popularity before final eviction.",
+  "skill_body": "Identify cache items that have been accessed exactly once. Move them from the main FIFO queue to a probationary queue or mark them for immediate eviction. Ensure the demotion happens before the item can be promoted or aged further in the main cache. Monitor probationary queue occupancy and evict items that do not show repeated access within a defined time window.\n\n## Objective\n\nRemove low-reuse items from cache quickly to improve hit ratio on scan-heavy workloads\n## Applicable Signals\n\n- Item access count equals 1\n- Workload contains high proportion of non-repeating requests\n- Cache hit ratio degradation due to one-time accesses\n\n## Contraindications\n\n- All items in workload expected to have high reuse\n- Cache size is very small relative to working set\n- Demotion latency is critical to system performance\n- Workload is uniform and does not contain scan patterns\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Monitor cache item access count upon each access'}\n- {'step': 2, 'action': 'On first access, place item in probationary queue or mark with one-hit flag'}\n- {'step': 3, 'action': 'On second access, promote item to main FIFO queue if it shows reuse'}\n- {'step': 4, 'action': 'If item is not accessed again within probationary window, evict it'}\n- {'step': 5, 'action': 'Track probationary queue occupancy and adjust demotion aggressiveness if needed'}\n\n## Constraints\n\n- Probationary queue must be pre-allocated and sized appropriately\n- Demotion decision must be made before item ages further in main queue\n- One-hit items must not be promoted back to main queue on subsequent access without explicit policy\n\n## Cautions\n\n- Overly aggressive demotion may evict items that would have been reused\n- Probationary queue size must be tuned; too small causes thrashing, too large wastes space\n- Policy assumes miss ratio curve behavior; may not work optimally on non-convex workloads\n\n## Output Contract\n\n- One-hit items successfully removed from main cache queue before polluting working set\n- Probationary queue size reduced\n- Cache hit ratio improved on scan-heavy traces\n- Observable metric: reduction in cache misses caused by transient requests\n\n## Example Executions\n\n### Example 1\n\n- Input: Cache workload with 30% scan requests; item X accessed once, then never again\n- Output: Item X placed in probationary queue, evicted after time window expires; main cache space freed for reusable items\n- Notes: Typical scan-heavy scenario where one-hit wonders degrade hit ratio\n\n### Example 2\n\n- Input: Sequential streaming access pattern; 100 items accessed once each\n- Output: All 100 items moved to probationary queue; evicted in FIFO order; main cache preserved for working set\n- Notes: Batch handling of streaming requests",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "a00caf52-b473-5159-9eaf-9a90857af105",
+  "parent_candidate_ids": [
+    "a00caf52-b473-5159-9eaf-9a90857af105"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "linked",
+  "visible_role": "leaf",
+  "objective": "Remove low-reuse items from cache quickly to improve hit ratio on scan-heavy workloads",
+  "domain": "default",
+  "task_family": "cache_optimization",
+  "method_family": "eviction_heuristic",
+  "stage": "eviction_execution",
+  "applicable_signals": [
+    "Item access count equals 1",
+    "Workload contains high proportion of non-repeating requests",
+    "Cache hit ratio degradation due to one-time accesses"
+  ],
+  "contraindications": [
+    "All items in workload expected to have high reuse",
+    "Cache size is very small relative to working set",
+    "Demotion latency is critical to system performance",
+    "Workload is uniform and does not contain scan patterns"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Cache item receives exactly one access",
+    "Scan, streaming, or sequential access pattern detected in workload",
+    "Probationary queue available and configured"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Monitor cache item access count upon each access'}",
+    "{'step': 2, 'action': 'On first access, place item in probationary queue or mark with one-hit flag'}",
+    "{'step': 3, 'action': 'On second access, promote item to main FIFO queue if it shows reuse'}",
+    "{'step': 4, 'action': 'If item is not accessed again within probationary window, evict it'}",
+    "{'step': 5, 'action': 'Track probationary queue occupancy and adjust demotion aggressiveness if needed'}"
+  ],
+  "constraints": [
+    "Probationary queue must be pre-allocated and sized appropriately",
+    "Demotion decision must be made before item ages further in main queue",
+    "One-hit items must not be promoted back to main queue on subsequent access without explicit policy"
+  ],
+  "cautions": [
+    "Overly aggressive demotion may evict items that would have been reused",
+    "Probationary queue size must be tuned; too small causes thrashing, too large wastes space",
+    "Policy assumes miss ratio curve behavior; may not work optimally on non-convex workloads"
+  ],
+  "output_contract": [
+    "One-hit items successfully removed from main cache queue before polluting working set",
+    "Probationary queue size reduced",
+    "Cache hit ratio improved on scan-heavy traces",
+    "Observable metric: reduction in cache misses caused by transient requests"
+  ],
+  "examples": [
+    {
+      "input": "Cache workload with 30% scan requests; item X accessed once, then never again",
+      "output": "Item X placed in probationary queue, evicted after time window expires; main cache space freed for reusable items",
+      "notes": "Typical scan-heavy scenario where one-hit wonders degrade hit ratio"
+    },
+    {
+      "input": "Sequential streaming access pattern; 100 items accessed once each",
+      "output": "All 100 items moved to probationary queue; evicted in FIFO order; main cache preserved for working set",
+      "notes": "Batch handling of streaming requests"
+    }
+  ],
+  "tags": [
+    "cache_eviction",
+    "fifo_queue",
+    "scan_resistance",
+    "probationary_queue",
+    "one_hit_wonder",
+    "quick_demotion"
+  ],
+  "support_ids": [
+    "e109a892-bb92-51a2-8a44-2e21468725b1"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "08e82b39-d54d-5c1b-b08d-3331441be861"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.82,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|remove low-reuse items from cache quickly to improve hit ratio on scan-heavy workloads|default|cache_optimization|eviction_heuristic|eviction_execution|one-hit wonder eviction policy",
+    "change_action": "create",
+    "llm_reason": "create",
+    "parent_skill_id": "a00caf52-b473-5159-9eaf-9a90857af105",
+    "parent_candidate_ids": [
+      "a00caf52-b473-5159-9eaf-9a90857af105"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "linked",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

@@ -1,0 +1,110 @@
+{
+  "skill_id": "64cce2b8-b74d-5be9-98d6-e4ea5687643a",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct preprocessing micro-skill focused on Euclidean normalization of term frequency vectors. Peer candidates (Vector Space Similarity Scoring, Vector Space Document Similarity Scoring, Vector Space Score Computation) all operate at the ranking/retrieval/scoring stage and assume normalized vectors as input. This candidate fills a necessary preprocessing gap in the vector_space_model method family. No redundancy detected—the candidate is a prerequisite operation, not a duplicate of downstream similarity computation skills. Support evidence confirms the technique is established in IR literature.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "64cce2b8-b74d-5be9-98d6-e4ea5687643a",
+    "name": "Euclidean Normalization of Term Frequency Vectors",
+    "description": "Normalize raw term frequency vectors by dividing each component by the vector's Euclidean norm. Produces unit-length vectors suitable for scale-invariant dot-product similarity computation across documents of different lengths.",
+    "skill_body": "Given a raw term frequency vector ~v(d) with components for each term in a document, compute the Euclidean norm |~v(d)| = sqrt(sum of squared components). Divide each component by this norm to produce a unit-length normalized vector ~v(d) / |~v(d)|. This normalized vector is then suitable for dot-product similarity computation.\n\n## Objective\n\nnormalize_term_vectors\n## Applicable Signals\n\n- have raw term frequency counts\n- need to compare documents of different lengths fairly\n- preparing vectors for cosine similarity or dot-product scoring\n\n## Contraindications\n\n- Vectors are already normalized\n- Only raw frequency ranking is acceptable without normalization\n- Scale-invariance is not required for the use case\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Extract raw term frequency vector ~v(d) from document', 'detail': 'Collect term occurrence counts for all terms in vocabulary'}\n- {'step': 2, 'action': 'Compute Euclidean norm', 'detail': 'Calculate |~v(d)| = sqrt(sum of v_i^2 for all components v_i)'}\n- {'step': 3, 'action': 'Normalize each component', 'detail': 'Divide each component by the norm: v_i_normalized = v_i / |~v(d)|'}\n- {'step': 4, 'action': 'Verify unit length', 'detail': 'Confirm that the normalized vector has Euclidean length 1.0 (within numerical precision)'}\n\n## Constraints\n\n- Input must be a valid term frequency vector with non-negative numeric components\n- Euclidean norm must be non-zero (empty or zero-only vectors cannot be normalized)\n\n## Cautions\n\n- Ensure all term frequencies are non-negative before normalization\n- Handle zero-norm vectors explicitly (e.g., documents with no terms) to avoid division by zero\n\n## Output Contract\n\n- A normalized vector with unit Euclidean length, ready for dot-product similarity computation. Each component is scaled such that the vector's magnitude equals 1.0. Output enables direct dot-product similarity via sim(d1, d2) = ~v(d1) · ~v(d2).\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Raw term frequency vector for document: affection=115, jealous=10, gossip=2\n- Therapist/Output: Normalized vector: affection≈0.996, jealous≈0.087, gossip≈0.017 (unit Euclidean length)\n- Notes: Normalization makes documents of different lengths comparable; longer documents no longer dominate similarity scores. Example from three novels: Sense and Sensibility, Pride and Prejudice, and Wuthering Heights.",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "normalize_term_vectors",
+    "domain": "information_retrieval",
+    "task_family": "vector_preparation",
+    "method_family": "vector_space_model",
+    "stage": "preprocessing",
+    "applicable_signals": [
+      "have raw term frequency counts",
+      "need to compare documents of different lengths fairly",
+      "preparing vectors for cosine similarity or dot-product scoring"
+    ],
+    "contraindications": [
+      "Vectors are already normalized",
+      "Only raw frequency ranking is acceptable without normalization",
+      "Scale-invariance is not required for the use case"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Raw term frequency counts are available for one or more documents",
+      "Documents have different lengths and need fair comparison",
+      "Dot-product similarity will be computed downstream"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Extract raw term frequency vector ~v(d) from document', 'detail': 'Collect term occurrence counts for all terms in vocabulary'}",
+      "{'step': 2, 'action': 'Compute Euclidean norm', 'detail': 'Calculate |~v(d)| = sqrt(sum of v_i^2 for all components v_i)'}",
+      "{'step': 3, 'action': 'Normalize each component', 'detail': 'Divide each component by the norm: v_i_normalized = v_i / |~v(d)|'}",
+      "{'step': 4, 'action': 'Verify unit length', 'detail': 'Confirm that the normalized vector has Euclidean length 1.0 (within numerical precision)'}"
+    ],
+    "constraints": [
+      "Input must be a valid term frequency vector with non-negative numeric components",
+      "Euclidean norm must be non-zero (empty or zero-only vectors cannot be normalized)"
+    ],
+    "cautions": [
+      "Ensure all term frequencies are non-negative before normalization",
+      "Handle zero-norm vectors explicitly (e.g., documents with no terms) to avoid division by zero"
+    ],
+    "output_contract": [
+      "A normalized vector with unit Euclidean length, ready for dot-product similarity computation. Each component is scaled such that the vector's magnitude equals 1.0. Output enables direct dot-product similarity via sim(d1, d2) = ~v(d1) · ~v(d2)."
+    ],
+    "examples": [
+      {
+        "input": "Raw term frequency vector for document: affection=115, jealous=10, gossip=2",
+        "output": "Normalized vector: affection≈0.996, jealous≈0.087, gossip≈0.017 (unit Euclidean length)",
+        "notes": "Normalization makes documents of different lengths comparable; longer documents no longer dominate similarity scores. Example from three novels: Sense and Sensibility, Pride and Prejudice, and Wuthering Heights."
+      }
+    ],
+    "tags": [
+      "vector_space_model",
+      "term_weighting",
+      "normalization",
+      "preprocessing",
+      "information_retrieval",
+      "cosine_similarity"
+    ],
+    "support_ids": [
+      "d0961653-6078-5d2e-b86b-e0d6182f1db4"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "0af5e9a8-106c-5c4b-9126-41298ef19d0e"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|normalize_term_vectors|information_retrieval|vector_preparation|vector_space_model|preprocessing|euclidean normalization of term frequency vectors"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 0,
+  "branch": "hits0"
+}

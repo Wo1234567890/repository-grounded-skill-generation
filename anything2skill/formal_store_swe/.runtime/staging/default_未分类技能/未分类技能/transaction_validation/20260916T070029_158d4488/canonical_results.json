@@ -1,0 +1,173 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "transaction_validation",
+  "run_id": "20260916T070029_158d4488",
+  "skills": [
+    {
+      "skill_id": "fc39f0fb-79d3-5b44-97d4-583266e72630",
+      "name": "Preemptive Abort Decision",
+      "description": "Keep reserved container space visible with a placeholder element when late-loaded content is unavailable, preventing the reserved space from collapsing and causing secondary layout shifts.",
+      "skill_body": "When a reserved space for late-loaded content (ads, embeds, dynamic elements) may remain empty, display a placeholder element (skeleton, loading indicator, or fallback) that maintains the container's dimensions. This prevents the reserved space from collapsing, which can trigger layout shifts equal in magnitude to inserting new content. Ensure the placeholder occupies the same space as the expected content.\n\n## Objective\n\nPrevent layout shift from reserved space collapse\n## Applicable Signals\n\n- Reserved container space is defined (via min-height, fixed height, or aspect-ratio)\n- Content load may result in empty or null response\n- Space collapse risk is identified during layout stability audit\n\n## Contraindications\n\n- Space reservation is not used or not applicable\n- Content is guaranteed to always load successfully\n- User experience requires immediate space reclamation when content unavailable\n- Placeholder would obscure critical page content\n\n## Intervention Moves\n\n- Display placeholder element matching reserved container dimensions\n- Replace placeholder with primary content upon successful load\n- Retain placeholder if content load fails or times out\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Define reserved container with explicit dimensions (min-height, fixed height, or aspect-ratio CSS)', 'rationale': 'Establishes baseline space allocation independent of content availability'}\n- {'step': 2, 'action': 'Create placeholder element with matching dimensions', 'rationale': 'Ensures space does not collapse when primary content is unavailable'}\n- {'step': 3, 'action': 'Display placeholder on page load or when content fetch begins', 'rationale': 'Maintains visual stability during content loading phase'}\n- {'step': 4, 'action': 'Replace placeholder with primary content when load completes, or keep placeholder visible if load fails', 'rationale': 'Prevents secondary layout shift from space collapse'}\n\n## Constraints\n\n- Placeholder must occupy identical dimensions as reserved space\n- Placeholder must remain visible until primary content loads or timeout occurs\n- Placeholder styling must not introduce additional layout shifts\n\n## Cautions\n\n- Placeholder visibility duration should be monitored; prolonged empty states may degrade user experience\n- Ensure placeholder is semantically appropriate (e.g., skeleton screen for images, loading spinner for dynamic content)\n\n## Output Contract\n\n- Placeholder element (skeleton, loading indicator, or fallback) maintains container dimensions when primary content is unavailable; no secondary cumulative layout shift (CLS) occurs from space collapse; reserved space remains visually stable throughout content lifecycle.",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "aab1e698-9ca9-55db-8608-420ba3428975",
+      "parent_candidate_ids": [
+        "aab1e698-9ca9-55db-8608-420ba3428975"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Reduce lock contention by identifying doomed transactions before write-set locking",
+      "domain": "default",
+      "task_family": "transaction_validation",
+      "method_family": "early_abort",
+      "stage": "validation",
+      "applicable_signals": [
+        "Reserved container space is defined (via min-height, fixed height, or aspect-ratio)",
+        "Content load may result in empty or null response",
+        "Space collapse risk is identified during layout stability audit"
+      ],
+      "contraindications": [
+        "Space reservation is not used or not applicable",
+        "Content is guaranteed to always load successfully",
+        "User experience requires immediate space reclamation when content unavailable",
+        "Placeholder would obscure critical page content"
+      ],
+      "intervention_moves": [
+        "Display placeholder element matching reserved container dimensions",
+        "Replace placeholder with primary content upon successful load",
+        "Retain placeholder if content load fails or times out"
+      ],
+      "triggers": [
+        "Transaction enters validation phase",
+        "Transaction has non-empty read set",
+        "Write-set locking is about to occur"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Define reserved container with explicit dimensions (min-height, fixed height, or aspect-ratio CSS)', 'rationale': 'Establishes baseline space allocation independent of content availability'}",
+        "{'step': 2, 'action': 'Create placeholder element with matching dimensions', 'rationale': 'Ensures space does not collapse when primary content is unavailable'}",
+        "{'step': 3, 'action': 'Display placeholder on page load or when content fetch begins', 'rationale': 'Maintains visual stability during content loading phase'}",
+        "{'step': 4, 'action': 'Replace placeholder with primary content when load completes, or keep placeholder visible if load fails', 'rationale': 'Prevents secondary layout shift from space collapse'}"
+      ],
+      "constraints": [
+        "Placeholder must occupy identical dimensions as reserved space",
+        "Placeholder must remain visible until primary content loads or timeout occurs",
+        "Placeholder styling must not introduce additional layout shifts"
+      ],
+      "cautions": [
+        "Placeholder visibility duration should be monitored; prolonged empty states may degrade user experience",
+        "Ensure placeholder is semantically appropriate (e.g., skeleton screen for images, loading spinner for dynamic content)"
+      ],
+      "output_contract": [
+        "Placeholder element (skeleton, loading indicator, or fallback) maintains container dimensions when primary content is unavailable; no secondary cumulative layout shift (CLS) occurs from space collapse; reserved space remains visually stable throughout content lifecycle."
+      ],
+      "examples": [
+        {
+          "input": "Transaction T with read set {tuple_x, tuple_y}; tuple_x.rts=100, tuple_y.rts=95; tuple_x.wts=100 (matches TS_word), tuple_y.wts=90 (does not match TS_word); approximate_timestamp=100",
+          "output": "Abort decision: true. Reason: tuple_y.rts (95) < approximate_timestamp (100) AND tuple_y.wts (90) ≠ latest_wts. No write-set locks acquired.",
+          "notes": "Early abort prevents unnecessary lock acquisition and contention."
+        },
+        {
+          "input": "Transaction T with read set {tuple_a}; tuple_a.rts=50; tuple_a.wts=50 (matches TS_word); approximate_timestamp=50",
+          "output": "Abort decision: false. Reason: validation condition not met (wts matches). Proceed to write-set locking and full validation.",
+          "notes": "Transaction may succeed; full validation required."
+        }
+      ],
+      "tags": [
+        "layout_stability",
+        "cumulative_layout_shift",
+        "placeholder_management",
+        "content_loading",
+        "web_performance"
+      ],
+      "support_ids": [
+        "5dd9d67b-72c9-5617-92c2-04ecaddcacce",
+        "46063e3b-7654-57a4-bec6-ab1564483b12"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "68855129-61ef-5826-b7f3-3a21957cc9c5"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.82,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|reduce lock contention by identifying doomed transactions before write-set locking|default|transaction_validation|early_abort|validation|preemptive abort decision",
+        "change_action": "merge",
+        "llm_reason": "Candidate skill 'Maintain placeholder visibility to prevent space collapse' is a complementary implementation detail of space reservation for late-loading content. It describes the placeholder display mechanism that prevents reserved space from collapsing—a concern already addressed in the two peer candidates. The candidate should merge into the existing space reservation skills, which can be strengthened to explicitly include placeholder management as part of their workflow. The peer candidates are near-duplicates of each other and should also be consolidated.",
+        "parent_skill_id": "aab1e698-9ca9-55db-8608-420ba3428975",
+        "parent_candidate_ids": [
+          "aab1e698-9ca9-55db-8608-420ba3428975"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf",
+        "merged_from_skill_ids": []
+      },
+      "version": "0.1.1",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "bdf2015c-3023-439c-8e5a-340bfd92f0a9",
+      "entity_type": "skill",
+      "entity_id": "fc39f0fb-79d3-5b44-97d4-583266e72630",
+      "action": "merge",
+      "changed_at": "2026-09-15T20:59:25+00:00",
+      "from_version": "0.1.0",
+      "to_version": "0.1.1",
+      "from_state": "active",
+      "to_state": "active",
+      "summary": "Candidate skill 'Maintain placeholder visibility to prevent space collapse' is a complementary implementation detail of space reservation for late-loading content. It describes the placeholder display mechanism that prevents reserved space from collapsing—a concern already addressed in the two peer candidates. The candidate should merge into the existing space reservation skills, which can be strengthened to explicitly include placeholder management as part of their workflow. The peer candidates are near-duplicates of each other and should also be consolidated.",
+      "related_entity_ids": [
+        "fc39f0fb-79d3-5b44-97d4-583266e72630"
+      ],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "fc39f0fb-79d3-5b44-97d4-583266e72630",
+        "doc_ids": [
+          "9fdf1d6f-b6bf-5ce1-8417-e6bbcc7c565c",
+          "0551d67e-cae4-5d1f-804a-e4046e4b8739"
+        ],
+        "support_added": [
+          "46063e3b-7654-57a4-bec6-ab1564483b12"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": [
+          "fc39f0fb-79d3-5b44-97d4-583266e72630"
+        ]
+      }
+    }
+  ]
+}

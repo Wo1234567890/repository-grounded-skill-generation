@@ -1,0 +1,123 @@
+{
+  "skill_id": "7d3fb3c1-926f-5f1e-a4a6-30e1371a5d82",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "7d3fb3c1-926f-5f1e-a4a6-30e1371a5d82",
+    "name": "Quick Demotion Precision Measurement",
+    "description": "Measure the precision of object eviction from a FIFO queue by determining what fraction of evicted objects are not reused within a threshold window. Use to validate that demotion decisions are correct and not prematurely evicting reusable objects.",
+    "skill_body": "For each object evicted from the FIFO queue (S), check if it is reused within a threshold of (cache_size / miss_ratio) requests. Count objects that are NOT reused within this threshold as correctly early-evicted. Compute precision as the fraction of evicted objects that meet this criterion. Plot precision against queue size parameter to identify peak precision and correlate with miss ratio changes.\n\n## Objective\n\nmeasure_eviction_correctness\n## Applicable Signals\n\n- Trace data with request sequence and object reuse patterns available\n- Need to correlate demotion speed with eviction correctness\n- Investigating why certain queue size settings produce unexpected miss ratios\n\n## Contraindications\n\n- Trace data is unavailable or incomplete\n- Reuse distance cannot be computed from available logs\n- Only throughput or latency metrics matter; correctness is not a concern\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Extract eviction events from FIFO queue S', 'detail': 'Record each object evicted from S and the logical time (request count) at eviction'}\n- {'step': 2, 'action': 'Compute reuse distance for each evicted object', 'detail': 'For each evicted object, find the next request to that object in the trace and calculate the number of requests between eviction and reuse'}\n- {'step': 3, 'action': 'Calculate threshold', 'detail': 'Compute threshold as cache_size / miss_ratio (in request counts)'}\n- {'step': 4, 'action': 'Classify evictions as correct or incorrect', 'detail': 'Mark eviction as correct early eviction if reuse distance > threshold; otherwise mark as incorrect (object was needed soon)'}\n- {'step': 5, 'action': 'Compute precision score', 'detail': 'Precision = (count of correct early evictions) / (total evictions from S)'}\n- {'step': 6, 'action': 'Plot and analyze', 'detail': 'Plot precision against queue size parameter S; identify peak precision; correlate with miss ratio curve'}\n\n## Constraints\n\n- Requires complete request trace with object identifiers and timestamps\n- Threshold calculation depends on accurate miss ratio measurement\n- Logical time (request count) must be used consistently throughout measurement\n\n## Cautions\n\n- Small S leads to faster demotion but lower precision (objects evicted before accumulating hits)\n- Large S leads to higher precision but slower demotion (unpopular objects accumulate hits before eviction)\n- Precision peak occurs at intermediate S values; both extremes degrade performance\n\n## Output Contract\n\n- Precision score (0.0–1.0) representing fraction of correctly early-evicted objects\n- Precision curve plotted against S size\n- Peak precision value identified\n- Correlation between precision and miss ratio confirmed or noted\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: Trace with 1M requests; cache size 10K; S size 1K (10% of cache); computed miss ratio 0.05\n- Therapist/Output: Precision = 0.78; threshold = 10K / 0.05 = 200K requests; 78% of objects evicted from S are not reused within 200K requests\n- Notes: Moderate precision indicates balanced demotion; correlates with lower miss ratio compared to LRU\n\n### Example 2\n\n- Client/Input: Same trace; S size 100 (1% of cache)\n- Therapist/Output: Precision = 0.62; faster demotion but lower precision; more objects evicted before accumulating hits\n- Notes: Smaller S increases miss ratio on some traces due to precision loss",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "measure_eviction_correctness",
+    "domain": "default",
+    "task_family": "cache_analysis",
+    "method_family": "precision_measurement",
+    "stage": "evaluation",
+    "applicable_signals": [
+      "Trace data with request sequence and object reuse patterns available",
+      "Need to correlate demotion speed with eviction correctness",
+      "Investigating why certain queue size settings produce unexpected miss ratios"
+    ],
+    "contraindications": [
+      "Trace data is unavailable or incomplete",
+      "Reuse distance cannot be computed from available logs",
+      "Only throughput or latency metrics matter; correctness is not a concern"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "Comparing cache eviction algorithms",
+      "Tuning FIFO queue size parameter",
+      "Validating that quick demotion is not too aggressive",
+      "Analyzing miss ratio cliffs or performance anomalies"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Extract eviction events from FIFO queue S', 'detail': 'Record each object evicted from S and the logical time (request count) at eviction'}",
+      "{'step': 2, 'action': 'Compute reuse distance for each evicted object', 'detail': 'For each evicted object, find the next request to that object in the trace and calculate the number of requests between eviction and reuse'}",
+      "{'step': 3, 'action': 'Calculate threshold', 'detail': 'Compute threshold as cache_size / miss_ratio (in request counts)'}",
+      "{'step': 4, 'action': 'Classify evictions as correct or incorrect', 'detail': 'Mark eviction as correct early eviction if reuse distance > threshold; otherwise mark as incorrect (object was needed soon)'}",
+      "{'step': 5, 'action': 'Compute precision score', 'detail': 'Precision = (count of correct early evictions) / (total evictions from S)'}",
+      "{'step': 6, 'action': 'Plot and analyze', 'detail': 'Plot precision against queue size parameter S; identify peak precision; correlate with miss ratio curve'}"
+    ],
+    "constraints": [
+      "Requires complete request trace with object identifiers and timestamps",
+      "Threshold calculation depends on accurate miss ratio measurement",
+      "Logical time (request count) must be used consistently throughout measurement"
+    ],
+    "cautions": [
+      "Small S leads to faster demotion but lower precision (objects evicted before accumulating hits)",
+      "Large S leads to higher precision but slower demotion (unpopular objects accumulate hits before eviction)",
+      "Precision peak occurs at intermediate S values; both extremes degrade performance"
+    ],
+    "output_contract": [
+      "Precision score (0.0–1.0) representing fraction of correctly early-evicted objects",
+      "Precision curve plotted against S size",
+      "Peak precision value identified",
+      "Correlation between precision and miss ratio confirmed or noted"
+    ],
+    "examples": [
+      {
+        "input": "Trace with 1M requests; cache size 10K; S size 1K (10% of cache); computed miss ratio 0.05",
+        "output": "Precision = 0.78; threshold = 10K / 0.05 = 200K requests; 78% of objects evicted from S are not reused within 200K requests",
+        "notes": "Moderate precision indicates balanced demotion; correlates with lower miss ratio compared to LRU"
+      },
+      {
+        "input": "Same trace; S size 100 (1% of cache)",
+        "output": "Precision = 0.62; faster demotion but lower precision; more objects evicted before accumulating hits",
+        "notes": "Smaller S increases miss ratio on some traces due to precision loss"
+      }
+    ],
+    "tags": [
+      "cache_eviction",
+      "measurement",
+      "precision",
+      "fifo",
+      "demotion",
+      "correctness"
+    ],
+    "support_ids": [
+      "64de786c-4de9-500c-920f-1cca1ed6b202"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "59589f0e-e9d9-50d4-bc41-98419224ba37"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|measure_eviction_correctness|default|cache_analysis|precision_measurement|evaluation|quick demotion precision measurement"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

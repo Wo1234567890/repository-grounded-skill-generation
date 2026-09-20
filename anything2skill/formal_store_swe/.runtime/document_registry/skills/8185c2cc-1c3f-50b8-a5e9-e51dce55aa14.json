@@ -1,0 +1,127 @@
+{
+  "skill_id": "8185c2cc-1c3f-50b8-a5e9-e51dce55aa14",
+  "name": "Extract LLM Call Attributes",
+  "description": "Extract structured attributes (model, tokens, usage) from LLM method calls and return values for telemetry recording. Maps call arguments and responses to OpenTelemetry attribute keys.",
+  "skill_body": "Implement an attribute handler that inspects method call arguments (args, kwargs) and return values to populate an AttributeMap dictionary. Extract model name from kwargs, token usage from return_value.usage, and other LLM-specific metadata. Return the populated AttributeMap ready for span attachment.\n\n## Objective\n\nConvert method call metadata into telemetry attributes\n## Applicable Signals\n\n- Method call with kwargs containing 'model' parameter\n- Return value with 'usage' attribute containing token counts\n- LLM provider response object available for inspection\n\n## Contraindications\n\n- Non-LLM method calls or utility functions without LLM semantics\n- Return value is None or lacks usage metadata\n- Attribute keys do not conform to OpenTelemetry naming conventions\n\n## Workflow Steps\n\n- {'step': 1, 'action': \"Check if kwargs is not None and contains 'model' key\", 'output': \"Extract model name and assign to attributes['llm.request.model']\"}\n- {'step': 2, 'action': \"Check if return_value is not None and has 'usage' attribute\", 'output': \"Extract total_tokens and assign to attributes['llm.usage.total_tokens']\"}\n- {'step': 3, 'action': 'Populate any additional LLM-specific attributes from return_value or kwargs', 'output': 'Add keys such as llm.response.finish_reason, llm.request.temperat...'}\n- {'step': 4, 'action': 'Return the populated AttributeMap', 'output': 'AttributeMap ready for downstream span attachment'}\n\n## Constraints\n\n- Must validate that kwargs and return_value are not None before accessing nested attributes\n- Attribute keys must follow OpenTelemetry semantic conventions (e.g., llm.request.model, llm.usage.total_tokens)\n- Handler must return AttributeMap type, not raw dict\n\n## Cautions\n\n- Accessing missing keys in kwargs or return_value without hasattr checks will raise KeyError\n- Token counts may be zero or missing in some LLM responses; handle gracefully\n- Different LLM providers may use different response structures; validate structure before extraction\n\n## Output Contract\n\n- AttributeMap dictionary with populated OpenTelemetry-compliant keys (llm.request.model, llm.usage.total_tokens, etc.) ready for span attachment. Empty AttributeMap if no extractable metadata is found.\n\n## Example Executions\n\n### Example 1\n\n- Input: args=None, kwargs={'model': 'gpt-4', 'temperature': 0.7}, return_value=<Response with usage.total_tokens=150>\n- Output: {'llm.request.model': 'gpt-4', 'llm.usage.total_tokens': 150}\n- Notes: Standard OpenAI-style call with model and usage metadata\n\n### Example 2\n\n- Input: args=None, kwargs={'model': 'claude-3'}, return_value=None\n- Output: {'llm.request.model': 'claude-3'}\n- Notes: Return value missing; extract only available kwargs",
+  "asset_type": "micro_skill",
+  "granularity": "micro",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "1ee9b37e-ec9b-5576-80e8-6df9e2f57d51",
+  "parent_candidate_ids": [
+    "1ee9b37e-ec9b-5576-80e8-6df9e2f57d51"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "linked",
+  "visible_role": "leaf",
+  "objective": "Convert method call metadata into telemetry attributes",
+  "domain": "default",
+  "task_family": "telemetry_extraction",
+  "method_family": "attribute_mapping",
+  "stage": "instrumentation",
+  "applicable_signals": [
+    "Method call with kwargs containing 'model' parameter",
+    "Return value with 'usage' attribute containing token counts",
+    "LLM provider response object available for inspection"
+  ],
+  "contraindications": [
+    "Non-LLM method calls or utility functions without LLM semantics",
+    "Return value is None or lacks usage metadata",
+    "Attribute keys do not conform to OpenTelemetry naming conventions"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "Intercepting LLM provider method calls (OpenAI, Anthropic, Google GenAI, IBM WatsonX, CrewAI, AG2/AutoGen, etc.)",
+    "Need to extract model name, token usage, or response metadata for observability",
+    "Preparing telemetry data for OpenTelemetry span attachment"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': \"Check if kwargs is not None and contains 'model' key\", 'output': \"Extract model name and assign to attributes['llm.request.model']\"}",
+    "{'step': 2, 'action': \"Check if return_value is not None and has 'usage' attribute\", 'output': \"Extract total_tokens and assign to attributes['llm.usage.total_tokens']\"}",
+    "{'step': 3, 'action': 'Populate any additional LLM-specific attributes from return_value or kwargs', 'output': 'Add keys such as llm.response.finish_reason, llm.request.temperat...'}",
+    "{'step': 4, 'action': 'Return the populated AttributeMap', 'output': 'AttributeMap ready for downstream span attachment'}"
+  ],
+  "constraints": [
+    "Must validate that kwargs and return_value are not None before accessing nested attributes",
+    "Attribute keys must follow OpenTelemetry semantic conventions (e.g., llm.request.model, llm.usage.total_tokens)",
+    "Handler must return AttributeMap type, not raw dict"
+  ],
+  "cautions": [
+    "Accessing missing keys in kwargs or return_value without hasattr checks will raise KeyError",
+    "Token counts may be zero or missing in some LLM responses; handle gracefully",
+    "Different LLM providers may use different response structures; validate structure before extraction"
+  ],
+  "output_contract": [
+    "AttributeMap dictionary with populated OpenTelemetry-compliant keys (llm.request.model, llm.usage.total_tokens, etc.) ready for span attachment. Empty AttributeMap if no extractable metadata is found."
+  ],
+  "examples": [
+    {
+      "input": "args=None, kwargs={'model': 'gpt-4', 'temperature': 0.7}, return_value=<Response with usage.total_tokens=150>",
+      "output": "{'llm.request.model': 'gpt-4', 'llm.usage.total_tokens': 150}",
+      "notes": "Standard OpenAI-style call with model and usage metadata"
+    },
+    {
+      "input": "args=None, kwargs={'model': 'claude-3'}, return_value=None",
+      "output": "{'llm.request.model': 'claude-3'}",
+      "notes": "Return value missing; extract only available kwargs"
+    }
+  ],
+  "tags": [
+    "telemetry",
+    "instrumentation",
+    "opentelemetry",
+    "llm-monitoring",
+    "attribute-extraction",
+    "observability"
+  ],
+  "support_ids": [
+    "db9386c6-33f9-5e14-a77a-97bbe2db5e5d"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "69a8264c-8785-5136-9954-773dfd18cf46"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.82,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|convert method call metadata into telemetry attributes|default|telemetry_extraction|attribute_mapping|instrumentation|extract llm call attributes",
+    "llm_reason": "Candidate is a distinct micro_skill for LLM telemetry attribute extraction (task_family: telemetry_extraction, method_family: attribute_mapping, stage: instrumentation). It does not semantically match any existing skill in the registry. Peer candidates are related instrumentation tasks but operate at different stages (wrapper_registration, decorator_annotation, response_collection) and task families. Existing skills are unrelated (UI optimization, layout diagnostics). No merge, split, or revision relationship detected.",
+    "change_action": "create",
+    "parent_skill_id": "1ee9b37e-ec9b-5576-80e8-6df9e2f57d51",
+    "parent_candidate_ids": [
+      "1ee9b37e-ec9b-5576-80e8-6df9e2f57d51"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "linked",
+    "visible_role": "leaf"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

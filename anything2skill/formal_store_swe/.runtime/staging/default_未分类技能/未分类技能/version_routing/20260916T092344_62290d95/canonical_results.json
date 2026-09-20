@@ -1,0 +1,164 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "version_routing",
+  "run_id": "20260916T092344_62290d95",
+  "skills": [
+    {
+      "skill_id": "cd0bfed4-59ec-5259-90fd-1903beb88f0e",
+      "name": "Version-Specific OpenAI Instrumentor Initialization",
+      "description": "Detect OpenAI library version at runtime and apply the appropriate instrumentation strategy: delegate to legacy instrumentor for v0, or proceed with standard v1 initialization. Ensures instrumentation compatibility across library versions by routing initialization logic based on version detection.",
+      "skill_body": "Check the OpenAI library version using is_openai_v1(). If v0 is detected, instantiate and invoke OpenAIV0Instrumentor().instrument() with the provided kwargs, then clear the wrapped_methods list to prevent double instrumentation. If v1 is detected, proceed with normal initialization. This micro-step runs during the _initialize phase before custom wrapping is applied.\n\n## Objective\n\nRoute instrumentation logic based on OpenAI library version to ensure compatibility across v0 and v1\n## Applicable Signals\n\n- is_openai_v1() returns False (legacy v0 detected)\n- is_openai_v1() returns True (current v1 detected)\n- InstrumentorConfig is instantiated and ready for version-specific adjustment\n\n## Contraindications\n\n- Library version is guaranteed to be v1 only; version detection is unnecessary\n- Legacy v0 support is not required or deprecated\n- Instrumentation must not branch on version; single-version setup is enforced\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check OpenAI library version', 'detail': 'Call is_openai_v1() to determine if the library is v0 or v1'}\n- {'step': 2, 'action': 'Route to legacy instrumentor if v0', 'detail': 'If is_openai_v1() returns False, instantiate OpenAIV0Instrumentor() and call .instrument(**kwargs)'}\n- {'step': 3, 'action': 'Clear wrapped methods for v0 path', 'detail': 'Set self.config.wrapped_methods = [] to skip normal v1 wrapping after legacy instrumentation'}\n- {'step': 4, 'action': 'Proceed with v1 initialization if v1 detected', 'detail': 'If is_openai_v1() returns True, continue with normal initialization flow'}\n\n## Constraints\n\n- is_openai_v1() function must be available and reliable\n- OpenAIV0Instrumentor class must be importable and functional if v0 is detected\n- wrapped_methods list must be cleared after legacy instrumentor invocation to prevent duplicate wrapping\n- kwargs passed to _initialize must be forwarded to legacy instrumentor without modification\n\n## Cautions\n\n- If legacy instrumentor fails, the entire initialization may fail; ensure v0 support is tested\n- Clearing wrapped_methods after v0 instrumentation prevents normal v1 wrapping; confirm this is the intended behavior\n- Version detection must occur before custom wrapping (_custom_wrap) to avoid conflicts\n\n## Output Contract\n\n- Correct instrumentor selected and initialized; wrapped_methods list populated or cleared based on version; no instrumentation errors on legacy or current versions; initialization state is consistent with detected library version\n\n## Example Executions\n\n### Example 1\n\n- Input: is_openai_v1() returns False; kwargs={'tracer': <tracer_instance>}\n- Output: OpenAIV0Instrumentor().instrument(tracer=<tracer_instance>) is called; self.config.wrapped_methods = []\n- Notes: Legacy v0 path: delegate to v0-specific instrumentor and suppress v1 wrapping\n\n### Example 2\n\n- Input: is_openai_v1() returns True; kwargs={'tracer': <tracer_instance>}\n- Output: Normal initialization continues; wrapped_methods list is populated by parent class; no legacy instrumentor invoked\n- Notes: Current v1 path: proceed with standard instrumentation flow",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "f51af5de-39df-59d7-a895-20bfd95920c7",
+      "parent_candidate_ids": [
+        "f51af5de-39df-59d7-a895-20bfd95920c7"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Route instrumentation logic based on OpenAI library version to ensure compatibility across v0 and v1",
+      "domain": "default",
+      "task_family": "version_routing",
+      "method_family": "conditional_initialization",
+      "stage": "pre_instrumentation",
+      "applicable_signals": [
+        "is_openai_v1() returns False (legacy v0 detected)",
+        "is_openai_v1() returns True (current v1 detected)",
+        "InstrumentorConfig is instantiated and ready for version-specific adjustment"
+      ],
+      "contraindications": [
+        "Library version is guaranteed to be v1 only; version detection is unnecessary",
+        "Legacy v0 support is not required or deprecated",
+        "Instrumentation must not branch on version; single-version setup is enforced"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "OpenAI library version is unknown or mixed (v0 and v1 coexist)",
+        "Initialization phase begins and library version must be detected",
+        "Runtime environment requires adaptive instrumentation strategy"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Check OpenAI library version', 'detail': 'Call is_openai_v1() to determine if the library is v0 or v1'}",
+        "{'step': 2, 'action': 'Route to legacy instrumentor if v0', 'detail': 'If is_openai_v1() returns False, instantiate OpenAIV0Instrumentor() and call .instrument(**kwargs)'}",
+        "{'step': 3, 'action': 'Clear wrapped methods for v0 path', 'detail': 'Set self.config.wrapped_methods = [] to skip normal v1 wrapping after legacy instrumentation'}",
+        "{'step': 4, 'action': 'Proceed with v1 initialization if v1 detected', 'detail': 'If is_openai_v1() returns True, continue with normal initialization flow'}"
+      ],
+      "constraints": [
+        "is_openai_v1() function must be available and reliable",
+        "OpenAIV0Instrumentor class must be importable and functional if v0 is detected",
+        "wrapped_methods list must be cleared after legacy instrumentor invocation to prevent duplicate wrapping",
+        "kwargs passed to _initialize must be forwarded to legacy instrumentor without modification"
+      ],
+      "cautions": [
+        "If legacy instrumentor fails, the entire initialization may fail; ensure v0 support is tested",
+        "Clearing wrapped_methods after v0 instrumentation prevents normal v1 wrapping; confirm this is the intended behavior",
+        "Version detection must occur before custom wrapping (_custom_wrap) to avoid conflicts"
+      ],
+      "output_contract": [
+        "Correct instrumentor selected and initialized; wrapped_methods list populated or cleared based on version; no instrumentation errors on legacy or current versions; initialization state is consistent with detected library version"
+      ],
+      "examples": [
+        {
+          "input": "is_openai_v1() returns False; kwargs={'tracer': <tracer_instance>}",
+          "output": "OpenAIV0Instrumentor().instrument(tracer=<tracer_instance>) is called; self.config.wrapped_methods = []",
+          "notes": "Legacy v0 path: delegate to v0-specific instrumentor and suppress v1 wrapping"
+        },
+        {
+          "input": "is_openai_v1() returns True; kwargs={'tracer': <tracer_instance>}",
+          "output": "Normal initialization continues; wrapped_methods list is populated by parent class; no legacy instrumentor invoked",
+          "notes": "Current v1 path: proceed with standard instrumentation flow"
+        }
+      ],
+      "tags": [
+        "openai",
+        "instrumentation",
+        "version_detection",
+        "initialization",
+        "conditional_routing",
+        "compatibility"
+      ],
+      "support_ids": [
+        "dd882379-cd9c-5791-b685-dfb72fe096ff"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "8e2780bd-001a-57fe-b735-f0517845fadc"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.8,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|route instrumentation logic based on openai library version to ensure compatibility across v0 and v1|default|version_routing|conditional_initialization|pre_instrumentation|version-specific openai instrumentor initialization",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct micro_skill for version-specific OpenAI instrumentation routing (v0 vs v1) with unique workflow, constraints, and cautions. It does not semantically match any existing skill in the registry. Peer candidates (Jupyter detection, streaming instrumentation, wrapper registration) are related but operate at different stages and address different concerns. No merge, split, or revision relationship exists with existing skills.",
+        "parent_skill_id": "f51af5de-39df-59d7-a895-20bfd95920c7",
+        "parent_candidate_ids": [
+          "f51af5de-39df-59d7-a895-20bfd95920c7"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "b8b3d6c3-6067-4ade-97ae-c15ca7c4460a",
+      "entity_type": "skill",
+      "entity_id": "cd0bfed4-59ec-5259-90fd-1903beb88f0e",
+      "action": "create",
+      "changed_at": "2026-09-15T23:16:18+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct micro_skill for version-specific OpenAI instrumentation routing (v0 vs v1) with unique workflow, constraints, and cautions. It does not semantically match any existing skill in the registry. Peer candidates (Jupyter detection, streaming instrumentation, wrapper registration) are related but operate at different stages and address different concerns. No merge, split, or revision relationship exists with existing skills.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "cd0bfed4-59ec-5259-90fd-1903beb88f0e",
+        "doc_ids": [
+          "e68d8672-d178-51a3-a14e-d77ffc8c80e1"
+        ],
+        "support_added": [
+          "dd882379-cd9c-5791-b685-dfb72fe096ff"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "skill_id": "316d1204-781f-56d2-8420-0d628df5cad3",
+  "name": "Pivoted Document Length Normalization",
+  "description": "Apply linear scaling to normalize document length effects in vector space scoring. Adjusts document weight vectors using a pivot-based formula to balance between raw document length and a reference pivot point, preventing length bias in tf-idf scoring.",
+  "skill_body": "To apply pivoted document length normalization:\n1. Identify the cosine normalization value (piv) at which the linear scaling curve intersects the y=x line.\n2. Choose a slope parameter a < 1 that controls the degree of length correction.\n3. For each document d, compute the normalized weight as: a·|V(d)| + (1−a)·piv, where |V(d)| is the document vector length.\n4. Apply this normalized weight to adjust the document's contribution to the final score.\n5. Verify that longer documents receive proportionally reduced scores while maintaining relative ranking.\n\n## Objective\n\nnormalize document length in scoring to reduce length bias while preserving length as a ranking factor\n## Applicable Signals\n\n- Document length distribution is non-uniform\n- Relevance ranking shows systematic bias toward shorter documents\n- Vector space model is active in scoring pipeline\n- Collection contains documents of varying lengths\n- Vector space scoring exhibits length bias\n- Need fair comparison across document sizes\n- Post-TF-IDF weight adjustment required\n\n## Contraindications\n\n- Documents are already pre-normalized by length\n- Using pure cosine similarity without length adjustment\n- Fixed-length document collections with uniform length\n- All documents are similar length\n- Length bias is intentionally desired\n- Using non-vector space models\n- Probabilistic language models in use (use more nuanced weighting instead)\n\n## Intervention Moves\n\n- Compute pivot document length (e.g., collection average)\n- Calculate length normalization factor for each document\n- Apply factor to adjust term weight vectors\n- Verify normalized weights maintain relative term importance\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Compute document vector length |V(d)| for each document', 'input': 'Document term-weight vector', 'output': 'Scalar length value'}\n- {'step': 2, 'action': 'Determine pivot point (piv) from cosine normalization baseline', 'input': 'Cosine normalization curve', 'output': 'Pivot scalar value'}\n- {'step': 3, 'action': 'Select slope parameter a (0 < a < 1)', 'input': 'Desired correction strength', 'output': 'Slope parameter a'}\n- {'step': 4, 'action': 'Apply linear scaling formula: normalized_weight = a·|V(d)| + (1−a)·piv', 'input': 'Document vector length, pivot, slope parameter', 'output': 'Normalized weight scalar'}\n- {'step': 5, 'action': 'Multiply document score by normalized weight', 'input': 'Raw document score, normalized weight', 'output': 'Length-adjusted document score'}\n- Compute collection-wide pivot length statistic\n- For each document, calculate length normalization factor\n- Apply factor to all term weights in document vector\n- Validate normalized weights preserve term importance ordering\n\n## Constraints\n\n- Slope parameter a must be strictly less than 1 (0 < a < 1)\n- Pivot point (piv) must be derived from the intersection of linear scaling and y=x line\n- Document vector length |V(d)| must be computed before normalization\n- Apply only after base TF-IDF weighting is complete\n- Pivot length must be computed from collection statistics\n- Normalization factor must be positive and bounded\n\n## Cautions\n\n- Incorrect pivot point selection can amplify rather than reduce length bias\n- Parameter a too close to 1 reduces normalization effect; too close to 0 may over-correct\n- Ensure pivot point is consistent across all documents in a batch\n- Ensure pivot length is representative of collection\n- Verify normalization does not invert term importance rankings\n- Test on diverse document length distributions\n\n## Output Contract\n\n- Normalized weight vector where longer documents receive adjusted scores according to the linear scaling formula. The adjustment curve intersects the y=x line at the pivot point, ensuring that length normalization is applied consistently and length bias is reduced without eliminating document length as a ranking factor.\n- Normalized term weight vectors accounting for document length variation, suitable for downstream cosine similarity or dot product scoring\n\n## Example Executions\n\n### Example 1\n\n- Input: Document with |V(d)| = 150, pivot = 100, a = 0.8\n- Output: Normalized weight = 0.8·150 + 0.2·100 = 120 + 20 = 140\n- Notes: Longer document receives reduced weight relative to raw length, but more than pure pivot value\n\n### Example 2\n\n- Input: Document with |V(d)| = 50, pivot = 100, a = 0.8\n- Output: Normalized weight = 0.8·50 + 0.2·100 = 40 + 20 = 60\n- Notes: Shorter document receives boost toward pivot, reducing length disadvantage",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "micro_skill_node",
+  "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+  "asset_level": 3,
+  "parent_skill_id": "381c3785-2b0d-524d-a6c6-138603a5b9dd",
+  "parent_candidate_ids": [
+    "381c3785-2b0d-524d-a6c6-138603a5b9dd",
+    "4f0a3132-518c-5793-a81e-0a9e22c9ec82"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.55,
+  "hierarchy_status": "linked",
+  "visible_role": "leaf",
+  "objective": "normalize document length in scoring to reduce length bias while preserving length as a ranking factor",
+  "domain": "default",
+  "task_family": "vector_space_scoring",
+  "method_family": "length_normalization",
+  "stage": "scoring",
+  "applicable_signals": [
+    "Document length distribution is non-uniform",
+    "Relevance ranking shows systematic bias toward shorter documents",
+    "Vector space model is active in scoring pipeline",
+    "Collection contains documents of varying lengths",
+    "Vector space scoring exhibits length bias",
+    "Need fair comparison across document sizes",
+    "Post-TF-IDF weight adjustment required"
+  ],
+  "contraindications": [
+    "Documents are already pre-normalized by length",
+    "Using pure cosine similarity without length adjustment",
+    "Fixed-length document collections with uniform length",
+    "All documents are similar length",
+    "Length bias is intentionally desired",
+    "Using non-vector space models",
+    "Probabilistic language models in use (use more nuanced weighting instead)"
+  ],
+  "intervention_moves": [
+    "Compute pivot document length (e.g., collection average)",
+    "Calculate length normalization factor for each document",
+    "Apply factor to adjust term weight vectors",
+    "Verify normalized weights maintain relative term importance"
+  ],
+  "triggers": [
+    "Document collection exhibits significant length variation",
+    "Cosine normalization alone over-penalizes longer documents",
+    "Implementing tf-idf scoring with length bias correction required",
+    "Collection contains documents of varying lengths",
+    "Vector space scoring shows length bias",
+    "Need fair comparison across document sizes"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Compute document vector length |V(d)| for each document', 'input': 'Document term-weight vector', 'output': 'Scalar length value'}",
+    "{'step': 2, 'action': 'Determine pivot point (piv) from cosine normalization baseline', 'input': 'Cosine normalization curve', 'output': 'Pivot scalar value'}",
+    "{'step': 3, 'action': 'Select slope parameter a (0 < a < 1)', 'input': 'Desired correction strength', 'output': 'Slope parameter a'}",
+    "{'step': 4, 'action': 'Apply linear scaling formula: normalized_weight = a·|V(d)| + (1−a)·piv', 'input': 'Document vector length, pivot, slope parameter', 'output': 'Normalized weight scalar'}",
+    "{'step': 5, 'action': 'Multiply document score by normalized weight', 'input': 'Raw document score, normalized weight', 'output': 'Length-adjusted document score'}",
+    "Compute collection-wide pivot length statistic",
+    "For each document, calculate length normalization factor",
+    "Apply factor to all term weights in document vector",
+    "Validate normalized weights preserve term importance ordering"
+  ],
+  "constraints": [
+    "Slope parameter a must be strictly less than 1 (0 < a < 1)",
+    "Pivot point (piv) must be derived from the intersection of linear scaling and y=x line",
+    "Document vector length |V(d)| must be computed before normalization",
+    "Apply only after base TF-IDF weighting is complete",
+    "Pivot length must be computed from collection statistics",
+    "Normalization factor must be positive and bounded"
+  ],
+  "cautions": [
+    "Incorrect pivot point selection can amplify rather than reduce length bias",
+    "Parameter a too close to 1 reduces normalization effect; too close to 0 may over-correct",
+    "Ensure pivot point is consistent across all documents in a batch",
+    "Ensure pivot length is representative of collection",
+    "Verify normalization does not invert term importance rankings",
+    "Test on diverse document length distributions"
+  ],
+  "output_contract": [
+    "Normalized weight vector where longer documents receive adjusted scores according to the linear scaling formula. The adjustment curve intersects the y=x line at the pivot point, ensuring that length normalization is applied consistently and length bias is reduced without eliminating document length as a ranking factor.",
+    "Normalized term weight vectors accounting for document length variation, suitable for downstream cosine similarity or dot product scoring"
+  ],
+  "examples": [
+    {
+      "input": "Document with |V(d)| = 150, pivot = 100, a = 0.8",
+      "output": "Normalized weight = 0.8·150 + 0.2·100 = 120 + 20 = 140",
+      "notes": "Longer document receives reduced weight relative to raw length, but more than pure pivot value"
+    },
+    {
+      "input": "Document with |V(d)| = 50, pivot = 100, a = 0.8",
+      "output": "Normalized weight = 0.8·50 + 0.2·100 = 40 + 20 = 60",
+      "notes": "Shorter document receives boost toward pivot, reducing length disadvantage"
+    }
+  ],
+  "tags": [
+    "vector_space_model",
+    "tf-idf",
+    "document_length",
+    "normalization",
+    "scoring",
+    "information_retrieval",
+    "term_weighting"
+  ],
+  "support_ids": [
+    "9b555aa2-f596-59e5-8664-cace748e757b",
+    "81dea999-7426-5811-81b4-528fcda1303b"
+  ],
+  "metadata": {
+    "risk_class": "low",
+    "source_draft_ids": [
+      "363170ac-6f1a-5c12-829e-4189ede07c72",
+      "42cc6ef4-e9d0-553c-aafd-9ea556e3fc3f"
+    ],
+    "support_summary": {
+      "support": 2,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.75,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||micro_skill|micro|micro_skill_node|normalize document length in scoring to reduce length bias while preserving length as a ranking factor|default|vector_space_scoring|length_normalization|scoring|pivoted document length normalization",
+    "change_action": "create",
+    "llm_reason": "Candidate is a distinct micro_skill in vector_space_scoring/length_normalization with unique pivoted linear scaling methodology. It differs semantically from peer candidates: Maximum TF Normalization operates on term frequencies (task_family: term_weighting), TF-IDF Weight Calculation is basic term weighting (task_family: term_weighting), and Euclidean Vector Normalization uses L2 norm (method_family: linear_algebra, stage: vector_preparation). The candidate's pivot-based document-length adjustment is a separate length normalization approach not covered by existing skills. No existing skills in the registry match this semantic capability. Support evidence from Cambridge IR textbook validates the technique.",
+    "parent_skill_id": "381c3785-2b0d-524d-a6c6-138603a5b9dd",
+    "parent_candidate_ids": [
+      "381c3785-2b0d-524d-a6c6-138603a5b9dd",
+      "4f0a3132-518c-5793-a81e-0a9e22c9ec82"
+    ],
+    "hierarchy_confidence": 0.55,
+    "hierarchy_status": "linked",
+    "visible_role": "leaf",
+    "merged_from_skill_ids": [
+      "6690d27f-75b7-5a24-a5e5-00dbf1ab0250"
+    ],
+    "duplicate_consolidation_ids": [
+      "6690d27f-75b7-5a24-a5e5-00dbf1ab0250"
+    ]
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

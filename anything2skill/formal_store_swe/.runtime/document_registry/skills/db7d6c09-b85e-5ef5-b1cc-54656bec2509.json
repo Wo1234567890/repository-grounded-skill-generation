@@ -1,0 +1,116 @@
+{
+  "skill_id": "db7d6c09-b85e-5ef5-b1cc-54656bec2509",
+  "name": "Initialize Package Instrumentation",
+  "description": "Start monitoring and instrumenting Python packages using import hooks if not already active. Prevents duplicate instrumentation and respects agentic library precedence by checking _has_agentic_library flag and _active_instrumentors collection.",
+  "skill_body": "Call this skill at system startup or when AgentOps monitoring needs to begin. The skill checks if instrumentation is already active by examining _active_instrumentors. If empty, it replaces builtins.__import__ with _import_monitor to intercept all module loads. If an agentic library (OpenAI, Anthropic, CrewAI, AG2/AutoGen, Google GenAI, IBM WatsonX, Google ADK, Agno, Mem0, smolagents) is detected as already instrumented, the skill returns early to avoid conflicts.\n\n## Objective\n\nSet up runtime instrumentation of package imports with safety guards against duplicate and conflicting instrumentation\n## Applicable Signals\n\n- System startup or initialization phase\n- _active_instrumentors collection is empty\n- _has_agentic_library flag is False\n\n## Contraindications\n\n- An agentic library (OpenAI, Anthropic, CrewAI, AG2/AutoGen, Google GenAI, IBM WatsonX, Google ADK, Agno, Mem0, smolagents) is already instrumented\n- Instrumentation is already active (_active_instrumentors is non-empty)\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check if _active_instrumentors is empty', 'condition': 'If empty, proceed; if non-empty, return (already initialized)'}\n- {'step': 2, 'action': 'Replace builtins.__import__ with _import_monitor', 'condition': 'Only if _active_instrumentors was empty'}\n- {'step': 3, 'action': 'Check _has_agentic_library flag', 'condition': 'If True, return immediately to avoid conflicts'}\n- {'step': 4, 'action': 'Iterate through sys.modules.keys()', 'condition': 'For each module, check if it is a ModuleType instance'}\n- {'step': 5, 'action': 'For each valid module, check if package_to_check is in _instrumenting_packages or already instrumented', 'condition': 'If not instrumented, retrieve target_module_obj from sys.modules'}\n- {'step': 6, 'action': 'Break loop if _has_agentic_library becomes True during iteration', 'condition': 'Prevents further instrumentation if agentic library is detected'}\n\n## Constraints\n\n- Must check _has_agentic_library before proceeding\n- Must iterate through sys.modules.keys() safely; break if agentic library is detected during iteration\n- Must verify module type before processing (isinstance check for ModuleType)\n- Must not instrument packages already in _instrumenting_packages\n\n## Cautions\n\n- Replacing builtins.__import__ is a global operation; ensure no other import hooks conflict\n- Early return if agentic library detected prevents cascading instrumentation\n\n## Output Contract\n\n- builtins.__import__ is replaced with _import_monitor; _active_instrumentors is populated; system is ready to intercept module loads. Returns early without modification if agentic library is already instrumented or if instrumentation is already active.",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "5cb1141a-bd9a-5686-a22e-969b744a44a8",
+  "parent_candidate_ids": [
+    "5cb1141a-bd9a-5686-a22e-969b744a44a8"
+  ],
+  "child_skill_ids": [],
+  "hierarchy_confidence": 0.6,
+  "hierarchy_status": "linked",
+  "visible_role": "parent",
+  "objective": "Set up runtime instrumentation of package imports with safety guards against duplicate and conflicting instrumentation",
+  "domain": "default",
+  "task_family": "instrumentation_setup",
+  "method_family": "import_hook_installation",
+  "stage": "initialization",
+  "applicable_signals": [
+    "System startup or initialization phase",
+    "_active_instrumentors collection is empty",
+    "_has_agentic_library flag is False"
+  ],
+  "contraindications": [
+    "An agentic library (OpenAI, Anthropic, CrewAI, AG2/AutoGen, Google GenAI, IBM WatsonX, Google ADK, Agno, Mem0, smolagents) is already instrumented",
+    "Instrumentation is already active (_active_instrumentors is non-empty)"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "AgentOps monitoring needs to begin",
+    "_active_instrumentors is empty",
+    "No agentic library is already instrumented"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Check if _active_instrumentors is empty', 'condition': 'If empty, proceed; if non-empty, return (already initialized)'}",
+    "{'step': 2, 'action': 'Replace builtins.__import__ with _import_monitor', 'condition': 'Only if _active_instrumentors was empty'}",
+    "{'step': 3, 'action': 'Check _has_agentic_library flag', 'condition': 'If True, return immediately to avoid conflicts'}",
+    "{'step': 4, 'action': 'Iterate through sys.modules.keys()', 'condition': 'For each module, check if it is a ModuleType instance'}",
+    "{'step': 5, 'action': 'For each valid module, check if package_to_check is in _instrumenting_packages or already instrumented', 'condition': 'If not instrumented, retrieve target_module_obj from sys.modules'}",
+    "{'step': 6, 'action': 'Break loop if _has_agentic_library becomes True during iteration', 'condition': 'Prevents further instrumentation if agentic library is detected'}"
+  ],
+  "constraints": [
+    "Must check _has_agentic_library before proceeding",
+    "Must iterate through sys.modules.keys() safely; break if agentic library is detected during iteration",
+    "Must verify module type before processing (isinstance check for ModuleType)",
+    "Must not instrument packages already in _instrumenting_packages"
+  ],
+  "cautions": [
+    "Replacing builtins.__import__ is a global operation; ensure no other import hooks conflict",
+    "Early return if agentic library detected prevents cascading instrumentation"
+  ],
+  "output_contract": [
+    "builtins.__import__ is replaced with _import_monitor; _active_instrumentors is populated; system is ready to intercept module loads. Returns early without modification if agentic library is already instrumented or if instrumentation is already active."
+  ],
+  "examples": [],
+  "tags": [
+    "instrumentation",
+    "import_hook",
+    "initialization",
+    "monitoring",
+    "agentops"
+  ],
+  "support_ids": [
+    "7522cfa5-4c6f-50ce-a649-00392d79a847"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "215f3b36-79e0-5abc-a66a-847ab9367839"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.85,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|set up runtime instrumentation of package imports with safety guards against duplicate and conflicting instrumentation|default|instrumentation_setup|import_hook_installation|initialization|initialize package instrumentation",
+    "change_action": "create",
+    "llm_reason": "create",
+    "parent_skill_id": "5cb1141a-bd9a-5686-a22e-969b744a44a8",
+    "parent_candidate_ids": [
+      "5cb1141a-bd9a-5686-a22e-969b744a44a8"
+    ],
+    "hierarchy_confidence": 0.6,
+    "hierarchy_status": "linked",
+    "visible_role": "parent"
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

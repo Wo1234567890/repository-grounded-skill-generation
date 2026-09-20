@@ -1,0 +1,117 @@
+{
+  "skill_id": "8466bfb2-cbec-5b4f-b679-b4476dbf2c51",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "create",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "8466bfb2-cbec-5b4f-b679-b4476dbf2c51",
+    "name": "Weighted Zone Score Computation",
+    "description": "Combine Boolean match signals from multiple document zones (e.g., title, body, metadata) using learned or preset weights to produce a single numeric relevance score for a query–document pair.",
+    "skill_body": "Given a query and a document with multiple zones, retrieve the Boolean match signal (0 or 1) for each zone. Apply the zone weights to compute the weighted sum. Return the final score and document ranking position.\n\n## Objective\n\ncompute zone-weighted relevance score for a query–document pair\n## Applicable Signals\n\n- zone match indicator (Boolean: 0 or 1 per zone)\n- zone weight values (preset or learned)\n- query term presence in each zone\n\n## Contraindications\n\n- single-zone documents (use simpler scoring)\n- continuous term frequency weights required (use tf-idf instead)\n- vector space model is preferred for the use case\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Extract Boolean match signals', 'detail': 'For each zone in the document, compute s_zone(d, q) = 1 if query matches zone, else 0'}\n- {'step': 2, 'action': 'Retrieve zone weights', 'detail': 'Obtain weight g_i for each zone i (preset or learned from training)'}\n- {'step': 3, 'action': 'Compute weighted sum', 'detail': 'score = Σ(g_i × s_zone_i(d, q)) for all zones'}\n- {'step': 4, 'action': 'Return score', 'detail': 'Output numeric score for ranking or threshold comparison'}\n\n## Constraints\n\n- all zones must use compatible Boolean match functions\n- zone weights must sum to 1.0 or be normalized before use\n- training data required if weights are to be learned\n\n## Cautions\n\n- distinct score values depend on the weight set; enumerate all possible combinations if needed\n- weight learning requires labeled training examples with relevance judgments\n\n## Output Contract\n\n- Numeric score for the (query, document) pair\n- enumeration of all distinct possible scores for the given weight set\n- ranking position if multiple documents are scored\n\n## Example Executions\n\n### Example 1\n\n- Input: Query: 'machine learning'; Document zones: title='machine learning basics' (match=1), body='introduction to algorithms' (match=0), metadata='AI' (match=0); Weights: g_title=0.5, g_body=0.3, g_metadata=0.2\n- Output: score = 0.5×1 + 0.3×0 + 0.2×0 = 0.5\n- Notes: Only title zone matches; final score reflects title weight\n\n### Example 2\n\n- Input: Same query and document; Weights: g_title=0.2, g_body=0.31, g_metadata=0.49\n- Output: score = 0.2×1 + 0.31×0 + 0.49×0 = 0.2\n- Notes: Different weight set produces different score; distinct scores depend on weight configuration",
+    "asset_type": "session_skill",
+    "granularity": "session",
+    "asset_node_id": "workflow_skill",
+    "asset_path": "family_root/macro_skill/workflow_skill",
+    "asset_level": 2,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "parent",
+    "objective": "compute zone-weighted relevance score for a query–document pair",
+    "domain": "default",
+    "task_family": "document_scoring",
+    "method_family": "weighted_combination",
+    "stage": "scoring",
+    "applicable_signals": [
+      "zone match indicator (Boolean: 0 or 1 per zone)",
+      "zone weight values (preset or learned)",
+      "query term presence in each zone"
+    ],
+    "contraindications": [
+      "single-zone documents (use simpler scoring)",
+      "continuous term frequency weights required (use tf-idf instead)",
+      "vector space model is preferred for the use case"
+    ],
+    "intervention_moves": [],
+    "triggers": [
+      "document has multiple zones (title, body, abstract, etc.)",
+      "zone weights are known or learned from training data",
+      "Boolean match signals per zone are available"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Extract Boolean match signals', 'detail': 'For each zone in the document, compute s_zone(d, q) = 1 if query matches zone, else 0'}",
+      "{'step': 2, 'action': 'Retrieve zone weights', 'detail': 'Obtain weight g_i for each zone i (preset or learned from training)'}",
+      "{'step': 3, 'action': 'Compute weighted sum', 'detail': 'score = Σ(g_i × s_zone_i(d, q)) for all zones'}",
+      "{'step': 4, 'action': 'Return score', 'detail': 'Output numeric score for ranking or threshold comparison'}"
+    ],
+    "constraints": [
+      "all zones must use compatible Boolean match functions",
+      "zone weights must sum to 1.0 or be normalized before use",
+      "training data required if weights are to be learned"
+    ],
+    "cautions": [
+      "distinct score values depend on the weight set; enumerate all possible combinations if needed",
+      "weight learning requires labeled training examples with relevance judgments"
+    ],
+    "output_contract": [
+      "Numeric score for the (query, document) pair",
+      "enumeration of all distinct possible scores for the given weight set",
+      "ranking position if multiple documents are scored"
+    ],
+    "examples": [
+      {
+        "input": "Query: 'machine learning'; Document zones: title='machine learning basics' (match=1), body='introduction to algorithms' (match=0), metadata='AI' (match=0); Weights: g_title=0.5, g_body=0.3, g_metadata=0.2",
+        "output": "score = 0.5×1 + 0.3×0 + 0.2×0 = 0.5",
+        "notes": "Only title zone matches; final score reflects title weight"
+      },
+      {
+        "input": "Same query and document; Weights: g_title=0.2, g_body=0.31, g_metadata=0.49",
+        "output": "score = 0.2×1 + 0.31×0 + 0.49×0 = 0.2",
+        "notes": "Different weight set produces different score; distinct scores depend on weight configuration"
+      }
+    ],
+    "tags": [
+      "document_scoring",
+      "zone_weighting",
+      "Boolean_matching",
+      "relevance_ranking",
+      "information_retrieval"
+    ],
+    "support_ids": [
+      "3cb2090c-85c5-5919-8231-bb162596845d"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "e583dc44-f7d6-554a-b82b-77362ea0a747"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||session_skill|session|workflow_skill|compute zone-weighted relevance score for a query–document pair|default|document_scoring|weighted_combination|scoring|weighted zone score computation"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

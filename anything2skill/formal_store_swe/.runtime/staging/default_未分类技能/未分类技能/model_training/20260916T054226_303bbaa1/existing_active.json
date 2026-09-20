@@ -1,0 +1,401 @@
+{
+  "schema": "autoskill.document.staging.existing_active.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "model_training",
+  "run_id": "20260916T054226_303bbaa1",
+  "skills": [
+    {
+      "skill_id": "157d80cf-9e39-5360-93dc-64c3a207c855",
+      "name": "SimPO Model Training Launch",
+      "description": "Execute distributed training of SimPO preference-optimized language models using Accelerate and DeepSpeed, with model-specific configuration files and GPU resource allocation.",
+      "skill_body": "To launch a SimPO training job:\n1. Verify GPU cluster availability (4xH100 or equivalent).\n2. Adjust num_processes and per_device_train_batch_size in the training config if your environment differs from 4xH100.\n3. Select the appropriate training config file for your model variant (Mistral-Base, Mistral-Instruct, Llama3-Base, Llama3-Instruct, or Llama3-Instruct-v0.2).\n4. Execute the accelerate launch command with the corresponding config file and training script.\n5. Monitor stdout for loss metrics and checkpoint creation.\n\n## Objective\n\nLaunch and execute a complete SimPO training run for a specified model variant\n## Applicable Signals\n\n- Starting a new SimPO training job\n- GPU cluster is available and configured\n- Model variant is one of: Mistral-Base, Mistral-Instruct, Llama3-Base, Llama3-Instruct, Llama3-Instruct-v0.2\n- Training config files are present and valid\n\n## Contraindications\n\n- Inference or evaluation only\n- No GPU resources available\n- Training config files are missing or corrupted\n- Accelerate or DeepSpeed not installed\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Verify environment', 'detail': 'Confirm GPU availability, Accelerate installation, and DeepSpeed configuration'}\n- {'step': 2, 'action': 'Select model variant', 'detail': 'Choose one of: Mistral-Base, Mistral-Instruct, Llama3-Base, Llama3-Instruct, Llama3-Instruct-v0.2'}\n- {'step': 3, 'action': 'Adjust hyperparameters if needed', 'detail': 'Modify num_processes and per_device_train_batch_size in training config based on your compute environment'}\n- {'step': 4, 'action': 'Execute accelerate launch command', 'detail': 'Run accelerate launch with --config_file pointing to deepspeed_zero3.yaml, scripts/run_simpo.py, and the model-specific training config'}\n- {'step': 5, 'action': 'Monitor training', 'detail': 'Observe stdout for loss metrics and checkpoint creation; verify ACCELERATE_LOG_LEVEL=info output'}\n\n## Constraints\n\n- Requires 4xH100 GPUs or equivalent compute resources (adjustable via num_processes and per_device_train_batch_size)\n- Requires accelerate_configs/deepspeed_zero3.yaml configuration file\n- Requires model-specific training config file from training_configs/ directory\n- Requires scripts/run_simpo.py training script\n\n## Cautions\n\n- Hyperparameter settings are tuned for 4xH100; adjust batch size and num_processes for different hardware\n- Training may consume significant GPU memory; monitor resource usage\n- Ensure checkpoint directory has sufficient disk space\n\n## Output Contract\n\n- Training process launched successfully with Accelerate; checkpoint directory created and loss metrics begin logging to stdout; distributed training orchestration is active across specified GPU processes\n\n## Example Executions\n\n### Example 1\n\n- Input: Model variant: Mistral-Base; GPU cluster: 4xH100; config files present\n- Output: Accelerate launch initiated; training loop begins; loss metrics logged to console\n- Notes: Command: ACCELERATE_LOG_LEVEL=info accelerate launch --config_file accelerate_configs/deepspeed_zero3.yaml scripts/run_simpo.py training_configs/mistral-7b-base-simpo.yaml\n\n### Example 2\n\n- Input: Model variant: Llama3-Instruct-v0.2; GPU cluster: 4xH100; config files present\n- Output: Accelerate launch initiated; training loop begins; loss metrics logged to console\n- Notes: Command: ACCELERATE_LOG_LEVEL=info accelerate launch --config_file accelerate_configs/deepspeed_zero3.yaml scripts/run_simpo.py training_configs/llama-3-8b-instruct-simpo-v2.yaml",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "",
+      "parent_candidate_ids": [],
+      "child_skill_ids": [
+        "78dbc066-a6f1-52e1-987d-2b0215b284ff",
+        "96b4f0bd-4385-5ac7-b23a-5631eac86cc2"
+      ],
+      "hierarchy_confidence": 0.0,
+      "hierarchy_status": "parent",
+      "visible_role": "parent",
+      "objective": "Launch and execute a complete SimPO training run for a specified model variant",
+      "domain": "default",
+      "task_family": "model_training",
+      "method_family": "distributed_training_orchestration",
+      "stage": "training_execution",
+      "applicable_signals": [
+        "Starting a new SimPO training job",
+        "GPU cluster is available and configured",
+        "Model variant is one of: Mistral-Base, Mistral-Instruct, Llama3-Base, Llama3-Instruct, Llama3-Instruct-v0.2",
+        "Training config files are present and valid"
+      ],
+      "contraindications": [
+        "Inference or evaluation only",
+        "No GPU resources available",
+        "Training config files are missing or corrupted",
+        "Accelerate or DeepSpeed not installed"
+      ],
+      "intervention_moves": [],
+      "triggers": [
+        "Starting a new SimPO training job for Mistral-Base, Mistral-Instruct, Llama3-Base, Llama3-Instruct, or Llama3-Instruct-v0.2 models; GPU cluster is available and configured"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Verify environment', 'detail': 'Confirm GPU availability, Accelerate installation, and DeepSpeed configuration'}",
+        "{'step': 2, 'action': 'Select model variant', 'detail': 'Choose one of: Mistral-Base, Mistral-Instruct, Llama3-Base, Llama3-Instruct, Llama3-Instruct-v0.2'}",
+        "{'step': 3, 'action': 'Adjust hyperparameters if needed', 'detail': 'Modify num_processes and per_device_train_batch_size in training config based on your compute environment'}",
+        "{'step': 4, 'action': 'Execute accelerate launch command', 'detail': 'Run accelerate launch with --config_file pointing to deepspeed_zero3.yaml, scripts/run_simpo.py, and the model-specific training config'}",
+        "{'step': 5, 'action': 'Monitor training', 'detail': 'Observe stdout for loss metrics and checkpoint creation; verify ACCELERATE_LOG_LEVEL=info output'}"
+      ],
+      "constraints": [
+        "Requires 4xH100 GPUs or equivalent compute resources (adjustable via num_processes and per_device_train_batch_size)",
+        "Requires accelerate_configs/deepspeed_zero3.yaml configuration file",
+        "Requires model-specific training config file from training_configs/ directory",
+        "Requires scripts/run_simpo.py training script"
+      ],
+      "cautions": [
+        "Hyperparameter settings are tuned for 4xH100; adjust batch size and num_processes for different hardware",
+        "Training may consume significant GPU memory; monitor resource usage",
+        "Ensure checkpoint directory has sufficient disk space"
+      ],
+      "output_contract": [
+        "Training process launched successfully with Accelerate; checkpoint directory created and loss metrics begin logging to stdout; distributed training orchestration is active across specified GPU processes"
+      ],
+      "examples": [
+        {
+          "input": "Model variant: Mistral-Base; GPU cluster: 4xH100; config files present",
+          "output": "Accelerate launch initiated; training loop begins; loss metrics logged to console",
+          "notes": "Command: ACCELERATE_LOG_LEVEL=info accelerate launch --config_file accelerate_configs/deepspeed_zero3.yaml scripts/run_simpo.py training_configs/mistral-7b-base-simpo.yaml"
+        },
+        {
+          "input": "Model variant: Llama3-Instruct-v0.2; GPU cluster: 4xH100; config files present",
+          "output": "Accelerate launch initiated; training loop begins; loss metrics logged to console",
+          "notes": "Command: ACCELERATE_LOG_LEVEL=info accelerate launch --config_file accelerate_configs/deepspeed_zero3.yaml scripts/run_simpo.py training_configs/llama-3-8b-instruct-simpo-v2.yaml"
+        }
+      ],
+      "tags": [
+        "model_training",
+        "distributed_training",
+        "accelerate",
+        "deepspeed",
+        "language_model",
+        "preference_optimization"
+      ],
+      "support_ids": [
+        "56de7c1f-5cab-5fbb-b55b-389f7159f523"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "4bd04e89-a68c-5e2e-8e8f-72c3a33bb400"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.92,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|launch and execute a complete simpo training run for a specified model variant|default|model_training|distributed_training_orchestration|training_execution|simpo model training launch",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "",
+        "parent_candidate_ids": [],
+        "hierarchy_confidence": 0.0,
+        "hierarchy_status": "parent",
+        "visible_role": "parent",
+        "child_skill_ids": [
+          "78dbc066-a6f1-52e1-987d-2b0215b284ff",
+          "96b4f0bd-4385-5ac7-b23a-5631eac86cc2"
+        ]
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "78dbc066-a6f1-52e1-987d-2b0215b284ff",
+      "name": "Catastrophic Forgetting Mitigation in Preference Optimization",
+      "description": "Select Gemma-2-9b-it over Llama3 models when training preference optimization on datasets with limited math or knowledge coverage to minimize performance degradation on specialized benchmarks (GSM, MMLU).",
+      "skill_body": "When training preference optimization models on datasets with limited math or knowledge coverage, choose Gemma-2-9b-it instead of Llama3 to reduce catastrophic forgetting on GSM and MMLU benchmarks. Gemma models demonstrate significantly better retention of math and knowledge performance despite ultrafeedback dataset limitations.\n\n## Objective\n\nReduce performance degradation on math and knowledge tasks when applying preference optimization\n## Applicable Signals\n\n- Preference dataset has sparse math-related examples\n- Baseline model shows performance drop on math or knowledge tasks post-training\n- Target benchmarks include GSM or MMLU evaluation\n\n## Contraindications\n\n- Using Llama3 models without explicit catastrophic forgetting mitigation\n- Task does not require math or knowledge task preservation\n- Resource constraints prohibit model switching or Gemma-2-9b-it deployment\n- Inference latency or model size constraints favor smaller alternatives\n\n## Intervention Moves\n\n- Switch base model from Llama3 to Gemma-2-9b-it\n- Validate math and knowledge task retention post-training\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Assess preference dataset coverage', 'detail': 'Identify math and knowledge task representation in training data; flag if coverage is limited'}\n- {'step': 2, 'action': 'Evaluate baseline model options', 'detail': 'Compare Gemma-2-9b-it against Llama3 candidates for your task; prioritize Gemma if math/knowledge preservation is critical'}\n- {'step': 3, 'action': 'Configure training with selected model', 'detail': 'Use Gemma-2-9b-it as base model for preference optimization; apply standard hyperparameter tuning'}\n- {'step': 4, 'action': 'Validate on math and knowledge benchmarks', 'detail': 'Evaluate trained model on GSM, MMLU, and other specialized tasks; confirm performance retention vs. baseline'}\n\n## Constraints\n\n- Gemma-2-9b-it must be available in training environment\n- Preference optimization method (e.g., SimPO, DPO) must be compatible with selected model\n- Evaluation must include math and knowledge benchmarks to validate forgetting mitigation\n\n## Cautions\n\n- Gemma-2-9b-it shows better math retention but may have different performance characteristics on other tasks; validate across full benchmark suite\n- Catastrophic forgetting mitigation is model-dependent; results may not transfer to other Gemma or Llama variants\n\n## Output Contract\n\n- Trained model with maintained or improved performance on math and knowledge benchmarks (GSM, MMLU) compared to baseline, demonstrating reduced catastrophic forgetting\n\n## Example Executions\n\n### Example 1\n\n- Input: Training SimPO on ultrafeedback dataset (limited math examples) with Llama3-8b baseline\n- Output: Switch to Gemma-2-9b-it; train with same SimPO hyperparameters; evaluate on GSM8K and MMLU\n- Notes: Gemma-2-9b-it exhibits significantly less performance drop on math tasks post-training\n\n### Example 2\n\n- Input: Preference optimization task requires MMLU score preservation above 70%\n- Output: Select Gemma-2-9b-it as base model; validate MMLU retention after preference training\n- Notes: Gemma models show better MMLU retention despite sparse math coverage in preference data",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "157d80cf-9e39-5360-93dc-64c3a207c855",
+      "parent_candidate_ids": [
+        "157d80cf-9e39-5360-93dc-64c3a207c855"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Reduce performance degradation on math and knowledge tasks when applying preference optimization",
+      "domain": "default",
+      "task_family": "model_training",
+      "method_family": "preference_optimization",
+      "stage": "model_selection_and_tuning",
+      "applicable_signals": [
+        "Preference dataset has sparse math-related examples",
+        "Baseline model shows performance drop on math or knowledge tasks post-training",
+        "Target benchmarks include GSM or MMLU evaluation"
+      ],
+      "contraindications": [
+        "Using Llama3 models without explicit catastrophic forgetting mitigation",
+        "Task does not require math or knowledge task preservation",
+        "Resource constraints prohibit model switching or Gemma-2-9b-it deployment",
+        "Inference latency or model size constraints favor smaller alternatives"
+      ],
+      "intervention_moves": [
+        "Switch base model from Llama3 to Gemma-2-9b-it",
+        "Validate math and knowledge task retention post-training"
+      ],
+      "triggers": [
+        "Training preference optimization on datasets with limited math or knowledge task coverage",
+        "Need to preserve performance on GSM, MMLU, or similar specialized benchmarks",
+        "Evaluating model selection for continued preference optimization"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Assess preference dataset coverage', 'detail': 'Identify math and knowledge task representation in training data; flag if coverage is limited'}",
+        "{'step': 2, 'action': 'Evaluate baseline model options', 'detail': 'Compare Gemma-2-9b-it against Llama3 candidates for your task; prioritize Gemma if math/knowledge preservation is critical'}",
+        "{'step': 3, 'action': 'Configure training with selected model', 'detail': 'Use Gemma-2-9b-it as base model for preference optimization; apply standard hyperparameter tuning'}",
+        "{'step': 4, 'action': 'Validate on math and knowledge benchmarks', 'detail': 'Evaluate trained model on GSM, MMLU, and other specialized tasks; confirm performance retention vs. baseline'}"
+      ],
+      "constraints": [
+        "Gemma-2-9b-it must be available in training environment",
+        "Preference optimization method (e.g., SimPO, DPO) must be compatible with selected model",
+        "Evaluation must include math and knowledge benchmarks to validate forgetting mitigation"
+      ],
+      "cautions": [
+        "Gemma-2-9b-it shows better math retention but may have different performance characteristics on other tasks; validate across full benchmark suite",
+        "Catastrophic forgetting mitigation is model-dependent; results may not transfer to other Gemma or Llama variants"
+      ],
+      "output_contract": [
+        "Trained model with maintained or improved performance on math and knowledge benchmarks (GSM, MMLU) compared to baseline, demonstrating reduced catastrophic forgetting"
+      ],
+      "examples": [
+        {
+          "input": "Training SimPO on ultrafeedback dataset (limited math examples) with Llama3-8b baseline",
+          "output": "Switch to Gemma-2-9b-it; train with same SimPO hyperparameters; evaluate on GSM8K and MMLU",
+          "notes": "Gemma-2-9b-it exhibits significantly less performance drop on math tasks post-training"
+        },
+        {
+          "input": "Preference optimization task requires MMLU score preservation above 70%",
+          "output": "Select Gemma-2-9b-it as base model; validate MMLU retention after preference training",
+          "notes": "Gemma models show better MMLU retention despite sparse math coverage in preference data"
+        }
+      ],
+      "tags": [
+        "model_selection",
+        "catastrophic_forgetting",
+        "preference_optimization",
+        "math_preservation",
+        "knowledge_retention",
+        "gemma"
+      ],
+      "support_ids": [
+        "ab2f91ca-0193-56ad-89f7-7758024ed560"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "099e668d-1572-5601-9902-c20b7559a1ef"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.72,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|reduce performance degradation on math and knowledge tasks when applying preference optimization|default|model_training|preference_optimization|model_selection_and_tuning|catastrophic forgetting mitigation in preference optimization",
+        "change_action": "create",
+        "llm_reason": "create",
+        "parent_skill_id": "157d80cf-9e39-5360-93dc-64c3a207c855",
+        "parent_candidate_ids": [
+          "157d80cf-9e39-5360-93dc-64c3a207c855"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    },
+    {
+      "skill_id": "96b4f0bd-4385-5ac7-b23a-5631eac86cc2",
+      "name": "Training Configuration Resource Adjustment",
+      "description": "Modify `num_processes` and `per_device_train_batch_size` parameters in training config files to match available GPU memory and cluster topology. This micro-skill adapts training hyperparameters to local compute environment without changing model or algorithm.",
+      "skill_body": "1. Identify your available GPU count and total GPU memory.\n2. Locate the training config file (e.g., training_configs/mistral-7b-base-simpo.yaml).\n3. Calculate new `num_processes` based on your GPU count (default baseline: 4xH100).\n4. Adjust `per_device_train_batch_size` downward if out-of-memory errors occur; increase if throughput is suboptimal and memory permits.\n5. Verify the config file is updated and saved.\n6. Launch training with the adjusted config and confirm no OOM errors in the first few steps.\n\n## Objective\n\nAdapt training hyperparameters to local compute environment without changing model or algorithm\n## Applicable Signals\n\n- GPU count differs from 4xH100 baseline\n- Out-of-memory errors occur during training initialization\n- Training throughput is suboptimal relative to expected performance\n\n## Contraindications\n\n- Do not use when reproducing exact paper results; use baseline 4xH100 config instead\n- Do not use for changing learning rate or loss weighting; use separate hyperparameter tuning asset\n- Do not use if the training script itself is broken or misconfigured\n\n## Intervention Moves\n\n- Reduce per_device_train_batch_size if OOM errors persist\n- Increase per_device_train_batch_size if memory headroom exists and throughput is low\n- Adjust num_processes to match actual GPU count\n\n## Workflow Steps\n\n- Identify available GPU count and total GPU memory\n- Locate the training config file in training_configs/ directory\n- Calculate new num_processes based on GPU count\n- Adjust per_device_train_batch_size based on memory constraints and throughput\n- Update and save the config file\n- Launch training and verify no OOM errors in initial steps\n\n## Constraints\n\n- num_processes must not exceed available GPU count\n- per_device_train_batch_size must be a positive integer\n- Config file must be valid YAML and located in training_configs/ directory\n\n## Cautions\n\n- Changing batch size may affect convergence behavior and final model quality\n- Reducing batch size increases training time; increasing it may cause OOM on smaller clusters\n\n## Output Contract\n\n- Config file updated with new num_processes and per_device_train_batch_size values; training launches without out-of-memory errors in initial steps.\n\n## Example Executions\n\n### Example 1\n\n- Input: Available: 2xH100 GPUs; baseline config has num_processes=4, per_device_train_batch_size=4\n- Output: Updated config: num_processes=2, per_device_train_batch_size=2; training launches successfully\n- Notes: Reduced both parameters proportionally to available resources\n\n### Example 2\n\n- Input: Available: 8xA100 GPUs; baseline config has num_processes=4, per_device_train_batch_size=4; OOM error on first epoch\n- Output: Updated config: num_processes=8, per_device_train_batch_size=2; training proceeds without OOM\n- Notes: Increased num_processes to match GPU count; reduced batch size to stay within A100 memory limits",
+      "asset_type": "micro_skill",
+      "granularity": "micro",
+      "asset_node_id": "micro_skill_node",
+      "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+      "asset_level": 3,
+      "parent_skill_id": "157d80cf-9e39-5360-93dc-64c3a207c855",
+      "parent_candidate_ids": [
+        "157d80cf-9e39-5360-93dc-64c3a207c855"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "leaf",
+      "objective": "Adapt training hyperparameters to local compute environment without changing model or algorithm",
+      "domain": "default",
+      "task_family": "model_training",
+      "method_family": "hyperparameter_adaptation",
+      "stage": "pre_training_setup",
+      "applicable_signals": [
+        "GPU count differs from 4xH100 baseline",
+        "Out-of-memory errors occur during training initialization",
+        "Training throughput is suboptimal relative to expected performance"
+      ],
+      "contraindications": [
+        "Do not use when reproducing exact paper results; use baseline 4xH100 config instead",
+        "Do not use for changing learning rate or loss weighting; use separate hyperparameter tuning asset",
+        "Do not use if the training script itself is broken or misconfigured"
+      ],
+      "intervention_moves": [
+        "Reduce per_device_train_batch_size if OOM errors persist",
+        "Increase per_device_train_batch_size if memory headroom exists and throughput is low",
+        "Adjust num_processes to match actual GPU count"
+      ],
+      "triggers": [
+        "GPU count differs from 4xH100 baseline",
+        "Out-of-memory errors occur during training initialization",
+        "Training throughput is suboptimal relative to expected performance"
+      ],
+      "workflow_steps": [
+        "Identify available GPU count and total GPU memory",
+        "Locate the training config file in training_configs/ directory",
+        "Calculate new num_processes based on GPU count",
+        "Adjust per_device_train_batch_size based on memory constraints and throughput",
+        "Update and save the config file",
+        "Launch training and verify no OOM errors in initial steps"
+      ],
+      "constraints": [
+        "num_processes must not exceed available GPU count",
+        "per_device_train_batch_size must be a positive integer",
+        "Config file must be valid YAML and located in training_configs/ directory"
+      ],
+      "cautions": [
+        "Changing batch size may affect convergence behavior and final model quality",
+        "Reducing batch size increases training time; increasing it may cause OOM on smaller clusters"
+      ],
+      "output_contract": [
+        "Config file updated with new num_processes and per_device_train_batch_size values; training launches without out-of-memory errors in initial steps."
+      ],
+      "examples": [
+        {
+          "input": "Available: 2xH100 GPUs; baseline config has num_processes=4, per_device_train_batch_size=4",
+          "output": "Updated config: num_processes=2, per_device_train_batch_size=2; training launches successfully",
+          "notes": "Reduced both parameters proportionally to available resources"
+        },
+        {
+          "input": "Available: 8xA100 GPUs; baseline config has num_processes=4, per_device_train_batch_size=4; OOM error on first epoch",
+          "output": "Updated config: num_processes=8, per_device_train_batch_size=2; training proceeds without OOM",
+          "notes": "Increased num_processes to match GPU count; reduced batch size to stay within A100 memory limits"
+        }
+      ],
+      "tags": [
+        "training_setup",
+        "hyperparameter_adaptation",
+        "resource_management",
+        "gpu_optimization"
+      ],
+      "support_ids": [
+        "2e802ce8-4866-5b9b-8ada-3e0b0824d7c1"
+      ],
+      "metadata": {
+        "risk_class": "low",
+        "source_draft_ids": [
+          "b8bc4b0d-5ddd-5235-8b08-26305d6069c0"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||micro_skill|micro|micro_skill_node|adapt training hyperparameters to local compute environment without changing model or algorithm|default|model_training|hyperparameter_adaptation|pre_training_setup|training configuration resource adjustment",
+        "llm_reason": "Candidate is a distinct micro-skill for training hyperparameter adaptation (num_processes, per_device_train_batch_size) in pre_training_setup stage. It does not semantically overlap with existing skills (Mooncake checkpoint distribution, completion batch generation) which operate at different stages and task families. Peer candidates address model selection, comparative evaluation, and issue reporting—none of which conflict with or subsume this training config adjustment capability. The skill has clear support evidence from SimPO documentation and represents a standalone, actionable workflow.",
+        "change_action": "create",
+        "parent_skill_id": "157d80cf-9e39-5360-93dc-64c3a207c855",
+        "parent_candidate_ids": [
+          "157d80cf-9e39-5360-93dc-64c3a207c855"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "leaf"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ]
+}

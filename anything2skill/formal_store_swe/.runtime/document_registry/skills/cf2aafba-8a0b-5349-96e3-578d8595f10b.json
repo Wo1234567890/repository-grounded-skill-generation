@@ -1,0 +1,122 @@
+{
+  "skill_id": "cf2aafba-8a0b-5349-96e3-578d8595f10b",
+  "name": "Singleton Client Initialization with Re-initialization Guard",
+  "description": "Ensures a single Client instance is created and safely re-initialized only when a different API key is explicitly provided, preventing unintended state conflicts and cleaning up trace context on re-init.",
+  "skill_body": "1. Check if Client instance already exists via __new__; if not, create one and initialize trace context holders to None.\n2. In __init__, verify _initialized flag; if not set, create Config and set _initialized to False.\n3. Extract provided_api_key from kwargs; if Client is already initialized and a different non-None API key is provided, log warning, reset _initialized, end any active trace, and clear trace context.\n4. If already initialized and auto_start_session is true, return existing legacy session wrapper; otherwise return None.\n5. If no API key is configured, raise NoApiKeyException.\n6. Return the singleton Client instance with _initialized set to True.\n\n## Objective\n\nInitialize and manage singleton Client lifecycle with API key change detection and trace cleanup\n## Applicable Signals\n\n- cls.__instance is None (first creation)\n- provided_api_key differs from self.config.api_key\n- self.initialized is True and auto_start_session is True\n\n## Contraindications\n\n- Attempting to create multiple independent Client instances\n- Re-initializing with the same API key (should return existing instance without reset)\n- No API key provided or configured\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Check singleton instance existence', 'detail': 'In __new__, if cls.__instance is None, create new instance and initialize _init_trace_context and _legacy_session_for_init_trace to None'}\n- {'step': 2, 'action': 'Initialize configuration', 'detail': 'In __init__, if _initialized is not set or False, create Config() and set _initialized to False'}\n- {'step': 3, 'action': 'Detect API key change', 'detail': 'Extract provided_api_key from kwargs; compare with self.config.api_key'}\n- {'step': 4, 'action': 'Handle re-initialization', 'detail': 'If initialized and provided_api_key is not None and differs from config.api_key: log warning, reset _initialized, end active trace if recording, clear trace context holders'}\n- {'step': 5, 'action': 'Return appropriate instance state', 'detail': 'If already initialized: return legacy session wrapper if auto_start_session is True, else return None; otherwise proceed to API key validation'}\n- {'step': 6, 'action': 'Validate API key', 'detail': 'If self.config.api_key is not set, raise NoApiKeyException'}\n\n## Constraints\n\n- Only one Client instance may exist per process (singleton pattern enforced)\n- Re-initialization with a different API key must explicitly provide api_key kwarg\n- Trace context must be ended before re-initialization if recording\n\n## Cautions\n\n- Re-initialization with a different API key is logged as unusual; verify intent\n- If auto_start_session is False and Client is already initialized, None is returned instead of instance\n\n## Output Contract\n\n- Single Client instance with _initialized flag set to True and config properly loaded; trace context cleaned up if re-initialization occurred; legacy session wrapper returned if auto_start_session is enabled and already initialized; NoApiKeyException raised if API key is missing",
+  "asset_type": "session_skill",
+  "granularity": "session",
+  "asset_node_id": "workflow_skill",
+  "asset_path": "family_root/macro_skill/workflow_skill",
+  "asset_level": 2,
+  "parent_skill_id": "",
+  "parent_candidate_ids": [],
+  "child_skill_ids": [
+    "0a2a2531-de87-56a6-b24c-ab18b66de26d",
+    "c204c15c-15eb-5cb6-a367-0177d593379a",
+    "e3db3ce1-4c46-5250-8cf3-b6d590656c9e"
+  ],
+  "hierarchy_confidence": 0.0,
+  "hierarchy_status": "parent",
+  "visible_role": "parent",
+  "objective": "Initialize and manage singleton Client lifecycle with API key change detection and trace cleanup",
+  "domain": "default",
+  "task_family": "client_initialization",
+  "method_family": "singleton_pattern",
+  "stage": "setup",
+  "applicable_signals": [
+    "cls.__instance is None (first creation)",
+    "provided_api_key differs from self.config.api_key",
+    "self.initialized is True and auto_start_session is True"
+  ],
+  "contraindications": [
+    "Attempting to create multiple independent Client instances",
+    "Re-initializing with the same API key (should return existing instance without reset)",
+    "No API key provided or configured"
+  ],
+  "intervention_moves": [],
+  "triggers": [
+    "First instantiation of Client class",
+    "Subsequent access to Client instance",
+    "Re-initialization attempt with different API key"
+  ],
+  "workflow_steps": [
+    "{'step': 1, 'action': 'Check singleton instance existence', 'detail': 'In __new__, if cls.__instance is None, create new instance and initialize _init_trace_context and _legacy_session_for_init_trace to None'}",
+    "{'step': 2, 'action': 'Initialize configuration', 'detail': 'In __init__, if _initialized is not set or False, create Config() and set _initialized to False'}",
+    "{'step': 3, 'action': 'Detect API key change', 'detail': 'Extract provided_api_key from kwargs; compare with self.config.api_key'}",
+    "{'step': 4, 'action': 'Handle re-initialization', 'detail': 'If initialized and provided_api_key is not None and differs from config.api_key: log warning, reset _initialized, end active trace if recording, clear trace context holders'}",
+    "{'step': 5, 'action': 'Return appropriate instance state', 'detail': 'If already initialized: return legacy session wrapper if auto_start_session is True, else return None; otherwise proceed to API key validation'}",
+    "{'step': 6, 'action': 'Validate API key', 'detail': 'If self.config.api_key is not set, raise NoApiKeyException'}"
+  ],
+  "constraints": [
+    "Only one Client instance may exist per process (singleton pattern enforced)",
+    "Re-initialization with a different API key must explicitly provide api_key kwarg",
+    "Trace context must be ended before re-initialization if recording"
+  ],
+  "cautions": [
+    "Re-initialization with a different API key is logged as unusual; verify intent",
+    "If auto_start_session is False and Client is already initialized, None is returned instead of instance"
+  ],
+  "output_contract": [
+    "Single Client instance with _initialized flag set to True and config properly loaded; trace context cleaned up if re-initialization occurred; legacy session wrapper returned if auto_start_session is enabled and already initialized; NoApiKeyException raised if API key is missing"
+  ],
+  "examples": [],
+  "tags": [
+    "singleton",
+    "initialization",
+    "client_lifecycle",
+    "api_key_management",
+    "trace_cleanup",
+    "re-initialization_guard"
+  ],
+  "support_ids": [
+    "e444ebfb-0fe4-5122-a9c4-b06064f9189c"
+  ],
+  "metadata": {
+    "risk_class": "medium",
+    "source_draft_ids": [
+      "d374f7e7-10ff-5cbe-ac55-d67d66ab5560"
+    ],
+    "support_summary": {
+      "support": 1,
+      "constraint": 0,
+      "conflict": 0,
+      "case_variant": 0
+    },
+    "files": {},
+    "resources": {},
+    "confidence": 0.85,
+    "domain_type": "default",
+    "taxonomy_id": "default",
+    "family_name": "未分类技能",
+    "family_id": "",
+    "profile_id": "default::未分类技能",
+    "domain_root_name": "通用技能领域",
+    "domain_root_id": "default",
+    "taxonomy_axis": "",
+    "family_bucket_label": "Family技能",
+    "visible_levels": {
+      "root_label": "总技能",
+      "family_bucket_label": "Family技能",
+      "level_labels": {
+        "1": "一级技能",
+        "2": "二级技能",
+        "3": "微技能"
+      }
+    },
+    "identity_key": "default|||session_skill|session|workflow_skill|initialize and manage singleton client lifecycle with api key change detection and trace cleanup|default|client_initialization|singleton_pattern|setup|singleton client initialization with re-initialization guard",
+    "change_action": "create",
+    "llm_reason": "create",
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "parent",
+    "visible_role": "parent",
+    "child_skill_ids": [
+      "0a2a2531-de87-56a6-b24c-ab18b66de26d",
+      "c204c15c-15eb-5cb6-a367-0177d593379a",
+      "e3db3ce1-4c46-5250-8cf3-b6d590656c9e"
+    ]
+  },
+  "version": "0.1.0",
+  "status": "active"
+}

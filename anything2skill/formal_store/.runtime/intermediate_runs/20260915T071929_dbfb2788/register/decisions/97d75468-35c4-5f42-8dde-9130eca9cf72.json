@@ -1,0 +1,121 @@
+{
+  "skill_id": "97d75468-35c4-5f42-8dde-9130eca9cf72",
+  "action": "create",
+  "matched_skill_ids": [],
+  "reason": "Candidate is a distinct micro_skill for configuring automatic watermark intervals in Flink DataStream applications. It does not match any existing skill in the registry (which contains unrelated skills: Executor Submit/Future, vLLM Generation Server). Peer candidates are other Flink micro_skills in different task families (buffer timeout, text file source, sink output) with different objectives and methods. No semantic overlap, merge, split, or revision relationship exists.",
+  "split_parent_id": "",
+  "skill": {
+    "skill_id": "97d75468-35c4-5f42-8dde-9130eca9cf72",
+    "name": "Automatic Watermark Interval Configuration",
+    "description": "Configure the interval for automatic watermark emission in Flink DataStream applications via setAutoWatermarkInterval() on ExecutionConfig. Controls the cadence at which watermarks are emitted to advance event-time progress.",
+    "skill_body": "Use setAutoWatermarkInterval(long milliseconds) on the StreamExecutionEnvironment's ExecutionConfig to set the watermark emission interval. Retrieve the current value with getAutoWatermarkInterval(). The interval determines how frequently watermarks are automatically generated and sent downstream.\n\n## Objective\n\nconfigure_watermark_emission_cadence\n## Applicable Signals\n\n- event-time semantics are required for the application\n- default watermark emission interval is insufficient\n- watermark latency or granularity needs tuning\n- application uses event-time windows or joins\n\n## Contraindications\n\n- custom watermark generators are already assigned to sources\n- processing-time semantics are sufficient for the application\n- watermark emission is managed externally or via SourceFunction\n\n## Intervention Moves\n\n- Call setAutoWatermarkInterval(milliseconds) on ExecutionConfig before job submission\n- Query current interval with getAutoWatermarkInterval() to verify configuration\n- Adjust interval based on event-time progress requirements and latency constraints\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Obtain StreamExecutionEnvironment instance', 'detail': 'Create or retrieve the execution environment for the DataStream job'}\n- {'step': 2, 'action': 'Access ExecutionConfig', 'detail': 'Call getConfig() on the StreamExecutionEnvironment'}\n- {'step': 3, 'action': 'Set watermark interval', 'detail': 'Call setAutoWatermarkInterval(milliseconds) with desired interval value'}\n- {'step': 4, 'action': 'Verify configuration (optional)', 'detail': 'Call getAutoWatermarkInterval() to confirm the interval is set'}\n\n## Constraints\n\n- interval must be a positive long value in milliseconds\n- configuration must be set on ExecutionConfig before job execution\n- applies only to automatic watermark emission; does not override custom generators\n\n## Cautions\n\n- very small intervals may increase overhead; balance latency and throughput\n- interval affects all sources using automatic watermark generation\n- does not apply if sources implement custom watermark generation logic\n\n## Output Contract\n\n- Watermark emission interval is configured on ExecutionConfig\n- watermarks are emitted at the specified cadence during job execution\n- getAutoWatermarkInterval() returns the configured value\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: StreamExecutionEnvironment with default watermark interval; application requires watermarks every 100 ms\n- Therapist/Output: env.getConfig().setAutoWatermarkInterval(100); watermarks emitted at 100 ms cadence\n- Notes: Typical configuration for event-time windows with moderate latency tolerance\n\n### Example 2\n\n- Client/Input: Low-latency application requiring frequent watermark updates\n- Therapist/Output: env.getConfig().setAutoWatermarkInterval(10); watermarks emitted every 10 ms\n- Notes: Smaller interval increases watermark frequency; monitor overhead",
+    "asset_type": "micro_skill",
+    "granularity": "micro",
+    "asset_node_id": "micro_skill_node",
+    "asset_path": "family_root/macro_skill/workflow_skill/micro_skill_node",
+    "asset_level": 3,
+    "parent_skill_id": "",
+    "parent_candidate_ids": [],
+    "child_skill_ids": [],
+    "hierarchy_confidence": 0.0,
+    "hierarchy_status": "unresolved",
+    "visible_role": "leaf",
+    "objective": "configure_watermark_emission_cadence",
+    "domain": "default",
+    "task_family": "event_time_management",
+    "method_family": "watermark_generation",
+    "stage": "runtime_configuration",
+    "applicable_signals": [
+      "event-time semantics are required for the application",
+      "default watermark emission interval is insufficient",
+      "watermark latency or granularity needs tuning",
+      "application uses event-time windows or joins"
+    ],
+    "contraindications": [
+      "custom watermark generators are already assigned to sources",
+      "processing-time semantics are sufficient for the application",
+      "watermark emission is managed externally or via SourceFunction"
+    ],
+    "intervention_moves": [
+      "Call setAutoWatermarkInterval(milliseconds) on ExecutionConfig before job submission",
+      "Query current interval with getAutoWatermarkInterval() to verify configuration",
+      "Adjust interval based on event-time progress requirements and latency constraints"
+    ],
+    "triggers": [
+      "event-time semantics are required and automatic watermark emission interval needs tuning; default interval is insufficient for application requirements"
+    ],
+    "workflow_steps": [
+      "{'step': 1, 'action': 'Obtain StreamExecutionEnvironment instance', 'detail': 'Create or retrieve the execution environment for the DataStream job'}",
+      "{'step': 2, 'action': 'Access ExecutionConfig', 'detail': 'Call getConfig() on the StreamExecutionEnvironment'}",
+      "{'step': 3, 'action': 'Set watermark interval', 'detail': 'Call setAutoWatermarkInterval(milliseconds) with desired interval value'}",
+      "{'step': 4, 'action': 'Verify configuration (optional)', 'detail': 'Call getAutoWatermarkInterval() to confirm the interval is set'}"
+    ],
+    "constraints": [
+      "interval must be a positive long value in milliseconds",
+      "configuration must be set on ExecutionConfig before job execution",
+      "applies only to automatic watermark emission; does not override custom generators"
+    ],
+    "cautions": [
+      "very small intervals may increase overhead; balance latency and throughput",
+      "interval affects all sources using automatic watermark generation",
+      "does not apply if sources implement custom watermark generation logic"
+    ],
+    "output_contract": [
+      "Watermark emission interval is configured on ExecutionConfig",
+      "watermarks are emitted at the specified cadence during job execution",
+      "getAutoWatermarkInterval() returns the configured value"
+    ],
+    "examples": [
+      {
+        "input": "StreamExecutionEnvironment with default watermark interval; application requires watermarks every 100 ms",
+        "output": "env.getConfig().setAutoWatermarkInterval(100); watermarks emitted at 100 ms cadence",
+        "notes": "Typical configuration for event-time windows with moderate latency tolerance"
+      },
+      {
+        "input": "Low-latency application requiring frequent watermark updates",
+        "output": "env.getConfig().setAutoWatermarkInterval(10); watermarks emitted every 10 ms",
+        "notes": "Smaller interval increases watermark frequency; monitor overhead"
+      }
+    ],
+    "tags": [
+      "event_time",
+      "watermark",
+      "configuration",
+      "execution_config",
+      "datastream_api"
+    ],
+    "support_ids": [
+      "fb0c023c-0767-5739-ae49-12d85602e662"
+    ],
+    "metadata": {
+      "risk_class": "low",
+      "source_draft_ids": [
+        "a20e56d9-19ce-5d27-905d-741e12c7a1cd"
+      ],
+      "support_summary": {
+        "support": 1,
+        "constraint": 0,
+        "conflict": 0,
+        "case_variant": 0
+      },
+      "files": {},
+      "resources": {},
+      "confidence": 0.8,
+      "domain_type": "default",
+      "taxonomy_id": "default",
+      "family_name": "",
+      "family_id": "",
+      "profile_id": "",
+      "domain_root_name": "",
+      "domain_root_id": "",
+      "taxonomy_axis": "",
+      "family_bucket_label": "",
+      "visible_levels": {},
+      "identity_key": "default|||micro_skill|micro|micro_skill_node|configure_watermark_emission_cadence|default|event_time_management|watermark_generation|runtime_configuration|automatic watermark interval configuration"
+    },
+    "version": "0.1.0",
+    "status": "active"
+  },
+  "hits": 2,
+  "branch": "full"
+}

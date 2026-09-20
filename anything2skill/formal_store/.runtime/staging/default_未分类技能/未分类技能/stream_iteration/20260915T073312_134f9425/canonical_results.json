@@ -1,0 +1,165 @@
+{
+  "schema": "autoskill.document.staging.canonical_results.v1",
+  "profile_id": "default::未分类技能",
+  "family_id": "未分类技能",
+  "child_type": "stream_iteration",
+  "run_id": "20260915T073312_134f9425",
+  "skills": [
+    {
+      "skill_id": "28a7cdfa-a20c-5cb7-9b25-6e229b1ad87d",
+      "name": "Iterative Stream Processing Loop",
+      "description": "Constructs and executes a feedback loop within a DataStream where elements are repeatedly transformed until a termination condition is met, then splits output into continuation and exit paths.",
+      "skill_body": "1. Call `.iterate()` on the input DataStream to create an IterativeStream.\n2. Define the loop body by applying transformations (e.g., `map()`) to the IterativeStream.\n3. Split the transformed stream into two parts using filters: one that continues the loop (fed back via `closeWith()`), one that exits.\n4. Call `iteration.closeWith(continuationStream)` to close the loop and specify the feedback path.\n5. Extract the exit stream from the loop body to obtain the final output.\n6. Both streams are now available for downstream processing.\n\n## Objective\n\nSet up and manage iterative data transformations with conditional loop closure\n## Applicable Signals\n\n- Repeated transformation requirement detected\n- Conditional termination logic needed\n- Feedback path required for loop continuation\n\n## Contraindications\n\n- Processing unbounded streams without a clear termination criterion\n- Handling one-pass transformations that do not require feedback\n- When loop overhead outweighs computational benefit\n- Scenarios where elements should not be reprocessed\n\n## Intervention Moves\n\n- Invoke `.iterate()` to establish loop context\n- Apply transformation logic within loop body\n- Use filter to partition stream into continuation and exit branches\n- Call `.closeWith()` to bind feedback path\n\n## Workflow Steps\n\n- {'step': 1, 'action': 'Create IterativeStream', 'detail': 'Call `input.iterate()` to obtain an IterativeStream object'}\n- {'step': 2, 'action': 'Define loop body', 'detail': 'Apply transformations (map, filter, etc.) to the IterativeStream'}\n- {'step': 3, 'action': 'Partition output', 'detail': 'Use filter to split transformed stream into continuation branch (fed back) and exit branch'}\n- {'step': 4, 'action': 'Close loop', 'detail': 'Call `iteration.closeWith(continuationBranch)` to establish feedback path'}\n- {'step': 5, 'action': 'Extract final output', 'detail': 'Obtain exit branch from loop body for downstream processing'}\n\n## Constraints\n\n- Loop body must be defined before calling `closeWith()`\n- Exactly one stream must be passed to `closeWith()` for feedback\n- Exit stream must be extracted from the loop body, not from the original input\n- Termination condition must be expressible as a filter predicate\n\n## Cautions\n\n- Ensure termination condition is reachable; infinite loops will block execution\n- Loop overhead may be significant for high-throughput streams; validate performance impact\n- Both continuation and exit branches must be explicitly defined to avoid data loss\n\n## Output Contract\n\n- Two output DataStreams: (1) continuation stream fed back into the loop via `closeWith()`, (2) exit stream containing elements that satisfy the termination condition and exit the loop. Both streams are available for independent downstream operations.\n\n## Example Therapist Responses\n\n### Example 1\n\n- Client/Input: DataStream of integers [5, 3, 8]\n- Therapist/Output: After subtracting 1 repeatedly until value ≤ 0: exit stream contains [0, 0, 0] (or final non-positive values); continuation stream is empty (no values > 0 remain)\n- Notes: Demonstrates fixed-point iteration: each element is decremented until it reaches zero, then exits",
+      "asset_type": "session_skill",
+      "granularity": "session",
+      "asset_node_id": "workflow_skill",
+      "asset_path": "family_root/macro_skill/workflow_skill",
+      "asset_level": 2,
+      "parent_skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+      "parent_candidate_ids": [
+        "85e9f4bf-55a0-5330-9bfe-d6575db46c9c"
+      ],
+      "child_skill_ids": [],
+      "hierarchy_confidence": 0.6,
+      "hierarchy_status": "linked",
+      "visible_role": "parent",
+      "objective": "Set up and manage iterative data transformations with conditional loop closure",
+      "domain": "default",
+      "task_family": "stream_iteration",
+      "method_family": "loop_control",
+      "stage": "stream_processing",
+      "applicable_signals": [
+        "Repeated transformation requirement detected",
+        "Conditional termination logic needed",
+        "Feedback path required for loop continuation"
+      ],
+      "contraindications": [
+        "Processing unbounded streams without a clear termination criterion",
+        "Handling one-pass transformations that do not require feedback",
+        "When loop overhead outweighs computational benefit",
+        "Scenarios where elements should not be reprocessed"
+      ],
+      "intervention_moves": [
+        "Invoke `.iterate()` to establish loop context",
+        "Apply transformation logic within loop body",
+        "Use filter to partition stream into continuation and exit branches",
+        "Call `.closeWith()` to bind feedback path"
+      ],
+      "triggers": [
+        "Need to apply repeated transformations to stream elements until a stopping condition is met",
+        "Implementing recursive computations or fixed-point algorithms on streaming data",
+        "Elements must be processed multiple times with conditional feedback"
+      ],
+      "workflow_steps": [
+        "{'step': 1, 'action': 'Create IterativeStream', 'detail': 'Call `input.iterate()` to obtain an IterativeStream object'}",
+        "{'step': 2, 'action': 'Define loop body', 'detail': 'Apply transformations (map, filter, etc.) to the IterativeStream'}",
+        "{'step': 3, 'action': 'Partition output', 'detail': 'Use filter to split transformed stream into continuation branch (fed back) and exit branch'}",
+        "{'step': 4, 'action': 'Close loop', 'detail': 'Call `iteration.closeWith(continuationBranch)` to establish feedback path'}",
+        "{'step': 5, 'action': 'Extract final output', 'detail': 'Obtain exit branch from loop body for downstream processing'}"
+      ],
+      "constraints": [
+        "Loop body must be defined before calling `closeWith()`",
+        "Exactly one stream must be passed to `closeWith()` for feedback",
+        "Exit stream must be extracted from the loop body, not from the original input",
+        "Termination condition must be expressible as a filter predicate"
+      ],
+      "cautions": [
+        "Ensure termination condition is reachable; infinite loops will block execution",
+        "Loop overhead may be significant for high-throughput streams; validate performance impact",
+        "Both continuation and exit branches must be explicitly defined to avoid data loss"
+      ],
+      "output_contract": [
+        "Two output DataStreams: (1) continuation stream fed back into the loop via `closeWith()`, (2) exit stream containing elements that satisfy the termination condition and exit the loop. Both streams are available for independent downstream operations."
+      ],
+      "examples": [
+        {
+          "input": "DataStream of integers [5, 3, 8]",
+          "output": "After subtracting 1 repeatedly until value ≤ 0: exit stream contains [0, 0, 0] (or final non-positive values); continuation stream is empty (no values > 0 remain)",
+          "notes": "Demonstrates fixed-point iteration: each element is decremented until it reaches zero, then exits"
+        }
+      ],
+      "tags": [
+        "stream_iteration",
+        "loop_control",
+        "datastream_api",
+        "feedback_loop",
+        "conditional_termination"
+      ],
+      "support_ids": [
+        "bdc8d098-a538-56b4-97b1-425a9446a460"
+      ],
+      "metadata": {
+        "risk_class": "medium",
+        "source_draft_ids": [
+          "cf5fedd8-ee5a-59d6-90ad-ec5490ce0340"
+        ],
+        "support_summary": {
+          "support": 1,
+          "constraint": 0,
+          "conflict": 0,
+          "case_variant": 0
+        },
+        "files": {},
+        "resources": {},
+        "confidence": 0.85,
+        "domain_type": "default",
+        "taxonomy_id": "default",
+        "family_name": "未分类技能",
+        "family_id": "",
+        "profile_id": "default::未分类技能",
+        "domain_root_name": "通用技能领域",
+        "domain_root_id": "default",
+        "taxonomy_axis": "",
+        "family_bucket_label": "Family技能",
+        "visible_levels": {
+          "root_label": "总技能",
+          "family_bucket_label": "Family技能",
+          "level_labels": {
+            "1": "一级技能",
+            "2": "二级技能",
+            "3": "微技能"
+          }
+        },
+        "identity_key": "default|||session_skill|session|workflow_skill|set up and manage iterative data transformations with conditional loop closure|default|stream_iteration|loop_control|stream_processing|iterative stream processing loop",
+        "change_action": "create",
+        "llm_reason": "Candidate is a distinct session_skill for iterative stream processing loops (feedback-based iteration with termination conditions) with no semantic overlap to existing skills. Peer candidates (window aggregation, file sources, socket sources) operate at different stages and task families. Existing skills cover concurrent coordination, reward scaling—unrelated domains. Candidate introduces new capability: IterativeStream loop construction and closure.",
+        "parent_skill_id": "85e9f4bf-55a0-5330-9bfe-d6575db46c9c",
+        "parent_candidate_ids": [
+          "85e9f4bf-55a0-5330-9bfe-d6575db46c9c"
+        ],
+        "hierarchy_confidence": 0.6,
+        "hierarchy_status": "linked",
+        "visible_role": "parent"
+      },
+      "version": "0.1.0",
+      "status": "active"
+    }
+  ],
+  "change_logs": [
+    {
+      "change_id": "c5cfb2c4-a9e0-47ff-982b-38f122d98ae4",
+      "entity_type": "skill",
+      "entity_id": "28a7cdfa-a20c-5cb7-9b25-6e229b1ad87d",
+      "action": "create",
+      "changed_at": "2026-09-14T21:32:29+00:00",
+      "from_version": "",
+      "to_version": "0.1.0",
+      "from_state": "",
+      "to_state": "active",
+      "summary": "Candidate is a distinct session_skill for iterative stream processing loops (feedback-based iteration with termination conditions) with no semantic overlap to existing skills. Peer candidates (window aggregation, file sources, socket sources) operate at different stages and task families. Existing skills cover concurrent coordination, reward scaling—unrelated domains. Candidate introduces new capability: IterativeStream loop construction and closure.",
+      "related_entity_ids": [],
+      "provenance": {
+        "entity_type": "skill",
+        "entity_id": "28a7cdfa-a20c-5cb7-9b25-6e229b1ad87d",
+        "doc_ids": [
+          "8a36b10a-4e32-5b2b-bc38-0c56680e2cda"
+        ],
+        "support_added": [
+          "bdc8d098-a538-56b4-97b1-425a9446a460"
+        ],
+        "support_conflicts": [],
+        "related_entity_ids": []
+      }
+    }
+  ]
+}
